@@ -93,3 +93,18 @@ Two risks survive whatever the answer is, and they are recorded here so they are
 
 1. **A confidently wrong room number is not detectable by the device.** A guest who believes their room is `350` when it is `305` types a valid label, confirms it in 64 px type on M-01, and staff walk to a real but wrong door. Version 1's mitigations are: M-01's large-type confirmation (locked decision 2); the room number shown again on **G-05** and on **G-06** while the order is still New; and cancel-while-New (locked decision 6) followed by a fresh order. The stronger mitigation — checking the typed value against the hotel's real room list — is deferred as backlog **G-04-L5** and is backend work, not a guest-interface line.
 2. **The duplicate-order repair depends on the guest reading that room number.** Under ruling R5 the client order key is stable for a checkout session, so a resubmission after a lost response returns the order that already exists rather than creating a second one — which means the order the guest receives may carry the room number they typed *before* an edit. That is why the G-05/G-06 room-number requirement in R3 is part of the duplicate-safety contract and not a cosmetic choice.
+
+---
+
+## OQ-01 — residual risks recorded by the product manager
+
+Added after the M-01 review and the coordinated key-contract revision. These
+are accepted for version 1, not solved. They are listed here so the build team
+and the hotel see them before launch rather than after.
+
+| # | Residual risk | Why it is accepted for v1 | What would remove it |
+|---|---|---|---|
+| R-1 | A guest who mistypes a room number they *believe* is correct will confirm it at M-01, because the modal can only re-show what was typed. | The product deliberately has no login and no room list, so nothing on the device can know the real room. Adding a re-type step or a room picker would tax every order to catch a rare slip. | Validating the room number against the hotel's real room list (backlog G-04-L5). |
+| R-2 | A guest in a hotel with letters or separators in its room numbers (`A-12`, `12B`) cannot enter their real room, and a value like `12` passes every check and is delivered to a different real door. | v1 targets numeric room numbers; the alternative charset is worked out and ready but needs the hotel's answer first. | The hotel answering the OQ-01 question above, then applying the recorded changes to G-04 §5.3, M-01 and M-03. |
+| R-3 | A guest who force-closes the browser mid-submission **and** then empties their cart loses the pending-submission record, so a new checkout generates a new key and could create a second order. | Both actions are needed together, and the pending record already closes the ordinary closed-tab case. Holding the key past an emptied cart would keep a stale attempt alive indefinitely. | A server-side check for a recent unresolved order from the same room before creating a new one. |
+| R-4 | A reload inside the 15-second window of a cancellation that actually succeeded leaves the order correctly Cancelled but attributed to the hotel rather than the guest. | Writing the flag before the server answers would be a lie in the two other outcomes. The order's state is right; only the attribution line is wrong. | The server recording who cancelled and returning it with the status. |
