@@ -41,4 +41,41 @@ Source review: `/spec/reviews/G-02.md` (cycle 1). Five Later verdicts, all from 
 
 ---
 
+## G-03 — Cart (السلة)
+
+Source review: `/spec/reviews/G-03.md` (cycle 1). Nine Later verdicts, all from tester findings; no element and no screen decision was deferred.
+
+| # | Ref | Item | Reason for deferring |
+|---|---|---|---|
+| G-03-L1 | F1 | **Feedback when a disabled "Checkout" is tapped** — a shake, a tooltip, or a momentary emphasis of the helper line (C08) when the guest taps B05 while it is at 50 % opacity. | The explanation already sits one line above the button and the availability wait ends by itself within 5 seconds, so this is comfort during a short wait, not a fix for a break. |
+| G-03-L2 | F3 | **A language toggle reachable from G-03** — switching Arabic ↔ English without going back to G-01 (extends G-02-L1 to the cart). | The choice is made once on G-01 and saved on the device, so the detour exists only on a first open. |
+| G-03-L3 | F4 | **A stronger disabled-Checkout signal** — emphasis (weight, icon, or border change) on C08 and on B05's disabled state instead of 14 px plain text plus 50 % opacity. | C08 is already at the screen's body size with no internal contradiction to fix, so extra emphasis is visual design, which is out of scope for version 1. |
+| G-03-L4 | F5 | **A contrast pass on the out-of-stock badge** — readable text-on-fill for G-03-C06 and the identical G-01-C07 / G-02-C07 badges. | G-01 was approved with this styling, so changing it on one screen alone would create divergence; the fix belongs to the design step, across all three screens at once. |
+| G-03-L5 | F7 | **An undo for a removed line** — a short-lived "تراجع / Undo" after "−" at quantity 1 or after "Remove". | The guest can simply re-add the product — nothing is lost but a few taps — and a confirmation on every removal would tax every guest to protect a rare slip. |
+| G-03-L6 | F13 | **Clearing an out-of-stock mark without a catalog fetch** — letting an "available" response, or a refresh control on G-03, unblock a product marked earlier in the session. | A mark is only written from an explicit server statement, a browser reload already restores the product, and clearing marks would mean rewriting the one-way rule in Approved G-01 §5.7. |
+| G-03-L7 | F16 | **Distinguishing the two waits on the reload path** — telling the guest whether the catalog fetch or the availability check is running during the up-to-15-second worst case (joins G-01-L2). | Both waits end in a defined outcome (G-08 or the failure helper line), so this is progress feedback, not a missing step. |
+| G-03-L8 | F18 | **A retry for a failed availability check on G-03** — a control that re-runs the check without leaving the screen. | The next entry re-runs the check and M-04 remains the net, so a Retry control is a second network affordance for a rare failure. |
+| G-03-L9 | F21 | **Naming the skipped items after a Reorder merge** — listing which products were not added instead of counting them. | The count already tells the guest something is missing and the merged cart is on screen, so naming items is a refinement on a toast that is already carrying two sentences in version 1. |
+
+---
+
+## G-04 — Checkout (إتمام الطلب)
+
+Source review: `/spec/reviews/G-04.md` (cycle 1). Ten Later verdicts from tester findings, plus one partly-deferred ruling (G-04-L5, the deferred half of the Critical-3 ruling R3).
+
+| # | Ref | Item | Reason for deferring |
+|---|---|---|---|
+| G-04-L1 | F1, F20 | **Checkout values carried to the next order** — remembering the room number, payment method and cash amount for a second order placed from the same device, behind an explicit re-confirmation rather than a silent pre-fill. | Retyping 1–5 digits and one payment tap is friction, not a break, and any remembered value needs its own re-confirmation design to stay as safe as the no-pre-fill rule it would replace. |
+| G-04-L2 | F3 | **A language toggle reachable from G-04** — switching Arabic ↔ English without leaving checkout (G-04's header end edge is deliberately empty in v1). | The language is chosen on G-01 and saved on the device, so the detour exists only on a first open; same ruling as G-02-L1. |
+| G-04-L3 | F6 | **Legibility of the small numeric strings** — a larger character counter (C08, 12 px) and a more visible currency label inside F03, verified at enlarged browser text size. | The 200-character cap now has its own explicit notice (C14), so the counter is no longer the only channel; the size work joins the deferred enlarged-text items G-01-L3 and G-02-L3. |
+| G-04-L4 | F7 | **A stronger selected state for the payment rows** — a clearer treatment than the 1 px → 2 px border change plus the 24 px radio fill on B03/B04. | v1 already avoids colour-alone signalling and meets the accessibility rule; strengthening the treatment is visual design, which CLAUDE.md puts out of scope for now. |
+| G-04-L5 | F8 (deferred part of R3) | **Room-list validation** — checking the typed room number against the hotel's real room list (or a picker/directory), so an existing-but-wrong number can be questioned. | v1 has no room list on the device and the check is backend work; the cheap half of the ruling (the guest meets the number again on G-05/G-06 while cancel is still possible) is being built instead. |
+| G-04-L6 | F10 (blocked on OQ-01) | **Alphanumeric and separated room numbers in F01** — accepting labels such as "A-12", "12B" or "3B", with the text keyboard and the length bound proposed in OQ-01. | Whether the target hotel needs it is an unresolved fact recorded as OQ-01; v1 stays digits-only as a recorded limitation rather than a silent one. |
+| G-04-L7 | F12 | **A helper line under the room-number label** — pointing the guest at the number on their door or key card, with no example digits. | M-01's large type plus the new G-05/G-06 sighting already give the guest two chances to catch a wrong number; a hint improves the odds, it does not add a missing step. |
+| G-04-L8 | F15 | **Naming the items M-04 removed** — a line on G-04 listing the products dropped from the order, instead of only a shorter summary and a lower total. | The rebuilt summary plus the new "not sent yet" notice already say what is being sent and that it still has to be sent; naming the removed lines is a refinement. |
+| G-04-L9 | F18 | **A checkout draft that survives the tab** — keeping the typed values when the tab is closed or discarded by the browser or the OS. | A longer-lived draft reintroduces the stale-value risk the no-pre-fill rule exists to prevent, so it needs its own re-confirmation design before it can be safe. |
+| G-04-L10 | F23 | **Unit prices in the order summary** — showing the per-unit price beside each "{qty} × {name}" line so a line total can be checked on G-04. | G-03 shows every unit price and is one tap away from the summary via "Edit cart"; this is at-a-glance convenience on the confirmation view. |
+
+---
+
 *(Later screens append their sections below this line.)*
