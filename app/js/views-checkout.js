@@ -340,10 +340,47 @@
      submit only) and true once "Submit order" has been tapped. */
   function roomError(raw, includeEmpty) {
     var v = trim(toWestern(raw));
+    var rule = roomRule();
     if (!v) return includeEmpty ? 'g04.err.room.empty' : null;
-    if (!/^[0-9]+$/.test(v)) return 'g04.err.room.chars';
-    if (v.length > ROOM_MAX) return 'g04.err.room.long';
+    if (!rule.pattern.test(v)) return rule.isDefault ? 'g04.err.room.chars' : 'g04.err.room.rule.chars';
+    if (v.length > rule.maxLen) return rule.isDefault ? 'g04.err.room.long' : 'g04.err.room.rule.long';
+    /* Reachable only when the manager raised the minimum above 1 (never with
+       the default rule). Checked on submit only, like the empty case: unlike
+       the two blur checks, a short value CAN become valid by typing more. */
+    if (includeEmpty && v.length < rule.minLen) return 'g04.err.room.rule.short';
     return null;
+  }
+
+  /* The room-number rule comes from the hotel's settings (shared/hotel-db.js,
+     HotelDB.roomRule()), set by the manager in A-07 / AM-04. The DEFAULT rule
+     is exactly G-04 §7.1 — digits only, 1 to 5 — and uses the three reviewed
+     messages above, unchanged. A non-default rule brings its own messages from
+     HotelDB (provisional until the admin spec rules them); they are registered
+     under separate keys, so the three §7.1 strings are never touched. */
+  var DEFAULT_ROOM_RULE = { pattern: /^[0-9]+$/, minLen: 1, maxLen: ROOM_MAX,
+                            allowLetters: false, separator: '', isDefault: true };
+
+  function roomRule() {
+    var rule = null;
+    try { rule = window.HotelDB ? HotelDB.roomRule() : null; } catch (e) { rule = null; }
+    if (!rule || !(rule.pattern instanceof RegExp)) return DEFAULT_ROOM_RULE;
+    if (!rule.isDefault && rule.messages) {
+      I18N.register({
+        'g04.err.room.rule.chars': rule.messages.chars,
+        'g04.err.room.rule.long':  rule.messages.long,
+        'g04.err.room.rule.short': rule.messages.short
+      });
+    }
+    return rule;
+  }
+
+  /* F01's keyboard attributes. The default rule keeps exactly the digits-only
+     keypad of G-04 §7.1; a rule that allows letters or a separator needs the
+     text keyboard, since the numeric keypad cannot type them. */
+  function roomInputAttrs() {
+    var rule = roomRule();
+    if (rule.allowLetters || rule.separator) return 'type="text" inputmode="text" ';
+    return 'type="text" inputmode="numeric" pattern="[0-9]*" ';
   }
 
   /* G-04 §7.4. Three cases, in this priority order. An empty field never
@@ -522,7 +559,7 @@
              '<label class="field__label" for="g04-f01" data-el="G-04-C05">' +
                esc(t('g04.c05')) + '</label>' +
              '<input id="g04-f01" class="field__input field__input--big" data-el="G-04-F01" ' +
-               'type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" ' +
+               roomInputAttrs() + 'autocomplete="off" ' +
                'autocorrect="off" autocapitalize="off" spellcheck="false" ' +
                'aria-describedby="G-04-C06" aria-invalid="false" ' +
                'value="' + esc(draft.room) + '">' +

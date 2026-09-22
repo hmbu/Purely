@@ -309,6 +309,9 @@
      is empty rather than a placeholder word. */
   function hotelName() {
     var sources = [];
+    /* The hotel's settings (shared/hotel-db.js) come first, so a name the
+       manager changes in admin reaches G-01's header. */
+    try { if (window.HotelDB) sources.push(HotelDB.settings()); } catch (e) {}
     /* The store settings as they really are: hotelNameAr / hotelNameEn on the
        catalog response and on window.Data (CONTRACT, data.js). The other
        shapes below are tolerated fallbacks and are simply absent here. */

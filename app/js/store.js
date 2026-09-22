@@ -131,7 +131,8 @@
       catalogLoaded = false;
       expirePending();                       // G-04 §7.7 rule 9 (c)
       Server.failMode = readJSON(localStorage, K.demo, 'none');
-      ServerDB.load();
+      /* No ServerDB load here: the hotel's order table is read fresh from
+         storage on every call (shared/CONTRACT.md), never held in memory. */
     },
 
     /* ---------------- session catalog copy (G-01 §5.7) ---------------- */
@@ -523,8 +524,21 @@
   var catalogLoaded = false;
   var currentKey = null;      // the key of the current checkout session
 
+  /* The hotel's live catalog (shared/hotel-db.js), removed products excluded,
+     so a price or stock change made in admin reaches the guest's catalog
+     fetch, the G-03 availability check and the submission check alike. */
+  function liveProducts() {
+    var c = window.HotelDB ? HotelDB.catalog() : { products: (window.Data && Data.products) || [] };
+    return (c.products || []).filter(function (p) { return p && !p.removed; });
+  }
+
+  function liveCategories() {
+    var c = window.HotelDB ? HotelDB.catalog() : { categories: (window.Data && Data.categories) || [] };
+    return c.categories || [];
+  }
+
   function findInData(productId) {
-    var list = (window.Data && Data.products) || [];
+    var list = liveProducts();
     for (var i = 0; i < list.length; i++) {
       if (list[i].id === productId) return list[i];
     }
@@ -612,36 +626,24 @@
    * client-order-key contract demonstrable at all.
    * ------------------------------------------------------------------ */
 
+  /* The hotel's order table is shared with the staff and admin apps
+     (shared/CONTRACT.md), which change it from other tabs. So ServerDB holds
+     NOTHING in memory: every call reads the table fresh from storage through
+     HotelDB, and a write is always read-change-write in one synchronous step.
+     A copy kept from startup would go stale the moment staff accept an order,
+     and G-06 would never see the acceptance.
+
+       table.byKey : clientOrderKey -> stored order (the hotel's copy)
+       table.byNo  : orderNo        -> clientOrderKey
+       table.nextNo: the next order number to hand out */
   var ServerDB = {
-    /* byKey : clientOrderKey -> stored order (the hotel's copy)
-       byNo  : orderNo        -> clientOrderKey
-       nextNo: the next order number to hand out */
-    byKey: {},
-    byNo: {},
-    nextNo: 1042,
+    read: function () { return HotelDB._readTable(); },
 
-    load: function () {
-      var raw = readJSON(localStorage, K.server, null);
-      if (raw && raw.byKey) {
-        ServerDB.byKey = raw.byKey;
-        ServerDB.byNo = raw.byNo || {};
-        ServerDB.nextNo = raw.nextNo || 1042;
-      } else {
-        ServerDB.byKey = {};
-        ServerDB.byNo = {};
-        ServerDB.nextNo = 1042;
-      }
-    },
+    write: function (table) { HotelDB._writeTable(table); },
 
-    save: function () {
-      writeJSON(localStorage, K.server, {
-        byKey: ServerDB.byKey, byNo: ServerDB.byNo, nextNo: ServerDB.nextNo
-      });
-    },
-
-    byOrderNo: function (orderNo) {
-      var key = ServerDB.byNo[String(orderNo)];
-      return key ? ServerDB.byKey[key] : null;
+    byOrderNo: function (table, orderNo) {
+      var key = table.byNo[String(orderNo)];
+      return key ? table.byKey[key] || null : null;
     }
   };
 
@@ -710,6 +712,29 @@
     ].join('§');
   }
 
+  /* A cancellation the HOTEL made (staff or admin, through HotelDB.cancel)
+     carries two facts the guest's device cannot work out alone: the step it
+     was cancelled from, and the reason staff gave. getStatus resolves a plain
+     status string (G-01's banner and G-07 read it as one), so the two facts
+     are written onto the device record here, before the status is resolved,
+     in exactly the fields G-06 reads: `cancelledFrom` (§5.3 — written once,
+     never changed; G-06 then keeps it) and `cancelReason` (C08, one string,
+     in the language the guest is using). Written silently: G-06's own write
+     of the status, a moment later, persists and repaints. A guest
+     cancellation needs nothing here — G-06 records it itself (§5.3). */
+  function noteHotelCancellation(orderNo, held) {
+    if (held.cancelledByGuest) return;
+    var rec = Store.getOrder(orderNo);
+    if (!rec || rec.cancelledFrom) return;
+    var from = held.cancelledFrom;
+    if (from !== 'New' && from !== 'Accepted' && from !== 'OnTheWay') return;
+    rec.cancelledFrom = from;
+    var ar = String(held.cancelReasonAr || ''), en = String(held.cancelReasonEn || '');
+    var reason = I18N.lang === 'en' ? (en || ar) : (ar || en);
+    if (reason.replace(/\s/g, '') !== '') rec.cancelReason = reason;
+    writeJSON(localStorage, K.orders, Store.orders);
+  }
+
   var Server = {
     /* 'none' | 'noConnection' | 'serverError' | 'catalogFail' | 'invalidLink'
        plus two demo-bar modes the index.html strip offers:
@@ -737,7 +762,9 @@
         if (Server.failMode === 'catalogFail') { reject({ type: 'serverError' }); return; }
         var fail = transportFailure();
         if (fail) { reject(fail); return; }
-        resolve({ products: clone(Data.products), categories: clone(Data.categories) });
+        /* The hotel's live catalog (HotelDB), removed products excluded, so a
+           price or stock change made in admin reaches G-01 on the next fetch. */
+        resolve({ products: clone(liveProducts()), categories: clone(liveCategories()) });
       });
     },
 
@@ -822,9 +849,9 @@
           return;
         }
 
-        ServerDB.load();
+        var db = ServerDB.read();
         var key = payload.key;
-        var held = key ? ServerDB.byKey[key] : null;
+        var held = key ? db.byKey[key] : null;
         var print = fingerprint(payload);
 
         if (held) {
@@ -837,7 +864,7 @@
           return;
         }
 
-        var orderNo = String(ServerDB.nextNo++);
+        var orderNo = String(db.nextNo++);
         var order = {
           orderNo: orderNo,
           key: key,
@@ -859,9 +886,9 @@
           createdAt: Date.now(),
           fingerprint: print
         };
-        ServerDB.byKey[key] = order;
-        ServerDB.byNo[orderNo] = key;
-        ServerDB.save();
+        db.byKey[key] = order;
+        db.byNo[orderNo] = key;
+        ServerDB.write(db);
         resolve({ kind: 'created', order: clone(order) });
       });
     },
@@ -877,13 +904,26 @@
         if (transportFailure()) { reject({ type: 'failed' }); return; }
         if (Server.failMode === 'orderNotFound') { reject({ type: 'orderNotFound' }); return; }
 
-        ServerDB.load();
-        var order = ServerDB.byOrderNo(orderNo);
+        var db = ServerDB.read();
+        var order = ServerDB.byOrderNo(db, orderNo);
         if (!order) { reject({ type: 'orderNotFound' }); return; }
 
         if (order.status === 'New' || order.status === 'Cancelled') {
-          order.status = 'Cancelled';
-          ServerDB.save();
+          /* The hotel's copy records who cancelled and from where, so staff
+             and admin can tell a guest cancellation from their own. An order
+             that is already Cancelled is left exactly as it is. */
+          if (order.status === 'New') {
+            var now = Date.now();
+            order.status = 'Cancelled';
+            order.cancelledFrom = 'New';
+            order.cancelledByGuest = true;
+            order.cancelledBy = 'guest';
+            order.cancelledAt = now;
+            order.updatedAt = now;
+            if (!order.log) order.log = [];
+            order.log.push({ status: 'Cancelled', at: now, staffId: 'guest' });
+            ServerDB.write(db);
+          }
           Server.lastCancelStatus = 'Cancelled';
           resolve('cancelled');
           return;
@@ -902,21 +942,17 @@
         var fail = transportFailure();
         if (fail) { reject(fail); return; }
         if (Server.failMode === 'orderNotFound') { reject({ type: 'orderNotFound' }); return; }
-        ServerDB.load();
-        var order = ServerDB.byOrderNo(orderNo);
+        var order = ServerDB.byOrderNo(ServerDB.read(), orderNo);
         if (!order) { reject({ type: 'orderNotFound' }); return; }
+        if (order.status === 'Cancelled') noteHotelCancellation(orderNo, order);
         resolve(order.status);
       });
     },
 
     /* Used only by the demo bar: moves the hotel's own copy forward. */
     _advance: function (orderNo, status) {
-      ServerDB.load();
-      var order = ServerDB.byOrderNo(orderNo);
-      if (!order) return null;
-      order.status = status;
-      ServerDB.save();
-      return status;
+      var res = HotelDB.setStatus(orderNo, status, { staffId: 'demo', at: Date.now() });
+      return res.ok ? status : null;
     }
   };
 
