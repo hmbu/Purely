@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>G-03 — السلة / Cart — Wireframes</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background:#ddd;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#000;
+    padding: 24px;
+    margin:0;
+  }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .doc-sub { font-size:12px; color:#333; margin:0 0 20px; }
+  .frames {
+    display:flex;
+    flex-wrap:nowrap;
+    gap:28px;
+    overflow-x:auto;
+    align-items:flex-start;
+    padding-bottom:20px;
+  }
+  .frame { flex:0 0 auto; width:390px; text-align:center; }
+  .frame h2 { font-size:14px; margin:0 0 2px; }
+  .frame .state-sub { font-size:11px; color:#333; margin:0 0 10px; }
+  .frame .note { font-size:10px; color:#333; margin-top:8px; text-align:right; }
+
+  .phone {
+    width:390px;
+    min-height:400px;
+    border:2px solid #000;
+    background:#fff;
+    position:relative;
+    overflow:hidden;
+    text-align:right;
+  }
+
+  /* small circled ID badges, shown next to their element */
+  .idb {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:16px;
+    height:16px;
+    padding:0 2px;
+    border:1px solid #000;
+    border-radius:50%;
+    font-size:8px;
+    background:#fff;
+    vertical-align:middle;
+    margin:0 3px;
+    line-height:1;
+    font-family: Arial, sans-serif;
+  }
+  .corner {
+    position:absolute;
+    top:2px;
+    left:2px;
+    z-index:5;
+    background:#fff;
+  }
+
+  /* ===== Header S01 ===== */
+  .header {
+    position:relative;
+    height:56px;
+    display:flex;
+    align-items:center;
+    padding:0 10px;
+    border-bottom:1px solid #000;
+  }
+  .back-btn {
+    width:44px; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px;
+    flex:0 0 44px;
+  }
+  .header-title {
+    flex:1;
+    text-align:center;
+    font-size:18px;
+    font-weight:bold;
+  }
+
+  /* ===== Line list S02 ===== */
+  .line-list { position:relative; padding-bottom:156px; }
+
+  /* ===== Cart line C02 ===== */
+  .cart-line {
+    position:relative;
+    min-height:88px;
+    padding:12px;
+    border-bottom:1px solid #000;
+    display:flex;
+    gap:8px;
+  }
+  .line-img {
+    width:64px; height:64px;
+    flex:0 0 64px;
+    border:1px solid #000;
+    border-radius:8px;
+    background-image:
+      linear-gradient(45deg, transparent 48%, #000 48%, #000 52%, transparent 52%),
+      linear-gradient(-45deg, transparent 48%, #000 48%, #000 52%, transparent 52%);
+  }
+  .line-img.dim { opacity:0.5; }
+  .line-text {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:6px;
+    min-width:0;
+  }
+  .txt-line { height:8px; background:#999; border-radius:2px; }
+  .unit-price { font-size:14px; }
+  .line-end {
+    width:120px;
+    flex:0 0 120px;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:4px;
+  }
+  .line-total { font-size:14px; font-weight:bold; }
+  .line-stepper {
+    display:flex; align-items:stretch; justify-content:space-between;
+    width:120px; height:40px;
+    border:1px solid #000; border-radius:20px; overflow:hidden;
+  }
+  .line-step-btn {
+    width:40px; height:40px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; background:#fff;
+    border-left:1px solid #000; border-right:1px solid #000;
+  }
+  .line-step-btn.disabled { opacity:0.5; }
+  .line-qty-box {
+    flex:1; display:flex; align-items:center; justify-content:center;
+    font-size:16px; font-weight:bold;
+  }
+  .line-max-helper { font-size:11px; text-align:left; }
+  .oos-badge {
+    min-height:24px;
+    max-width:120px;
+    border:1px solid #000; border-radius:12px;
+    background:#ccc; color:#333;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; text-align:center; padding:2px 8px;
+    line-height:1.2;
+  }
+  .btn-remove {
+    width:96px; height:40px;
+    border:1px solid #000; border-radius:20px;
+    background:#fff; font-size:14px;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* ===== Bottom bar S03 ===== */
+  .bottombar {
+    position:relative;
+    height:140px;
+    box-sizing:border-box;
+    padding:12px 16px;
+    border-top:1px solid #000;
+    background:#fff;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
+  .totals-row { display:flex; justify-content:space-between; align-items:center; }
+  .totals-row.items { font-size:14px; height:20px; }
+  .totals-row.total { font-size:18px; font-weight:bold; height:28px; }
+  .helper-row { font-size:14px; height:20px; line-height:20px; overflow:hidden; }
+  .btn-checkout {
+    height:48px;
+    border:1px solid #000; border-radius:24px;
+    background:#000; color:#fff;
+    font-size:16px; font-weight:bold;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .btn-checkout.disabled { opacity:0.5; }
+
+  /* ===== Empty state C09 / B06 ===== */
+  .empty-wrap { position:relative; padding:50px 24px 0; text-align:center; }
+  .empty-icon {
+    width:48px; height:48px; margin:0 auto 16px;
+    border:1px solid #000; border-radius:6px;
+    background-image:
+      linear-gradient(45deg, transparent 46%, #999 46%, #999 54%, transparent 54%),
+      linear-gradient(-45deg, transparent 46%, #999 46%, #999 54%, transparent 54%);
+  }
+  .empty-title { font-size:18px; font-weight:bold; margin-bottom:8px; }
+  .empty-sub { font-size:14px; margin-bottom:24px; }
+  .btn-continue {
+    display:inline-block; border:1px solid #000; border-radius:22px;
+    width:200px; height:44px; line-height:44px; font-size:14px; background:#fff;
+  }
+
+  /* ===== Loading skeleton C11 ===== */
+  .skel-wrap { position:relative; padding:12px; }
+  .skel-line { display:flex; gap:8px; align-items:center; margin-bottom:16px; opacity:0.85; }
+  .skel-img { width:64px; height:64px; flex:0 0 64px; background:#ccc; border-radius:8px; }
+  .skel-bars { display:flex; flex-direction:column; gap:6px; }
+  .skel-bar { height:14px; background:#ccc; border-radius:2px; }
+
+  /* ===== Toast C10 ===== */
+  .toast {
+    position:absolute;
+    left:16px; right:16px;
+    background:#000; color:#fff;
+    border-radius:8px;
+    padding:10px 12px;
+    font-size:14px;
+    line-height:1.4;
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<h1>G-03 — السلة / Cart — واجهات سلكية / Wireframes</h1>
+<p class="doc-sub">390px · RTL (Arabic default) · Grayscale low-fidelity · Element IDs shown in small circles next to each element, matching the elements table in /spec/screens/G-03.md</p>
+
+<div class="frames">
+
+<!-- ============================================================ -->
+<!-- FRAME 1: MAIN / SUCCESS -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الحالة الرئيسية / الناجحة</h2>
+  <div class="state-sub">Main / success state</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">→<span class="idb">B01</span></div>
+      <div class="header-title">السلة<span class="idb">C01</span></div>
+    </div>
+
+    <div class="line-list">
+      <span class="idb corner">S02</span>
+
+      <!-- Line 1: available -->
+      <div class="cart-line">
+        <span class="idb corner">C02</span>
+        <div class="line-img"></div>
+        <div class="line-text">
+          <div class="txt-line" style="width:85%"></div>
+          <div class="unit-price">12.00 ر.س</div>
+        </div>
+        <div class="line-end">
+          <div class="line-total">24.00 ر.س<span class="idb">C05</span></div>
+          <div class="line-stepper">
+            <div class="line-step-btn">−<span class="idb">B02</span></div>
+            <div class="line-qty-box">2<span class="idb">C03</span></div>
+            <div class="line-step-btn">+<span class="idb">B03</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Line 2: available -->
+      <div class="cart-line">
+        <span class="idb corner">C02</span>
+        <div class="line-img"></div>
+        <div class="line-text">
+          <div class="txt-line" style="width:70%"></div>
+          <div class="unit-price">20.00 ر.س</div>
+        </div>
+        <div class="line-end">
+          <div class="line-total">20.00 ر.س<span class="idb">C05</span></div>
+          <div class="line-stepper">
+            <div class="line-step-btn">−<span class="idb">B02</span></div>
+            <div class="line-qty-box">1<span class="idb">C03</span></div>
+            <div class="line-step-btn">+<span class="idb">B03</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bottombar">
+      <span class="idb corner">S03</span>
+      <div class="totals-row items">
+        <span>المنتجات</span>
+        <span>3<span class="idb">C07</span></span>
+      </div>
+      <div class="totals-row total">
+        <span>الإجمالي</span>
+        <span>44.00 ر.س</span>
+      </div>
+      <div class="helper-row"><span class="idb">C08</span></div>
+      <div class="btn-checkout">إتمام الطلب<span class="idb" style="background:#fff;">B05</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: C08 فارغ (صف محجوز 20px بلا نص) لأن التحقق من التوفر نجح ولا يوجد سطر غير متوفر.<br>
+    Note: C08 is blank (20px row still reserved) because the availability check succeeded and no line is out of stock.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 2: A LINE AT THE MAXIMUM -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>سطر عند الحد الأقصى</h2>
+  <div class="state-sub">A line at the maximum</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">→<span class="idb">B01</span></div>
+      <div class="header-title">السلة<span class="idb">C01</span></div>
+    </div>
+
+    <div class="line-list">
+      <span class="idb corner">S02</span>
+
+      <!-- Line 1: available -->
+      <div class="cart-line">
+        <span class="idb corner">C02</span>
+        <div class="line-img"></div>
+        <div class="line-text">
+          <div class="txt-line" style="width:85%"></div>
+          <div class="unit-price">12.00 ر.س</div>
+        </div>
+        <div class="line-end">
+          <div class="line-total">24.00 ر.س<span class="idb">C05</span></div>
+          <div class="line-stepper">
+            <div class="line-step-btn">−<span class="idb">B02</span></div>
+            <div class="line-qty-box">2<span class="idb">C03</span></div>
+            <div class="line-step-btn">+<span class="idb">B03</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Line 2: quantity at max 10 -->
+      <div class="cart-line">
+        <span class="idb corner">C02</span>
+        <div class="line-img"></div>
+        <div class="line-text">
+          <div class="txt-line" style="width:60%"></div>
+          <div class="unit-price">5.00 ر.س</div>
+        </div>
+        <div class="line-end">
+          <div class="line-total">50.00 ر.س<span class="idb">C05</span></div>
+          <div class="line-stepper">
+            <div class="line-step-btn">−<span class="idb">B02</span></div>
+            <div class="line-qty-box">10<span class="idb">C03</span></div>
+            <div class="line-step-btn disabled">+<span class="idb">B03</span></div>
+          </div>
+          <div class="line-max-helper">الحد الأقصى 10<span class="idb">C04</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bottombar">
+      <span class="idb corner">S03</span>
+      <div class="totals-row items">
+        <span>المنتجات</span>
+        <span>12<span class="idb">C07</span></span>
+      </div>
+      <div class="totals-row total">
+        <span>الإجمالي</span>
+        <span>74.00 ر.س</span>
+      </div>
+      <div class="helper-row"><span class="idb">C08</span></div>
+      <div class="btn-checkout">إتمام الطلب<span class="idb" style="background:#fff;">B05</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 3: OUT-OF-STOCK LINE -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>سطر غير متوفر</h2>
+  <div class="state-sub">An out-of-stock line</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">→<span class="idb">B01</span></div>
+      <div class="header-title">السلة<span class="idb">C01</span></div>
+    </div>
+
+    <div class="line-list">
+      <span class="idb corner">S02</span>
+
+      <!-- Line 1: available -->
+      <div class="cart-line">
+        <span class="idb corner">C02</span>
+        <div class="line-img"></div>
+        <div class="line-text">
+          <div class="txt-line" style="width:85%"></div>
+          <div class="unit-price">12.00 ر.س</div>
+        </div>
+        <div class="line-end">
+          <div class="line-total">12.00 ر.س<span class="idb">C05</span></div>
+          <div class="line-stepper">
+            <div class="line-step-btn">−<span class="idb">B02</span></div>
+            <div class="line-qty-box">1<span class="idb">C03</span></div>
+            <div class="line-step-btn">+<span class="idb">B03</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Line 2: out of stock -->
+      <div class="cart-line">
+        <span class="idb corner">C02</span>
+        <div class="line-img dim"></div>
+        <div class="line-text">
+          <div class="txt-line" style="width:70%"></div>
+          <div class="unit-price">15.00 ر.س</div>
+          <div class="oos-badge">غير متوفر — في سلتك 2<span class="idb">C06</span></div>
+        </div>
+        <div class="line-end">
+          <div class="line-total">30.00 ر.س<span class="idb">C05</span></div>
+          <div class="btn-remove">إزالة<span class="idb">B04</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bottombar">
+      <span class="idb corner">S03</span>
+      <div class="totals-row items">
+        <span>المنتجات</span>
+        <span>3<span class="idb">C07</span></span>
+      </div>
+      <div class="totals-row total">
+        <span>الإجمالي</span>
+        <span>42.00 ر.س</span>
+      </div>
+      <div class="helper-row">أزل المنتج غير المتوفر للمتابعة<span class="idb">C08</span></div>
+      <div class="btn-checkout disabled">إتمام الطلب<span class="idb" style="background:#fff;">B05</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: مع سطر واحد غير متوفر يظهر نص المفرد؛ مع سطرين أو أكثر يصبح "أزل المنتجات غير المتوفرة للمتابعة".<br>
+    Note: with exactly one out-of-stock line the singular helper text is shown; with two or more it becomes "Remove the out-of-stock items to continue".
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 4: AVAILABILITY CHECK RUNNING -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>التحقق من التوفر قيد التنفيذ</h2>
+  <div class="state-sub">Availability check running</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">→<span class="idb">B01</span></div>
+      <div class="header-title">السلة<span class="idb">C01</span></div>
+    </div>
+
+    <div class="line-list">
+      <span class="idb corner">S02</span>
+
+      <div class="cart-line">
+        <span class="idb corner">C02</span>
+        <div class="line-img"></div>
+        <div class="line-text">
+          <div class="txt-line" style="width:85%"></div>
+          <div class="unit-price">12.00 ر.س</div>
+        </div>
+        <div class="line-end">
+          <div class="line-total">24.00 ر.س<span class="idb">C05</span></div>
+          <div class="line-stepper">
+            <div class="line-step-btn">−<span class="idb">B02</span></div>
+            <div class="line-qty-box">2<span class="idb">C03</span></div>
+            <div class="line-step-btn">+<span class="idb">B03</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-line">
+        <span class="idb corner">C02</span>
+        <div class="line-img"></div>
+        <div class="line-text">
+          <div class="txt-line" style="width:70%"></div>
+          <div class="unit-price">20.00 ر.س</div>
+        </div>
+        <div class="line-end">
+          <div class="line-total">20.00 ر.س<span class="idb">C05</span></div>
+          <div class="line-stepper">
+            <div class="line-step-btn">−<span class="idb">B02</span></div>
+            <div class="line-qty-box">1<span class="idb">C03</span></div>
+            <div class="line-step-btn">+<span class="idb">B03</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bottombar">
+      <span class="idb corner">S03</span>
+      <div class="totals-row items">
+        <span>المنتجات</span>
+        <span>3<span class="idb">C07</span></span>
+      </div>
+      <div class="totals-row total">
+        <span>الإجمالي</span>
+        <span>44.00 ر.س</span>
+      </div>
+      <div class="helper-row">جارٍ التحقق من التوفر…<span class="idb">C08</span></div>
+      <div class="btn-checkout disabled">إتمام الطلب<span class="idb" style="background:#fff;">B05</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: السطور قابلة للاستخدام بالكامل أثناء التحقق (السحّابات وزر الإزالة يعملان)؛ لا مؤشر تحميل آخر على الشاشة.<br>
+    Note: the lines remain fully usable while the check runs (steppers and Remove work); no other loading indicator is shown.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 5: AVAILABILITY CHECK FAILED -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>فشل التحقق من التوفر</h2>
+  <div class="state-sub">Availability check failed</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">→<span class="idb">B01</span></div>
+      <div class="header-title">السلة<span class="idb">C01</span></div>
+    </div>
+
+    <div class="line-list">
+      <span class="idb corner">S02</span>
+
+      <div class="cart-line">
+        <span class="idb corner">C02</span>
+        <div class="line-img"></div>
+        <div class="line-text">
+          <div class="txt-line" style="width:85%"></div>
+          <div class="unit-price">12.00 ر.س</div>
+        </div>
+        <div class="line-end">
+          <div class="line-total">24.00 ر.س<span class="idb">C05</span></div>
+          <div class="line-stepper">
+            <div class="line-step-btn">−<span class="idb">B02</span></div>
+            <div class="line-qty-box">2<span class="idb">C03</span></div>
+            <div class="line-step-btn">+<span class="idb">B03</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-line">
+        <span class="idb corner">C02</span>
+        <div class="line-img"></div>
+        <div class="line-text">
+          <div class="txt-line" style="width:70%"></div>
+          <div class="unit-price">20.00 ر.س</div>
+        </div>
+        <div class="line-end">
+          <div class="line-total">20.00 ر.س<span class="idb">C05</span></div>
+          <div class="line-stepper">
+            <div class="line-step-btn">−<span class="idb">B02</span></div>
+            <div class="line-qty-box">1<span class="idb">C03</span></div>
+            <div class="line-step-btn">+<span class="idb">B03</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bottombar">
+      <span class="idb corner">S03</span>
+      <div class="totals-row items">
+        <span>المنتجات</span>
+        <span>3<span class="idb">C07</span></span>
+      </div>
+      <div class="totals-row total">
+        <span>الإجمالي</span>
+        <span>44.00 ر.س</span>
+      </div>
+      <div class="helper-row">تعذّر التحقق من التوفر — قد يكون أحد المنتجات غير متوفر<span class="idb">C08</span></div>
+      <div class="btn-checkout">إتمام الطلب<span class="idb" style="background:#fff;">B05</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: زر "إتمام الطلب" يبقى مفعّلاً بعد فشل التحقق (ما لم يوجد سطر غير متوفر بالفعل)؛ لا يوجد أي زر "إعادة محاولة" على هذه الشاشة — M-04 هو شبكة الأمان عند الإرسال.<br>
+    Note: "Checkout" stays enabled after a failed check (unless a line is already out of stock); there is no Retry control on this screen — M-04 is the safety net at submission.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 6: EMPTY CART -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>السلة فارغة</h2>
+  <div class="state-sub">Empty cart</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">→<span class="idb">B01</span></div>
+      <div class="header-title">السلة<span class="idb">C01</span></div>
+    </div>
+
+    <!-- S02 line list hidden; S03 bottom bar entirely absent -->
+
+    <div class="empty-wrap">
+      <div class="empty-icon"></div>
+      <div class="empty-title">سلتك فارغة<span class="idb">C09</span></div>
+      <div class="empty-sub">أضف منتجات من المتجر لبدء طلبك</div>
+      <div class="btn-continue">متابعة التسوق<span class="idb">B06</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: لا يظهر أي شريط سفلي أو زر "إتمام الطلب" باهت — الشريط السفلي (S03) غير موجود إطلاقًا في هذه الحالة.<br>
+    Note: no bottom bar or greyed "Checkout" is shown — S03 is not rendered at all in this state.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 7: LOADING SKELETON -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>التحميل</h2>
+  <div class="state-sub">Loading skeleton</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">→<span class="idb">B01</span></div>
+      <div class="header-title">السلة<span class="idb">C01</span></div>
+    </div>
+
+    <div class="skel-wrap">
+      <span class="idb corner">C11</span>
+      <div class="skel-line">
+        <div class="skel-img"></div>
+        <div class="skel-bars">
+          <div class="skel-bar" style="width:120px;"></div>
+          <div class="skel-bar" style="width:72px;"></div>
+        </div>
+      </div>
+      <div class="skel-line">
+        <div class="skel-img"></div>
+        <div class="skel-bars">
+          <div class="skel-bar" style="width:120px;"></div>
+          <div class="skel-bar" style="width:72px;"></div>
+        </div>
+      </div>
+      <div class="skel-line">
+        <div class="skel-img"></div>
+        <div class="skel-bars">
+          <div class="skel-bar" style="width:120px;"></div>
+          <div class="skel-bar" style="width:72px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S03 bottom bar hidden during loading -->
+
+  </div>
+  <div class="note">
+    ملاحظة: النبض البصري (100%↔60% كل 1.5 ثانية) غير ممكن في لقطة ثابتة؛ الشريط السفلي مخفي أثناء التحميل.<br>
+    Note: the 100%↔60% opacity pulse (every 1.5s) cannot be shown in a static frame; the bottom bar is hidden while loading.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 8a: REORDER TOAST — SKIPPED ONLY -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>إشعار إعادة الطلب — مستبعدة فقط</h2>
+  <div class="state-sub">Reorder toast — skipped only</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">→<span class="idb">B01</span></div>
+      <div class="header-title">السلة<span class="idb">C01</span></div>
+    </div>
+
+    <div class="line-list">
+      <span class="idb corner">S02</span>
+      <div class="cart-line">
+        <span class="idb corner">C02</span>
+        <div class="line-img"></div>
+        <div class="line-text">
+          <div class="txt-line" style="width:85%"></div>
+          <div class="unit-price">12.00 ر.س</div>
+        </div>
+        <div class="line-end">
+          <div class="line-total">24.00 ر.س<span class="idb">C05</span></div>
+          <div class="line-stepper">
+            <div class="line-step-btn">−<span class="idb">B02</span></div>
+            <div class="line-qty-box">2<span class="idb">C03</span></div>
+            <div class="line-step-btn">+<span class="idb">B03</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" style="bottom:156px;">
+      لم تتم إضافة منتجين لأنهما لم يعودا متوفرين<span class="idb" style="background:#000;color:#fff;">C10</span>
+    </div>
+
+    <div class="bottombar">
+      <span class="idb corner">S03</span>
+      <div class="totals-row items">
+        <span>المنتجات</span>
+        <span>2<span class="idb">C07</span></span>
+      </div>
+      <div class="totals-row total">
+        <span>الإجمالي</span>
+        <span>24.00 ر.س</span>
+      </div>
+      <div class="helper-row"><span class="idb">C08</span></div>
+      <div class="btn-checkout">إتمام الطلب<span class="idb" style="background:#fff;">B05</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: S = 2 (منتجان مستبعدان)، C = 0؛ جملة واحدة، مدة الظهور 5 ثوانٍ. حافة الإشعار السفلية على بعد 16px فوق الشريط السفلي.<br>
+    Note: S = 2 (two skipped products), C = 0; one sentence, visible for 5 seconds. Toast bottom edge sits 16px above the bottom bar.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 8b: REORDER TOAST — CAPPED ONLY -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>إشعار إعادة الطلب — بلغ الحد الأقصى فقط</h2>
+  <div class="state-sub">Reorder toast — capped only</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">→<span class="idb">B01</span></div>
+      <div class="header-title">السلة<span class="idb">C01</span></div>
+    </div>
+
+    <div class="line-list">
+      <span class="idb corner">S02</span>
+      <div class="cart-line">
+        <span class="idb corner">C02</span>
+        <div class="line-img"></div>
+        <div class="line-text">
+          <div class="txt-line" style="width:60%"></div>
+          <div class="unit-price">5.00 ر.س</div>
+        </div>
+        <div class="line-end">
+          <div class="line-total">50.00 ر.س<span class="idb">C05</span></div>
+          <div class="line-stepper">
+            <div class="line-step-btn">−<span class="idb">B02</span></div>
+            <div class="line-qty-box">10<span class="idb">C03</span></div>
+            <div class="line-step-btn disabled">+<span class="idb">B03</span></div>
+          </div>
+          <div class="line-max-helper">الحد الأقصى 10<span class="idb">C04</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" style="bottom:156px;">
+      بلغ منتجان الحد الأقصى 10 ولم تُضف الكمية الزائدة<span class="idb" style="background:#000;color:#fff;">C10</span>
+    </div>
+
+    <div class="bottombar">
+      <span class="idb corner">S03</span>
+      <div class="totals-row items">
+        <span>المنتجات</span>
+        <span>10<span class="idb">C07</span></span>
+      </div>
+      <div class="totals-row total">
+        <span>الإجمالي</span>
+        <span>50.00 ر.س</span>
+      </div>
+      <div class="helper-row"><span class="idb">C08</span></div>
+      <div class="btn-checkout">إتمام الطلب<span class="idb" style="background:#fff;">B05</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: S = 0، C = 2 (منتجان بلغا الحد الأقصى)؛ جملة واحدة، مدة الظهور 5 ثوانٍ. صيغة "منتجان" هنا فاعل (مرفوع)، وتختلف عمدًا عن "منتجين" في اللوحة أ.<br>
+    Note: S = 0, C = 2 (two products capped); one sentence, visible for 5 seconds. The Arabic dual "منتجان" here is the grammatical subject and differs on purpose from "منتجين" in frame 8a.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 8c: REORDER TOAST — BOTH SKIPPED AND CAPPED -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>إشعار إعادة الطلب — مستبعدة وبلغت الحد الأقصى معًا</h2>
+  <div class="state-sub">Reorder toast — both skipped and capped</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">→<span class="idb">B01</span></div>
+      <div class="header-title">السلة<span class="idb">C01</span></div>
+    </div>
+
+    <div class="line-list">
+      <span class="idb corner">S02</span>
+      <div class="cart-line">
+        <span class="idb corner">C02</span>
+        <div class="line-img"></div>
+        <div class="line-text">
+          <div class="txt-line" style="width:60%"></div>
+          <div class="unit-price">5.00 ر.س</div>
+        </div>
+        <div class="line-end">
+          <div class="line-total">50.00 ر.س<span class="idb">C05</span></div>
+          <div class="line-stepper">
+            <div class="line-step-btn">−<span class="idb">B02</span></div>
+            <div class="line-qty-box">10<span class="idb">C03</span></div>
+            <div class="line-step-btn disabled">+<span class="idb">B03</span></div>
+          </div>
+          <div class="line-max-helper">الحد الأقصى 10<span class="idb">C04</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" style="bottom:156px;">
+      لم تتم إضافة منتج واحد لأنه لم يعد متوفرًا<br>بلغ منتجان الحد الأقصى 10 ولم تُضف الكمية الزائدة<span class="idb" style="background:#000;color:#fff;">C10</span>
+    </div>
+
+    <div class="bottombar">
+      <span class="idb corner">S03</span>
+      <div class="totals-row items">
+        <span>المنتجات</span>
+        <span>10<span class="idb">C07</span></span>
+      </div>
+      <div class="totals-row total">
+        <span>الإجمالي</span>
+        <span>50.00 ر.س</span>
+      </div>
+      <div class="helper-row"><span class="idb">C08</span></div>
+      <div class="btn-checkout">إتمام الطلب<span class="idb" style="background:#fff;">B05</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: S = 1، C = 2 — إشعار واحد بسطرين بلا رابط أو رمز بينهما (جملة الاستبعاد أولاً)، مدة الظهور 7 ثوانٍ، بحد أقصى 4 أسطر.<br>
+    Note: S = 1, C = 2 — one toast, two lines, no connector or icon between them (skipped sentence first), visible for 7 seconds, at most 4 lines.
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
