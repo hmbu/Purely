@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>متجر الغرفة — فندق الواحة · Room Store</title>
+<style>
+  :root { --ink:#1b1e20; --ink-2:#555d63; --line:#dde1e4; --bg:#e9ebed; --card:#fff; --accent:#13706a; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:16px/1.55 system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif; }
+  main { max-width: 960px; margin: 0 auto; padding: 40px 16px 56px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  .sub { color: var(--ink-2); margin: 0 0 28px; }
+  .apps { display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  a.app { display:block; background:var(--card); border:1px solid var(--line); border-radius:12px;
+          padding:22px 20px; text-decoration:none; color:inherit; }
+  a.app:hover, a.app:focus-visible { border-color: var(--accent); outline: none; }
+  .app h2 { font-size:19px; margin:0 0 2px; }
+  .app .en { color:var(--ink-2); font-size:14px; margin:0 0 12px; }
+  .app p { margin:0; font-size:15px; color:var(--ink-2); }
+  .app .who { display:inline-block; margin-top:14px; font-size:13px; font-weight:600;
+              border:1px solid var(--line); border-radius:999px; padding:3px 10px; }
+  section.note { margin-top:28px; background:var(--card); border:1px solid var(--line);
+                 border-radius:12px; padding:18px 20px; font-size:15px; }
+  section.note h3 { margin:0 0 8px; font-size:16px; }
+  section.note ol, section.note ul { margin:6px 0 0; padding-inline-start: 20px; }
+  code { background:#f4f5f6; border:1px solid var(--line); border-radius:4px; padding:0 5px; font-size:14px; direction:ltr; unicode-bidi:isolate; }
+</style>
+</head>
+<body>
+<main>
+  <h1>متجر الغرفة — فندق الواحة</h1>
+  <p class="sub">In-room store · three apps sharing one hotel. No server, no installation.</p>
+
+  <div class="apps">
+    <a class="app" href="app/index.html">
+      <h2>واجهة الضيف</h2>
+      <p class="en">Guest store</p>
+      <p>ما يفتحه الضيف بمسح رمز QR في غرفته: التصفح، السلة، الطلب، ومتابعته.</p>
+      <span class="who">الجوال · Phone</span>
+    </a>
+    <a class="app" href="staff/index.html">
+      <h2>واجهة الموظف</h2>
+      <p class="en">Staff</p>
+      <p>لوحة الطلبات الواردة: القبول، التحضير، التوصيل، واستلام الدفع عند الباب.</p>
+      <span class="who">تابلت أو جوال · Tablet or phone</span>
+    </a>
+    <a class="app" href="admin/index.html">
+      <h2>لوحة الإدارة</h2>
+      <p class="en">Admin dashboard</p>
+      <p>المنتجات والمخزون والأسعار والتصنيفات، سجل الطلبات، وإعدادات الفندق.</p>
+      <span class="who">حاسوب · Laptop</span>
+    </a>
+  </div>
+
+  <section class="note">
+    <h3>جرّب الدورة كاملة · Try the full loop</h3>
+    <ol>
+      <li>افتح <strong>واجهة الموظف</strong> في تبويب وسجّل الدخول بالرمز <code>1111</code>.</li>
+      <li>افتح <strong>واجهة الضيف</strong> في تبويب آخر، أضف منتجاً واطلبه برقم غرفة مثل <code>305</code>.</li>
+      <li>يظهر الطلب فوراً عند الموظف دون إعادة تحميل. افتحه واقبله.</li>
+      <li>ارجع لشاشة متابعة الضيف: تتغيّر الحالة ويختفي زر الإلغاء.</li>
+    </ol>
+  </section>
+
+  <section class="note">
+    <h3>بيانات الدخول التجريبية · Demo sign-in</h3>
+    <ul>
+      <li>الموظف: <code>1111</code> (سارة) أو <code>2222</code> (خالد)</li>
+      <li>الإدارة: <code>manager@alwaha.example</code> / <code>alwaha2026</code></li>
+    </ul>
+    <p style="margin:10px 0 0;color:var(--ink-2);font-size:14px">
+      هذه قيم عرض فقط وليست حماية حقيقية — النسخة نموذج أولي بلا خادم.
+    </p>
+  </section>
+
+  <section class="note">
+    <h3>المتصفح · Browser</h3>
+    <p style="margin:0">
+      التطبيقات الثلاثة تتشارك ذاكرة المتصفح. على <strong>Chrome أو Edge</strong> افتح هذا الملف مباشرةً.
+      على Firefox أو Safari شغّل خادماً محلياً من هذا المجلد:
+      <code>python3 -m http.server 8000</code> ثم افتح <code>http://localhost:8000/</code>.
+    </p>
+  </section>
+</main>
+</body>
+</html>
