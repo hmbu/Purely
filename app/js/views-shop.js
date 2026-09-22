@@ -530,7 +530,7 @@
     html += '</div>';
     html += '<div class="topbar__side topbar__side--end">' +
               '<button type="button" class="iconbtn" data-el="G-01-B02" data-act="orders">' +
-                '<span class="iconbtn__glyph" aria-hidden="true"></span>' +
+                '<span class="iconbtn__glyph" aria-hidden="true">\u25A4</span>' +
                 '<span class="iconbtn__label">' + esc(t('common.myorders')) + '</span>' +
               '</button>' +
             '</div>';
@@ -1067,7 +1067,7 @@
            (G-03 decision 1). */
         return html +
           '<div class="empty" data-el="G-03-C09">' +
-            '<span class="empty__glyph" aria-hidden="true"></span>' +
+            '<span class="empty__glyph" aria-hidden="true">\u25A2</span>' +
             '<div class="empty__title">' + esc(t('g03.empty.l1')) + '</div>' +
             '<div class="empty__text">' + esc(t('g03.empty.l2')) + '</div>' +
             '<button type="button" class="btn" data-el="G-03-B06" data-act="continue">' +
@@ -1271,7 +1271,7 @@
       html += '</div></header>';
 
       html += '<div class="empty" data-el="G-08-S02">';
-      html += '<span class="empty__glyph" data-el="G-08-C01" aria-hidden="true"></span>';
+      html += '<span class="empty__glyph" data-el="G-08-C01" aria-hidden="true">!</span>';
       html += '<div class="empty__title" data-el="G-08-C02">' +
                 esc(invalid ? t('g08.title.invalid') : t('g08.title.retry')) + '</div>';
       html += '<div class="empty__text" data-el="G-08-C03">' +
