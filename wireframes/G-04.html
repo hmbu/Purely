@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>G-04 — إتمام الطلب / Checkout — Wireframes</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background:#ddd;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#000;
+    padding: 24px;
+    margin:0;
+  }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .doc-sub { font-size:12px; color:#333; margin:0 0 20px; }
+  .frames {
+    display:flex;
+    flex-wrap:nowrap;
+    gap:28px;
+    overflow-x:auto;
+    align-items:flex-start;
+    padding-bottom:20px;
+  }
+  .frame { flex:0 0 auto; width:390px; text-align:center; }
+  .frame h2 { font-size:14px; margin:0 0 2px; }
+  .frame .state-sub { font-size:11px; color:#333; margin:0 0 10px; }
+  .frame .note { font-size:10px; color:#333; margin-top:8px; text-align:right; }
+
+  .phone {
+    width:390px;
+    min-height:400px;
+    border:2px solid #000;
+    background:#fff;
+    position:relative;
+    overflow:hidden;
+    text-align:right;
+  }
+
+  /* small circled ID badges, shown next to their element */
+  .idb {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:16px;
+    height:16px;
+    padding:0 2px;
+    border:1px solid #000;
+    border-radius:50%;
+    font-size:8px;
+    background:#fff;
+    vertical-align:middle;
+    margin:0 3px;
+    line-height:1;
+    font-family: Arial, sans-serif;
+  }
+  .corner {
+    position:absolute;
+    top:2px;
+    left:2px;
+    z-index:5;
+    background:#fff;
+  }
+
+  /* ===== Header S01 ===== */
+  .header {
+    position:relative;
+    height:56px;
+    display:flex;
+    align-items:center;
+    padding:0 6px;
+    border-bottom:1px solid #000;
+  }
+  .back-btn {
+    width:44px; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px;
+    flex:0 0 auto;
+  }
+  .header-title { flex:1; text-align:center; font-size:18px; font-weight:bold; }
+  .header-spacer { width:44px; flex:0 0 auto; }
+
+  /* ===== Screen body ===== */
+  .scr-body { padding:16px 16px 0; }
+  .sec { position:relative; margin-bottom:24px; }
+
+  /* ===== C13 / C14 notices ===== */
+  .notice-fill {
+    background:#eee; border-radius:8px; padding:12px;
+    display:flex; align-items:flex-start; gap:6px;
+    font-size:14px; margin-bottom:16px; position:relative;
+  }
+  .notice-plain {
+    display:flex; align-items:flex-start; gap:4px;
+    font-size:14px; margin-top:4px; position:relative;
+  }
+  .err-icon {
+    width:16px; height:16px; border:1px solid #000; border-radius:50%;
+    flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:bold; background:#fff;
+  }
+
+  /* ===== S02 Order summary ===== */
+  .summary-box { border:1px solid #000; border-radius:8px; padding:16px; }
+  .summary-title { font-size:16px; font-weight:bold; margin-bottom:10px; }
+  .summary-line { display:flex; justify-content:space-between; align-items:center; font-size:14px; min-height:24px; }
+  .summary-rule { border-top:1px solid #000; margin:8px 0; }
+  .summary-total { display:flex; justify-content:space-between; font-size:16px; font-weight:bold; }
+  .summary-editcart { text-align:left; margin-top:8px; }
+  .editcart-link { font-size:14px; text-decoration:underline; display:inline-block; min-height:24px; line-height:24px; }
+
+  /* ===== S03 room number / F01 ===== */
+  .field-label { font-size:14px; font-weight:bold; margin-bottom:8px; }
+  .field-box { height:56px; border:1px solid #000; border-radius:8px; display:flex; align-items:center; padding:0 12px; font-size:24px; font-weight:bold; color:#000; }
+  .field-box.placeholder { color:#999; font-weight:normal; font-size:14px; }
+  .field-box.err { border:2px solid #000; }
+  .err-line { display:flex; align-items:flex-start; gap:4px; font-size:14px; margin-top:4px; }
+
+  /* ===== S04 notes / F02 ===== */
+  .textarea-box { min-height:96px; border:1px solid #000; border-radius:8px; padding:8px; }
+  .textarea-box.filled { min-height:192px; }
+  .note-line { height:8px; background:#999; border-radius:2px; margin:6px 0; }
+  .char-counter { font-size:12px; text-align:left; margin-top:4px; }
+  .char-counter.bold { font-weight:bold; }
+
+  /* ===== S05 payment ===== */
+  .payment-title { font-size:14px; font-weight:bold; margin-bottom:8px; }
+  .pay-row { border:1px solid #000; border-radius:8px; padding:12px; display:flex; align-items:center; gap:10px; min-height:72px; margin-bottom:8px; position:relative; }
+  .pay-row.sel { border-width:2px; }
+  .radio { width:24px; height:24px; border:1px solid #000; border-radius:50%; flex:0 0 auto; position:relative; }
+  .radio.sel { border-width:2px; }
+  .radio.sel::after { content:""; position:absolute; top:6px; left:6px; width:10px; height:10px; border-radius:50%; background:#000; }
+  .pay-text { display:flex; flex-direction:column; gap:2px; }
+  .pay-line1 { font-size:16px; font-weight:bold; }
+  .pay-line2 { font-size:14px; }
+
+  .amount-label1 { font-size:14px; font-weight:bold; }
+  .amount-label2 { font-size:14px; margin-bottom:8px; }
+  .amount-box { height:48px; border:1px solid #000; border-radius:8px; display:flex; align-items:center; padding:0 12px; font-size:16px; justify-content:space-between; }
+  .amount-box.err { border:2px solid #000; }
+  .amount-suffix { font-size:14px; color:#555; }
+
+  /* ===== S06 bottom bar / B05 ===== */
+  .bottom-bar { border-top:1px solid #000; padding:16px; }
+  .submit-btn { background:#000; color:#fff; border-radius:28px; height:56px; width:100%; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-size:16px; font-weight:bold; }
+
+  .info-block { padding:24px 16px; font-size:13px; line-height:1.7; text-align:right; }
+  .info-block .rule { font-size:11px; color:#333; margin-bottom:10px; }
+</style>
+</head>
+<body>
+
+<h1>G-04 — إتمام الطلب / Checkout — واجهات سلكية / Wireframes</h1>
+<p class="doc-sub">390px · RTL (Arabic default) · Grayscale low-fidelity · Element IDs shown in small circles next to each element, matching the elements table in /spec/screens/G-04.md</p>
+
+<div class="frames">
+
+<!-- ============================================================ -->
+<!-- FRAME 1: MAIN / EMPTY FORM -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الحالة الأساسية (نموذج فارغ)</h2>
+  <div class="state-sub">Main state (empty form)</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">←<span class="idb">B01</span></div>
+      <div class="header-title">إتمام الطلب<span class="idb">C01</span></div>
+      <div class="header-spacer"></div>
+    </div>
+
+    <!-- C13 hidden: no awaiting-resubmission flag -->
+
+    <div class="scr-body">
+
+      <!-- S02 order summary -->
+      <div class="sec">
+        <span class="idb corner">S02</span>
+        <div class="summary-box">
+          <div class="summary-title">ملخص الطلب<span class="idb">C02</span></div>
+          <div class="summary-line">2 × عصير برتقال … 24.00 ر.س<span class="idb">C03</span></div>
+          <div class="summary-line">1 × مياه معدنية … 8.00 ر.س<span class="idb">C03</span></div>
+          <div class="summary-line">1 × رقائق بطاطس … 30.50 ر.س<span class="idb">C03</span></div>
+          <div class="summary-rule"></div>
+          <div class="summary-total"><span>الإجمالي</span><span>62.50 ر.س<span class="idb">C04</span></span></div>
+          <div class="summary-editcart"><span class="editcart-link">تعديل السلة<span class="idb">B02</span></span></div>
+        </div>
+      </div>
+
+      <!-- S03 room number -->
+      <div class="sec">
+        <span class="idb corner">S03</span>
+        <div class="field-label">رقم الغرفة<span class="idb">C05</span></div>
+        <div class="field-box"><span class="idb">F01</span></div>
+        <!-- C06 hidden: no error yet -->
+      </div>
+
+      <!-- S04 notes -->
+      <div class="sec">
+        <span class="idb corner">S04</span>
+        <div class="field-label">ملاحظات على الطلب (اختياري)<span class="idb">C07</span></div>
+        <div class="textarea-box"><span class="idb">F02</span></div>
+        <div class="char-counter">0/200<span class="idb">C08</span></div>
+        <!-- C14 hidden -->
+      </div>
+
+      <!-- S05 payment -->
+      <div class="sec">
+        <span class="idb corner">S05</span>
+        <div class="payment-title">طريقة الدفع عند الاستلام<span class="idb">C09</span></div>
+        <div class="pay-row">
+          <div class="radio"></div>
+          <div class="pay-text">
+            <div class="pay-line1">بطاقة</div>
+            <div class="pay-line2">سيحضر الموظف جهاز الدفع بالبطاقة إلى غرفتك</div>
+          </div>
+          <span class="idb" style="position:absolute;left:8px;top:8px;">B03</span>
+        </div>
+        <div class="pay-row">
+          <div class="radio"></div>
+          <div class="pay-text">
+            <div class="pay-line1">نقدًا</div>
+            <div class="pay-line2">ادفع نقدًا للموظف عند الاستلام</div>
+          </div>
+          <span class="idb" style="position:absolute;left:8px;top:8px;">B04</span>
+        </div>
+        <!-- C10 hidden: not submitted yet -->
+        <!-- C11 / F03 / C12 hidden: Cash not selected -->
+      </div>
+
+    </div>
+
+    <!-- S06 bottom bar -->
+    <div class="bottom-bar">
+      <span class="idb corner">S06</span>
+      <div class="submit-btn"><span>إرسال الطلب<span class="idb" style="background:#fff;">B05</span></span><span>62.50 ر.س</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 2A: CASH SELECTED -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>نقدًا مختار (يظهر حقل المبلغ)</h2>
+  <div class="state-sub">Cash selected (optional amount field revealed)</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">←<span class="idb">B01</span></div>
+      <div class="header-title">إتمام الطلب<span class="idb">C01</span></div>
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="scr-body">
+
+      <div class="sec">
+        <span class="idb corner">S02</span>
+        <div class="summary-box">
+          <div class="summary-title">ملخص الطلب<span class="idb">C02</span></div>
+          <div class="summary-line">2 × عصير برتقال … 24.00 ر.س<span class="idb">C03</span></div>
+          <div class="summary-line">1 × مياه معدنية … 8.00 ر.س<span class="idb">C03</span></div>
+          <div class="summary-line">1 × رقائق بطاطس … 30.50 ر.س<span class="idb">C03</span></div>
+          <div class="summary-rule"></div>
+          <div class="summary-total"><span>الإجمالي</span><span>62.50 ر.س<span class="idb">C04</span></span></div>
+          <div class="summary-editcart"><span class="editcart-link">تعديل السلة<span class="idb">B02</span></span></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <span class="idb corner">S03</span>
+        <div class="field-label">رقم الغرفة<span class="idb">C05</span></div>
+        <div class="field-box">305<span class="idb">F01</span></div>
+      </div>
+
+      <div class="sec">
+        <span class="idb corner">S04</span>
+        <div class="field-label">ملاحظات على الطلب (اختياري)<span class="idb">C07</span></div>
+        <div class="textarea-box">
+          <div class="note-line" style="width:70%"></div>
+          <span class="idb">F02</span>
+        </div>
+        <div class="char-counter">18/200<span class="idb">C08</span></div>
+      </div>
+
+      <div class="sec">
+        <span class="idb corner">S05</span>
+        <div class="payment-title">طريقة الدفع عند الاستلام<span class="idb">C09</span></div>
+        <div class="pay-row">
+          <div class="radio"></div>
+          <div class="pay-text">
+            <div class="pay-line1">بطاقة</div>
+            <div class="pay-line2">سيحضر الموظف جهاز الدفع بالبطاقة إلى غرفتك</div>
+          </div>
+          <span class="idb" style="position:absolute;left:8px;top:8px;">B03</span>
+        </div>
+        <div class="pay-row sel">
+          <div class="radio sel"></div>
+          <div class="pay-text">
+            <div class="pay-line1">نقدًا</div>
+            <div class="pay-line2">ادفع نقدًا للموظف عند الاستلام</div>
+          </div>
+          <span class="idb" style="position:absolute;left:8px;top:8px;">B04</span>
+        </div>
+
+        <!-- C11 + F03 revealed under B04 -->
+        <div style="margin-top:4px;">
+          <div class="amount-label1">المبلغ الذي ستدفع به (اختياري)<span class="idb">C11</span></div>
+          <div class="amount-label2">ليحضر الموظف الباقي معه</div>
+          <div class="amount-box"><span></span><span class="amount-suffix">ر.س<span class="idb">F03</span></span></div>
+          <!-- C12 hidden: field empty, no error -->
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bottom-bar">
+      <span class="idb corner">S06</span>
+      <div class="submit-btn"><span>إرسال الطلب<span class="idb" style="background:#fff;">B05</span></span><span>62.50 ر.س</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 2B: CARD SELECTED -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>بطاقة مختارة (لا يظهر حقل المبلغ)</h2>
+  <div class="state-sub">Card selected (amount field stays hidden)</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">←<span class="idb">B01</span></div>
+      <div class="header-title">إتمام الطلب<span class="idb">C01</span></div>
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="scr-body">
+
+      <div class="sec">
+        <span class="idb corner">S02</span>
+        <div class="summary-box">
+          <div class="summary-title">ملخص الطلب<span class="idb">C02</span></div>
+          <div class="summary-line">2 × عصير برتقال … 24.00 ر.س<span class="idb">C03</span></div>
+          <div class="summary-line">1 × مياه معدنية … 8.00 ر.س<span class="idb">C03</span></div>
+          <div class="summary-line">1 × رقائق بطاطس … 30.50 ر.س<span class="idb">C03</span></div>
+          <div class="summary-rule"></div>
+          <div class="summary-total"><span>الإجمالي</span><span>62.50 ر.س<span class="idb">C04</span></span></div>
+          <div class="summary-editcart"><span class="editcart-link">تعديل السلة<span class="idb">B02</span></span></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <span class="idb corner">S03</span>
+        <div class="field-label">رقم الغرفة<span class="idb">C05</span></div>
+        <div class="field-box">305<span class="idb">F01</span></div>
+      </div>
+
+      <div class="sec">
+        <span class="idb corner">S04</span>
+        <div class="field-label">ملاحظات على الطلب (اختياري)<span class="idb">C07</span></div>
+        <div class="textarea-box">
+          <div class="note-line" style="width:70%"></div>
+          <span class="idb">F02</span>
+        </div>
+        <div class="char-counter">18/200<span class="idb">C08</span></div>
+      </div>
+
+      <div class="sec">
+        <span class="idb corner">S05</span>
+        <div class="payment-title">طريقة الدفع عند الاستلام<span class="idb">C09</span></div>
+        <div class="pay-row sel">
+          <div class="radio sel"></div>
+          <div class="pay-text">
+            <div class="pay-line1">بطاقة</div>
+            <div class="pay-line2">سيحضر الموظف جهاز الدفع بالبطاقة إلى غرفتك</div>
+          </div>
+          <span class="idb" style="position:absolute;left:8px;top:8px;">B03</span>
+        </div>
+        <div class="pay-row">
+          <div class="radio"></div>
+          <div class="pay-text">
+            <div class="pay-line1">نقدًا</div>
+            <div class="pay-line2">ادفع نقدًا للموظف عند الاستلام</div>
+          </div>
+          <span class="idb" style="position:absolute;left:8px;top:8px;">B04</span>
+        </div>
+        <!-- C11 / F03 / C12 hidden: Card selected -->
+      </div>
+
+    </div>
+
+    <div class="bottom-bar">
+      <span class="idb corner">S06</span>
+      <div class="submit-btn"><span>إرسال الطلب<span class="idb" style="background:#fff;">B05</span></span><span>62.50 ر.س</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 3: VALIDATION ERRORS — EMPTY ROOM NUMBER + NO PAYMENT -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>أخطاء التحقق: رقم الغرفة فارغ وطريقة الدفع غير مختارة</h2>
+  <div class="state-sub">Validation errors: empty room number and no payment method chosen</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">←<span class="idb">B01</span></div>
+      <div class="header-title">إتمام الطلب<span class="idb">C01</span></div>
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="scr-body">
+
+      <div class="sec">
+        <span class="idb corner">S02</span>
+        <div class="summary-box">
+          <div class="summary-title">ملخص الطلب<span class="idb">C02</span></div>
+          <div class="summary-line">2 × عصير برتقال … 24.00 ر.س<span class="idb">C03</span></div>
+          <div class="summary-line">1 × مياه معدنية … 8.00 ر.س<span class="idb">C03</span></div>
+          <div class="summary-line">1 × رقائق بطاطس … 30.50 ر.س<span class="idb">C03</span></div>
+          <div class="summary-rule"></div>
+          <div class="summary-total"><span>الإجمالي</span><span>62.50 ر.س<span class="idb">C04</span></span></div>
+          <div class="summary-editcart"><span class="editcart-link">تعديل السلة<span class="idb">B02</span></span></div>
+        </div>
+      </div>
+
+      <!-- S03 room number: empty-field error, 2px border -->
+      <div class="sec">
+        <span class="idb corner">S03</span>
+        <div class="field-label">رقم الغرفة<span class="idb">C05</span></div>
+        <div class="field-box err"><span class="idb">F01</span></div>
+        <div class="err-line"><span class="err-icon">!</span><span>اكتب رقم غرفتك<span class="idb">C06</span></span></div>
+      </div>
+
+      <div class="sec">
+        <span class="idb corner">S04</span>
+        <div class="field-label">ملاحظات على الطلب (اختياري)<span class="idb">C07</span></div>
+        <div class="textarea-box"><span class="idb">F02</span></div>
+        <div class="char-counter">0/200<span class="idb">C08</span></div>
+      </div>
+
+      <!-- S05 payment: neither selected, payment-choice error -->
+      <div class="sec">
+        <span class="idb corner">S05</span>
+        <div class="payment-title">طريقة الدفع عند الاستلام<span class="idb">C09</span></div>
+        <div class="pay-row">
+          <div class="radio"></div>
+          <div class="pay-text">
+            <div class="pay-line1">بطاقة</div>
+            <div class="pay-line2">سيحضر الموظف جهاز الدفع بالبطاقة إلى غرفتك</div>
+          </div>
+          <span class="idb" style="position:absolute;left:8px;top:8px;">B03</span>
+        </div>
+        <div class="pay-row">
+          <div class="radio"></div>
+          <div class="pay-text">
+            <div class="pay-line1">نقدًا</div>
+            <div class="pay-line2">ادفع نقدًا للموظف عند الاستلام</div>
+          </div>
+          <span class="idb" style="position:absolute;left:8px;top:8px;">B04</span>
+        </div>
+        <div class="err-line"><span class="err-icon">!</span><span>اختر طريقة الدفع<span class="idb">C10</span></span></div>
+      </div>
+
+    </div>
+
+    <div class="bottom-bar">
+      <span class="idb corner">S06</span>
+      <div class="submit-btn"><span>إرسال الطلب<span class="idb" style="background:#fff;">B05</span></span><span>62.50 ر.س</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: هذا الجمع مطابق لمعيار القبول 36 — عند الضغط على «إرسال الطلب» وحقل رقم الغرفة فارغ وبلا اختيار لطريقة الدفع، يظهر الخطآن معًا وتُمرَّر الشاشة إلى أول عنصر خاطئ (F01). لا توجد رسالة "قصير جدًا".<br>
+    Note: matches acceptance criterion 36 — tapping "Submit order" with an empty room number and no payment method selected shows both errors at once; the screen scrolls to the first invalid element (F01). There is no "too short" message.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 4: AMOUNT LOWER THAN TOTAL -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>خطأ: المبلغ أقل من الإجمالي</h2>
+  <div class="state-sub">Error: amount lower than the order total</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">←<span class="idb">B01</span></div>
+      <div class="header-title">إتمام الطلب<span class="idb">C01</span></div>
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="scr-body">
+
+      <div class="sec">
+        <span class="idb corner">S02</span>
+        <div class="summary-box">
+          <div class="summary-title">ملخص الطلب<span class="idb">C02</span></div>
+          <div class="summary-line">2 × عصير برتقال … 24.00 ر.س<span class="idb">C03</span></div>
+          <div class="summary-line">1 × مياه معدنية … 8.00 ر.س<span class="idb">C03</span></div>
+          <div class="summary-line">1 × رقائق بطاطس … 30.50 ر.س<span class="idb">C03</span></div>
+          <div class="summary-rule"></div>
+          <div class="summary-total"><span>الإجمالي</span><span>62.50 ر.س<span class="idb">C04</span></span></div>
+          <div class="summary-editcart"><span class="editcart-link">تعديل السلة<span class="idb">B02</span></span></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <span class="idb corner">S03</span>
+        <div class="field-label">رقم الغرفة<span class="idb">C05</span></div>
+        <div class="field-box">305<span class="idb">F01</span></div>
+      </div>
+
+      <div class="sec">
+        <span class="idb corner">S04</span>
+        <div class="field-label">ملاحظات على الطلب (اختياري)<span class="idb">C07</span></div>
+        <div class="textarea-box"><span class="idb">F02</span></div>
+        <div class="char-counter">0/200<span class="idb">C08</span></div>
+      </div>
+
+      <div class="sec">
+        <span class="idb corner">S05</span>
+        <div class="payment-title">طريقة الدفع عند الاستلام<span class="idb">C09</span></div>
+        <div class="pay-row">
+          <div class="radio"></div>
+          <div class="pay-text">
+            <div class="pay-line1">بطاقة</div>
+            <div class="pay-line2">سيحضر الموظف جهاز الدفع بالبطاقة إلى غرفتك</div>
+          </div>
+          <span class="idb" style="position:absolute;left:8px;top:8px;">B03</span>
+        </div>
+        <div class="pay-row sel">
+          <div class="radio sel"></div>
+          <div class="pay-text">
+            <div class="pay-line1">نقدًا</div>
+            <div class="pay-line2">ادفع نقدًا للموظف عند الاستلام</div>
+          </div>
+          <span class="idb" style="position:absolute;left:8px;top:8px;">B04</span>
+        </div>
+
+        <div style="margin-top:4px;">
+          <div class="amount-label1">المبلغ الذي ستدفع به (اختياري)<span class="idb">C11</span></div>
+          <div class="amount-label2">ليحضر الموظف الباقي معه</div>
+          <div class="amount-box err"><span>60</span><span class="amount-suffix">ر.س<span class="idb">F03</span></span></div>
+          <div class="err-line"><span class="err-icon">!</span><span>المبلغ أقل من إجمالي الطلب (62.50 ر.س). اكتب المبلغ الكامل الذي ستدفعه، أو اترك الحقل فارغًا<span class="idb">C12</span></span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bottom-bar">
+      <span class="idb corner">S06</span>
+      <div class="submit-btn"><span>إرسال الطلب<span class="idb" style="background:#fff;">B05</span></span><span>62.50 ر.س</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: هذا خطأ يمنع الإرسال، وليس تحذيرًا قابلاً للتجاهل (القسم 7.4). حد أقصى 2 بكسل للحدود، والأيقونة "!" دائمًا مع النص، دون الاعتماد على اللون.<br>
+    Note: this blocks submission; it is an error, not a dismissible warning (§7.4). The 2px border and "!" icon always accompany the text — never color alone.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 5: AFTER RETURNING FROM M-04 (C13 NOTICE) -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>بعد العودة من M-04 (تنبيه: لم يُرسل الطلب بعد)</h2>
+  <div class="state-sub">After returning from M-04 (order not sent yet notice)</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">←<span class="idb">B01</span></div>
+      <div class="header-title">إتمام الطلب<span class="idb">C01</span></div>
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="scr-body">
+
+      <!-- C13 persistent notice, above S02 -->
+      <div class="notice-fill">
+        <span class="err-icon">!</span>
+        <span>لم يتم إرسال طلبك بعد. راجع الملخص ثم اضغط «إرسال الطلب».<span class="idb">C13</span></span>
+      </div>
+
+      <!-- S02 summary rebuilt after item removal by M-04 -->
+      <div class="sec">
+        <span class="idb corner">S02</span>
+        <div class="summary-box">
+          <div class="summary-title">ملخص الطلب<span class="idb">C02</span></div>
+          <div class="summary-line">2 × عصير برتقال … 24.00 ر.س<span class="idb">C03</span></div>
+          <div class="summary-line">1 × مياه معدنية … 8.00 ر.س<span class="idb">C03</span></div>
+          <div class="summary-rule"></div>
+          <div class="summary-total"><span>الإجمالي</span><span>32.00 ر.س<span class="idb">C04</span></span></div>
+          <div class="summary-editcart"><span class="editcart-link">تعديل السلة<span class="idb">B02</span></span></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <span class="idb corner">S03</span>
+        <div class="field-label">رقم الغرفة<span class="idb">C05</span></div>
+        <div class="field-box">305<span class="idb">F01</span></div>
+      </div>
+
+      <div class="sec">
+        <span class="idb corner">S04</span>
+        <div class="field-label">ملاحظات على الطلب (اختياري)<span class="idb">C07</span></div>
+        <div class="textarea-box">
+          <div class="note-line" style="width:70%"></div>
+          <span class="idb">F02</span>
+        </div>
+        <div class="char-counter">18/200<span class="idb">C08</span></div>
+      </div>
+
+      <div class="sec">
+        <span class="idb corner">S05</span>
+        <div class="payment-title">طريقة الدفع عند الاستلام<span class="idb">C09</span></div>
+        <div class="pay-row">
+          <div class="radio"></div>
+          <div class="pay-text">
+            <div class="pay-line1">بطاقة</div>
+            <div class="pay-line2">سيحضر الموظف جهاز الدفع بالبطاقة إلى غرفتك</div>
+          </div>
+          <span class="idb" style="position:absolute;left:8px;top:8px;">B03</span>
+        </div>
+        <div class="pay-row sel">
+          <div class="radio sel"></div>
+          <div class="pay-text">
+            <div class="pay-line1">نقدًا</div>
+            <div class="pay-line2">ادفع نقدًا للموظف عند الاستلام</div>
+          </div>
+          <span class="idb" style="position:absolute;left:8px;top:8px;">B04</span>
+        </div>
+
+        <div style="margin-top:4px;">
+          <div class="amount-label1">المبلغ الذي ستدفع به (اختياري)<span class="idb">C11</span></div>
+          <div class="amount-label2">ليحضر الموظف الباقي معه</div>
+          <div class="amount-box"><span>40</span><span class="amount-suffix">ر.س<span class="idb">F03</span></span></div>
+          <!-- C12 hidden: 40 >= new total 32.00, re-validated on render -->
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bottom-bar">
+      <span class="idb corner">S06</span>
+      <div class="submit-btn"><span>إرسال الطلب<span class="idb" style="background:#fff;">B05</span></span><span>32.00 ر.س</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: C13 يظهر فقط بعد «إزالتها ومتابعة الطلب» في M-04 مع بقاء سطر واحد على الأقل، ويبقى ظاهرًا حتى فتح M-01. كل القيم محفوظة ولا تُفقد. المبلغ (40) أُعيد التحقق منه تلقائيًا مقابل الإجمالي الجديد (32.00) دون أي خطأ.<br>
+    Note: C13 appears only after M-04 "Remove them and continue" leaves ≥1 line, and stays until M-01 opens. Every value is kept. The amount (40) was automatically re-validated against the new total (32.00) with no error.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 6: NOTE SHORTENED ON PASTE (C14 NOTICE) -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>تم اختصار الملاحظة عند اللصق</h2>
+  <div class="state-sub">Note shortened on paste</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">←<span class="idb">B01</span></div>
+      <div class="header-title">إتمام الطلب<span class="idb">C01</span></div>
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="scr-body">
+
+      <div class="sec">
+        <span class="idb corner">S02</span>
+        <div class="summary-box">
+          <div class="summary-title">ملخص الطلب<span class="idb">C02</span></div>
+          <div class="summary-line">2 × عصير برتقال … 24.00 ر.س<span class="idb">C03</span></div>
+          <div class="summary-line">1 × مياه معدنية … 8.00 ر.س<span class="idb">C03</span></div>
+          <div class="summary-line">1 × رقائق بطاطس … 30.50 ر.س<span class="idb">C03</span></div>
+          <div class="summary-rule"></div>
+          <div class="summary-total"><span>الإجمالي</span><span>62.50 ر.س<span class="idb">C04</span></span></div>
+          <div class="summary-editcart"><span class="editcart-link">تعديل السلة<span class="idb">B02</span></span></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <span class="idb corner">S03</span>
+        <div class="field-label">رقم الغرفة<span class="idb">C05</span></div>
+        <div class="field-box">305<span class="idb">F01</span></div>
+      </div>
+
+      <!-- S04 notes: filled to the 200-char cap after a cut paste -->
+      <div class="sec">
+        <span class="idb corner">S04</span>
+        <div class="field-label">ملاحظات على الطلب (اختياري)<span class="idb">C07</span></div>
+        <div class="textarea-box filled">
+          <div class="note-line" style="width:96%"></div>
+          <div class="note-line" style="width:92%"></div>
+          <div class="note-line" style="width:98%"></div>
+          <div class="note-line" style="width:90%"></div>
+          <div class="note-line" style="width:94%"></div>
+          <div class="note-line" style="width:40%"></div>
+          <span class="idb">F02</span>
+        </div>
+        <div class="char-counter bold">200/200<span class="idb">C08</span></div>
+        <div class="notice-plain">
+          <span class="err-icon">!</span>
+          <span>تم اختصار ملاحظتك إلى 200 حرف<span class="idb">C14</span></span>
+        </div>
+      </div>
+
+      <div class="sec">
+        <span class="idb corner">S05</span>
+        <div class="payment-title">طريقة الدفع عند الاستلام<span class="idb">C09</span></div>
+        <div class="pay-row">
+          <div class="radio"></div>
+          <div class="pay-text">
+            <div class="pay-line1">بطاقة</div>
+            <div class="pay-line2">سيحضر الموظف جهاز الدفع بالبطاقة إلى غرفتك</div>
+          </div>
+          <span class="idb" style="position:absolute;left:8px;top:8px;">B03</span>
+        </div>
+        <div class="pay-row">
+          <div class="radio"></div>
+          <div class="pay-text">
+            <div class="pay-line1">نقدًا</div>
+            <div class="pay-line2">ادفع نقدًا للموظف عند الاستلام</div>
+          </div>
+          <span class="idb" style="position:absolute;left:8px;top:8px;">B04</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bottom-bar">
+      <span class="idb corner">S06</span>
+      <div class="submit-btn"><span>إرسال الطلب<span class="idb" style="background:#fff;">B05</span></span><span>62.50 ر.س</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: C14 إشعار وليس خطأ — لا حدود خطأ على F02 ولا حظر على B05. تختفي عند أي تعديل لاحق على F02 أو عند فتح M-01، ولا تظهر أبدًا عند الكتابة العادية حتى الحد الأقصى.<br>
+    Note: C14 is a notice, not an error — F02 takes no error border and B05 is not blocked. It disappears on the next change to F02 or when M-01 opens, and never appears for typed characters at the cap.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 7: LOADING / EMPTY — NOT APPLICABLE (§6.1, §6.2) -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>لا توجد حالة تحميل، ولا حالة فارغة على G-04</h2>
+  <div class="state-sub">No loading state, and no empty state on G-04 (§6.1 / §6.2)</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-btn">←<span class="idb">B01</span></div>
+      <div class="header-title">إتمام الطلب<span class="idb">C01</span></div>
+      <div class="header-spacer"></div>
+    </div>
+
+    <div class="info-block">
+      <div class="rule">القسم 6.1 — التحميل</div>
+      <p>لا توجد حالة تحميل: الشاشة لا ترسل أي طلب وتُبنى بالكامل من بيانات الجهاز (السلة، نسخة الكتالوج، مسودة إتمام الطلب) من أول لقطة.</p>
+      <div class="rule">القسم 6.2 — الفراغ</div>
+      <p>لا تُعرض G-04 فارغة أبدًا: عند صفر أسطر في السلة، أو وجود سطر غير متوفر، يحل G-03 محل G-04 في السجل بدلًا من رسمها.</p>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: طبقًا للتعليمات لا يُرسَم أي عنصر أو غلاف تحميل/فراغ وهميّ هنا، لأن القسمين 6.1 و6.2 ينصّان صراحةً على عدم وجود مثل هذه الحالة على G-04؛ حالة الفراغ تُرسَم فعليًا على G-03.<br>
+    Note: per the instructions, no fake loading/empty scaffolding is drawn here, because §6.1 and §6.2 explicitly state neither state exists on G-04; the empty case is actually drawn on G-03.
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
