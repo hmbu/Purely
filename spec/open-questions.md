@@ -108,3 +108,22 @@ and the hotel see them before launch rather than after.
 | R-2 | A guest in a hotel with letters or separators in its room numbers (`A-12`, `12B`) cannot enter their real room, and a value like `12` passes every check and is delivered to a different real door. | v1 targets numeric room numbers; the alternative charset is worked out and ready but needs the hotel's answer first. | The hotel answering the OQ-01 question above, then applying the recorded changes to G-04 §5.3, M-01 and M-03. |
 | R-3 | A guest who force-closes the browser mid-submission **and** then empties their cart loses the pending-submission record, so a new checkout generates a new key and could create a second order. | Both actions are needed together, and the pending record already closes the ordinary closed-tab case. Holding the key past an emptied cart would keep a stale attempt alive indefinitely. | A server-side check for a recent unresolved order from the same room before creating a new one. |
 | R-4 | A reload inside the 15-second window of a cancellation that actually succeeded leaves the order correctly Cancelled but attributed to the hotel rather than the guest. | Writing the flag before the server answers would be a lie in the two other outcomes. The order's state is right; only the attribution line is wrong. | The server recording who cancelled and returning it with the status. |
+
+---
+
+## OQ-02 — Card refused at the door and the guest has no cash
+
+**Type:** A (unresolved operational fact). Raised by the staff specification, SM-02 §9 item 6.
+
+**The gap.** Payment is on delivery (locked decision 3). If the card terminal refuses the
+guest's card and the guest has no cash, the order can be neither delivered nor paid. None of
+the four cancellation presets in SM-01 §5.2 names a payment failure.
+
+**What version 1 does.** The staff member cancels with the closest preset and explains in the
+optional free-text line, which the guest reads verbatim on G-06. Nothing is lost, and the
+cancellation reason stays honest.
+
+**What would close it.** The hotel deciding its own policy: charge the room folio, hold the
+items at reception, or cancel. That is a hotel business rule, not an interface decision, and it
+may need a fifth preset or a payment status that locked decision 5 does not have. Either change
+needs the owner.

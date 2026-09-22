@@ -3,7 +3,7 @@
 Project: Hotel In-Room Store — **Staff** interface specification
 Author: Thinker (Agent 1)
 Document language: English. UI copy: Arabic + English, Arabic first.
-Map status: **Draft** — first issue of a newly opened scope.
+Map status: **APPROVED by the product manager.** The three disagreements between this map and the finished screens were ruled in favour of the screens (S-01, S-02), which are more specific and more recent; OQ-02 records the card-refused gap.
 
 Governing documents (all binding, none re-opened here):
 - `/CLAUDE.md` locked decisions 1–7. Decisions 3, 5 and 6 are the ones this interface executes.
@@ -44,16 +44,16 @@ Three properties follow, and every decision in this map is traceable to one of t
 
 | ID | Name (English) | Name (Arabic) | Purpose (one line) | Why it exists | Status |
 |---|---|---|---|---|---|
-| S-01 | Orders board | لوحة الطلبات | The live queue: every order that still needs staff, grouped by status, with the room number as the largest text on each card; plus a "Done today" tab for look-ups. | The one screen they live in. Without it nobody knows an order arrived. | Draft |
-| S-02 | Order detail | تفاصيل الطلب | One order in full: room number at 64 px, what to collect, notes, what to take at the door and what change to bring, and the single button that moves it to the next status. | Every consequential act happens here, after the room number and the items have been read. | Draft |
-| S-03 | Staff sign-in | دخول الموظف | A 4-digit staff PIN that names who is on shift; second variant when the device is not linked to the hotel. | Staff actions are attributable and cash is collected; see §4 decision 2. It is also the tap that unlocks audio for the arrival chime. | Draft |
+| S-01 | Orders board | لوحة الطلبات | The live queue: every order that still needs staff, grouped by status, with the room number as the largest text on each card; plus a "Done today" tab for look-ups. | The one screen they live in. Without it nobody knows an order arrived. | **Approved** |
+| S-02 | Order detail | تفاصيل الطلب | One order in full: room number at 64 px, what to collect, notes, what to take at the door and what change to bring, and the single button that moves it to the next status. | Every consequential act happens here, after the room number and the items have been read. | **Approved** |
+| S-03 | Staff sign-in | دخول الموظف | A 4-digit staff PIN that names who is on shift; second variant when the device is not linked to the hotel. | Staff actions are attributable and cash is collected; see §4 decision 2. It is also the tap that unlocks audio for the arrival chime. | **Approved** |
 
 ### 2.2 Modals
 
 | ID | Name (English) | Name (Arabic) | Opens on top of | Purpose (one line) | Status |
 |---|---|---|---|---|---|
-| SM-01 | Cancel order | إلغاء الطلب | S-02 | Cancels an order with a **required** reason — four preset reasons plus an optional 60-character line — which the guest reads verbatim on G-06 §5.3. | Draft |
-| SM-02 | Confirm delivery and payment | تأكيد التوصيل والدفع | S-02 | The only place money is stated: what to collect, in which method, and what change to give, confirmed at the door before the order becomes Delivered. | Draft |
+| SM-01 | Cancel order | إلغاء الطلب | S-02 | Cancels an order with a **required** reason — four preset reasons plus an optional 60-character line — which the guest reads verbatim on G-06 §5.3. | **Approved** |
+| SM-02 | Confirm delivery and payment | تأكيد التوصيل والدفع | S-02 | The only place money is stated: what to collect, in which method, and what change to give, confirmed at the door before the order becomes Delivered. | **Approved** |
 
 **Totals: 3 screens, 2 modals.**
 
