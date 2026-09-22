@@ -127,3 +127,22 @@ cancellation reason stays honest.
 items at reception, or cancel. That is a hotel business rule, not an interface decision, and it
 may need a fifth preset or a payment status that locked decision 5 does not have. Either change
 needs the owner.
+
+---
+
+## OQ-01 — addendum: the full change list if letters are allowed
+
+Raised by admin screen A-07 §9 item 12. The original OQ-01 change list named G-04, M-01 and
+M-03 only. If the hotel's room numbers contain letters or separators, these frozen texts also
+describe the room number as digits and must change in the same pass:
+
+| File | What describes the room as digits |
+|---|---|
+| `spec/screens/G-05.md` §5.2, §7.2 | "1–5 Western digits"; screen reader reads it "one digit at a time" |
+| `spec/screens/G-06.md` §7, room-number row | "1–5 Western digits"; screen reader reads "room digits one at a time" |
+| `spec/screens/G-07.md` §7, room-number row | "Western digits" |
+| `spec/staff/staff-map.md` §4 decision 4 | "always Western digits" |
+
+A six-character label fits every one of these boxes at its stated size, so only the wording and
+the screen-reader rule change, not the layout. The admin setting that switches the format is
+A-07, protected by AM-04's live test against a real room number.
