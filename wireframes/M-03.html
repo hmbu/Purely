@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>M-03 — لم يتم إرسال الطلب / Order not sent — Wireframes</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background:#ddd;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#000;
+    padding: 24px;
+    margin:0;
+  }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .doc-sub { font-size:12px; color:#333; margin:0 0 20px; }
+  .frames {
+    display:flex;
+    flex-wrap:nowrap;
+    gap:28px;
+    overflow-x:auto;
+    align-items:flex-start;
+    padding-bottom:20px;
+  }
+  .frame { flex:0 0 auto; width:390px; text-align:center; }
+  .frame h2 { font-size:14px; margin:0 0 2px; }
+  .frame .state-sub { font-size:11px; color:#333; margin:0 0 10px; }
+  .frame .note { font-size:10px; color:#333; margin-top:8px; text-align:right; }
+
+  .phone {
+    width:390px;
+    height:700px;
+    border:2px solid #000;
+    background:#fff;
+    position:relative;
+    overflow:hidden;
+    text-align:right;
+  }
+
+  .idb {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:16px;
+    height:16px;
+    padding:0 2px;
+    border:1px solid #000;
+    border-radius:50%;
+    font-size:8px;
+    background:#fff;
+    vertical-align:middle;
+    margin:0 3px;
+    line-height:1;
+    font-family: Arial, sans-serif;
+  }
+  .corner {
+    position:absolute;
+    top:2px;
+    left:2px;
+    z-index:6;
+    background:#fff;
+  }
+
+  /* ===== illustrative underlying screen (NOT a spec element) ===== */
+  .wash { position:absolute; inset:0; background:#eee; z-index:1; }
+  .wash-lines {
+    position:absolute; inset:0;
+    background-image: repeating-linear-gradient(135deg, transparent, transparent 18px, #ddd 18px, #ddd 20px);
+    z-index:1;
+  }
+  .wash-label {
+    position:absolute; top:8px; right:8px; left:8px;
+    font-size:9px; font-style:italic; color:#555; text-align:center; z-index:2;
+  }
+
+  /* ===== S01 backdrop ===== */
+  .backdrop { position:absolute; inset:0; background:#000; opacity:0.5; z-index:3; }
+
+  /* ===== S02 bottom sheet ===== */
+  .sheet {
+    position:absolute;
+    right:0; left:0; bottom:0;
+    background:#fff;
+    border:1px solid #000;
+    border-bottom:none;
+    border-top-left-radius:16px;
+    border-top-right-radius:16px;
+    padding:24px 24px 16px;
+    z-index:5;
+  }
+  .title-row { display:flex; align-items:center; justify-content:flex-start; margin-bottom:12px; }
+  .icon-excl {
+    width:32px; height:32px;
+    border:1px solid #000;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:bold; font-size:16px;
+    margin-left:8px;
+  }
+  .c01-title { font-size:18px; font-weight:bold; }
+  .c02-status { font-size:16px; margin-bottom:16px; }
+  .c03-guidance { font-size:16px; margin-bottom:12px; }
+  .rule { border-top:1px solid #999; margin:12px 0; }
+  .c04-reception { font-size:16px; margin-bottom:24px; }
+  .btn-filled {
+    width:100%; height:48px;
+    border:1px solid #000; border-radius:24px;
+    background:#000; color:#fff;
+    font-size:16px; font-weight:bold;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:8px;
+  }
+  .btn-filled.busy { opacity:1; }
+  .btn-outline {
+    width:100%; height:48px;
+    border:1px solid #000; border-radius:24px;
+    background:#fff;
+    font-size:16px; font-weight:bold;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .btn-outline.disabled { opacity:0.5; }
+  .spinner-ring {
+    width:20px; height:20px;
+    border:2px solid #fff;
+    border-top-color:#888;
+    border-radius:50%;
+    display:inline-block;
+    margin-left:8px;
+  }
+</style>
+</head>
+<body>
+
+<h1>M-03 — لم يتم إرسال الطلب / Order not sent — واجهات سلكية / Wireframes</h1>
+<p class="doc-sub">390px viewport · RTL (Arabic default) · Grayscale low-fidelity · Bottom sheet over a dimmed backdrop · Element IDs shown in small circles next to each element, matching the elements table in /spec/screens/M-03.md</p>
+
+<div class="frames">
+
+<!-- ============================================================ -->
+<!-- FRAME 1: CONNECTION VARIANT -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>حالة الاتصال (المحاولة 1)</h2>
+  <div class="state-sub">Connection variant (attempt 1)</div>
+  <div class="phone">
+    <div class="wash"></div>
+    <div class="wash-lines"></div>
+    <div class="wash-label">(الشاشة الخلفية G-04 — طبقة رمادية توضيحية فقط، ليست عنصرًا في المواصفة ولم تُعَد رسمها<br>Underlying screen G-04 — plain grey wash, illustrative only, not a spec element and not redrawn)</div>
+
+    <div class="backdrop"><span class="idb corner" style="background:#000;color:#fff;border-color:#fff;">S01</span></div>
+
+    <div class="sheet">
+      <span class="idb corner">S02</span>
+
+      <div class="title-row">
+        <div class="icon-excl">!</div>
+        <div class="c01-title">لم يتم إرسال الطلب<span class="idb">C01</span></div>
+      </div>
+
+      <div class="c02-status">لم نتلقَّ تأكيدًا بوصول طلبك إلى الفندق.<span class="idb">C02</span></div>
+
+      <div class="c03-guidance">تحقّق من اتصالك بالإنترنت ثم أعد المحاولة. إعادة المحاولة آمنة ولن تُرسل طلبك مرتين.<span class="idb">C03</span></div>
+
+      <!-- C04 hidden on attempts 1-2 -->
+
+      <div class="btn-filled">إعادة المحاولة<span class="idb" style="background:#000;color:#fff;border-color:#fff;">B01</span></div>
+      <div class="btn-outline">إغلاق<span class="idb">B02</span></div>
+    </div>
+  </div>
+  <div class="note">
+    ملاحظة: العنصر C04 (سطر الاستقبال) مخفي في المحاولتين الأولى والثانية.<br>
+    Note: C04 (the reception line) is hidden on the first and second attempts.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 2: SERVER-ERROR VARIANT -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>حالة خطأ الخادم</h2>
+  <div class="state-sub">Server-error variant</div>
+  <div class="phone">
+    <div class="wash"></div>
+    <div class="wash-lines"></div>
+    <div class="wash-label">(الشاشة الخلفية G-04 — طبقة رمادية توضيحية فقط، ليست عنصرًا في المواصفة ولم تُعَد رسمها<br>Underlying screen G-04 — plain grey wash, illustrative only, not a spec element and not redrawn)</div>
+
+    <div class="backdrop"><span class="idb corner" style="background:#000;color:#fff;border-color:#fff;">S01</span></div>
+
+    <div class="sheet">
+      <span class="idb corner">S02</span>
+
+      <div class="title-row">
+        <div class="icon-excl">!</div>
+        <div class="c01-title">لم يتم إرسال الطلب<span class="idb">C01</span></div>
+      </div>
+
+      <div class="c02-status">لم نتلقَّ تأكيدًا بوصول طلبك إلى الفندق.<span class="idb">C02</span></div>
+
+      <div class="c03-guidance">حدث خطأ من جهتنا. أعد المحاولة بعد لحظات. إعادة المحاولة آمنة ولن تُرسل طلبك مرتين.<span class="idb">C03</span></div>
+
+      <div class="btn-filled">إعادة المحاولة<span class="idb" style="background:#000;color:#fff;border-color:#fff;">B01</span></div>
+      <div class="btn-outline">إغلاق<span class="idb">B02</span></div>
+    </div>
+  </div>
+  <div class="note">
+    ملاحظة: نفس العناصر تمامًا كالنسخة الأولى؛ يختلف فقط نص C03 (إرشاد خطأ الخادم بدل إرشاد الاتصال).<br>
+    Note: identical elements to the connection variant; only C03's copy differs (server guidance instead of connection guidance).
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 3: RETRY IN FLIGHT -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>إعادة المحاولة قيد الإرسال</h2>
+  <div class="state-sub">Retry in flight (loading)</div>
+  <div class="phone">
+    <div class="wash"></div>
+    <div class="wash-lines"></div>
+    <div class="wash-label">(الشاشة الخلفية G-04 — طبقة رمادية توضيحية فقط، ليست عنصرًا في المواصفة ولم تُعَد رسمها<br>Underlying screen G-04 — plain grey wash, illustrative only, not a spec element and not redrawn)</div>
+
+    <div class="backdrop"><span class="idb corner" style="background:#000;color:#fff;border-color:#fff;">S01</span></div>
+
+    <div class="sheet">
+      <span class="idb corner">S02</span>
+
+      <div class="title-row">
+        <div class="icon-excl">!</div>
+        <div class="c01-title">لم يتم إرسال الطلب<span class="idb">C01</span></div>
+      </div>
+
+      <div class="c02-status">لم نتلقَّ تأكيدًا بوصول طلبك إلى الفندق.<span class="idb">C02</span></div>
+
+      <div class="c03-guidance">تحقّق من اتصالك بالإنترنت ثم أعد المحاولة. إعادة المحاولة آمنة ولن تُرسل طلبك مرتين.<span class="idb">C03</span></div>
+
+      <div class="btn-filled busy">
+        <span class="spinner-ring"></span>جارٍ الإرسال…<span class="idb" style="background:#000;color:#fff;border-color:#fff;">B01</span>
+      </div>
+      <div class="btn-outline disabled">إغلاق<span class="idb">B02</span></div>
+    </div>
+  </div>
+  <div class="note">
+    ملاحظة: C01–C03 لا تتغيّر أثناء الإرسال (لا يتحول النص إلى صياغة محايدة)؛ B01 بعتامة 100% وغير تفاعلي، B02 بعتامة 50%. سقف الانتظار 15 ثانية.<br>
+    Note: C01–C03 stay unchanged during the retry (the text never switches to neutral "sending" copy); B01 is at 100% opacity and inert, B02 is at 50% opacity. The wait is capped at 15 seconds.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 4: THIRD CONSECUTIVE FAILURE -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الفشل الثالث المتتالي</h2>
+  <div class="state-sub">From the 3rd consecutive failed attempt — reception line shown</div>
+  <div class="phone">
+    <div class="wash"></div>
+    <div class="wash-lines"></div>
+    <div class="wash-label">(الشاشة الخلفية G-04 — طبقة رمادية توضيحية فقط، ليست عنصرًا في المواصفة ولم تُعَد رسمها<br>Underlying screen G-04 — plain grey wash, illustrative only, not a spec element and not redrawn)</div>
+
+    <div class="backdrop"><span class="idb corner" style="background:#000;color:#fff;border-color:#fff;">S01</span></div>
+
+    <div class="sheet">
+      <span class="idb corner">S02</span>
+
+      <div class="title-row">
+        <div class="icon-excl">!</div>
+        <div class="c01-title">لم يتم إرسال الطلب<span class="idb">C01</span></div>
+      </div>
+
+      <div class="c02-status">لم نتلقَّ تأكيدًا بوصول طلبك إلى الفندق.<span class="idb">C02</span></div>
+
+      <div class="c03-guidance">تحقّق من اتصالك بالإنترنت ثم أعد المحاولة. إعادة المحاولة آمنة ولن تُرسل طلبك مرتين.<span class="idb">C03</span></div>
+
+      <div class="rule"></div>
+      <div class="c04-reception">إذا استمرت المشكلة، اتصل بالاستقبال من هاتف الغرفة وأخبرهم برقم غرفتك 0305. يمكنهم التحقق مما إذا كان طلبك قد وصل، أو أخذه منك هاتفيًا.<span class="idb">C04</span></div>
+
+      <div class="btn-filled">إعادة المحاولة<span class="idb" style="background:#000;color:#fff;border-color:#fff;">B01</span></div>
+      <div class="btn-outline">إغلاق<span class="idb">B02</span></div>
+    </div>
+  </div>
+  <div class="note">
+    ملاحظة: لا يوجد عداد محاولات ظاهر ولا حد أقصى لإعادة المحاولة — العنصر C04 وحده يظهر من المحاولة الثالثة فصاعدًا ويبقى ظاهرًا لهذا المفتاح.<br>
+    Note: no visible attempt counter and no retry cap — only C04 appears from the third attempt onward and stays shown for this key.
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>

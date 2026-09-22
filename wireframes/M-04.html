@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>M-04 — منتجات غير متوفرة / Items no longer available — Wireframes</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background:#ddd;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#000;
+    padding: 24px;
+    margin:0;
+  }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .doc-sub { font-size:12px; color:#333; margin:0 0 20px; }
+  .frames {
+    display:flex;
+    flex-wrap:nowrap;
+    gap:28px;
+    overflow-x:auto;
+    align-items:flex-start;
+    padding-bottom:20px;
+  }
+  .frame { flex:0 0 auto; width:390px; text-align:center; }
+  .frame h2 { font-size:14px; margin:0 0 2px; }
+  .frame .state-sub { font-size:11px; color:#333; margin:0 0 10px; }
+  .frame .note { font-size:10px; color:#333; margin-top:8px; text-align:right; }
+
+  .phone {
+    width:390px;
+    height:700px;
+    border:2px solid #000;
+    background:#fff;
+    position:relative;
+    overflow:hidden;
+    text-align:right;
+  }
+
+  .idb {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:16px;
+    height:16px;
+    padding:0 2px;
+    border:1px solid #000;
+    border-radius:50%;
+    font-size:8px;
+    background:#fff;
+    vertical-align:middle;
+    margin:0 3px;
+    line-height:1;
+    font-family: Arial, sans-serif;
+  }
+  .corner {
+    position:absolute;
+    top:2px;
+    left:2px;
+    z-index:6;
+    background:#fff;
+  }
+
+  /* ===== illustrative underlying screen (NOT a spec element) ===== */
+  .wash { position:absolute; inset:0; background:#eee; z-index:1; }
+  .wash-lines {
+    position:absolute; inset:0;
+    background-image: repeating-linear-gradient(135deg, transparent, transparent 18px, #ddd 18px, #ddd 20px);
+    z-index:1;
+  }
+  .wash-label {
+    position:absolute; top:8px; right:8px; left:8px;
+    font-size:9px; font-style:italic; color:#555; text-align:center; z-index:2;
+  }
+
+  /* ===== S01 backdrop ===== */
+  .backdrop { position:absolute; inset:0; background:#000; opacity:0.5; z-index:3; }
+
+  /* ===== S02 bottom sheet ===== */
+  .sheet {
+    position:absolute;
+    right:0; left:0; bottom:0;
+    background:#fff;
+    border:1px solid #000;
+    border-bottom:none;
+    border-top-left-radius:16px;
+    border-top-right-radius:16px;
+    padding:24px 24px 16px;
+    z-index:5;
+  }
+  .c01-title { font-size:18px; font-weight:bold; margin-bottom:12px; }
+  .c02-body { font-size:16px; margin-bottom:16px; }
+
+  .list-box {
+    position:relative;
+    border:1px solid #000;
+    border-radius:8px;
+    overflow:hidden;
+    margin-bottom:12px;
+  }
+  .list-box.short { max-height:198px; }
+  .row {
+    height:44px;
+    padding:0 12px;
+    display:flex;
+    align-items:center;
+    font-size:16px;
+    border-bottom:1px solid #ccc;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    position:relative;
+  }
+  .row:last-child { border-bottom:none; }
+  .row.half { height:22px; overflow:hidden; }
+
+  .c04-total {
+    font-size:16px;
+    font-weight:bold;
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:24px;
+  }
+
+  .btn-filled {
+    width:100%; height:48px;
+    border:1px solid #000; border-radius:24px;
+    background:#000; color:#fff;
+    font-size:16px; font-weight:bold;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:8px;
+  }
+  .btn-outline {
+    width:100%; height:48px;
+    border:1px solid #000; border-radius:24px;
+    background:#fff;
+    font-size:16px; font-weight:bold;
+    display:flex; align-items:center; justify-content:center;
+  }
+</style>
+</head>
+<body>
+
+<h1>M-04 — منتجات غير متوفرة / Items no longer available — واجهات سلكية / Wireframes</h1>
+<p class="doc-sub">390px viewport · RTL (Arabic default) · Grayscale low-fidelity · Bottom sheet over a dimmed backdrop · Element IDs shown in small circles next to each element, matching the elements table in /spec/screens/M-04.md</p>
+
+<div class="frames">
+
+<!-- ============================================================ -->
+<!-- FRAME 1: ONE ITEM UNAVAILABLE -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>منتج واحد غير متوفر</h2>
+  <div class="state-sub">Some, N = 1</div>
+  <div class="phone">
+    <div class="wash"></div>
+    <div class="wash-lines"></div>
+    <div class="wash-label">(الشاشة الخلفية G-04 — طبقة رمادية توضيحية فقط، ليست عنصرًا في المواصفة ولم تُعَد رسمها<br>Underlying screen G-04 — plain grey wash, illustrative only, not a spec element and not redrawn)</div>
+
+    <div class="backdrop"><span class="idb corner" style="background:#000;color:#fff;border-color:#fff;">S01</span></div>
+
+    <div class="sheet">
+      <span class="idb corner">S02</span>
+
+      <div class="c01-title">منتج لم يعد متوفرًا<span class="idb">C01</span></div>
+
+      <div class="c02-body">لم يتم إرسال طلبك: نفد هذا المنتج. أزله ثم أرسل باقي الطلب.<span class="idb">C02</span></div>
+
+      <div class="list-box">
+        <span class="idb corner" style="top:-8px;left:-8px;">S03</span>
+        <div class="row">1 × قهوة مثلجة<span class="idb">C03</span></div>
+      </div>
+
+      <div class="c04-total"><span>الإجمالي بعد الإزالة</span><span>38.00 ر.س<span class="idb">C04</span></span></div>
+
+      <div class="btn-filled">إزالته والمتابعة<span class="idb" style="background:#000;color:#fff;border-color:#fff;">B01</span></div>
+      <div class="btn-outline">العودة إلى السلة<span class="idb">B02</span></div>
+    </div>
+  </div>
+  <div class="note">
+    ملاحظة: يبدأ نص C02 بعبارة "لم يتم إرسال طلبك" في كل الحالات — القائمة تحوي صفًا واحدًا فقط فلا حاجة للتمرير.<br>
+    Note: C02's copy opens with "Your order was not sent" in every case — the list has a single row, so no scrolling is needed.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 2: SEVERAL ITEMS -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>عدة منتجات غير متوفرة</h2>
+  <div class="state-sub">Some, N ≥ 2 — list scroll cue</div>
+  <div class="phone">
+    <div class="wash"></div>
+    <div class="wash-lines"></div>
+    <div class="wash-label">(الشاشة الخلفية G-04 — طبقة رمادية توضيحية فقط، ليست عنصرًا في المواصفة ولم تُعَد رسمها<br>Underlying screen G-04 — plain grey wash, illustrative only, not a spec element and not redrawn)</div>
+
+    <div class="backdrop"><span class="idb corner" style="background:#000;color:#fff;border-color:#fff;">S01</span></div>
+
+    <div class="sheet">
+      <span class="idb corner">S02</span>
+
+      <div class="c01-title">بعض المنتجات لم تعد متوفرة<span class="idb">C01</span></div>
+
+      <div class="c02-body">لم يتم إرسال طلبك: نفدت هذه المنتجات. أزلها ثم أرسل باقي الطلب.<span class="idb">C02</span></div>
+
+      <div class="list-box short">
+        <span class="idb corner" style="top:-8px;left:-8px;">S03</span>
+        <div class="row">2 × قهوة مثلجة<span class="idb">C03</span></div>
+        <div class="row">1 × عصير برتقال<span class="idb">C03</span></div>
+        <div class="row">1 × شيبس بالجبن<span class="idb">C03</span></div>
+        <div class="row">3 × مياه معدنية<span class="idb">C03</span></div>
+        <div class="row half">1 × شوكولاتة داكنة<span class="idb">C03</span></div>
+      </div>
+
+      <div class="c04-total"><span>الإجمالي بعد الإزالة</span><span>52.00 ر.س<span class="idb">C04</span></span></div>
+
+      <div class="btn-filled">إزالتها والمتابعة<span class="idb" style="background:#000;color:#fff;border-color:#fff;">B01</span></div>
+      <div class="btn-outline">العودة إلى السلة<span class="idb">B02</span></div>
+    </div>
+  </div>
+  <div class="note">
+    ملاحظة: مربع القائمة بحد أقصى 198px (4.5 صف) — يظهر 4 صفوف كاملة والصف الخامس نصفه فقط كإشارة للتمرير، بلا "عرض المزيد" أو عداد.<br>
+    Note: the list box's maximum height is 198px (4½ rows) — 4 full rows show, the fifth row is only half visible as the scroll cue, with no "show more" or count text.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 3: EVERYTHING SOLD OUT -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>نفد كل ما في الطلب</h2>
+  <div class="state-sub">All — everything sold out</div>
+  <div class="phone">
+    <div class="wash"></div>
+    <div class="wash-lines"></div>
+    <div class="wash-label">(الشاشة الخلفية G-04 — طبقة رمادية توضيحية فقط، ليست عنصرًا في المواصفة ولم تُعَد رسمها<br>Underlying screen G-04 — plain grey wash, illustrative only, not a spec element and not redrawn)</div>
+
+    <div class="backdrop"><span class="idb corner" style="background:#000;color:#fff;border-color:#fff;">S01</span></div>
+
+    <div class="sheet">
+      <span class="idb corner">S02</span>
+
+      <div class="c01-title">نفد كل ما في طلبك<span class="idb">C01</span></div>
+
+      <div class="c02-body">لم يتم إرسال طلبك ولم يصل إلى الفندق. أزل المنتجات من السلة واختر منتجات أخرى من المتجر.<span class="idb">C02</span></div>
+
+      <div class="list-box">
+        <span class="idb corner" style="top:-8px;left:-8px;">S03</span>
+        <div class="row">1 × قهوة مثلجة<span class="idb">C03</span></div>
+        <div class="row">2 × مياه معدنية<span class="idb">C03</span></div>
+      </div>
+
+      <!-- C04 hidden in the "all" case: nothing remains, 0.00 is never shown -->
+
+      <div class="btn-filled">إزالتها من السلة<span class="idb" style="background:#000;color:#fff;border-color:#fff;">B01</span></div>
+      <div class="btn-outline">العودة إلى السلة<span class="idb">B02</span></div>
+    </div>
+  </div>
+  <div class="note">
+    ملاحظة: العنصر C04 مخفي هنا (لا شيء يتبقّى ليُعرض إجماليه)؛ ولا تظهر كلمتا "بعض" أو "باقي" في أي مكان بهذه النسخة.<br>
+    Note: C04 is hidden here (nothing remains to total); the words "some" and "the rest" appear nowhere in this variant.
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
