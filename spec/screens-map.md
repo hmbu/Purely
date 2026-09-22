@@ -29,8 +29,8 @@ Map status: **APPROVED by the product manager.** Checkpoint 1 is cleared; screen
 | G-04 | Checkout | إتمام الطلب | Enter room number, optional order notes, choose payment on delivery (card / cash + optional "amount you will pay with"), review summary, submit. |**Approved** (OQ-01 open) |
 | G-05 | Order submitted | تم إرسال طلبك | Success confirmation with order number and room number; entry to tracking. | Draft |
 | G-06 | Order tracking | متابعة الطلب | Timeline of the order's status (New → Accepted & preparing → On the way → Delivered / Cancelled), order details, cancel before acceptance, reorder after completion. | Draft |
-| G-07 | My orders | طلباتي | List of orders stored on this device (no login), newest first; opens tracking for any of them. | Draft |
-| G-08 | Store unavailable | المتجر غير متاح | Full-screen replacement for G-01 when the store cannot be loaded (no connection / server error → Retry) or the scanned link is not valid (no Retry). | Draft |
+| G-07 | My orders | طلباتي | List of orders stored on this device (no login), newest first; opens tracking for any of them. | **Approved** |
+| G-08 | Store unavailable | المتجر غير متاح | Full-screen replacement for G-01 when the store cannot be loaded (no connection / server error → Retry) or the scanned link is not valid (no Retry). | **Approved** |
 
 ### 1.2 Modals
 
