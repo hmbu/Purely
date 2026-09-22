@@ -79,3 +79,37 @@ Source review: `/spec/reviews/G-04.md` (cycle 1). Ten Later verdicts from tester
 ---
 
 *(Later screens append their sections below this line.)*
+
+---
+
+## M-01 — Confirm room number (تأكيد رقم الغرفة)
+
+Source review: `/spec/reviews/M-01.md` (cycle 1). Three Later verdicts, all from tester findings; no element and no modal decision was deferred.
+
+| # | Ref | Item | Reason for deferring |
+|---|---|---|---|
+| M-01-L1 | F-2.1 | **A way to fix the language from M-01** — a language toggle on the modal, or icons beside the two text-only button labels, for a guest who reached a non-dismissable confirmation in a language they cannot read. | The language is chosen on G-01 and saved on the device, and "تعديل رقم الغرفة / Edit room number" is a working exit back to G-04, so the detour exists only on a first open; same ruling as G-02-L1 and G-04-L2. |
+| M-01-L2 | F-3.2 | **A stronger disabled signal for B02 in the loading state** — a clearer treatment than 50 % opacity on the outlined "Edit room number" button while the request is in flight. | Tapping the button in that state does nothing at all, so the cost of not perceiving the disabled state is zero; strengthening the treatment is visual design, like G-03-L3 and G-04-L4. |
+| M-01-L3 | F-6.1, F-6.3 | **Progress feedback during the send wait** — an elapsed-time cue, a "still trying" line, or any progress indication during the up-to-15-second wait, including across repeated M-03 retry cycles. | The wait is capped and ends in a defined outcome with a Retry, and the device-scoped client order key (ruling R2) removes the duplicate-order harm a guest could cause by acting on the silence; this is comfort during a wait, as already deferred in G-01-L2 and G-03-L7. |
+
+---
+
+## M-03 — Order not sent (لم يتم إرسال الطلب)
+
+Source review: `/spec/reviews/M-03.md` (cycle 1). Two Later verdicts, both from tester findings; no element and no modal decision was deferred.
+
+| # | Ref | Item | Reason for deferring |
+|---|---|---|---|
+| M-03-L1 | F3 | **A language toggle reachable from M-03** — switching Arabic ↔ English without closing the failure sheet and walking back through G-04 → G-03 → G-01. | The language is chosen on G-01 and saved on the device, so the detour exists only on a first open; same ruling as G-02-L1, G-03-L2, G-04-L2 and M-01-L1. |
+| M-03-L2 | F4 | **Progress feedback during an in-flight retry** — an elapsed-time or progress cue during the up-to-15-second wait in which the sheet cannot be dismissed (joins G-01-L2, G-03-L7 and M-01-L3). | The wait is capped at 15 seconds and always ends in a defined outcome, and the lock itself is Essential (a dismissable in-flight modal leaves an arriving success with nowhere to land), so only the cue is deferred. |
+
+---
+
+## M-04 — Items no longer available (منتجات غير متوفرة)
+
+Source review: `/spec/reviews/M-04.md` (cycle 1). Two Later verdicts, both from tester findings; no element and no modal decision was deferred.
+
+| # | Ref | Item | Reason for deferring |
+|---|---|---|---|
+| M-04-L1 | F1 | **Images and unit prices in the rejected-item rows** — a 64 px thumbnail and the unit price beside each "{qty} × {name}" row, so a guest who browsed by photo can recognise what is being removed. | Removal is by product identifier, so nothing wrong ever reaches staff; "Back to cart" shows every image and price one tap away, and extra columns add height to a sheet that must fit on one screen. |
+| M-04-L2 | F2 | **A language toggle reachable from M-04** — switching Arabic ↔ English without leaving the rejection sheet. | Same ruling as M-03-L1: the language is chosen once on G-01 and saved on the device, so the detour exists only on a first open. |
