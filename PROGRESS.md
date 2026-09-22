@@ -157,5 +157,38 @@ a state — never by building new machinery.
 `/spec/backlog.md` — deferred to v2, by screen.
 `/spec/open-questions.md` — OQ-01 plus four accepted residual risks.
 
-**Next:** the last two wireframes, then `/wireframes/index.html`, then the
-closing summary.
+**Step 5 — Wireframes: all twelve drawn, plus the index.**
+
+13 files, 6233 lines, every one fully grayscale at 390px RTL with each
+element's ID in a circle beside it. States were drawn, not just the happy
+path: the failed availability check with Checkout still enabled, the cart's
+three toast cases, G-04's four error states, G-06's five statuses plus the
+cancellation race, and G-08 with and without a saved order.
+
+`/wireframes/index.html` links all twelve and draws 34 labelled arrows from
+the map's own routing table. Two documented routes were initially omitted to
+reduce clutter and were restored: the wireframer's rule is that it never
+removes what the spec has, and those two were gaps the review had closed.
+
+---
+
+# PROJECT COMPLETE
+
+| | |
+|---|---|
+| Screens and modals | 12, all **Approved** |
+| Specification | 4,226 lines across 12 files |
+| Elements specified | 192 |
+| Acceptance criteria | 751 |
+| Test reports | 12 (seven personas each) |
+| Review files | 12 (every element and every finding ruled) |
+| Wireframes | 13 files, 6,233 lines |
+| Deferred to v2 | 49 items in `backlog.md` |
+| Open questions | 1 question, 4 accepted residual risks |
+| Critical findings found and closed | 10 |
+| Commits | 52 |
+
+**What is waiting on the owner:** OQ-01 — does the target hotel use letters or
+separators in its room numbers? Version 1 accepts 1–5 digits. The alternative
+is fully worked out and the files that must change are listed; it needs the
+hotel's answer before build, not before spec.
