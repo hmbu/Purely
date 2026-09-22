@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>G-08 — المتجر غير متاح / Store unavailable — Wireframes</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background:#ddd;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#000;
+    padding: 24px;
+    margin:0;
+  }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .doc-sub { font-size:12px; color:#333; margin:0 0 20px; }
+  .frames {
+    display:flex;
+    flex-wrap:nowrap;
+    gap:28px;
+    overflow-x:auto;
+    align-items:flex-start;
+    padding-bottom:20px;
+  }
+  .frame { flex:0 0 auto; width:390px; text-align:center; }
+  .frame h2 { font-size:14px; margin:0 0 2px; }
+  .frame .state-sub { font-size:11px; color:#333; margin:0 0 10px; }
+  .frame .note { font-size:10px; color:#333; margin-top:8px; text-align:right; }
+
+  .phone {
+    width:390px;
+    min-height:400px;
+    border:2px solid #000;
+    background:#fff;
+    position:relative;
+    overflow:hidden;
+    text-align:right;
+  }
+
+  /* small circled ID badges, shown next to their element */
+  .idb {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:16px;
+    height:16px;
+    padding:0 2px;
+    border:1px solid #000;
+    border-radius:50%;
+    font-size:8px;
+    background:#fff;
+    vertical-align:middle;
+    margin:0 3px;
+    line-height:1;
+    font-family: Arial, sans-serif;
+  }
+  .corner {
+    position:absolute;
+    top:2px;
+    left:2px;
+    z-index:5;
+    background:#fff;
+  }
+
+  /* ===== Header S01 ===== */
+  .header {
+    position:relative;
+    height:56px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 10px;
+    border-bottom:1px solid #000;
+  }
+  .lang-btn {
+    border:1px solid #000;
+    border-radius:4px;
+    padding:4px 8px;
+    font-size:16px;
+    background:#fff;
+    white-space:nowrap;
+  }
+  .myorders-btn {
+    font-size:16px;
+    padding:4px 4px;
+    white-space:nowrap;
+  }
+  .header-spacer { width:44px; height:44px; }
+
+  /* ===== Body S02 ===== */
+  .body-block {
+    position:relative;
+    padding:64px 16px 0;
+    text-align:center;
+  }
+  .icon-exclaim {
+    width:56px; height:56px;
+    border:1px solid #999;
+    border-radius:50%;
+    margin:0 auto 24px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:28px; color:#999; font-weight:bold;
+  }
+  .title-line { font-size:20px; font-weight:bold; margin-bottom:12px; }
+  .body-line { font-size:16px; margin-bottom:12px; }
+  .reception-line { font-size:14px; color:#333; margin-bottom:32px; }
+  .reception-line.hidden-note { color:#bbb; border:1px dashed #bbb; padding:4px; }
+
+  .btn-retry {
+    width:100%; height:56px;
+    background:#000; color:#fff;
+    border-radius:28px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; font-weight:bold;
+  }
+  .btn-retry.trying { background:#000; color:#fff; }
+  .spinner {
+    display:inline-block;
+    width:16px; height:16px;
+    border:2px solid #fff;
+    border-top-color:#777;
+    border-radius:50%;
+    margin-left:8px;
+    vertical-align:middle;
+  }
+
+  .no-b03-marker {
+    font-size:11px; color:#333; border:1px dashed #999; padding:4px 8px;
+  }
+</style>
+</head>
+<body>
+
+<h1>G-08 — المتجر غير متاح / Store unavailable — واجهات سلكية / Wireframes</h1>
+<p class="doc-sub">390px · RTL (Arabic default) · Grayscale low-fidelity · Element IDs shown in small circles next to each element, matching the elements table in /spec/screens/G-08.md</p>
+
+<div class="frames">
+
+<!-- ============================================================ -->
+<!-- FRAME 1: RETRYABLE VARIANT — first render, order exists on device -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>النسخة القابلة لإعادة المحاولة — العرض الأول</h2>
+  <div class="state-sub">Retryable variant — first render</div>
+  <div class="phone">
+
+    <!-- S01 Header -->
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="lang-btn">English<span class="idb">B01</span></div>
+      <div class="myorders-btn">طلباتي<span class="idb">B03</span></div>
+    </div>
+
+    <!-- S02 body -->
+    <div class="body-block">
+      <span class="idb corner">S02</span>
+
+      <div class="icon-exclaim">!<span class="idb">C01</span></div>
+
+      <div class="title-line">تعذّر فتح المتجر<span class="idb">C02</span></div>
+
+      <div class="body-line">تحقّق من اتصال الإنترنت ثم أعد المحاولة<span class="idb">C03</span></div>
+
+      <!-- C04 hidden on first render -->
+      <div class="reception-line hidden-note">
+        (C04 مخفي في العرض الأول — يظهر بعد أول محاولة فاشلة)<br>
+        (C04 hidden on first render — appears after the first failed Retry)
+      </div>
+
+      <div class="btn-retry">إعادة المحاولة<span class="idb">B02</span></div>
+
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: B03 "طلباتي" يظهر لأن الجهاز يحتفظ بطلب واحد على الأقل؛ B01 دائمًا في الطرف البادئ (يمين) وB03 في الطرف الختامي (يسار).<br>
+    Note: B03 "My orders" is rendered because the device holds at least one order; B01 is always at the start edge (right), B03 at the end edge (left).
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 2: RETRYABLE VARIANT — TRYING STATE -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>النسخة القابلة لإعادة المحاولة — جارٍ المحاولة</h2>
+  <div class="state-sub">Retryable variant — trying state</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="lang-btn">English<span class="idb">B01</span></div>
+      <div class="myorders-btn">طلباتي<span class="idb">B03</span></div>
+    </div>
+
+    <div class="body-block">
+      <span class="idb corner">S02</span>
+
+      <div class="icon-exclaim">!<span class="idb">C01</span></div>
+
+      <div class="title-line">تعذّر فتح المتجر<span class="idb">C02</span></div>
+
+      <div class="body-line">تحقّق من اتصال الإنترنت ثم أعد المحاولة<span class="idb">C03</span></div>
+
+      <div class="reception-line hidden-note">
+        (C04 يبقى بحسب حالته السابقة أثناء المحاولة)<br>
+        (C04 keeps its previous visibility while trying)
+      </div>
+
+      <!-- B02 non-interactive, label replaced by C05 -->
+      <div class="btn-retry trying">
+        <span class="spinner"></span>جارٍ المحاولة…<span class="idb">C05</span>
+        <span class="idb" style="margin-right:6px;">B02</span>
+      </div>
+
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: B02 غير تفاعلي أثناء هذه الحالة، ولبيان ذلك بقي معرّفه ظاهرًا فوق مكانه؛ نصّه استُبدل بـC05. B01 وB03 يبقيان نشطين طوال هذه الحالة ولا يتوقف الطلب عند الضغط عليهما.<br>
+    Note: B02 is non-interactive during this state; its ID badge is kept in place to show it is the same element whose label was replaced by C05. B01 and B03 both stay live throughout, and neither cancels the in-flight request.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 3: RETRYABLE VARIANT — AFTER A FAILED RETRY (C04 shown) -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>النسخة القابلة لإعادة المحاولة — بعد فشل إعادة المحاولة</h2>
+  <div class="state-sub">Retryable variant — after a failed Retry (C04 now visible)</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="lang-btn">English<span class="idb">B01</span></div>
+      <div class="myorders-btn">طلباتي<span class="idb">B03</span></div>
+    </div>
+
+    <div class="body-block">
+      <span class="idb corner">S02</span>
+
+      <div class="icon-exclaim">!<span class="idb">C01</span></div>
+
+      <div class="title-line">تعذّر فتح المتجر<span class="idb">C02</span></div>
+
+      <div class="body-line">تحقّق من اتصال الإنترنت ثم أعد المحاولة<span class="idb">C03</span></div>
+
+      <!-- C04 now visible -->
+      <div class="reception-line">
+        إذا استمرت المشكلة، اتصل بالاستقبال من هاتف الغرفة<span class="idb">C04</span>
+      </div>
+
+      <div class="btn-retry">إعادة المحاولة<span class="idb">B02</span></div>
+
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: لا يوجد رمز خطأ ولا عدّاد محاولات ولا رسالة إضافية؛ فقط C04 أصبح ظاهرًا ويبقى كذلك لبقية هذه الزيارة.<br>
+    Note: no error code, no attempt counter, no extra message; only C04 has become visible, and it stays visible for the rest of this visit.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 4: INVALID-LINK VARIANT -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>نسخة الرابط غير الصالح</h2>
+  <div class="state-sub">Invalid-link variant</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="lang-btn">English<span class="idb">B01</span></div>
+      <div class="myorders-btn">طلباتي<span class="idb">B03</span></div>
+    </div>
+
+    <div class="body-block">
+      <span class="idb corner">S02</span>
+
+      <div class="icon-exclaim">!<span class="idb">C01</span></div>
+
+      <div class="title-line">هذا الرابط لا يفتح متجر الفندق<span class="idb">C02</span></div>
+
+      <div class="body-line">امسح رمز QR الموجود في غرفتك مرة أخرى<span class="idb">C03</span></div>
+
+      <!-- C04 always visible on this variant -->
+      <div class="reception-line">
+        إذا استمرت المشكلة، اتصل بالاستقبال من هاتف الغرفة<span class="idb">C04</span>
+      </div>
+
+      <!-- B02 not rendered at all on this variant -->
+
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: لا يوجد زر "إعادة المحاولة" (B02) إطلاقًا في هذه النسخة؛ C04 ظاهر دائمًا منذ العرض الأول. B03 موجود بنفس الشرط والمكان كما في النسخة القابلة لإعادة المحاولة.<br>
+    Note: no "Retry" button (B02) at all in this variant; C04 is always visible from the first render. B03 is present under the same condition and in the same place as on the retryable variant.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 5: EITHER VARIANT — NO SAVED ORDER (B03 absent) -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>أي نسخة — بدون طلب محفوظ على الجهاز (B03 غير موجود إطلاقًا)</h2>
+  <div class="state-sub">Either variant — no saved order on the device (B03 is genuinely absent, not disabled)</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="lang-btn">English<span class="idb">B01</span></div>
+      <!-- B03 is NOT rendered here: no readable order record on the device -->
+    </div>
+
+    <div class="body-block">
+      <span class="idb corner">S02</span>
+
+      <div class="icon-exclaim">!<span class="idb">C01</span></div>
+
+      <div class="title-line">تعذّر فتح المتجر<span class="idb">C02</span></div>
+
+      <div class="body-line">تحقّق من اتصال الإنترنت ثم أعد المحاولة<span class="idb">C03</span></div>
+
+      <div class="reception-line hidden-note">
+        (C04 مخفي في العرض الأول لهذا المثال)<br>
+        (C04 hidden on first render in this example)
+      </div>
+
+      <div class="btn-retry">إعادة المحاولة<span class="idb">B02</span></div>
+
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة هامة: هذه اللقطة لجهاز لا يحتفظ بأي طلب قابل للقراءة. B03 "طلباتي" غير موجود إطلاقًا في الترويسة — ليس رماديًا، وليس معطّلًا، بل غائب تمامًا؛ قارن بالإطار الأول حيث B03 ظاهر بجانب B01. نفس الغياب يحدث في نسخة الرابط غير الصالح أيضًا.<br>
+    Important note: this frame is for a device holding no readable order record. B03 "My orders" is not rendered at all in the header — not greyed, not disabled, genuinely gone; compare with Frame 1 where B03 sits beside B01. The same absence applies on the invalid-link variant too.
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>

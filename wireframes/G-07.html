@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>G-07 — طلباتي / My orders — Wireframes</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background:#ddd;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#000;
+    padding: 24px;
+    margin:0;
+  }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .doc-sub { font-size:12px; color:#333; margin:0 0 20px; }
+  .frames {
+    display:flex;
+    flex-wrap:nowrap;
+    gap:28px;
+    overflow-x:auto;
+    align-items:flex-start;
+    padding-bottom:20px;
+  }
+  .frame { flex:0 0 auto; width:390px; text-align:center; }
+  .frame h2 { font-size:14px; margin:0 0 2px; }
+  .frame .state-sub { font-size:11px; color:#333; margin:0 0 10px; }
+  .frame .note { font-size:10px; color:#333; margin-top:8px; text-align:right; }
+
+  .phone {
+    width:390px;
+    min-height:400px;
+    border:2px solid #000;
+    background:#fff;
+    position:relative;
+    overflow:hidden;
+    text-align:right;
+  }
+
+  /* small circled ID badges, shown next to their element */
+  .idb {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:16px;
+    height:16px;
+    padding:0 2px;
+    border:1px solid #000;
+    border-radius:50%;
+    font-size:8px;
+    background:#fff;
+    vertical-align:middle;
+    margin:0 3px;
+    line-height:1;
+    font-family: Arial, sans-serif;
+  }
+  .corner {
+    position:absolute;
+    top:2px;
+    left:2px;
+    z-index:5;
+    background:#fff;
+  }
+
+  /* ===== Header S01 ===== */
+  .header {
+    position:relative;
+    height:56px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 10px;
+    border-bottom:1px solid #000;
+  }
+  .back-arrow {
+    width:44px; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px;
+  }
+  .header .center { text-align:center; flex:1; font-size:18px; font-weight:bold; }
+
+  /* ===== Order list S02 ===== */
+  .orderlist { position:relative; padding:8px 10px 24px; }
+
+  .order-row {
+    position:relative;
+    border-bottom:1px solid #999;
+    padding:16px 0;
+    min-height:100px;
+  }
+  .order-row.pressed { background:#eee; }
+  .row-line1, .row-line2 { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .row-line3 { display:flex; }
+  .ordernum { font-size:16px; font-weight:bold; }
+  .orderdate { font-size:14px; }
+  .ordertotal { font-size:14px; font-weight:bold; }
+  .ordermeta { font-size:14px; }
+
+  .pill {
+    display:inline-flex; align-items:center; justify-content:center;
+    height:24px; padding:0 10px; font-size:14px; border-radius:12px;
+    white-space:nowrap;
+  }
+  .pill-active { background:#000; color:#fff; }
+  .pill-delivered { background:#fff; color:#000; border:1px solid #000; }
+  .pill-cancelled { background:#fff; color:#555; border:1px solid #999; }
+
+  /* ===== Cap note C08 ===== */
+  .cap-note {
+    font-size:14px; color:#555; text-align:center;
+    padding:16px 20px; position:relative;
+  }
+
+  /* ===== Empty state C09 / B02 ===== */
+  .empty-wrap { position:relative; padding:56px 24px; text-align:center; }
+  .empty-icon {
+    width:48px; height:48px; margin:0 auto 16px;
+    border:1px solid #000; border-radius:6px; position:relative;
+  }
+  .empty-icon::before, .empty-icon::after {
+    content:"";
+    position:absolute;
+    left:10px; right:10px;
+    height:1px;
+    background:#000;
+  }
+  .empty-icon::before { top:16px; }
+  .empty-icon::after { top:28px; }
+  .empty-title { font-size:18px; font-weight:bold; margin-bottom:8px; }
+  .empty-sub { font-size:14px; margin-bottom:6px; }
+  .btn-browse {
+    display:inline-block; border:1px solid #000; border-radius:24px;
+    width:240px; height:48px; line-height:48px; font-size:16px; font-weight:bold; background:#fff;
+    margin-top:18px;
+  }
+
+  .ellipsis-note {
+    text-align:center; font-size:12px; color:#666; padding:10px 0;
+    border-bottom:1px solid #999;
+  }
+</style>
+</head>
+<body>
+
+<h1>G-07 — طلباتي / My orders — واجهات سلكية / Wireframes</h1>
+<p class="doc-sub">390px · RTL (Arabic default) · Grayscale low-fidelity · Element IDs shown in small circles next to each element, matching the elements table in /spec/screens/G-07.md</p>
+
+<div class="frames">
+
+<!-- ============================================================ -->
+<!-- FRAME 1: SUCCESS — MAIN LIST, ALL FIVE STATUSES -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الحالة الناجحة — القائمة الرئيسية (الحالات الخمس)</h2>
+  <div class="state-sub">Success state — main list (all five statuses shown)</div>
+  <div class="phone">
+
+    <!-- S01 Header -->
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-arrow">←<span class="idb">B01</span></div>
+      <div class="center">طلباتي<span class="idb">C01</span></div>
+      <div style="width:44px;"></div>
+    </div>
+
+    <!-- S02 order list -->
+    <div class="orderlist">
+      <span class="idb corner">S02</span>
+
+      <!-- Row: New — جديد -->
+      <div class="order-row">
+        <span class="idb corner">C02</span>
+        <div class="row-line1">
+          <span class="ordernum">طلب رقم 1042<span class="idb">C03</span></span>
+          <span class="pill pill-active">جديد<span class="idb">C04</span></span>
+        </div>
+        <div class="row-line2">
+          <span class="orderdate">اليوم 14:05<span class="idb">C05</span></span>
+          <span class="ordertotal">36.00 ر.س<span class="idb">C06</span></span>
+        </div>
+        <div class="row-line3">
+          <span class="ordermeta">منتجان · الغرفة 0305<span class="idb">C07</span></span>
+        </div>
+      </div>
+
+      <!-- Row: Accepted & preparing — تم القبول وجارٍ التحضير -->
+      <div class="order-row">
+        <span class="idb corner">C02</span>
+        <div class="row-line1">
+          <span class="ordernum">طلب رقم 1041<span class="idb">C03</span></span>
+          <span class="pill pill-active">تم القبول وجارٍ التحضير<span class="idb">C04</span></span>
+        </div>
+        <div class="row-line2">
+          <span class="orderdate">اليوم 12:20<span class="idb">C05</span></span>
+          <span class="ordertotal">54.00 ر.س<span class="idb">C06</span></span>
+        </div>
+        <div class="row-line3">
+          <span class="ordermeta">3 منتجات · الغرفة 0305<span class="idb">C07</span></span>
+        </div>
+      </div>
+
+      <!-- Row: On the way — في الطريق -->
+      <div class="order-row">
+        <span class="idb corner">C02</span>
+        <div class="row-line1">
+          <span class="ordernum">طلب رقم 1040<span class="idb">C03</span></span>
+          <span class="pill pill-active">في الطريق<span class="idb">C04</span></span>
+        </div>
+        <div class="row-line2">
+          <span class="orderdate">اليوم 09:12<span class="idb">C05</span></span>
+          <span class="ordertotal">18.00 ر.س<span class="idb">C06</span></span>
+        </div>
+        <div class="row-line3">
+          <span class="ordermeta">منتج واحد · الغرفة 0305<span class="idb">C07</span></span>
+        </div>
+      </div>
+
+      <!-- Row: Delivered — تم التوصيل -->
+      <div class="order-row">
+        <span class="idb corner">C02</span>
+        <div class="row-line1">
+          <span class="ordernum">طلب رقم 1039<span class="idb">C03</span></span>
+          <span class="pill pill-delivered">تم التوصيل<span class="idb">C04</span></span>
+        </div>
+        <div class="row-line2">
+          <span class="orderdate">21/09/2026 20:41<span class="idb">C05</span></span>
+          <span class="ordertotal">72.00 ر.س<span class="idb">C06</span></span>
+        </div>
+        <div class="row-line3">
+          <span class="ordermeta">4 منتجات · الغرفة 0305<span class="idb">C07</span></span>
+        </div>
+      </div>
+
+      <!-- Row: Cancelled — ملغى -->
+      <div class="order-row">
+        <span class="idb corner">C02</span>
+        <div class="row-line1">
+          <span class="ordernum">طلب رقم 1038<span class="idb">C03</span></span>
+          <span class="pill pill-cancelled">ملغى<span class="idb">C04</span></span>
+        </div>
+        <div class="row-line2">
+          <span class="orderdate">20/09/2026 08:03<span class="idb">C05</span></span>
+          <span class="ordertotal">25.00 ر.س<span class="idb">C06</span></span>
+        </div>
+        <div class="row-line3">
+          <span class="ordermeta">منتجان · الغرفة 0305<span class="idb">C07</span></span>
+        </div>
+      </div>
+
+      <!-- C08 hidden here: fewer than 20 rows -->
+
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: ترتيب الصفوف الأحدث أولًا؛ C08 مخفي هنا لأن عدد الصفوف أقل من 20. الحالات الثلاث النشطة (جديد / تم القبول / في الطريق) تستخدم شارة داكنة ممتلئة، والحالتان المنتهيتان (تم التوصيل / ملغى) شارة محدّدة الحواف فقط؛ لا يوجد سهم أو زر داخل الصف — الصف كله قابل للنقر.<br>
+    Note: rows sorted newest first; C08 is hidden here because fewer than 20 rows are shown. The three active statuses (New / Accepted & preparing / On the way) use a dark filled pill; the two finished statuses (Delivered / Cancelled) use an outlined pill only; no chevron or button inside a row — the whole row is tappable.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 2: EMPTY STATE -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>فارغة</h2>
+  <div class="state-sub">Empty state</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-arrow">←<span class="idb">B01</span></div>
+      <div class="center">طلباتي<span class="idb">C01</span></div>
+      <div style="width:44px;"></div>
+    </div>
+
+    <!-- S02 hidden in empty state -->
+
+    <div class="empty-wrap">
+      <span class="idb corner">C09</span>
+      <div class="empty-icon"></div>
+      <div class="empty-title">لا توجد طلبات على هذا الجهاز</div>
+      <div class="empty-sub">تظهر هنا الطلبات المرسلة من هذا الجهاز فقط</div>
+      <div class="empty-sub">للسؤال عن طلب أرسلته من جهاز آخر، اتصل بالاستقبال من هاتف الغرفة</div>
+      <div class="btn-browse">تصفح المتجر<span class="idb">B02</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: القسم S02 مخفي بالكامل ولا يوجد طلب تحديث حالة. B02 هو التحكم الوحيد.<br>
+    Note: section S02 is entirely hidden and no status refresh is sent. B02 is the only control.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 3: CAP NOTE — 20 ROWS OR MORE (C08 shown) -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>ملاحظة الحد الأقصى — القائمة عند 20 صفًا أو أكثر</h2>
+  <div class="state-sub">Cap note state — list at 20 rows or more (C08 shown)</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="back-arrow">←<span class="idb">B01</span></div>
+      <div class="center">طلباتي<span class="idb">C01</span></div>
+      <div style="width:44px;"></div>
+    </div>
+
+    <div class="orderlist">
+      <span class="idb corner">S02</span>
+
+      <!-- Row 1 of a long list -->
+      <div class="order-row">
+        <span class="idb corner">C02</span>
+        <div class="row-line1">
+          <span class="ordernum">طلب رقم 1042<span class="idb">C03</span></span>
+          <span class="pill pill-active">جديد<span class="idb">C04</span></span>
+        </div>
+        <div class="row-line2">
+          <span class="orderdate">اليوم 14:05<span class="idb">C05</span></span>
+          <span class="ordertotal">36.00 ر.س<span class="idb">C06</span></span>
+        </div>
+        <div class="row-line3">
+          <span class="ordermeta">منتجان · الغرفة 0305<span class="idb">C07</span></span>
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="order-row">
+        <span class="idb corner">C02</span>
+        <div class="row-line1">
+          <span class="ordernum">طلب رقم 1041<span class="idb">C03</span></span>
+          <span class="pill pill-delivered">تم التوصيل<span class="idb">C04</span></span>
+        </div>
+        <div class="row-line2">
+          <span class="orderdate">21/09/2026 20:41<span class="idb">C05</span></span>
+          <span class="ordertotal">54.00 ر.س<span class="idb">C06</span></span>
+        </div>
+        <div class="row-line3">
+          <span class="ordermeta">3 منتجات · الغرفة 0305<span class="idb">C07</span></span>
+        </div>
+      </div>
+
+      <div class="ellipsis-note">⋮ (القائمة تستمر حتى 20 صفًا — للتوضيح فقط، ليست عنصرًا من المواصفة)<br>⋮ (list continues to 20 rows — illustrative scroll cue only, not a spec element)</div>
+
+      <!-- Last row before the cap note -->
+      <div class="order-row">
+        <span class="idb corner">C02</span>
+        <div class="row-line1">
+          <span class="ordernum">طلب رقم 1023<span class="idb">C03</span></span>
+          <span class="pill pill-cancelled">ملغى<span class="idb">C04</span></span>
+        </div>
+        <div class="row-line2">
+          <span class="orderdate">02/09/2026 11:30<span class="idb">C05</span></span>
+          <span class="ordertotal">19.00 ر.س<span class="idb">C06</span></span>
+        </div>
+        <div class="row-line3">
+          <span class="ordermeta">منتج واحد · الغرفة 0305<span class="idb">C07</span></span>
+        </div>
+      </div>
+
+      <!-- C08 cap note, shown because 20 rows or more -->
+      <div class="cap-note">
+        يحتفظ هذا الجهاز بآخر 20 طلبًا؛ الطلبات الجارية لا تُحذف<span class="idb">C08</span><br>
+        This device keeps your last 20 orders; orders in progress are never removed
+      </div>
+
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: صفوف الوسط مُختصرة بصريًا فقط لتوفير المساحة؛ العنصر الوحيد المضاف للتوضيح هو سطر "⋮" غير المرقّم (ليس عنصرًا في الجدول). C08 يظهر فقط عندما تكون القائمة 20 صفًا أو أكثر.<br>
+    Note: middle rows are visually abbreviated only to save space; the only added element is the unlabeled "⋮" line (not a table element). C08 renders only when the list is 20 rows or more.
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
