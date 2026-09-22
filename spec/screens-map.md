@@ -4,6 +4,7 @@ Project: Hotel In-Room Store — Guest Interface Specification
 Author: Thinker (Agent 1)
 Document language: English. UI names/labels: Arabic + English.
 Governing document: `/CLAUDE.md` (locked decisions 1–7 apply to every screen below).
+Map status: **APPROVED by the product manager.** Checkpoint 1 is cleared; screen files may be written.
 
 ---
 
@@ -196,7 +197,12 @@ These are elements or states inside the screens above. They are listed here so n
 
 ## 4. Decisions made in this map that the brief did not settle
 
-Each of these is a decision, not a suggestion. Anyone who disagrees writes to `/spec/open-questions.md`.
+**Status: all 16 decisions below are APPROVED by the product manager.** They are
+locked for version 1 in the same way as the locked decisions in `/CLAUDE.md`.
+Any agent who disagrees writes the objection to `/spec/open-questions.md` with a
+proposed alternative, and does not change the decision unilaterally.
+
+Each of these is a decision, not a suggestion.
 
 1. **No welcome/splash screen.** The QR opens G-01 directly. Anything the guest needs to know (hotel name, "pay on delivery") is shown inside G-01's header.
 2. **No search field in version 1.** The brief mentions category browsing only. Search can be proposed for `/spec/backlog.md` by the reviewer.
