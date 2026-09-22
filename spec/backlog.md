@@ -82,6 +82,53 @@ Source review: `/spec/reviews/G-04.md` (cycle 1). Ten Later verdicts from tester
 
 ---
 
+## G-05 — Order submitted (تم إرسال طلبك)
+
+Source review: `/spec/reviews/G-05.md` (cycle 1). Two Later verdicts, both from tester findings; no element and no screen decision was deferred.
+
+| # | Ref | Item | Reason for deferring |
+|---|---|---|---|
+| G-05-L1 | G-05-02 | **A language toggle reachable from G-05** — switching Arabic ↔ English without going back to G-01, or a visible cue that a toggle exists there (G-05's header carries only the back arrow in v1). | The language is chosen on G-01 and saved on the device, so the detour exists only on a first open; same ruling as G-02-L1, G-03-L2, G-04-L2, G-07-L1, M-01-L1, M-03-L1 and M-04-L2. |
+| G-05-L2 | G-05-01 | **An estimated delivery time on the confirmation** — a "your order usually arrives in about N minutes" line, or any ETA, beside the order details. | Version 1 has no server field and, more importantly, no hotel commitment behind a time, so a number here would be a promise the hotel never made; the feature waits for that commitment rather than being rejected. |
+
+---
+
+## G-06 — Order tracking (متابعة الطلب)
+
+Source review: `/spec/reviews/G-06.md` (cycle 1). Four Later verdicts, all from tester findings, recorded in three rows (G-06-L1 carries two findings that must be designed together); no element and no screen decision was deferred, and the Critical finding was ruled Essential (new element G-06-C16).
+
+| # | Ref | Item | Reason for deferring |
+|---|---|---|---|
+| G-06-L1 | G-06-04, G-06-05 | **Status-freshness indication on G-06** — telling a fresh poll apart from one up to ~30 seconds old (a "last updated" time, a relative age, or a subtle refresh cue), and letting the failed-poll notice C05 escalate or say how long the status has been unconfirmed. | The only decision the guest takes from the status is whether to tap "Cancel order", and §5.6 rule 4 has the **server** resolve that race (the *already accepted* outcome plus banner C02), so a 30-second-old label cannot produce a wrong outcome — and every cheap candidate (a timestamp, a refresh control, a periodic spinner) adds a number or a movement the guest cannot act on differently. Extends G-01-L4 and G-07-L3 to the live screen, decided on its own merits. |
+| G-06-L2 | G-06-08 | **Per-status timestamps supplied by the server** — an "accepted at HH:MM" style time on each timeline row and a delivered-at time on a finished order, beside the existing order time in C10. | Version 1's server sends no per-status times, and a time observed by the phone is the moment this screen saw the change, not the moment it happened, so printing one would be a claim the hotel never made; it becomes cheap and truthful as soon as the server supplies the values. |
+| G-06-L3 | G-06-10 | **A post-cancellation signal for an order the hotel cancelled** — most precisely, G-01's active-order banner distinguishing Delivered from Cancelled (instead of disappearing identically for both) until the guest has opened the order once. | Push is impossible without a login and would breach locked decision 4, so nothing can reach a guest who is not looking; the only on-screen surface is **Approved** G-01's banner, whose new visibility, lifetime and dismissal rules are version-2 design rather than a one-line change, and the guest is uninformed rather than misinformed — G-07 lists the order with its status and G-06 states who cancelled it and why. |
+
+---
+
+## G-07 — My orders (طلباتي)
+
+Source review: `/spec/reviews/G-07.md` (cycle 1). Four Later verdicts, all from tester findings; no element and no screen decision was deferred.
+
+| # | Ref | Item | Reason for deferring |
+|---|---|---|---|
+| G-07-L1 | F1 | **A language toggle reachable from G-07** — switching Arabic ↔ English without going back to G-01, for the direct-URL or reload entry on a device with no saved choice. | The language is chosen once on G-01 and saved on the device, and the icon-only back arrow is a working exit, so the detour exists only on a first open; same ruling as G-02-L1, G-03-L2, G-04-L2, M-01-L1, M-03-L1 and M-04-L2. |
+| G-07-L2 | F2 | **A stronger visual difference between the Delivered and Cancelled rows** — shape, weight, or an icon instead of the outlined pill differing only by dark versus gray label text. | Both are final states with no action attached, so confusing them costs the guest nothing they can act on wrongly; strengthening the treatment is visual design, like G-03-L3 and G-04-L4. |
+| G-07-L3 | F3 | **Live-versus-last-known indication on the row pill** — a "last updated" cue, or a retry after a failed status refresh (extends G-01-L4 from the banner to the list). | G-06 holds the live status one tap away and re-fetches it before showing any control, so a stale pill on this screen can never be acted on. |
+| G-07-L4 | F10 | **A visible cue when a pill updates in place** — a momentary highlight or transition when the status refresh changes a row's label under the guest's eyes. | The value that appears is the true one and the old one was never acted on, so the missing cue costs nothing today; a change highlight is motion design. |
+
+---
+
+## G-08 — Store unavailable (المتجر غير متاح)
+
+Source review: `/spec/reviews/G-08.md` (cycle 1). Two Later verdicts, both from tester findings; no element and no screen decision was deferred, and the two Critical findings were ruled Essential (new element G-08-B03).
+
+| # | Ref | Item | Reason for deferring |
+|---|---|---|---|
+| G-08-L1 | F3 | **A reception phone number on G-08** — the hotel's extension cached from an earlier successful catalog load, shown in C04 and dialable as a `tel:` link. | The number arrives with the store settings in exactly the request that failed, so a dial link needs a cached value and a staleness rule; the room phone's reception key works today. |
+| G-08-L2 | F4 | **A quiet "the connection is back" cue** — a non-navigating hint when the device reports it is online again, so a guest who gave up is invited to tap Retry. | Self-navigation stays rejected outright (a screen that changes under a travelling finger is worse than one that waits), so only the cue is deferred — the same split as M-03-L2. |
+
+---
+
 ## M-01 — Confirm room number (تأكيد رقم الغرفة)
 
 Source review: `/spec/reviews/M-01.md` (cycle 1). Three Later verdicts, all from tester findings; no element and no modal decision was deferred.
@@ -91,6 +138,17 @@ Source review: `/spec/reviews/M-01.md` (cycle 1). Three Later verdicts, all from
 | M-01-L1 | F-2.1 | **A way to fix the language from M-01** — a language toggle on the modal, or icons beside the two text-only button labels, for a guest who reached a non-dismissable confirmation in a language they cannot read. | The language is chosen on G-01 and saved on the device, and "تعديل رقم الغرفة / Edit room number" is a working exit back to G-04, so the detour exists only on a first open; same ruling as G-02-L1 and G-04-L2. |
 | M-01-L2 | F-3.2 | **A stronger disabled signal for B02 in the loading state** — a clearer treatment than 50 % opacity on the outlined "Edit room number" button while the request is in flight. | Tapping the button in that state does nothing at all, so the cost of not perceiving the disabled state is zero; strengthening the treatment is visual design, like G-03-L3 and G-04-L4. |
 | M-01-L3 | F-6.1, F-6.3 | **Progress feedback during the send wait** — an elapsed-time cue, a "still trying" line, or any progress indication during the up-to-15-second wait, including across repeated M-03 retry cycles. | The wait is capped and ends in a defined outcome with a Retry, and the device-scoped client order key (ruling R2) removes the duplicate-order harm a guest could cause by acting on the silence; this is comfort during a wait, as already deferred in G-01-L2 and G-03-L7. |
+
+---
+
+## M-02 — Cancel order? (إلغاء الطلب؟)
+
+Source review: `/spec/reviews/M-02.md` (cycle 1). Two Later verdicts, both from tester findings; no element and no modal decision was deferred.
+
+| # | Ref | Item | Reason for deferring |
+|---|---|---|---|
+| M-02-L1 | F5 | **Progress feedback during the in-flight cancellation** — an elapsed-time or progress cue during the up-to-15-second wait in which the sheet cannot be dismissed (joins G-01-L2, G-03-L7, M-01-L3 and M-03-L2). | The wait is capped at 15 seconds and always ends in a defined outcome, and the lock itself is Essential (a dismissable in-flight modal leaves an *already accepted* answer with nowhere to land); racing staff acceptance does not change this, because a cue removes no seconds from the request and losing the race returns the designed *already accepted* outcome, not a broken journey. |
+| M-02-L2 | F2 | **A language toggle reachable from M-02** — switching Arabic ↔ English without closing the cancel sheet and walking back to G-01. | The language is chosen on G-01 and saved on the device, so the detour exists only on a first open; same ruling as G-02-L1, G-03-L2, G-04-L2, M-01-L1, M-03-L1 and M-04-L2. |
 
 ---
 
