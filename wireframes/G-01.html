@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>G-01 — المتجر / Store — Wireframes</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background:#ddd;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#000;
+    padding: 24px;
+    margin:0;
+  }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .doc-sub { font-size:12px; color:#333; margin:0 0 20px; }
+  .frames {
+    display:flex;
+    flex-wrap:nowrap;
+    gap:28px;
+    overflow-x:auto;
+    align-items:flex-start;
+    padding-bottom:20px;
+  }
+  .frame { flex:0 0 auto; width:390px; text-align:center; }
+  .frame h2 { font-size:14px; margin:0 0 2px; }
+  .frame .state-sub { font-size:11px; color:#333; margin:0 0 10px; }
+  .frame .note { font-size:10px; color:#333; margin-top:8px; text-align:right; }
+
+  .phone {
+    width:390px;
+    min-height:400px;
+    border:2px solid #000;
+    background:#fff;
+    position:relative;
+    overflow:hidden;
+    text-align:right;
+  }
+
+  /* small circled ID badges, shown next to their element */
+  .idb {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:16px;
+    height:16px;
+    padding:0 2px;
+    border:1px solid #000;
+    border-radius:50%;
+    font-size:8px;
+    background:#fff;
+    vertical-align:middle;
+    margin:0 3px;
+    line-height:1;
+    font-family: Arial, sans-serif;
+  }
+  .corner {
+    position:absolute;
+    top:2px;
+    left:2px;
+    z-index:5;
+    background:#fff;
+  }
+
+  /* ===== Header S01 ===== */
+  .header {
+    position:relative;
+    height:56px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 10px;
+    border-bottom:1px solid #000;
+  }
+  .header .side { display:flex; flex-direction:column; align-items:center; }
+  .lang-btn {
+    border:1px solid #000;
+    border-radius:4px;
+    padding:4px 8px;
+    font-size:12px;
+    background:#fff;
+    white-space:nowrap;
+  }
+  .header .center { text-align:center; flex:1; }
+  .hotel-name { font-size:18px; font-weight:bold; line-height:1.2; }
+  .pay-line { font-size:12px; line-height:1.2; }
+  .receipt-icon {
+    width:22px; height:22px;
+    border:1px solid #000;
+    margin-bottom:2px;
+    position:relative;
+  }
+  .receipt-icon::before, .receipt-icon::after {
+    content:"";
+    position:absolute;
+    left:4px; right:4px;
+    height:1px;
+    background:#000;
+  }
+  .receipt-icon::before { top:7px; }
+  .receipt-icon::after { top:13px; }
+  .myorders-label { font-size:10px; }
+  .hotel-placeholder { width:140px; height:18px; background:#ccc; margin:0 auto; }
+
+  /* ===== Active-order banner C03 ===== */
+  .banner {
+    position:relative;
+    height:84px;
+    box-sizing:border-box;
+    padding:8px 10px;
+    border-bottom:1px solid #000;
+  }
+  .banner .l1 { font-size:14px; font-weight:bold; margin-bottom:4px; }
+  .banner .l2 { font-size:12px; margin-bottom:4px; }
+  .banner .l3 { font-size:12px; }
+
+  /* ===== Category bar S02 ===== */
+  .catbar {
+    position:relative;
+    height:48px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:0 10px;
+    border-bottom:1px solid #000;
+    overflow-x:auto;
+  }
+  .chip {
+    display:inline-flex;
+    align-items:center;
+    border:1px solid #000;
+    border-radius:16px;
+    padding:0 14px;
+    height:32px;
+    font-size:14px;
+    background:#fff;
+    white-space:nowrap;
+    flex:0 0 auto;
+  }
+  .chip.active { background:#000; color:#fff; }
+  .skeleton-chip {
+    width:80px; height:32px;
+    background:#ccc;
+    border-radius:16px;
+    flex:0 0 auto;
+  }
+
+  /* ===== Product list S03 / sections S04 ===== */
+  .list { position:relative; padding-bottom:96px; }
+  .section-block { position:relative; padding:8px 10px 0; }
+  .section-title { font-size:16px; font-weight:bold; margin:12px 0; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+  /* ===== Product card C05 ===== */
+  .card { border:1px solid #000; padding:6px; position:relative; }
+  .img-box {
+    width:100%;
+    aspect-ratio:1/1;
+    background:#eee;
+    border:1px solid #000;
+    background-image:
+      linear-gradient(45deg, transparent 48%, #000 48%, #000 52%, transparent 52%),
+      linear-gradient(-45deg, transparent 48%, #000 48%, #000 52%, transparent 52%);
+  }
+  .img-box.dim { opacity:0.5; }
+  .txt-line { height:8px; background:#999; border-radius:2px; margin:4px 0; }
+  .price { font-size:14px; font-weight:bold; margin:6px 0 4px; }
+  .action-row { height:40px; margin-top:4px; position:relative; }
+
+  .btn-add {
+    width:100%; height:40px;
+    border:1px solid #000; border-radius:20px;
+    background:#fff; font-size:14px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .stepper {
+    display:flex; align-items:stretch; justify-content:space-between;
+    width:100%; height:40px;
+    border:1px solid #000; border-radius:20px; overflow:hidden;
+  }
+  .step-btn {
+    width:40px; height:40px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; background:#fff;
+    border-left:1px solid #000; border-right:1px solid #000;
+  }
+  .step-btn.disabled { opacity:0.5; }
+  .qty-box {
+    flex:1; display:flex; align-items:center; justify-content:center;
+    font-size:16px; font-weight:bold;
+  }
+  .max-helper { font-size:11px; text-align:center; margin-top:4px; }
+  .badge-oos {
+    width:100%; height:40px;
+    border:1px solid #000; border-radius:20px;
+    background:#ccc; color:#333;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; text-align:center; padding:0 4px;
+  }
+
+  /* ===== Floating cart bar S05 / B07 ===== */
+  .cartbar-wrap { position:relative; padding:10px; }
+  .cartbar {
+    display:flex; align-items:center; justify-content:space-between;
+    background:#000; color:#fff;
+    height:56px; border-radius:8px; padding:0 14px;
+  }
+  .cartbar .start, .cartbar .end { font-size:14px; }
+  .cartbar .center { font-size:16px; font-weight:bold; }
+
+  /* ===== Empty state C09 / B08 ===== */
+  .empty-wrap { position:relative; padding:50px 24px; text-align:center; }
+  .empty-title { font-size:18px; font-weight:bold; margin-bottom:8px; }
+  .empty-sub { font-size:14px; margin-bottom:20px; }
+  .btn-refresh {
+    display:inline-block; border:1px solid #000; border-radius:20px;
+    width:200px; height:44px; line-height:44px; font-size:14px; background:#fff;
+  }
+
+  /* ===== Loading skeleton C10 ===== */
+  .skel-catbar { position:relative; height:48px; display:flex; align-items:center; gap:8px; padding:0 10px; border-bottom:1px solid #000; opacity:0.85; }
+  .skel-list { position:relative; padding:10px; }
+  .skel-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+  .skeleton-card { width:100%; height:210px; background:#ccc; border-radius:4px; opacity:0.85; }
+</style>
+</head>
+<body>
+
+<h1>G-01 — المتجر / Store — واجهات سلكية / Wireframes</h1>
+<p class="doc-sub">390px · RTL (Arabic default) · Grayscale low-fidelity · Element IDs shown in small circles next to each element, matching the elements table in /spec/screens/G-01.md</p>
+
+<div class="frames">
+
+<!-- ============================================================ -->
+<!-- FRAME 1: SUCCESS — NO ACTIVE ORDER -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الحالة الناجحة (بدون طلب نشط)</h2>
+  <div class="state-sub">Success state (no active order)</div>
+  <div class="phone">
+
+    <!-- S01 Header -->
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="side">
+        <div class="lang-btn">English<span class="idb">B01</span></div>
+      </div>
+      <div class="center">
+        <div class="hotel-name">فندق الواحة<span class="idb">C01</span></div>
+        <div class="pay-line">الدفع عند الاستلام في غرفتك<span class="idb">C02</span></div>
+      </div>
+      <div class="side">
+        <div class="receipt-icon"></div>
+        <div class="myorders-label">طلباتي<span class="idb">B02</span></div>
+      </div>
+    </div>
+
+    <!-- C03 banner: hidden in this frame (no active order) -->
+
+    <!-- S02 Category bar -->
+    <div class="catbar">
+      <span class="idb corner">S02</span>
+      <div class="chip active">مشروبات<span class="idb">B03</span></div>
+      <div class="chip">وجبات خفيفة<span class="idb">B03</span></div>
+      <div class="chip">عناية شخصية<span class="idb">B03</span></div>
+    </div>
+
+    <!-- S03 product list -->
+    <div class="list">
+      <span class="idb corner">S03</span>
+
+      <!-- S04 section 1 -->
+      <div class="section-block">
+        <span class="idb corner">S04</span>
+        <div class="section-title">مشروبات<span class="idb">C04</span></div>
+        <div class="grid">
+
+          <!-- Card: Add state -->
+          <div class="card">
+            <span class="idb corner">C05</span>
+            <div class="img-box"></div>
+            <div class="txt-line" style="width:90%"></div>
+            <div class="txt-line" style="width:55%"></div>
+            <div class="price">12.00 ر.س</div>
+            <div class="action-row">
+              <div class="btn-add">أضف<span class="idb">B04</span></div>
+            </div>
+          </div>
+
+          <!-- Card: stepper, mid quantity -->
+          <div class="card">
+            <span class="idb corner">C05</span>
+            <div class="img-box"></div>
+            <div class="txt-line" style="width:85%"></div>
+            <div class="txt-line" style="width:60%"></div>
+            <div class="price">8.00 ر.س</div>
+            <div class="action-row">
+              <div class="stepper">
+                <div class="step-btn">−<span class="idb">B05</span></div>
+                <div class="qty-box">3<span class="idb">C06</span></div>
+                <div class="step-btn">+<span class="idb">B06</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- S04 section 2 -->
+      <div class="section-block">
+        <span class="idb corner">S04</span>
+        <div class="section-title">وجبات خفيفة<span class="idb">C04</span></div>
+        <div class="grid">
+
+          <!-- Card: stepper at max 10 + helper -->
+          <div class="card">
+            <span class="idb corner">C05</span>
+            <div class="img-box"></div>
+            <div class="txt-line" style="width:80%"></div>
+            <div class="txt-line" style="width:40%"></div>
+            <div class="price">5.00 ر.س</div>
+            <div class="action-row">
+              <div class="stepper">
+                <div class="step-btn">−<span class="idb">B05</span></div>
+                <div class="qty-box">10<span class="idb">C06</span></div>
+                <div class="step-btn disabled">+<span class="idb">B06</span></div>
+              </div>
+            </div>
+            <div class="max-helper">الحد الأقصى 10<span class="idb">C08</span></div>
+          </div>
+
+          <!-- Card: out of stock, cart holds none -->
+          <div class="card">
+            <span class="idb corner">C05</span>
+            <div class="img-box dim"></div>
+            <div class="txt-line" style="width:70%"></div>
+            <div class="txt-line" style="width:50%"></div>
+            <div class="price">6.00 ر.س</div>
+            <div class="action-row">
+              <div class="badge-oos">غير متوفر<span class="idb">C07</span></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- S04 section 3 -->
+      <div class="section-block">
+        <span class="idb corner">S04</span>
+        <div class="section-title">عناية شخصية<span class="idb">C04</span></div>
+        <div class="grid">
+
+          <!-- Card: out of stock, cart holds 2 -->
+          <div class="card">
+            <span class="idb corner">C05</span>
+            <div class="img-box dim"></div>
+            <div class="txt-line" style="width:88%"></div>
+            <div class="txt-line" style="width:65%"></div>
+            <div class="price">15.00 ر.س</div>
+            <div class="action-row">
+              <div class="badge-oos">غير متوفر — في سلتك 2<span class="idb">C07</span></div>
+            </div>
+          </div>
+
+          <!-- Card: Add state (second example) -->
+          <div class="card">
+            <span class="idb corner">C05</span>
+            <div class="img-box"></div>
+            <div class="txt-line" style="width:75%"></div>
+            <div class="txt-line" style="width:45%"></div>
+            <div class="price">20.00 ر.س</div>
+            <div class="action-row">
+              <div class="btn-add">أضف<span class="idb">B04</span></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- S05 / B07 floating cart bar -->
+    <div class="cartbar-wrap">
+      <span class="idb corner">S05</span>
+      <div class="cartbar">
+        <span class="start">15 منتجًا<span class="idb">B07</span></span>
+        <span class="center">عرض السلة</span>
+        <span class="end">143.00 ر.س</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 2: SUCCESS — WITH ACTIVE-ORDER BANNER -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الحالة الناجحة (مع طلب نشط)</h2>
+  <div class="state-sub">Success state (active-order banner variant)</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="side">
+        <div class="lang-btn">English<span class="idb">B01</span></div>
+      </div>
+      <div class="center">
+        <div class="hotel-name">فندق الواحة<span class="idb">C01</span></div>
+        <div class="pay-line">الدفع عند الاستلام في غرفتك<span class="idb">C02</span></div>
+      </div>
+      <div class="side">
+        <div class="receipt-icon"></div>
+        <div class="myorders-label">طلباتي<span class="idb">B02</span></div>
+      </div>
+    </div>
+
+    <!-- C03 active-order banner: 3 lines, 84px -->
+    <div class="banner">
+      <span class="idb corner">C03</span>
+      <div class="l1">طلبك رقم 1042 — جديد</div>
+      <div class="l2">أي منتج تضيفه الآن سيُرسل كطلب جديد منفصل</div>
+      <div class="l3">متابعة الطلب ›</div>
+    </div>
+
+    <div class="catbar">
+      <span class="idb corner">S02</span>
+      <div class="chip active">مشروبات<span class="idb">B03</span></div>
+      <div class="chip">وجبات خفيفة<span class="idb">B03</span></div>
+      <div class="chip">عناية شخصية<span class="idb">B03</span></div>
+    </div>
+
+    <div class="list">
+      <span class="idb corner">S03</span>
+      <div class="section-block">
+        <span class="idb corner">S04</span>
+        <div class="section-title">مشروبات<span class="idb">C04</span></div>
+        <div class="grid">
+          <div class="card">
+            <span class="idb corner">C05</span>
+            <div class="img-box"></div>
+            <div class="txt-line" style="width:90%"></div>
+            <div class="txt-line" style="width:55%"></div>
+            <div class="price">12.00 ر.س</div>
+            <div class="action-row">
+              <div class="btn-add">أضف<span class="idb">B04</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <span class="idb corner">C05</span>
+            <div class="img-box"></div>
+            <div class="txt-line" style="width:85%"></div>
+            <div class="txt-line" style="width:60%"></div>
+            <div class="price">8.00 ر.س</div>
+            <div class="action-row">
+              <div class="stepper">
+                <div class="step-btn">−<span class="idb">B05</span></div>
+                <div class="qty-box">1<span class="idb">C06</span></div>
+                <div class="step-btn">+<span class="idb">B06</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cartbar-wrap">
+      <span class="idb corner">S05</span>
+      <div class="cartbar">
+        <span class="start">منتج واحد<span class="idb">B07</span></span>
+        <span class="center">عرض السلة</span>
+        <span class="end">8.00 ر.س</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: البانر 84px بثلاثة أسطر ثابتة؛ إضافة/تعديل منتجات لا يغيّر البانر ولا يظهر أي تأكيد.<br>
+    Note: 84px, 3 fixed lines; adding/editing products never changes the banner and shows no confirmation.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 3: LOADING -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>التحميل</h2>
+  <div class="state-sub">Loading state (skeleton)</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="side">
+        <div class="lang-btn">English<span class="idb">B01</span></div>
+      </div>
+      <div class="center">
+        <div class="hotel-placeholder"><span class="idb" style="position:relative;top:-6px;">C01</span></div>
+        <!-- C02 hidden during loading -->
+      </div>
+      <div class="side">
+        <div class="receipt-icon"></div>
+        <div class="myorders-label">طلباتي<span class="idb">B02</span></div>
+      </div>
+    </div>
+
+    <!-- C03 banner hidden during loading -->
+
+    <div class="skel-catbar">
+      <span class="idb corner">S02</span>
+      <div class="skeleton-chip"><span class="idb">C10</span></div>
+      <div class="skeleton-chip"><span class="idb">C10</span></div>
+      <div class="skeleton-chip"><span class="idb">C10</span></div>
+      <div class="skeleton-chip"><span class="idb">C10</span></div>
+    </div>
+
+    <div class="skel-list">
+      <div class="skel-grid">
+        <div class="skeleton-card"><span class="idb">C10</span></div>
+        <div class="skeleton-card"><span class="idb">C10</span></div>
+      </div>
+      <div class="skel-grid">
+        <div class="skeleton-card"><span class="idb">C10</span></div>
+        <div class="skeleton-card"><span class="idb">C10</span></div>
+      </div>
+      <div class="skel-grid">
+        <div class="skeleton-card"><span class="idb">C10</span></div>
+        <div class="skeleton-card"><span class="idb">C10</span></div>
+      </div>
+    </div>
+
+    <!-- S05 cart bar hidden during loading -->
+
+  </div>
+  <div class="note">
+    ملاحظة: النبض البصري (100%↔60% كل 1.5 ثانية) غير ممكن في لقطة ثابتة؛ الحدود العليا 10 ثوانٍ ثم الانتقال إلى G-08.<br>
+    Note: the 100%↔60% opacity pulse (every 1.5s) cannot be shown in a static frame; hard limit 10s before falling back to G-08.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 4: EMPTY -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>فارغة</h2>
+  <div class="state-sub">Empty state</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="side">
+        <div class="lang-btn">English<span class="idb">B01</span></div>
+      </div>
+      <div class="center">
+        <div class="hotel-name">فندق الواحة<span class="idb">C01</span></div>
+        <div class="pay-line">الدفع عند الاستلام في غرفتك<span class="idb">C02</span></div>
+      </div>
+      <div class="side">
+        <div class="receipt-icon"></div>
+        <div class="myorders-label">طلباتي<span class="idb">B02</span></div>
+      </div>
+    </div>
+
+    <!-- C03 banner: not shown in this baseline empty example -->
+    <!-- S02 category bar hidden in empty state -->
+    <!-- S05 cart bar hidden in empty state -->
+
+    <div class="empty-wrap">
+      <span class="idb corner">C09</span>
+      <div class="empty-title">لا توجد منتجات حاليًا</div>
+      <div class="empty-sub">يرجى المحاولة لاحقًا أو التواصل مع الاستقبال</div>
+      <div class="btn-refresh">تحديث<span class="idb">B08</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 5: ERROR (SILENT) — active-order status refresh failed -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>خطأ صامت (فشل تحديث حالة الطلب النشط)</h2>
+  <div class="state-sub">Error state (silent — active-order status request failed)</div>
+  <div class="phone">
+
+    <div class="header">
+      <span class="idb corner">S01</span>
+      <div class="side">
+        <div class="lang-btn">English<span class="idb">B01</span></div>
+      </div>
+      <div class="center">
+        <div class="hotel-name">فندق الواحة<span class="idb">C01</span></div>
+        <div class="pay-line">الدفع عند الاستلام في غرفتك<span class="idb">C02</span></div>
+      </div>
+      <div class="side">
+        <div class="receipt-icon"></div>
+        <div class="myorders-label">طلباتي<span class="idb">B02</span></div>
+      </div>
+    </div>
+
+    <!-- C03: shows last known status from the device, no error text anywhere -->
+    <div class="banner">
+      <span class="idb corner">C03</span>
+      <div class="l1">طلبك رقم 1042 — جديد</div>
+      <div class="l2">أي منتج تضيفه الآن سيُرسل كطلب جديد منفصل</div>
+      <div class="l3">متابعة الطلب ›</div>
+    </div>
+
+    <div class="catbar">
+      <span class="idb corner">S02</span>
+      <div class="chip active">مشروبات<span class="idb">B03</span></div>
+      <div class="chip">وجبات خفيفة<span class="idb">B03</span></div>
+      <div class="chip">عناية شخصية<span class="idb">B03</span></div>
+    </div>
+
+    <div class="list">
+      <span class="idb corner">S03</span>
+      <div class="section-block">
+        <span class="idb corner">S04</span>
+        <div class="section-title">مشروبات<span class="idb">C04</span></div>
+        <div class="grid">
+          <div class="card">
+            <span class="idb corner">C05</span>
+            <div class="img-box"></div>
+            <div class="txt-line" style="width:90%"></div>
+            <div class="txt-line" style="width:55%"></div>
+            <div class="price">12.00 ر.س</div>
+            <div class="action-row">
+              <div class="btn-add">أضف<span class="idb">B04</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <span class="idb corner">C05</span>
+            <div class="img-box dim"></div>
+            <div class="txt-line" style="width:70%"></div>
+            <div class="txt-line" style="width:50%"></div>
+            <div class="price">6.00 ر.س</div>
+            <div class="action-row">
+              <div class="badge-oos">غير متوفر<span class="idb">C07</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: طلب حالة الطلب النشط فشل والكتالوج نجح؛ يبقى C03 يعرض آخر حالة معروفة على الجهاز، بلا أي نص خطأ في أي مكان بالشاشة. المحاولة التالية عند إعادة تحميل الصفحة.<br>
+    Note: the active-order status request failed while the catalog succeeded; C03 keeps showing the device's last known status with no error text anywhere on screen. The next attempt happens on the next page load.
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
