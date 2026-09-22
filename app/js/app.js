@@ -139,6 +139,12 @@
   window.App = App;
 
   window.addEventListener('hashchange', function () {
+    /* A request in flight is never abandoned by a back gesture: M-01 §5.5 and
+       M-03 §6.1 both make the sending state undismissable, and a late success
+       with nowhere to land is how an order goes missing. */
+    var host = document.getElementById('modal-root');
+    var top = host && host.lastElementChild;
+    if (top && top.classList.contains('is-busy')) return;
     App.closeAllModals();
     App.render();
   });
