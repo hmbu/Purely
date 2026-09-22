@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>G-02 — تفاصيل المنتج / Product details — Wireframes</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background:#ddd;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#000;
+    padding: 24px;
+    margin:0;
+  }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .doc-sub { font-size:12px; color:#333; margin:0 0 20px; }
+  .frames {
+    display:flex;
+    flex-wrap:nowrap;
+    gap:28px;
+    overflow-x:auto;
+    align-items:flex-start;
+    padding-bottom:20px;
+  }
+  .frame { flex:0 0 auto; width:390px; text-align:center; }
+  .frame h2 { font-size:14px; margin:0 0 2px; }
+  .frame .state-sub { font-size:11px; color:#333; margin:0 0 10px; }
+  .frame .note { font-size:10px; color:#333; margin-top:8px; text-align:right; }
+
+  .phone {
+    width:390px;
+    min-height:400px;
+    border:2px solid #000;
+    background:#fff;
+    position:relative;
+    overflow:hidden;
+    text-align:right;
+  }
+
+  /* small circled ID badges, shown next to their element */
+  .idb {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:16px;
+    height:16px;
+    padding:0 2px;
+    border:1px solid #000;
+    border-radius:50%;
+    font-size:8px;
+    background:#fff;
+    vertical-align:middle;
+    margin:0 3px;
+    line-height:1;
+    font-family: Arial, sans-serif;
+  }
+  .corner {
+    position:absolute;
+    top:2px;
+    left:2px;
+    z-index:5;
+    background:#fff;
+  }
+
+  /* ===== Header S01 / B01 / C01 ===== */
+  .g2-header {
+    position:relative;
+    height:56px;
+    display:flex;
+    align-items:center;
+    padding:0 0;
+    border-bottom:1px solid #000;
+  }
+  .g2-back {
+    width:44px; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px;
+    flex:0 0 44px;
+  }
+  .g2-title {
+    flex:1;
+    text-align:center;
+    font-size:18px;
+    font-weight:bold;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    padding:0 4px;
+  }
+  .g2-spacer { width:44px; height:44px; flex:0 0 44px; }
+
+  /* ===== Body S02 ===== */
+  .g2-body { position:relative; padding-bottom:96px; }
+  .g2-content-wrap { position:relative; padding:0 16px; }
+
+  /* ===== Image C02 ===== */
+  .prod-image {
+    width:100%;
+    aspect-ratio:4/3;
+    background:#eee;
+    border-bottom:1px solid #000;
+    position:relative;
+    background-image:
+      linear-gradient(45deg, transparent 48%, #000 48%, #000 52%, transparent 52%),
+      linear-gradient(-45deg, transparent 48%, #000 48%, #000 52%, transparent 52%);
+  }
+  .prod-image.dim { opacity:0.5; }
+
+  /* ===== Name / Price C03 / C04 ===== */
+  .prod-name { font-size:20px; font-weight:bold; margin-top:16px; line-height:1.3; }
+  .prod-price { font-size:18px; font-weight:bold; margin-top:8px; }
+
+  /* ===== Action row S03 ===== */
+  .action-row2 { position:relative; height:48px; margin-top:16px; }
+  .btn-add2 {
+    width:100%; height:48px;
+    border:1px solid #000; border-radius:24px;
+    background:#fff; font-size:16px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .stepper2 {
+    width:160px; height:48px;
+    margin:0 auto;
+    display:flex; align-items:stretch; justify-content:space-between;
+    border:1px solid #000; border-radius:24px; overflow:hidden;
+  }
+  .step-btn2 {
+    width:48px; height:48px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; background:#fff;
+    border-left:1px solid #000; border-right:1px solid #000;
+  }
+  .step-btn2.disabled { opacity:0.5; }
+  .qty-box2 {
+    flex:1; display:flex; align-items:center; justify-content:center;
+    font-size:20px; font-weight:bold;
+  }
+  .badge-oos2 {
+    width:100%; height:48px;
+    border:1px solid #000; border-radius:24px;
+    background:#ccc; color:#333;
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; text-align:center; padding:0 8px;
+  }
+  .helper14 { font-size:14px; text-align:center; margin-top:4px; }
+
+  /* ===== Active-order line C13 ===== */
+  .active-line { font-size:14px; text-align:center; margin-top:8px; line-height:1.4; }
+
+  /* ===== Description S04 / C09 / C10 ===== */
+  .desc-section { margin-top:24px; }
+  .desc-title { font-size:14px; font-weight:bold; margin-bottom:8px; }
+  .desc-line { height:8px; background:#999; border-radius:2px; margin:6px 0; }
+
+  /* ===== Floating cart bar S05 / B05 ===== */
+  .cartbar-wrap { position:relative; padding:10px 16px; }
+  .cartbar {
+    display:flex; align-items:center; justify-content:space-between;
+    background:#000; color:#fff;
+    height:56px; border-radius:8px; padding:0 14px;
+  }
+  .cartbar .start, .cartbar .end { font-size:14px; }
+  .cartbar .center { font-size:16px; font-weight:bold; }
+
+  /* ===== Loading skeleton C11 ===== */
+  .skel-image { width:100%; aspect-ratio:4/3; background:#ccc; opacity:0.85; }
+  .skel-bar { background:#ccc; opacity:0.85; border-radius:2px; }
+
+  /* ===== Error block C12 / B06 ===== */
+  .error-wrap { position:relative; padding:60px 24px 0; text-align:center; }
+  .error-l1 { font-size:18px; font-weight:bold; margin-bottom:8px; }
+  .error-l2 { font-size:14px; margin-bottom:24px; }
+  .btn-back-store {
+    display:inline-block; border:1px solid #000; border-radius:22px;
+    width:200px; height:44px; line-height:44px; font-size:14px; background:#fff;
+  }
+
+  .alt-box {
+    display:inline-block; border:1px solid #000; border-radius:4px;
+    padding:10px; margin-top:8px; text-align:right; background:#fff;
+  }
+</style>
+</head>
+<body>
+
+<h1>G-02 — تفاصيل المنتج / Product details — واجهات سلكية / Wireframes</h1>
+<p class="doc-sub">390px · RTL (Arabic default) · Grayscale low-fidelity · Element IDs shown in small circles next to each element, matching the elements table in /spec/screens/G-02.md</p>
+
+<div class="frames">
+
+<!-- ============================================================ -->
+<!-- FRAME 1: SUCCESS — PRODUCT AVAILABLE (Add button state) -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الحالة الناجحة — المنتج متوفر (زر أضف)</h2>
+  <div class="state-sub">Success state — product available (Add button)</div>
+  <div class="phone">
+
+    <!-- S01 Header -->
+    <div class="g2-header">
+      <span class="idb corner">S01</span>
+      <div class="g2-back">›<span class="idb">B01</span></div>
+      <div class="g2-title">مياه معدنية 500 مل<span class="idb">C01</span></div>
+      <div class="g2-spacer"></div>
+    </div>
+
+    <!-- S02 body -->
+    <div class="g2-body">
+      <span class="idb corner">S02</span>
+
+      <!-- C02 image -->
+      <div class="prod-image"><span class="idb corner">C02</span></div>
+
+      <div class="g2-content-wrap">
+        <!-- C03 name -->
+        <div class="prod-name">مياه معدنية 500 مل<span class="idb">C03</span></div>
+
+        <!-- C04 price -->
+        <div class="prod-price">12.00 ر.س<span class="idb">C04</span></div>
+
+        <!-- S03 action row: B02 Add -->
+        <div class="action-row2">
+          <span class="idb corner">S03</span>
+          <div class="btn-add2">أضف<span class="idb">B02</span></div>
+        </div>
+
+        <!-- S04 description -->
+        <div class="desc-section">
+          <span class="idb corner">S04</span>
+          <div class="desc-title">الوصف<span class="idb">C09</span></div>
+          <div class="desc-line" style="width:100%"></div>
+          <div class="desc-line" style="width:92%"></div>
+          <div class="desc-line" style="width:60%"></div>
+          <span class="idb" style="display:inline-block;margin-top:4px;">C10</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- S05 cart bar: hidden, cart is empty in this baseline -->
+
+  </div>
+  <div class="note">
+    ملاحظة: السلة فارغة في هذا المثال، لذا شريط السلة العائم S05 مخفي.<br>
+    Note: the cart is empty in this example, so the floating cart bar S05 is hidden.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 2: SUCCESS — WITH QUANTITY IN THE CART (stepper) -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الحالة الناجحة — بكمية في السلة (عداد +/−)</h2>
+  <div class="state-sub">Success state — with quantity in the cart (stepper)</div>
+  <div class="phone">
+
+    <div class="g2-header">
+      <span class="idb corner">S01</span>
+      <div class="g2-back">›<span class="idb">B01</span></div>
+      <div class="g2-title">مياه معدنية 500 مل<span class="idb">C01</span></div>
+      <div class="g2-spacer"></div>
+    </div>
+
+    <div class="g2-body">
+      <span class="idb corner">S02</span>
+
+      <div class="prod-image"><span class="idb corner">C02</span></div>
+
+      <div class="g2-content-wrap">
+        <div class="prod-name">مياه معدنية 500 مل<span class="idb">C03</span></div>
+        <div class="prod-price">12.00 ر.س<span class="idb">C04</span></div>
+
+        <!-- S03 action row: stepper -->
+        <div class="action-row2">
+          <span class="idb corner">S03</span>
+          <div class="stepper2">
+            <div class="step-btn2">−<span class="idb">B03</span></div>
+            <div class="qty-box2">3<span class="idb">C05</span></div>
+            <div class="step-btn2">+<span class="idb">B04</span></div>
+          </div>
+        </div>
+
+        <div class="desc-section">
+          <span class="idb corner">S04</span>
+          <div class="desc-title">الوصف<span class="idb">C09</span></div>
+          <div class="desc-line" style="width:100%"></div>
+          <div class="desc-line" style="width:92%"></div>
+          <div class="desc-line" style="width:60%"></div>
+          <span class="idb" style="display:inline-block;margin-top:4px;">C10</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- S05 / B05 floating cart bar -->
+    <div class="cartbar-wrap">
+      <span class="idb corner">S05</span>
+      <div class="cartbar">
+        <span class="start">3 منتجات<span class="idb">B05</span></span>
+        <span class="center">عرض السلة</span>
+        <span class="end">36.00 ر.س</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 3: SUCCESS — WITH AN ACTIVE ORDER (C13) -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الحالة الناجحة — مع وجود طلب نشط</h2>
+  <div class="state-sub">Success state — with an active order</div>
+  <div class="phone">
+
+    <div class="g2-header">
+      <span class="idb corner">S01</span>
+      <div class="g2-back">›<span class="idb">B01</span></div>
+      <div class="g2-title">مياه معدنية 500 مل<span class="idb">C01</span></div>
+      <div class="g2-spacer"></div>
+    </div>
+
+    <div class="g2-body">
+      <span class="idb corner">S02</span>
+
+      <div class="prod-image"><span class="idb corner">C02</span></div>
+
+      <div class="g2-content-wrap">
+        <div class="prod-name">مياه معدنية 500 مل<span class="idb">C03</span></div>
+        <div class="prod-price">12.00 ر.س<span class="idb">C04</span></div>
+
+        <!-- S03 action row: B02 Add -->
+        <div class="action-row2">
+          <span class="idb corner">S03</span>
+          <div class="btn-add2">أضف<span class="idb">B02</span></div>
+        </div>
+
+        <!-- C13 active-order line, plain text, 8px below S03 -->
+        <div class="active-line">أي منتج تضيفه الآن سيُرسل كطلب جديد منفصل<span class="idb">C13</span></div>
+
+        <div class="desc-section">
+          <span class="idb corner">S04</span>
+          <div class="desc-title">الوصف<span class="idb">C09</span></div>
+          <div class="desc-line" style="width:100%"></div>
+          <div class="desc-line" style="width:92%"></div>
+          <div class="desc-line" style="width:60%"></div>
+          <span class="idb" style="display:inline-block;margin-top:4px;">C10</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- S05 cart bar: hidden, cart is empty in this example -->
+
+  </div>
+  <div class="note">
+    ملاحظة: C13 نص عادي بلا صندوق أو أيقونة أو لون أو رابط، غير قابل للنقر، ولا يعطّل أو يخفي B02/B03/B04. تظهر بغضّ النظر عن حالة السلة.<br>
+    Note: C13 is plain text with no box, icon, color, or link, not tappable, and never disables or hides B02/B03/B04. It appears regardless of cart state.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 4: OUT OF STOCK -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>غير متوفر</h2>
+  <div class="state-sub">Out of stock</div>
+  <div class="phone">
+
+    <div class="g2-header">
+      <span class="idb corner">S01</span>
+      <div class="g2-back">›<span class="idb">B01</span></div>
+      <div class="g2-title">مياه معدنية 500 مل<span class="idb">C01</span></div>
+      <div class="g2-spacer"></div>
+    </div>
+
+    <div class="g2-body">
+      <span class="idb corner">S02</span>
+
+      <!-- C02 image at 50% opacity -->
+      <div class="prod-image dim"><span class="idb corner">C02</span></div>
+
+      <div class="g2-content-wrap">
+        <div class="prod-name">مياه معدنية 500 مل<span class="idb">C03</span></div>
+        <div class="prod-price">15.00 ر.س<span class="idb">C04</span></div>
+
+        <!-- S03 action row: C07 badge, cart holds 2 -->
+        <div class="action-row2">
+          <span class="idb corner">S03</span>
+          <div class="badge-oos2">غير متوفر — في سلتك 2<span class="idb">C07</span></div>
+        </div>
+
+        <!-- C08 helper -->
+        <div class="helper14">لإزالته من السلة افتح السلة<span class="idb">C08</span></div>
+
+        <div class="desc-section">
+          <span class="idb corner">S04</span>
+          <div class="desc-title">الوصف<span class="idb">C09</span></div>
+          <div class="desc-line" style="width:100%"></div>
+          <div class="desc-line" style="width:92%"></div>
+          <div class="desc-line" style="width:60%"></div>
+          <span class="idb" style="display:inline-block;margin-top:4px;">C10</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- S05 / B05 cart bar still shown and still counts the out-of-stock line -->
+    <div class="cartbar-wrap">
+      <span class="idb corner">S05</span>
+      <div class="cartbar">
+        <span class="start">2 منتجات<span class="idb">B05</span></span>
+        <span class="center">عرض السلة</span>
+        <span class="end">30.00 ر.س</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: النص الثاني الممكن لنفس الشارة C07 عندما لا يوجد الصنف في السلة إطلاقًا (بلا مساعد C08):<br>
+    Note: the alternate wording of the same badge C07 when the cart holds none of this product (no C08 helper below it):
+    <div class="alt-box">
+      <div class="badge-oos2" style="width:200px;">غير متوفر<span class="idb">C07</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 5: QUANTITY AT THE MAXIMUM -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الكمية عند الحد الأقصى</h2>
+  <div class="state-sub">Quantity at the maximum</div>
+  <div class="phone">
+
+    <div class="g2-header">
+      <span class="idb corner">S01</span>
+      <div class="g2-back">›<span class="idb">B01</span></div>
+      <div class="g2-title">مياه معدنية 500 مل<span class="idb">C01</span></div>
+      <div class="g2-spacer"></div>
+    </div>
+
+    <div class="g2-body">
+      <span class="idb corner">S02</span>
+
+      <div class="prod-image"><span class="idb corner">C02</span></div>
+
+      <div class="g2-content-wrap">
+        <div class="prod-name">مياه معدنية 500 مل<span class="idb">C03</span></div>
+        <div class="prod-price">5.00 ر.س<span class="idb">C04</span></div>
+
+        <!-- S03 action row: stepper at 10, + disabled -->
+        <div class="action-row2">
+          <span class="idb corner">S03</span>
+          <div class="stepper2">
+            <div class="step-btn2">−<span class="idb">B03</span></div>
+            <div class="qty-box2">10<span class="idb">C05</span></div>
+            <div class="step-btn2 disabled">+<span class="idb">B04</span></div>
+          </div>
+        </div>
+
+        <!-- C06 max helper -->
+        <div class="helper14">الحد الأقصى 10<span class="idb">C06</span></div>
+
+        <div class="desc-section">
+          <span class="idb corner">S04</span>
+          <div class="desc-title">الوصف<span class="idb">C09</span></div>
+          <div class="desc-line" style="width:100%"></div>
+          <div class="desc-line" style="width:92%"></div>
+          <div class="desc-line" style="width:60%"></div>
+          <span class="idb" style="display:inline-block;margin-top:4px;">C10</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cartbar-wrap">
+      <span class="idb corner">S05</span>
+      <div class="cartbar">
+        <span class="start">10 منتجات<span class="idb">B05</span></span>
+        <span class="center">عرض السلة</span>
+        <span class="end">50.00 ر.س</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 6: LOADING -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>التحميل</h2>
+  <div class="state-sub">Loading state (skeleton)</div>
+  <div class="phone">
+
+    <!-- S01 header: back arrow functional, fallback title -->
+    <div class="g2-header">
+      <span class="idb corner">S01</span>
+      <div class="g2-back">›<span class="idb">B01</span></div>
+      <div class="g2-title">تفاصيل المنتج<span class="idb">C01</span></div>
+      <div class="g2-spacer"></div>
+    </div>
+
+    <!-- C13 hidden in loading state -->
+
+    <!-- C11 loading skeleton (replaces S02) -->
+    <div style="position:relative; padding-bottom:96px;">
+      <div class="skel-image"><span class="idb corner">C11</span></div>
+      <div style="padding:0 16px;">
+        <div class="skel-bar" style="width:240px; height:20px; margin-top:16px;"></div>
+        <div class="skel-bar" style="width:100px; height:18px; margin-top:12px;"></div>
+        <div class="skel-bar" style="width:100%; height:48px; margin-top:16px; border-radius:24px;"></div>
+        <div class="skel-bar" style="width:100%; height:14px; margin-top:24px;"></div>
+        <div class="skel-bar" style="width:92%; height:14px; margin-top:10px;"></div>
+        <div class="skel-bar" style="width:60%; height:14px; margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <!-- S05 cart bar hidden in loading state -->
+
+  </div>
+  <div class="note">
+    ملاحظة: النبض البصري بين 100%↔60% كل 1.5 ثانية غير ممكن في لقطة ثابتة؛ الحد الأقصى 10 ثوانٍ ثم النجاح أو الخطأ أو G-08.<br>
+    Note: the 100%↔60% opacity pulse every 1.5s cannot be shown in a static frame; 10-second hard limit before success, error, or G-08.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 7: ERROR — PRODUCT NOT AVAILABLE -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>خطأ — المنتج غير متوفر</h2>
+  <div class="state-sub">Error state — product not available</div>
+  <div class="phone">
+
+    <!-- S01 header: back arrow functional, fallback title -->
+    <div class="g2-header">
+      <span class="idb corner">S01</span>
+      <div class="g2-back">›<span class="idb">B01</span></div>
+      <div class="g2-title">تفاصيل المنتج<span class="idb">C01</span></div>
+      <div class="g2-spacer"></div>
+    </div>
+
+    <!-- C12 + B06 (replaces S02) -->
+    <div class="error-wrap">
+      <div class="error-l1">المنتج غير متوفر<span class="idb">C12</span></div>
+      <div class="error-l2">ربما تمت إزالته من المتجر</div>
+      <div class="btn-back-store">العودة إلى المتجر<span class="idb">B06</span></div>
+    </div>
+
+    <!-- S05 cart bar hidden in error state -->
+
+  </div>
+  <div class="note">
+    ملاحظة: شريط السلة العائم S05 مخفي في حالة الخطأ حتى لو كانت السلة تحتوي على عناصر؛ السلة على الجهاز لا تتغيّر.<br>
+    Note: the floating cart bar S05 is hidden in the error state even if the cart has items; the device cart is left untouched.
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
