@@ -1,0 +1,382 @@
+/* ==========================================================================
+   Hotel In-Room Store — staff interface
+   Loaded AFTER ../app/css/app.css and adds only what the guest design system
+   lacks: the wider desk-tablet frame, the board, the order detail, the PIN
+   cells and the staff bottom sheets. Same tokens, same restrained look.
+   Direction-dependent rules use logical properties, as app.css does.
+   ========================================================================== */
+
+/* 1 — Frame ================================================================ */
+
+/* The board lives on a desk tablet as well as a phone: the frame widens, and
+   each screen decides how much of that width it uses. */
+.app--staff { max-width: 1024px; }
+
+.s-screen { display: block; }
+
+/* A single reading column inside the wide frame (S-02 body, S-03 body). */
+.s-col { max-width: 600px; margin-inline: auto; }
+.s-col--narrow { max-width: 390px; }
+
+/* Sticky block: header + tab bar (S-01) or header only (S-02, S-03). */
+.s-top {
+  position: sticky; top: 0; z-index: 30; background: var(--c-surface);
+}
+
+/* 2 — Header =============================================================== */
+
+.s-header {
+  height: 56px; display: flex; align-items: center; gap: var(--s-1);
+  padding-inline: var(--s-3); border-block-end: 1px solid var(--c-border);
+  background: var(--c-surface);
+}
+/* The name is cut at 18 characters by the view (S-01 §5.1); the line may
+   take two lines of the 56px header rather than being clipped further. */
+.s-header__shift {
+  flex: 1 1 auto; min-width: 0; font-size: var(--t-small); line-height: 1.2;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; overflow-wrap: anywhere;
+}
+.s-header__title {
+  flex: 1 1 auto; min-width: 0; font-size: var(--t-lg); font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.s-header__title--center { text-align: center; }
+.s-header__side { flex: 0 0 44px; display: flex; align-items: center; }
+
+/* Header text buttons: 44 x 44 minimum, state written out in words. */
+.s-hbtn {
+  flex: 0 0 auto; min-width: 44px; min-height: 44px; padding: 0 var(--s-2);
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: 0; border-radius: var(--r-sm);
+  font-size: var(--t-small); font-weight: 600; line-height: 1.2;
+  color: var(--c-ink); cursor: pointer; text-align: center; max-width: 132px;
+}
+.s-hbtn:hover { background: var(--c-surface-2); }
+.s-hbtn--end { text-decoration: underline; text-underline-offset: 3px; }
+
+/* 3 — Tab bar (S-01-S02) =================================================== */
+
+.s-tabs {
+  display: grid; grid-template-columns: 1fr 1fr; height: 48px;
+  border-block-end: 1px solid var(--c-border); background: var(--c-surface);
+}
+.s-tab {
+  min-height: 48px; background: none; border: 0;
+  border-block-end: 3px solid transparent; font-size: var(--t-body);
+  font-weight: 400; color: var(--c-ink); cursor: pointer;
+}
+.s-tab[aria-selected="true"] { font-weight: 700; border-block-end-color: var(--c-ink); }
+.s-tab[disabled] { cursor: default; color: var(--c-ink-2); }
+.s-tab .num { display: inline; }
+
+/* 4 — Bars under the tab bar =============================================== */
+
+/* S-01-C02 refresh-state line; dark after 2 minutes without a success. */
+.s-stale {
+  font-size: var(--t-small); padding: var(--s-2) var(--s-4);
+  background: var(--c-surface-2); border-block-end: 1px solid var(--c-border);
+}
+.s-stale--dark { background: var(--c-ink); color: #ffffff; border-color: var(--c-ink); }
+
+/* S-01-C11 / S-02-C17 session-expired bars, dark with light text. */
+.s-expired {
+  background: var(--c-ink); color: #ffffff; padding: var(--s-3);
+  font-size: var(--t-small);
+}
+.s-expired__l1 { font-weight: 700; }
+.s-expired .btn {
+  margin-block-start: var(--s-3); width: 100%; min-height: 44px;
+  background: transparent; color: #ffffff; border: 2px solid #ffffff;
+  border-radius: var(--r-pill);
+}
+.s-expired .btn:hover { background: rgba(255, 255, 255, .08); }
+
+/* 5 — Board list, groups, cards (S-01) ===================================== */
+
+.s-list { padding: var(--s-4) var(--s-4) calc(var(--s-5) + var(--safe-b)); }
+
+.s-group + .s-group { margin-block-start: var(--s-3); }
+.s-group__title {
+  font-size: var(--t-body); font-weight: 700; margin-block: var(--s-3) var(--s-2);
+}
+.s-group:first-child .s-group__title { margin-block-start: 0; }
+
+.s-cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3); }
+@media (min-width: 768px) {
+  .s-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3) var(--s-5); }
+}
+
+.s-card {
+  display: block; width: 100%; min-height: 44px; text-align: start;
+  background: var(--c-surface); color: var(--c-ink);
+  border: 1px solid var(--c-border-strong); border-radius: 8px;
+  padding: var(--s-3); cursor: pointer; font: inherit; line-height: 1.4;
+}
+.s-card:hover { background: var(--c-surface-2); }
+.s-card__top {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--s-2);
+}
+.s-card__room { display: inline-flex; align-items: baseline; gap: var(--s-2); min-width: 0; }
+.s-card__roomword { font-size: var(--t-small); }
+.s-roomno {
+  font-weight: 700; letter-spacing: .06em; color: #000000; line-height: 1.1;
+  white-space: nowrap; direction: ltr; unicode-bidi: isolate;
+}
+.s-card__roomno { font-size: 40px; }
+.s-card__elapsed { font-size: var(--t-small); color: var(--c-ink-2); white-space: nowrap; }
+.s-card__meta {
+  display: flex; justify-content: space-between; gap: var(--s-2);
+  font-size: var(--t-small); color: var(--c-ink-2);
+}
+.s-card__status { color: var(--c-ink); font-weight: 600; }
+.s-card__sum { display: block; font-size: var(--t-body); }
+.s-chips { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-block-start: var(--s-2); }
+.s-chip {
+  display: inline-block; min-height: 22px; padding-block: 2px;
+  padding-inline: var(--s-2); font-size: var(--t-mini); line-height: 1.3;
+  border: 1px solid var(--c-ink-2); border-radius: 4px; color: var(--c-ink);
+}
+.s-chip--late { background: var(--c-ink); border-color: var(--c-ink); color: #ffffff; font-weight: 700; }
+
+/* S-01-C08 — the guest cancelled while the card was on the board. */
+.s-card--gone { opacity: .6; border-style: dashed; }
+.s-card__gone { display: block; font-size: var(--t-small); font-weight: 700; margin-block-start: var(--s-2); }
+
+/* Empty and error blocks (C09, C10, C13; S-02-C18; S-03-C08). */
+.s-empty {
+  display: flex; flex-direction: column; align-items: center; gap: var(--s-2);
+  text-align: center; padding: 48px var(--s-4) var(--s-5);
+}
+.s-empty__l1 { font-size: var(--t-xl); font-weight: 700; }
+.s-empty__l2 { font-size: var(--t-body); }
+.s-empty__l3 { font-size: var(--t-small); color: var(--c-ink-2); }
+.s-empty .btn { margin-block-start: var(--s-5); min-width: 200px; min-height: 48px; border-radius: var(--r-pill); }
+.s-icon-circle {
+  width: 48px; height: 48px; border: 2px solid var(--c-border-strong);
+  border-radius: 50%; display: inline-flex; align-items: center;
+  justify-content: center; font-size: 22px; font-weight: 700;
+  color: var(--c-ink-2); margin-block-end: var(--s-2);
+}
+
+/* Loading placeholders — the one animation in the staff interface. */
+.s-skel {
+  background: var(--c-surface-2); border-radius: 8px;
+  animation: s-pulse 1.5s ease-in-out infinite alternate;
+}
+.s-skel--card { height: 132px; }
+.s-skel--line { height: 20px; }
+.s-skel--head { height: 28px; width: 60%; }
+.s-skel--room { height: 96px; width: 55%; }
+.s-skel--row  { height: 56px; }
+@keyframes s-pulse { from { opacity: 1; } to { opacity: .6; } }
+
+/* 6 — Order detail (S-02) ================================================== */
+
+.s-detail { padding: var(--s-4) var(--s-4) 200px; }
+
+/* S-02-C02 — dark banner, no close control. */
+.s-banner {
+  background: var(--c-ink); color: #ffffff; padding: var(--s-3);
+  border-radius: 8px; margin-block-end: var(--s-4);
+}
+.s-banner__l1 { font-size: var(--t-body); font-weight: 700; }
+.s-banner__l2 { font-size: var(--t-small); }
+
+.s-line { font-size: var(--t-small); line-height: 1.45; }
+.s-line--boxed {
+  padding: var(--s-2) var(--s-3); border: 1px solid var(--c-border-strong);
+  border-radius: 8px; background: var(--c-surface-2);
+}
+.s-idline {
+  display: flex; justify-content: space-between; gap: var(--s-3);
+  font-size: var(--t-small); color: var(--c-ink-2);
+}
+.s-status { font-size: var(--t-2xl); font-weight: 700; line-height: 1.25; }
+
+/* S-02-C07 — the loudest thing on the screen. */
+.s-roomblock { text-align: start; }
+.s-roomblock__word { display: block; font-size: var(--t-body); }
+.s-roomblock__no { display: block; font-size: var(--t-huge); line-height: 1.15; text-align: start; }
+/* The number keeps its own left-to-right run but sits at the start edge. */
+[dir="rtl"] .s-roomblock__no { text-align: right; }
+[dir="ltr"] .s-roomblock__no { text-align: left; }
+
+.s-sec { margin-block-start: var(--s-5); }
+.s-sec__title { font-size: var(--t-body); font-weight: 700; margin-block-end: var(--s-3); }
+
+.s-item {
+  display: grid; grid-template-columns: 56px minmax(0, 1fr); align-items: center;
+  min-height: 56px; padding-block: var(--s-2);
+  border-block-end: 1px solid var(--c-border);
+}
+.s-item__qty { font-size: var(--t-2xl); font-weight: 700; direction: ltr; unicode-bidi: isolate; }
+/* Keep "×2" at the start edge of its column: the LTR run would otherwise
+   align it against the name in Arabic. */
+[dir="rtl"] .s-item__qty { text-align: right; }
+[dir="ltr"] .s-item__qty { text-align: left; }
+.s-item__name { font-size: var(--t-lg); line-height: 1.35; overflow-wrap: anywhere; }
+.s-items-total {
+  display: flex; justify-content: space-between; gap: var(--s-3);
+  margin-block-start: var(--s-3); font-size: var(--t-body);
+}
+.s-items-total__sum { font-weight: 700; }
+
+.s-notes {
+  border: 1px solid var(--c-border-strong); border-radius: 8px; padding: var(--s-3);
+}
+.s-notes__text { font-size: var(--t-lg); white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.s-pay__line { font-size: var(--t-body); }
+.s-pay__collect { font-size: var(--t-2xl); font-weight: 700; }
+
+.s-record { font-size: var(--t-small); }
+.s-record__label { font-size: var(--t-body); font-weight: 700; }
+.s-record__text { overflow-wrap: anywhere; }
+
+.s-cancel { margin-block: var(--s-5); min-height: 56px; border-radius: var(--r-pill); }
+
+/* S-02-S04 — fixed action bar, light filled, one button. */
+.s-bar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 600px; z-index: 40;
+  background: var(--c-surface-2); border-block-start: 1px solid var(--c-border-strong);
+  padding: var(--s-3) var(--s-3) calc(var(--s-3) + var(--safe-b));
+}
+.s-bar__msg { margin-block: 0 var(--s-2); }
+.s-bar .error { margin-block-start: 0; margin-block-end: var(--s-2); }
+.s-bar__consequence { font-size: var(--t-small); margin-block-end: 6px; }
+.s-bar .s-expired { margin: calc(var(--s-3) * -1); padding: var(--s-3) var(--s-3) calc(var(--s-3) + var(--safe-b)); }
+.s-bar .s-expired .btn { min-height: 48px; }
+
+/* The two-line primary action: a verb, then the status it writes. */
+.s-primary {
+  display: flex; flex-direction: column; gap: 2px; width: 100%;
+  min-height: 64px; border-radius: var(--r-md);
+}
+.s-primary__l1 { font-size: var(--t-lg); font-weight: 700; line-height: 1.25; }
+.s-primary__l2 { font-size: var(--t-small); font-weight: 400; line-height: 1.3; }
+.s-back-btn { width: 100%; min-height: 56px; border-radius: var(--r-pill); }
+
+/* 7 — Sign-in (S-03) ======================================================= */
+
+.s-signin { padding: var(--s-5) var(--s-4) calc(var(--s-5) + var(--safe-b)); }
+.s-boxline {
+  font-size: var(--t-body); font-weight: 700; padding: var(--s-3);
+  border: 1px solid var(--c-ink); border-radius: 8px; margin-block-end: var(--s-4);
+}
+.s-queue { font-size: var(--t-body); font-weight: 700; min-height: 22px; }
+.s-soundline { font-size: var(--t-small); margin-block-start: var(--s-2); }
+.s-pin-label { display: block; font-size: var(--t-body); font-weight: 700; margin-block: var(--s-6) var(--s-2); cursor: pointer; }
+.s-pin {
+  position: relative; display: flex; justify-content: center; gap: var(--s-3);
+  width: 260px; max-width: 100%; margin-inline: auto; direction: ltr;
+}
+.s-pin__cell {
+  width: 56px; height: 64px; border: 1px solid var(--c-ink); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; background: var(--c-surface);
+}
+.s-pin__cell.is-next { border-width: 2px; }
+.s-pin__dot { width: 16px; height: 16px; border-radius: 50%; background: var(--c-ink); }
+.s-pin.is-disabled .s-pin__cell { opacity: .5; }
+/* The real input covers the four cells, invisible: the cells draw the state. */
+.s-pin__input {
+  position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0;
+  border: 0; padding: 0; margin: 0; background: transparent; color: transparent;
+  caret-color: transparent; font-size: 16px; cursor: pointer;
+}
+.s-pin:focus-within .s-pin__cell.is-next { box-shadow: var(--ring); }
+.s-slot { min-height: 20px; margin-block-start: var(--s-2); }
+.s-slot .error { margin-block-start: 0; }
+.s-slot__checking { font-size: var(--t-small); }
+.s-helper { font-size: var(--t-small); margin-block-start: var(--s-4); color: var(--c-ink-2); }
+
+/* Demo PIN hint — not product copy, visibly apart from the screen. */
+.s-demo-hint {
+  margin-block-start: var(--s-6); padding: var(--s-3);
+  border: 2px dashed var(--c-border-strong); border-radius: 8px;
+  font-size: var(--t-small); color: var(--c-ink-2); background: var(--c-surface-2);
+}
+.s-demo-hint__tag {
+  display: inline-block; font-size: var(--t-mini); font-weight: 700;
+  border: 1px solid var(--c-ink-2); border-radius: var(--r-sm);
+  padding: 0 var(--s-2); margin-inline-end: var(--s-2);
+}
+.s-demo-hint .num { font-weight: 700; color: var(--c-ink); letter-spacing: .08em; }
+
+/* 8 — Staff bottom sheets (SM-01, SM-02) — SM-01 preamble conventions ====== */
+
+.s-backdrop { align-items: flex-end; overflow: hidden; }
+.s-backdrop.is-busy { cursor: progress; }
+.s-sheet {
+  display: flex; flex-direction: column; max-width: 560px; max-height: 85vh;
+  overflow: hidden; padding: 0;
+}
+.s-sheet__scroll { flex: 1 1 auto; overflow-y: auto; padding: var(--s-5) var(--s-5) var(--s-4); }
+.s-sheet__title { font-size: var(--t-lg); font-weight: 700; outline: none; }
+.s-sheet__foot {
+  flex: 0 0 auto; border-block-start: 1px solid var(--c-border);
+  padding: var(--s-3) var(--s-5) calc(var(--s-4) + var(--safe-b));
+  display: flex; flex-direction: column; gap: var(--s-4);
+}
+.s-sheet__foot .error { margin: 0; }
+.s-sheet__foot .btn--ghost { width: 100%; min-height: 56px; }
+.s-sheet__foot .s-primary { min-height: 64px; }
+
+.s-effect { font-size: var(--t-small); margin-block-start: var(--s-3); }
+.s-field-label { display: block; font-size: var(--t-body); font-weight: 700; }
+
+.s-preset {
+  display: flex; align-items: center; gap: var(--s-3); width: 100%;
+  min-height: 56px; padding: var(--s-2) var(--s-3); margin-block-start: var(--s-2);
+  background: var(--c-surface); color: var(--c-ink); text-align: start;
+  border: 1px solid var(--c-border-strong); border-radius: 8px; cursor: pointer;
+  font-size: var(--t-body); line-height: 1.35;
+}
+.s-preset__mark {
+  flex: 0 0 auto; width: 24px; height: 24px; border: 2px solid var(--c-ink);
+  border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+}
+.s-preset[aria-checked="true"] { border: 2px solid var(--c-ink); font-weight: 700; }
+.s-preset[aria-checked="true"] .s-preset__mark::before {
+  content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--c-ink);
+}
+.s-preset[aria-disabled="true"] { cursor: default; }
+
+.s-input {
+  width: 100%; min-height: 48px; padding: var(--s-2) var(--s-3);
+  font-size: var(--t-body); border: 1px solid var(--c-ink); border-radius: 8px;
+  background: var(--c-surface); color: var(--c-ink);
+}
+.s-input[readonly] { background: var(--c-surface-2); }
+.s-fieldrow {
+  display: flex; justify-content: space-between; gap: var(--s-3);
+  font-size: var(--t-small); margin-block-start: var(--s-1);
+}
+.s-counter { direction: ltr; unicode-bidi: isolate; white-space: nowrap; }
+.s-counter.is-full { font-weight: 700; }
+
+.s-preview {
+  border: 1px solid var(--c-border-strong); border-radius: 8px; padding: var(--s-3);
+  margin-block-start: var(--s-4);
+}
+.s-preview__l1 { font-size: var(--t-small); }
+.s-preview__l2 { font-size: var(--t-body); overflow-wrap: anywhere; }
+
+/* SM-02 */
+.s-sheet__room { margin-block-start: var(--s-4); }
+.s-sheet__roomno { display: block; font-size: 40px; }
+[dir="rtl"] .s-sheet__roomno { text-align: right; }
+[dir="ltr"] .s-sheet__roomno { text-align: left; }
+.s-method { font-size: var(--t-body); margin-block-start: var(--s-4); }
+.s-collect { margin-block-start: var(--s-3); }
+.s-collect__label { font-size: var(--t-body); }
+.s-collect__value { font-size: var(--t-room); font-weight: 700; line-height: 1.2; }
+.s-instruction { font-size: var(--t-body); margin-block-start: var(--s-3); }
+.s-consequence { font-size: var(--t-small); margin-block-start: var(--s-4); }
+
+/* 9 — Demo strip additions ================================================= */
+
+.demo-bar input[type="checkbox"] { width: 16px; height: 16px; }
+.s-foot-slot { flex: 0 0 auto; }
