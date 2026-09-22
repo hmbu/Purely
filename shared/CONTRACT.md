@@ -26,7 +26,7 @@ HotelDB, so the shapes cannot drift.
 | Key | Holds | Written by |
 |---|---|---|
 | `roomstore.catalog` | `{ categories:[{id,nameAr,nameEn,order}], products:[{id,nameAr,nameEn,descAr,descEn,price,category,inStock,removed}] }` | admin; seeded once from `window.Data` |
-| `roomstore.settings` | `{ hotelNameAr, hotelNameEn, currencyAr, currencyEn, timeZone, roomFormat }` | admin |
+| `roomstore.settings` | `{ hotelNameAr, hotelNameEn, currencyAr, currencyEn, timeZone, roomFormat, roomFormatChangedAt, roomFormatChangedBy }` — `roomFormat` is `{ minLen, maxLen, allowLetters, separator, requireDigit }`, separator `''` or `'-'` only | admin |
 | `roomstore.fakeserver` | the hotel's order table `{ byKey, byNo, nextNo }` — shape defined by `app/js/store.js` | guest (create), staff (status), admin (read) |
 | `roomstore.staff` | `{ members:[{id,name,pin}], session:{memberId, since} }` | staff, admin |
 | `roomstore.admin` | `{ email, passwordHash, session }` | admin |

@@ -56,7 +56,14 @@
   function money(value) {
     var n = Math.round((Number(value) + Number.EPSILON) * 100) / 100;
     var s = n.toFixed(2);
-    return I18N.lang === 'ar' ? s + ' ر.س' : 'SAR ' + s;
+    /* The label comes from the hotel's settings (admin A-07), so a manager
+       who changes it reaches the guest and staff apps too. Falls back to
+       ر.س / SAR, the values every approved screen was written against. */
+    var cur = null;
+    try { cur = window.HotelDB ? HotelDB.settings() : null; } catch (e) { cur = null; }
+    var ar = (cur && cur.currencyAr) || 'ر.س';
+    var en = (cur && cur.currencyEn) || 'SAR';
+    return I18N.lang === 'ar' ? s + ' ' + ar : en + ' ' + s;
   }
 
   function esc(s) {
