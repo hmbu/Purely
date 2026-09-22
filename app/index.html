@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>متجر الغرفة — Room Store</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<!-- Demo bar: NOT part of the product. It exists so a reviewer can reach the
+     specified failure states, which the product itself can never trigger. -->
+<div id="demo-bar" class="demo-bar" data-demo="true">
+  <span class="demo-bar__tag">وضع العرض · Demo</span>
+  <label>حالة الخادم / Server
+    <select id="demo-fail">
+      <option value="none">تعمل / working</option>
+      <option value="catalogFail">فشل الكتالوج / catalog fails</option>
+      <option value="invalidLink">رابط غير صالح / invalid link</option>
+      <option value="noConnection">لا اتصال / no connection</option>
+      <option value="serverError">خطأ خادم / server error</option>
+      <option value="outOfStock">نفاد مخزون عند الإرسال / stock rejection</option>
+      <option value="orderNotFound">لا يوجد طلب بهذا الرقم / order not found</option>
+    </select>
+  </label>
+  <label>تقدّم الطلب / Advance order
+    <button type="button" id="demo-advance">الحالة التالية / next status</button>
+  </label>
+  <button type="button" id="demo-reset">تصفير / reset device</button>
+</div>
+
+<div id="app" class="app"></div>
+<div id="modal-root"></div>
+<div id="toast-root" aria-live="polite"></div>
+
+<script src="js/i18n.js"></script>
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/views-shop.js"></script>
+<script src="js/views-checkout.js"></script>
+<script src="js/views-orders.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
