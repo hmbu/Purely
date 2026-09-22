@@ -36,10 +36,10 @@ Map status: **APPROVED by the product manager.** Checkpoint 1 is cleared; screen
 
 | ID | Name (English) | Name (Arabic) | Opens on top of | Purpose (one line) | Status |
 |---|---|---|---|---|---|
-| M-01 | Confirm room number | تأكيد رقم الغرفة | G-04 | Mandatory (locked decision 2): shows the typed room number in large type; guest confirms or goes back to edit. Cannot be dismissed by tapping outside. | Draft |
+| M-01 | Confirm room number | تأكيد رقم الغرفة | G-04 | Mandatory (locked decision 2): shows the typed room number in large type; guest confirms or goes back to edit. Cannot be dismissed by tapping outside. | **Approved** |
 | M-02 | Cancel order? | إلغاء الطلب؟ | G-06 | Confirms cancellation of an order that is still in status "New" (locked decision 6). | Draft |
-| M-03 | Order not sent | لم يتم إرسال الطلب | G-04 | Shown when the submission request fails (connection dropped / server error). Retry or close; the order data is kept. | Draft |
-| M-04 | Items no longer available | منتجات غير متوفرة | G-04 | Shown when the server rejects the submission because one or more cart items went out of stock; lists them and lets the guest remove them or go back to the cart. | Draft |
+| M-03 | Order not sent | لم يتم إرسال الطلب | G-04 | Shown when the submission request fails (connection dropped / server error). Retry or close; the order data is kept. | **Approved** |
+| M-04 | Items no longer available | منتجات غير متوفرة | G-04 | Shown when the server rejects the submission because one or more cart items went out of stock; lists them and lets the guest remove them or go back to the cart. | **Approved** |
 
 **Totals: 8 screens, 4 modals.**
 
