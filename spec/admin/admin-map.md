@@ -46,13 +46,13 @@ What that rules out, deliberately:
 
 | ID | Name (Arabic) | Name (English) | Purpose (one line) | Why this screen exists | Status |
 |---|---|---|---|---|---|
-| A-01 | تسجيل الدخول | Sign in | The only unauthenticated screen: email and password, into the dashboard. | Prices, stock and the room-number format are behind it; a back office reachable by URL alone is an open till. | Draft |
-| A-02 | نظرة عامة | Overview | What needs attention right now, then the period's money and top products. | The screen the manager opens first; it must be worth opening, so it leads with breakage (nothing to sell, orders nobody accepted) before it reports revenue. | Draft |
-| A-03 | المنتجات | Products | The full catalog as one searchable table: name, category, price, in-stock switch, edit. | The daily-work screen. Stock is switched here inline, because "the water is finished" is the most frequent edit in a hotel store and must not cost a screen change. | Draft |
-| A-04 | تفاصيل المنتج | Product details | Add or edit one product: both names, both descriptions, category, price, image, stock. | Creating and editing are the same 8 fields with the same rules; two screens would be two places for the same validation to drift. One screen, two modes. | Draft |
-| A-05 | الفئات | Categories | The category list, their order, renaming, adding, removing. | The guest's sticky category bar renders chips **in the catalog's order** (G-01 §5.3), so that order is a product decision and needs a place to be made. | Draft |
-| A-06 | الطلبات | Orders | Order history with date, status and room filters, a summary of the filtered set, and CSV export. | Answers "what did we sell, to which rooms, and how much cash is staff meant to have collected" — the reconciliation screen. | Draft |
-| A-07 | إعدادات الفندق | Hotel settings | Hotel name (both languages), currency label, time zone, **room-number format**, change password. | The four values the whole product prints or validates against, in one place. It is also where OQ-01 is closed operationally. | Draft |
+| A-01 | تسجيل الدخول | Sign in | The only unauthenticated screen: email and password, into the dashboard. | Prices, stock and the room-number format are behind it; a back office reachable by URL alone is an open till. | **Approved** |
+| A-02 | نظرة عامة | Overview | What needs attention right now, then the period's money and top products. | The screen the manager opens first; it must be worth opening, so it leads with breakage (nothing to sell, orders nobody accepted) before it reports revenue. | **Approved** |
+| A-03 | المنتجات | Products | The full catalog as one searchable table: name, category, price, in-stock switch, edit. | The daily-work screen. Stock is switched here inline, because "the water is finished" is the most frequent edit in a hotel store and must not cost a screen change. | **Approved** |
+| A-04 | تفاصيل المنتج | Product details | Add or edit one product: both names, both descriptions, category, price, image, stock. | Creating and editing are the same 8 fields with the same rules; two screens would be two places for the same validation to drift. One screen, two modes. | **Approved** |
+| A-05 | الفئات | Categories | The category list, their order, renaming, adding, removing. | The guest's sticky category bar renders chips **in the catalog's order** (G-01 §5.3), so that order is a product decision and needs a place to be made. | **Approved** |
+| A-06 | الطلبات | Orders | Order history with date, status and room filters, a summary of the filtered set, and CSV export. | Answers "what did we sell, to which rooms, and how much cash is staff meant to have collected" — the reconciliation screen. | **Approved** |
+| A-07 | إعدادات الفندق | Hotel settings | Hotel name (both languages), currency label, time zone, **room-number format**, change password. | The four values the whole product prints or validates against, in one place. It is also where OQ-01 is closed operationally. | **Approved** |
 
 **7 screens.**
 
@@ -60,10 +60,10 @@ What that rules out, deliberately:
 
 | ID | Name (Arabic) | Name (English) | Opens on top of | Purpose | Status |
 |---|---|---|---|---|---|
-| AM-01 | تغييرات غير محفوظة | Unsaved changes | A-04, A-07 | Guards a navigation away from an edited, unsaved form: Save, Discard, or Stay. | Draft |
-| AM-02 | تأكيد الإزالة | Confirm removal | A-03, A-04 (variant P — product), A-05 (variant C — category) | Confirms removing a product from the store, or deleting an empty category, and states the exact guest-side consequence. | Draft |
-| AM-03 | تفاصيل الطلب | Order details | A-06 | Read-only contents of one order: items, quantities, prices, room, payment, notes, status history. | Draft |
-| AM-04 | تغيير صيغة رقم الغرفة | Change room number format | A-07 | The protected confirmation for the one setting that can break every future order: consequence text plus a live test of a real room number against the new rule. | Draft |
+| AM-01 | تغييرات غير محفوظة | Unsaved changes | A-04, A-07 | Guards a navigation away from an edited, unsaved form: Save, Discard, or Stay. | **Approved** |
+| AM-02 | تأكيد الإزالة | Confirm removal | A-03, A-04 (variant P — product), A-05 (variant C — category) | Confirms removing a product from the store, or deleting an empty category, and states the exact guest-side consequence. | **Approved** |
+| AM-03 | تفاصيل الطلب | Order details | A-06 | Read-only contents of one order: items, quantities, prices, room, payment, notes, status history. | **Approved** |
+| AM-04 | تغيير صيغة رقم الغرفة | Change room number format | A-07 | The protected confirmation for the one setting that can break every future order: consequence text plus a live test of a real room number against the new rule. | **Approved** |
 
 **4 modals. 7 screens + 4 modals = 11 files.**
 
