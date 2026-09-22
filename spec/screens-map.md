@@ -75,7 +75,9 @@ These are elements or states inside the screens above. They are listed here so n
  ┌──────┐            ┌──────┐   Retry (connection/server case only)
  │ G-01 │◄───────────│ G-08 │◄──┐
  │Store │            └──┬───┘   │
- └──┬───┘               └───────┘
+ └──┬───┘                │└─────┘
+    │                    └── "My orders" (only when the device holds
+    │                        a saved order) ──► G-07 ──► G-06
     │
     ├── tap category chip ──────────► scrolls within G-01
     ├── tap language toggle ────────► G-01 re-rendered in the other language
@@ -150,7 +152,7 @@ These are elements or states inside the screens above. They are listed here so n
 | G-04 Checkout | G-03 → "Checkout"; M-01 → "Edit room number"; M-03 → "Close" or a failed "Retry"; M-04 → "Remove them and continue" (cart not empty) | Back / "Edit cart" → G-03; Card ↔ Cash selection → in place (Cash shows the optional amount field); "Submit order" → inline validation errors on G-04, or M-01 when valid |
 | G-05 Order submitted | M-01 → "Confirm and send" (success); M-03 → "Retry" (success) | "Track order" → G-06; "Back to store" → G-01; browser back → G-01 (G-04 and M-01 are removed from the history, the cart is already empty) |
 | G-06 Order tracking | G-05 → "Track order"; G-07 → tap an order; G-01 → active-order banner; M-02 → "Yes, cancel" or "Keep order" | Back → G-07 if opened from G-07, otherwise G-01; "Cancel order" (status New only) → M-02; "Reorder" (status Delivered or Cancelled only) → G-03 with the items added; "Back to store" → G-01; error state "Order not found" → "Back to store" → G-01 |
-| G-07 My orders | G-01 → "My orders" icon; G-06 → back (when opened from G-07) | Tap an order → G-06; "Browse the store" (empty state) → G-01; back → G-01 |
+| G-07 My orders | G-01 → "My orders" icon; G-06 → back (when opened from G-07); G-08 → "My orders", on either variant, whenever the device holds at least one saved order | Tap an order → G-06; "Browse the store" (empty state) → G-01; back → G-01, or back to the failed URL when G-07 was opened from G-08 |
 | G-08 Store unavailable | QR scan when the catalog cannot be loaded or the link is not valid; G-01 → reload that fails; G-02 or G-03 → reload / direct URL whose catalog fetch fails | "Retry" (connection/server variant only) → loading → G-01 on success, G-08 again on failure; language toggle → same screen, other language; "My orders" → G-07, shown on BOTH variants whenever the device holds at least one saved order. The invalid-link variant has no Retry and tells the guest to ask reception, but it still offers "My orders" when one exists. **Amended by the product manager after the G-08 test:** G-07 and G-06 render entirely from the device and need no catalog, so a catalog failure must never consume the guest's cancel-before-acceptance window (locked decision 6). When the device holds no order, neither variant shows the control. |
 | M-01 Confirm room number | G-04 → "Submit order" (all fields valid) | "Confirm and send" → request sent. Four outcomes: a new order created → G-05; an order already existed for this attempt and matches → G-05, treated as a plain success; an order already existed and the submitted values differ → G-05 with the already-existing notice, showing the order the hotel actually holds; connection/server failure → M-03; out-of-stock rejection → M-04; "Edit room number" → close, focus the room number field on G-04. Backdrop tap and browser back do NOT close it. |
 | M-02 Cancel order? | G-06 → "Cancel order" | "Yes, cancel" → request sent: success → G-06 with status Cancelled; already accepted → G-06 with the real status and an "already accepted" banner; connection failure → error text inside M-02 with the same two buttons; "Keep order" / backdrop tap → close, G-06 unchanged |
@@ -163,7 +165,7 @@ These are elements or states inside the screens above. They are listed here so n
 2. Modals are not history entries. Browser back while a modal is open closes the modal (same as its dismiss action) — except M-01, where browser back is ignored and the guest must use one of its two buttons.
 3. After a successful submission, G-04 and M-01 are dropped from the history: back from G-05 goes to G-01, never to the checkout of an already-sent order.
 4. The cart is saved on the device and survives a page reload or closed browser tab. It is emptied only by the guest (− to zero / M-04 removal) or by a successful submission.
-5. On a successful submission the order (number, items, room number, payment choice, timestamp, last known status) is saved on the device; that is the only source for G-07 (locked decision 4). G-06 always fetches the live status from the server and updates the saved copy. G-01 also fetches the status of active orders once per load, for the active-order banner only; it does not poll, and on failure it shows the last known saved status with no error text.
+5. On a successful submission the order (number, items, room number, payment choice, timestamp, last known status) is saved on the device; that is the only source for G-07 (locked decision 4). G-06 always fetches the live status from the server and updates the saved copy. G-01 also fetches the status of active orders once per load, for the active-order banner only, and G-07 refreshes its rows once per entry; neither polls, and on failure it shows the last known saved status with no error text.
 6. Language: the header toggle on G-01/G-08 is the only way to switch. All other screens use the current language. The choice persists on the device.
 
 ---
