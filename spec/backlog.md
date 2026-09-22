@@ -27,4 +27,18 @@ Source review: `/spec/reviews/G-01.md` (cycle 1). Four Later verdicts, plus one 
 
 ---
 
+## G-02 — Product details (تفاصيل المنتج)
+
+Source review: `/spec/reviews/G-02.md` (cycle 1). Five Later verdicts, all from tester findings; no element and no screen decision was deferred.
+
+| # | Ref | Item | Reason for deferring |
+|---|---|---|---|
+| G-02-L1 | F1 | **A language toggle reachable from G-02** — a way to switch Arabic ↔ English without going back to G-01 (for example a toggle in G-02's header, whose end edge is deliberately empty in v1). | The foreign guest sets the language on G-01 before ever reaching a product and the choice is saved on the device, so the detour exists only once, on a first open. |
+| G-02-L2 | F3 | **A zoomable or full-screen product image** — tapping C02 to enlarge the photo, or a pinch-zoom viewer for reading on-package text. | Page pinch-zoom is already guaranteed and enlarges a full-width photo, so a dedicated image viewer is polish, not a missing step. |
+| G-02-L3 | F5 | **Defined reflow for the badge and helper strings at enlarged text size** — a stated wrap/truncation rule for C07, C06, C08 and C13 when the guest raises the browser or OS text size. | v1 guarantees only that zoom and text scaling are never disabled; a verified layout at enlarged sizes is design-and-build work (it joins G-01-L3). |
+| G-02-L4 | F7 | **"Read more" for long descriptions** — expanding the description beyond the 500-character cut instead of ending it with "…". | Hotel room-store descriptions are short; this is a scale problem that appears with a catalog version 1 does not have. |
+| G-02-L5 | F10 | **Keeping the G-01 scroll position across a reload of G-02** — returning to the position the guest left instead of the top of the list after a reload or direct-URL open. | The guest still lands on G-01 and can browse on, so this is comfort on a rare path, not a broken journey. |
+
+---
+
 *(Later screens append their sections below this line.)*
