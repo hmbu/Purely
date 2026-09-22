@@ -241,6 +241,16 @@
       persistCart();
     },
 
+    /* M-04 §5.6 step 1 / §7.3: the sold-out lines leave the cart in ONE write,
+       never one line at a time, so the cart is never briefly half-removed and
+       the router re-renders once. */
+    removeLines: function (productIds) {
+      var ids = productIds || [];
+      if (!ids.length) return;
+      Store.cart = Store.cart.filter(function (l) { return ids.indexOf(l.productId) === -1; });
+      persistCart();
+    },
+
     /* Emptying the cart ends the checkout session, so the client order key and
        its pending record go with it (G-04 §7.7 rule 9 (b)). */
     clearCart: function () {

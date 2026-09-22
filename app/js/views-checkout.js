@@ -11,23 +11,22 @@
 
    No backend. `Server` is the stub in store.js; nothing here ever fetches.
 
-   Class names used by this file (the stylesheet is written against them):
-     screen, screen--checkout, screen__header, screen__back, screen__title,
-     screen__body, notice, notice--filled, notice--plain, notice__icon,
-     summary, summary__title, summary__line, summary__name, summary__amount,
-     summary__rule, summary__total, summary__edit,
-     field, field--amount, field__label, field__label-group, field__hint,
-     field__input, field__input--room, field__input--amount, field__area,
-     field__wrap, field__suffix, field__counter, field__error,
-     field__error-icon, field__error-text, is-max, screen__header-spacer,
-     payment, payment__title, payment__options, payment__cash,
-     pay-option, pay-option__radio, pay-option__text, pay-option__label,
-     pay-option__hint, is-selected,
-     bottom-bar, btn, btn--primary, btn--outline, btn--block, btn__label,
-     btn__total, btn__spinner, btn__sending, is-disabled, is-error,
-     modal-card, modal__title, modal__label, room-box, room-box__digits,
-     sheet, sheet__title, sheet__icon, sheet__body, sheet__rule,
-     sheet__total, sheet__actions, oos-list, oos-list__row
+   Class names are css/app.css's own vocabulary — the design system — and
+   this file invents none:
+     screen, screen--checkout, topbar, topbar__side, topbar__main,
+     topbar__title, iconbtn, iconbtn__glyph, chev,
+     notice, notice--flat, error,
+     panel, panel__title, line, line__name, line__price, divider,
+     total, total__label, total__value,
+     field, field--error, field__label, field__hint, field__input,
+     field__input--big, field__area, field__wrap, field__suffix,
+     field__counter, field__counter--full,
+     section__title, choice, choice__mark, choice__label, choice__sub,
+     is-selected, actionbar, btn, btn--primary, btn--ghost, btn--block,
+     btn--link, is-disabled, spinner,
+     dialog, dialog__title, dialog__lead, dialog__room, dialog__actions,
+     sheet, sheet__title, sheet__icon, sheet__body, sheet__actions,
+     pad, pad-x, row, row--split, small, muted, num
    The router supplies `backdrop` / `backdrop--locked` / `is-busy` on the
    modal wrapper (app.js), so no modal here draws its own backdrop element. */
 
@@ -399,32 +398,33 @@
     return false;
   }
 
+  /* .error carries the shared "!" icon slot as a pseudo-element, so the view
+     writes the message and nothing else; the text is the node's own content,
+     which is what setError() below rewrites. */
   function errorHtml(id, text, hidden) {
-    return '<p class="field__error" data-el="' + id + '" id="' + id + '" role="alert"' +
-           (hidden ? ' hidden' : '') + '>' +
-           '<span class="field__error-icon" aria-hidden="true">!</span>' +
-           '<span class="field__error-text">' + (text ? esc(text) : '') + '</span></p>';
+    return '<p class="error" data-el="' + id + '" id="' + id + '" role="alert"' +
+           (hidden ? ' hidden' : '') + '>' + (text ? esc(text) : '') + '</p>';
   }
 
   function summaryHtml(total) {
     var lines = cartLines();
-    var h = '<section class="summary" data-el="G-04-S02">';
-    h += '<h2 class="summary__title" data-el="G-04-C02">' + esc(t('g04.c02')) + '</h2>';
+    var h = '<section class="panel" data-el="G-04-S02">';
+    h += '<h2 class="panel__title" data-el="G-04-C02">' + esc(t('g04.c02')) + '</h2>';
     /* §5.2: one line per cart line, in cart order, all of them, no expander. */
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
-      h += '<p class="summary__line" data-el="G-04-C03">' +
-             '<span class="summary__name">' +
+      h += '<p class="row row--split small" data-el="G-04-C03">' +
+             '<span class="line__name">' +
                t('g04.c03.line', { qty: Number(line.qty) || 0, name: esc(lineName(line)) }) +
              '</span>' +
-             '<span class="summary__amount">' + esc(money(lineTotal(line))) + '</span>' +
+             '<span class="line__price">' + esc(money(lineTotal(line))) + '</span>' +
            '</p>';
     }
-    h += '<hr class="summary__rule">';
-    h += '<p class="summary__total" data-el="G-04-C04">' +
-           '<span>' + esc(t('g04.c04')) + '</span>' +
-           '<span>' + esc(money(total)) + '</span></p>';
-    h += '<button type="button" class="summary__edit" data-el="G-04-B02">' +
+    h += '<hr class="divider">';
+    h += '<p class="total" data-el="G-04-C04">' +
+           '<span class="total__label">' + esc(t('g04.c04')) + '</span>' +
+           '<span class="total__value">' + esc(money(total)) + '</span></p>';
+    h += '<button type="button" class="btn btn--link" data-el="G-04-B02">' +
            esc(t('g04.b02')) + '</button>';
     h += '</section>';
     return h;
@@ -433,14 +433,13 @@
   /* C11 + F03 (+ C12) are RENDERED ONLY while Cash is selected (§4, criterion
      24: with Card they are not rendered at all). */
   function cashBlockHtml(amountValue, amountErr, total) {
-    return '<div class="field field--amount">' +
-      '<div class="field__label-group" data-el="G-04-C11">' +
+    return '<div class="field' + (amountErr ? ' field--error' : '') + '">' +
+      '<div data-el="G-04-C11">' +
         '<label class="field__label" for="g04-f03">' + esc(t('g04.c11.line1')) + '</label>' +
         '<span class="field__hint">' + esc(t('g04.c11.line2')) + '</span>' +
       '</div>' +
       '<div class="field__wrap">' +
-        '<input id="g04-f03" class="field__input field__input--amount' +
-          (amountErr ? ' is-error' : '') + '" data-el="G-04-F03" type="text" ' +
+        '<input id="g04-f03" class="field__input" data-el="G-04-F03" type="text" ' +
           'inputmode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" ' +
           'autocapitalize="off" spellcheck="false" aria-describedby="G-04-C12" ' +
           'aria-invalid="' + (amountErr ? 'true' : 'false') + '" ' +
@@ -488,22 +487,31 @@
       var h = '<div class="screen screen--checkout">';
 
       /* ---- S01 header ---- */
-      h += '<header class="screen__header" data-el="G-04-S01">' +
-             '<button type="button" class="screen__back" data-el="G-04-B01" ' +
-               'aria-label="' + esc(t('g04.b01.aria')) + '">' +
-               '<span aria-hidden="true">' + chevron + '</span></button>' +
-             '<h1 class="screen__title" data-el="G-04-C01">' + esc(t('g04.c01')) + '</h1>' +
-             '<span class="screen__header-spacer" aria-hidden="true"></span>' +
+      h += '<header class="topbar" data-el="G-04-S01">' +
+             '<div class="topbar__side">' +
+               '<button type="button" class="iconbtn" data-el="G-04-B01" ' +
+                 'aria-label="' + esc(t('g04.b01.aria')) + '">' +
+                 '<span class="iconbtn__glyph" aria-hidden="true">' + chevron + '</span>' +
+               '</button>' +
+             '</div>' +
+             '<div class="topbar__main">' +
+               '<h1 class="topbar__title" data-el="G-04-C01">' + esc(t('g04.c01')) + '</h1>' +
+             '</div>' +
+             '<div class="topbar__side topbar__side--end" aria-hidden="true"></div>' +
            '</header>';
 
-      h += '<div class="screen__body">';
+      /* No padded body wrapper: every block below carries its own inset
+         (.panel has a margin, .field a padding, .section__title a padding),
+         which is how the stylesheet composes a screen. */
+      h += '<div>';
 
       /* ---- C13: persistent notice, only while the awaiting-resubmission
              flag is set. Never shown after M-03 (§4, C13 row). ---- */
       if (draft.awaiting) {
-        h += '<p class="notice notice--filled" data-el="G-04-C13" role="status">' +
-               '<span class="notice__icon" aria-hidden="true">!</span>' +
-               '<span>' + esc(t('g04.c13')) + '</span></p>';
+        h += '<div class="pad">' +
+               '<p class="notice" data-el="G-04-C13" role="status">' +
+                 '<span>' + esc(t('g04.c13')) + '</span></p>' +
+             '</div>';
       }
 
       /* ---- S02 summary ---- */
@@ -513,7 +521,7 @@
       h += '<section class="field" data-el="G-04-S03">' +
              '<label class="field__label" for="g04-f01" data-el="G-04-C05">' +
                esc(t('g04.c05')) + '</label>' +
-             '<input id="g04-f01" class="field__input field__input--room" data-el="G-04-F01" ' +
+             '<input id="g04-f01" class="field__input field__input--big" data-el="G-04-F01" ' +
                'type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" ' +
                'autocorrect="off" autocapitalize="off" spellcheck="false" ' +
                'aria-describedby="G-04-C06" aria-invalid="false" ' +
@@ -527,34 +535,33 @@
                esc(t('g04.c07')) + '</label>' +
              '<textarea id="g04-f02" class="field__area" data-el="G-04-F02" rows="3">' +
                esc(draft.notes) + '</textarea>' +
-             '<p class="field__counter' + (notesCount >= NOTES_MAX ? ' is-max' : '') +
+             '<p class="field__counter' + (notesCount >= NOTES_MAX ? ' field__counter--full' : '') +
                '" data-el="G-04-C08">' + esc(t('g04.c08', { n: notesCount })) + '</p>' +
-             '<p class="notice notice--plain" data-el="G-04-C14" role="status" hidden>' +
-               '<span class="notice__icon" aria-hidden="true">!</span>' +
+             '<p class="notice notice--flat" data-el="G-04-C14" role="status" hidden>' +
                '<span>' + esc(t('g04.c14')) + '</span></p>' +
            '</section>';
 
       /* ---- S05 payment: no option is selected by default (§5.5) ---- */
-      h += '<section class="payment" data-el="G-04-S05">' +
-             '<h2 class="payment__title" id="G-04-C09" data-el="G-04-C09">' +
+      h += '<section data-el="G-04-S05">' +
+             '<h2 class="section__title" id="G-04-C09" data-el="G-04-C09">' +
                esc(t('g04.c09')) + '</h2>' +
-             '<div class="payment__options" role="radiogroup" aria-labelledby="G-04-C09">' +
+             '<div class="pad-x" role="radiogroup" aria-labelledby="G-04-C09">' +
                payOptionHtml('G-04-B03', 'g04.b03', draft.payment === 'card') +
                payOptionHtml('G-04-B04', 'g04.b04', draft.payment === 'cash') +
              '</div>' +
-             errorHtml('G-04-C10', '', true) +
-             '<div class="payment__cash" data-slot="cash">' +
+             '<div class="pad-x">' + errorHtml('G-04-C10', '', true) + '</div>' +
+             '<div data-slot="cash">' +
                (draft.payment === 'cash' ? cashBlockHtml(draft.amount, amountErr, total) : '') +
              '</div>' +
            '</section>';
 
-      h += '</div>'; /* screen__body */
+      h += '</div>'; /* body */
 
       /* ---- S06 bottom bar. B05 is NEVER disabled (§7.6 rule 1). ---- */
-      h += '<div class="bottom-bar" data-el="G-04-S06">' +
+      h += '<div class="actionbar" data-el="G-04-S06">' +
              '<button type="button" class="btn btn--primary btn--block" data-el="G-04-B05">' +
-               '<span class="btn__label">' + esc(t('g04.b05')) + '</span>' +
-               '<span class="btn__total">' + esc(money(total)) + '</span>' +
+               '<span>' + esc(t('g04.b05')) + '</span>' +
+               '<span class="num bold">' + esc(money(total)) + '</span>' +
              '</button>' +
            '</div>';
 
@@ -588,20 +595,27 @@
 
       showC14 = false;
 
+      function markField(inputEl, on) {
+        var field = inputEl.closest ? inputEl.closest('.field') : null;
+        if (field) field.classList.toggle('field--error', !!on);
+      }
+
       function setError(errEl, inputEl, key, vars) {
         if (!errEl) return;
         if (key) {
-          errEl.querySelector('.field__error-text').textContent = t(key, vars);
+          errEl.textContent = t(key, vars);
           errEl.removeAttribute('hidden');
           if (inputEl) {
-            inputEl.classList.add('is-error');
+            /* The stylesheet draws the error state from the field wrapper
+               (.field--error .field__input), so the modifier goes there. */
+            markField(inputEl, true);
             inputEl.setAttribute('aria-invalid', 'true');
           }
         } else {
           errEl.setAttribute('hidden', 'hidden');
-          errEl.querySelector('.field__error-text').textContent = '';
+          errEl.textContent = '';
           if (inputEl) {
-            inputEl.classList.remove('is-error');
+            markField(inputEl, false);
             inputEl.setAttribute('aria-invalid', 'false');
           }
         }
@@ -670,7 +684,8 @@
 
         var n = charCount(f02.value);
         c08.textContent = t('g04.c08', { n: n });
-        if (n >= NOTES_MAX) c08.classList.add('is-max'); else c08.classList.remove('is-max');
+        if (n >= NOTES_MAX) c08.classList.add('field__counter--full');
+        else c08.classList.remove('field__counter--full');
 
         draft.notes = f02.value;
         saveDraft(draft);
@@ -797,12 +812,12 @@
 
   /* §4 B03 / B04 — identical rows, label on line 1 and helper on line 2. */
   function payOptionHtml(id, copyKey, selected) {
-    return '<button type="button" class="pay-option' + (selected ? ' is-selected' : '') +
+    return '<button type="button" class="choice' + (selected ? ' is-selected' : '') +
       '" data-el="' + id + '" role="radio" aria-checked="' + (selected ? 'true' : 'false') + '">' +
-      '<span class="pay-option__radio" aria-hidden="true"></span>' +
-      '<span class="pay-option__text">' +
-        '<span class="pay-option__label">' + esc(t(copyKey + '.line1')) + '</span>' +
-        '<span class="pay-option__hint">' + esc(t(copyKey + '.line2')) + '</span>' +
+      '<span class="choice__mark" aria-hidden="true"></span>' +
+      '<span>' +
+        '<span class="choice__label">' + esc(t(copyKey + '.line1')) + '</span>' +
+        '<span class="choice__sub">' + esc(t(copyKey + '.line2')) + '</span>' +
       '</span></button>';
   }
 
@@ -1036,7 +1051,13 @@
   /* G-01 §5.7: the marks are written into the session catalog copy and never
      cleared within a session. M-04 is one of the two writers. */
   function markOutOfStock(ids) {
-    if (typeof Store.markOutOfStock === 'function') { Store.markOutOfStock(ids); return; }
+    /* The plural writer takes the list; Store.markOutOfStock takes ONE id, so
+       handing it the array would file a mark under a stringified array. */
+    if (typeof Store.markManyOutOfStock === 'function') { Store.markManyOutOfStock(ids); return; }
+    if (typeof Store.markOutOfStock === 'function') {
+      for (var k = 0; k < ids.length; k++) Store.markOutOfStock(ids[k]);
+      return;
+    }
     if (!Store.sessionCatalog) Store.sessionCatalog = {};
     for (var i = 0; i < ids.length; i++) {
       var entry = Store.sessionCatalog[ids[i]] || { present: true };
@@ -1060,24 +1081,27 @@
       var room = String(p.room == null ? '' : p.room);
       /* §5.2: read one digit at a time, so a leading zero is heard. */
       var spoken = room.split('').join(' ');
-      return '<div class="modal-card" data-el="M-01-S02" role="dialog" aria-modal="true" ' +
+      return '<div class="dialog" data-el="M-01-S02" role="dialog" aria-modal="true" ' +
                'aria-labelledby="M-01-C01">' +
-        '<h2 class="modal__title" id="M-01-C01" data-el="M-01-C01" tabindex="-1">' +
+        '<h2 class="dialog__title" id="M-01-C01" data-el="M-01-C01" tabindex="-1">' +
           esc(t('m01.c01')) + '</h2>' +
-        '<p class="modal__label" data-el="M-01-C02">' + esc(t('m01.c02')) + '</p>' +
+        '<p class="dialog__lead" data-el="M-01-C02">' + esc(t('m01.c02')) + '</p>' +
         /* C03: 64 px bold, and NOTHING ELSE from the order is on this card —
-           no total, no payment method, no item count (§5.4). */
-        '<div class="room-box" data-el="M-01-C03">' +
-          '<span class="room-box__digits" dir="ltr" aria-label="' + esc(spoken) + '">' +
+           no total, no payment method, no item count (§5.4). .dialog__room is
+           the 64px box; nothing else on the screen is near that size. */
+        '<div class="dialog__room" data-el="M-01-C03">' +
+          '<span dir="ltr" aria-label="' + esc(spoken) + '">' +
             esc(room) + '</span>' +
         '</div>' +
         /* No close control: the modal is not dismissable and its only two
            exits are these buttons (§3.2; the router blocks backdrop and
            Escape for M-01). */
-        '<button type="button" class="btn btn--outline btn--block" data-el="M-01-B02">' +
-          esc(t('m01.b02')) + '</button>' +
-        '<button type="button" class="btn btn--primary btn--block" data-el="M-01-B01">' +
-          '<span class="btn__label">' + esc(t('m01.b01')) + '</span></button>' +
+        '<div class="dialog__actions">' +
+          '<button type="button" class="btn btn--ghost btn--block" data-el="M-01-B02">' +
+            esc(t('m01.b02')) + '</button>' +
+          '<button type="button" class="btn btn--primary btn--block" data-el="M-01-B01">' +
+            '<span>' + esc(t('m01.b01')) + '</span></button>' +
+        '</div>' +
       '</div>';
     },
 
@@ -1107,9 +1131,9 @@
            payload is assembled, so no window exists for a second tap. */
         inFlight = true;
         b01.setAttribute('aria-disabled', 'true');
-        b01.innerHTML = '<span class="btn__sending" data-el="M-01-C04">' +
-          '<span class="btn__spinner" aria-hidden="true"></span>' +
-          '<span class="btn__label">' + esc(t('m01.c04')) + '</span></span>';
+        b01.innerHTML = '<span class="row" data-el="M-01-C04">' +
+          '<span class="spinner" aria-hidden="true"></span>' +
+          '<span>' + esc(t('m01.c04')) + '</span></span>';
         b02.classList.add('is-disabled');
         b02.setAttribute('aria-disabled', 'true');
         b02.disabled = true;
@@ -1157,15 +1181,15 @@
       /* §5.3: the reception line appears from the 3rd consecutive failed
          attempt for this key, and stays until the attempt count resets. */
       if (attempts >= 3) {
-        h += '<hr class="sheet__rule">' +
+        h += '<hr class="divider">' +
              '<p class="sheet__body" data-el="M-03-C04">' +
                t('m03.c04', { room: esc(room) }) + '</p>';
       }
 
       h += '<div class="sheet__actions">' +
         '<button type="button" class="btn btn--primary btn--block" data-el="M-03-B01">' +
-          '<span class="btn__label">' + esc(t('m03.b01')) + '</span></button>' +
-        '<button type="button" class="btn btn--outline btn--block" data-el="M-03-B02">' +
+          '<span>' + esc(t('m03.b01')) + '</span></button>' +
+        '<button type="button" class="btn btn--ghost btn--block" data-el="M-03-B02">' +
           esc(t('m03.b02')) + '</button>' +
       '</div></div>';
       return h;
@@ -1191,9 +1215,9 @@
         /* §6.1: B01 inert at 100 % opacity with the spinner and the sending
            label; B02 at 50 % and inert; the backdrop inert (is-busy). */
         b01.setAttribute('aria-disabled', 'true');
-        b01.innerHTML = '<span class="btn__sending">' +
-          '<span class="btn__spinner" aria-hidden="true"></span>' +
-          '<span class="btn__label">' + esc(t('m03.b01.busy')) + '</span></span>';
+        b01.innerHTML = '<span class="row">' +
+          '<span class="spinner" aria-hidden="true"></span>' +
+          '<span>' + esc(t('m03.b01.busy')) + '</span></span>';
         b02.classList.add('is-disabled');
         b02.setAttribute('aria-disabled', 'true');
         b02.disabled = true;
@@ -1293,9 +1317,9 @@
       /* §5.3: four rows visible, the half fifth row is the scroll cue; no
          "show more", no arrow, no count line. Rows carry name and quantity
          only — no image, no price, no control. */
-      h += '<div class="oos-list" data-el="M-04-S03">';
+      h += '<div data-el="M-04-S03">';
       for (var i = 0; i < rows.length; i++) {
-        h += '<p class="oos-list__row" data-el="M-04-C03">' +
+        h += '<p class="line line--plain" data-el="M-04-C03">' +
                t('m04.c03.row', {
                  qty: Number(rows[i].qty) || 0,
                  name: esc(lineName(rows[i]))
@@ -1315,15 +1339,15 @@
           }
           if (!listed) remaining.push(lines[j]);
         }
-        h += '<p class="sheet__total" data-el="M-04-C04">' +
-               '<span>' + esc(t('m04.c04')) + '</span>' +
-               '<span>' + esc(money(sumLines(remaining))) + '</span></p>';
+        h += '<p class="total" data-el="M-04-C04">' +
+               '<span class="total__label">' + esc(t('m04.c04')) + '</span>' +
+               '<span class="total__value">' + esc(money(sumLines(remaining))) + '</span></p>';
       }
 
       h += '<div class="sheet__actions">' +
         '<button type="button" class="btn btn--primary btn--block" data-el="M-04-B01">' +
           esc(t(b01Key)) + '</button>' +
-        '<button type="button" class="btn btn--outline btn--block" data-el="M-04-B02">' +
+        '<button type="button" class="btn btn--ghost btn--block" data-el="M-04-B02">' +
           esc(t('m04.b02')) + '</button>' +
       '</div></div>';
       return h;

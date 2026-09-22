@@ -10,9 +10,11 @@
    There is no backend: `Server` is the in-browser stub in store.js. Nothing in
    this file fetches, and nothing assumes a network.
 
-   Class names follow the vocabulary already used by /wireframes (header,
-   catbar, chip, card, img-box, action-row, stepper, cartbar, bottombar, …) so
-   the stylesheet written in parallel meets the same names.
+   Class names are the vocabulary of css/app.css — the design system — and
+   nothing here invents one: topbar, catbar/catbar__row, chip, card/card__img,
+   card__add, stepper, badge, cartbar/cartbar__btn, actionbar, line, empty,
+   skeleton. Where a name carries no style it is a behaviour hook only
+   (section-block, img-icon), never a second vocabulary for the same part.
 
    Interaction is one delegated listener on the document, registered once at
    load: the router re-runs mount() on the same persistent #app node after every
@@ -228,14 +230,17 @@
   }
 
   function productName(p) { return p ? pick(p.nameAr, p.nameEn) : ''; }
+  /* The catalog field is `descAr` / `descEn` (data.js, CONTRACT). The longer
+     spelling is kept only as a harmless fallback for a catalog that uses it. */
   function productDesc(p) {
     if (!p) return '';
-    var ar = p.descriptionAr != null ? p.descriptionAr : p.descAr;
-    var en = p.descriptionEn != null ? p.descriptionEn : p.descEn;
+    var ar = p.descAr != null ? p.descAr : p.descriptionAr;
+    var en = p.descEn != null ? p.descEn : p.descriptionEn;
     return pick(ar, en);
   }
   function categoryName(c) { return c ? pick(c.nameAr, c.nameEn) : ''; }
-  function productCategory(p) { return p ? (p.categoryId != null ? p.categoryId : p.category) : null; }
+  /* The catalog field is `category`, holding the category's id. */
+  function productCategory(p) { return p ? (p.category != null ? p.category : p.categoryId) : null; }
   function productImage(p) { return p ? (p.image || p.imageUrl || '') : ''; }
 
   function stockMark(id) {
@@ -260,7 +265,12 @@
     if (mark && mark.outOfStock) return true;
     if (!isPresent(id)) return true;
     var p = productById(id);
-    return !!(p && p.outOfStock);
+    /* The catalog states stock as `inStock` (data.js, CONTRACT), so the card
+       state is that field inverted. `outOfStock` is accepted too, for a
+       catalog that states it the other way round, and is harmless when absent. */
+    if (!p) return false;
+    if (p.inStock === false) return true;
+    return p.outOfStock === true;
   }
 
   /* Writes an out-of-stock mark into the session catalog copy. G-03 and M-04
@@ -299,8 +309,11 @@
      is empty rather than a placeholder word. */
   function hotelName() {
     var sources = [];
-    if (catalog) { sources.push(catalog.hotel); sources.push(catalog.settings); }
-    if (window.Data) { sources.push(Data.hotel); sources.push(Data.settings); }
+    /* The store settings as they really are: hotelNameAr / hotelNameEn on the
+       catalog response and on window.Data (CONTRACT, data.js). The other
+       shapes below are tolerated fallbacks and are simply absent here. */
+    if (catalog) { sources.push(catalog); sources.push(catalog.hotel); sources.push(catalog.settings); }
+    if (window.Data) { sources.push(window.Data); sources.push(Data.hotel); sources.push(Data.settings); }
     sources.push(window.Settings);
     for (var i = 0; i < sources.length; i++) {
       var s = sources[i];
@@ -387,6 +400,13 @@
     reindex();
     catalogState = 'ready';
     App.storeUnavailable = null;
+    /* G-01 §5.7: a successful fetch writes the session catalog copy, which is
+       also the one thing that clears an out-of-stock mark. G-03, M-04 and the
+       order screens read their stock answer from there, so the write belongs
+       here, at the single place a catalog arrives. */
+    try {
+      if (typeof Store.setSessionCatalog === 'function') Store.setSessionCatalog(catalog.products);
+    } catch (e) {}
   }
 
   function loadCatalog() {
@@ -409,10 +429,14 @@
      needs a Store writer; when store.js exposes none the refresh is skipped and
      the saved status stands — which is exactly the specified failure path. */
   function refreshActiveStatuses() {
+    /* The writer is Store.updateOrder(orderNo, patch) (CONTRACT / store.js):
+       it patches the saved record and persists it, which is exactly what a
+       fresh status needs. */
     var writer = null;
     try {
-      if (typeof Store.setOrderStatus === 'function') writer = Store.setOrderStatus;
-      else if (typeof Store.updateOrderStatus === 'function') writer = Store.updateOrderStatus;
+      if (typeof Store.updateOrder === 'function') {
+        writer = function (orderNo, status) { Store.updateOrder(orderNo, { status: status }); };
+      }
     } catch (e) { return; }
     if (!writer || !window.Server || typeof Server.getStatus !== 'function') return;
 
@@ -421,7 +445,7 @@
       (function (order) {
         Server.getStatus(order.orderNo).then(function (status) {
           if (!status || status === order.status) return;
-          try { writer.call(Store, order.orderNo, status); } catch (e) {}
+          try { writer(order.orderNo, status); } catch (e) {}
           App.render();
         }, function () { /* silent — G-01 §6.3 case 2 */ });
       })(list[i]);
@@ -459,11 +483,11 @@
   function cartBar(sectionId, buttonId) {
     if (cartCount() <= 0) return '';
     return '' +
-      '<div class="cartbar-wrap" data-el="' + sectionId + '">' +
-        '<button type="button" class="cartbar" data-el="' + buttonId + '" data-act="cart">' +
-          '<span class="start">' + esc(countWord(cartCount())) + '</span>' +
-          '<span class="center">' + esc(t('common.viewcart')) + '</span>' +
-          '<span class="end">' + esc(money(cartTotal())) + '</span>' +
+      '<div class="cartbar" data-el="' + sectionId + '">' +
+        '<button type="button" class="cartbar__btn" data-el="' + buttonId + '" data-act="cart">' +
+          '<span class="cartbar__count">' + esc(countWord(cartCount())) + '</span>' +
+          '<span class="cartbar__label">' + esc(t('common.viewcart')) + '</span>' +
+          '<span class="cartbar__total">' + esc(money(cartTotal())) + '</span>' +
         '</button>' +
       '</div>';
   }
@@ -489,22 +513,27 @@
      ========================================================================== */
 
   function g01Header(loading) {
-    var html = '<header class="header" data-el="G-01-S01">';
+    var html = '<header class="topbar" data-el="G-01-S01">';
     /* B01 and B02 work during loading too (G-01 §6.1). */
-    html += '<button type="button" class="lang-btn" data-el="G-01-B01" data-act="lang">' +
-              esc(I18N.otherLabel()) + '</button>';
-    html += '<div class="header-center">';
+    html += '<div class="topbar__side">' +
+              '<button type="button" class="btn btn--link" data-el="G-01-B01" data-act="lang">' +
+                esc(I18N.otherLabel()) +
+              '</button>' +
+            '</div>';
+    html += '<div class="topbar__main">';
     if (loading) {
-      html += '<div class="hotel-placeholder" data-el="G-01-C01"></div>';   /* C02 hidden */
+      html += '<div class="skeleton skeleton--line" data-el="G-01-C01"></div>';   /* C02 hidden */
     } else {
-      html += '<div class="hotel-name" data-el="G-01-C01">' + esc(hotelName()) + '</div>';
-      html += '<div class="pay-line" data-el="G-01-C02">' + esc(t('g01.payline')) + '</div>';
+      html += '<div class="topbar__title" data-el="G-01-C01">' + esc(hotelName()) + '</div>';
+      html += '<div class="topbar__sub" data-el="G-01-C02">' + esc(t('g01.payline')) + '</div>';
     }
     html += '</div>';
-    html += '<button type="button" class="myorders-btn" data-el="G-01-B02" data-act="orders">' +
-              '<span class="receipt-icon" aria-hidden="true"></span>' +
-              '<span class="myorders-label">' + esc(t('common.myorders')) + '</span>' +
-            '</button>';
+    html += '<div class="topbar__side topbar__side--end">' +
+              '<button type="button" class="iconbtn" data-el="G-01-B02" data-act="orders">' +
+                '<span class="iconbtn__glyph" aria-hidden="true"></span>' +
+                '<span class="iconbtn__label">' + esc(t('common.myorders')) + '</span>' +
+              '</button>' +
+            '</div>';
     html += '</header>';
     return html;
   }
@@ -520,9 +549,9 @@
     return '' +
       '<button type="button" class="banner" data-el="G-01-C03" data-act="banner" ' +
               'data-no="' + esc(order.orderNo) + '">' +
-        '<span class="l1">' + esc(t('g01.banner.l1', { no: order.orderNo, status: statusLabel(order.status) })) + '</span>' +
-        '<span class="l2">' + esc(t('common.newOrderNote')) + '</span>' +
-        '<span class="l3">' + esc(t('g01.banner.l3')) + '</span>' +
+        '<span class="banner__line1">' + esc(t('g01.banner.l1', { no: order.orderNo, status: statusLabel(order.status) })) + '</span>' +
+        '<span class="banner__line2">' + esc(t('common.newOrderNote')) + '</span>' +
+        '<span class="banner__line3">' + esc(t('g01.banner.l3')) + '</span>' +
       '</button>';
   }
 
@@ -546,13 +575,15 @@
   }
 
   function g01CatBar(groups) {
-    var html = '<nav class="catbar" data-el="G-01-S02">';
+    /* .catbar is the sticky strip, .catbar__row the horizontal scroller inside
+       it: both are needed, the row is what scrolls. */
+    var html = '<nav class="catbar" data-el="G-01-S02"><div class="catbar__row">';
     for (var i = 0; i < groups.length; i++) {
-      html += '<button type="button" class="chip' + (i === 0 ? ' active' : '') + '" ' +
+      html += '<button type="button" class="chip' + (i === 0 ? ' chip--active' : '') + '" ' +
               'data-el="G-01-B03" data-act="chip" data-cat="' + esc(groups[i].cat.id) + '">' +
               esc(categoryName(groups[i].cat)) + '</button>';
     }
-    html += '</nav>';
+    html += '</div></nav>';
     return html;
   }
 
@@ -560,21 +591,21 @@
      (G-01 §5.4 item 4). */
   function g01ActionRow(p) {
     var id = p.id, qty = cartQty(id), oos = isOutOfStock(id);
-    var html = '<div class="action-row">';
+    var html = '<div class="card__action">';
     if (oos) {
       /* Both forms of the badge: bare, and naming the quantity already in the
          cart. It is text only; removal stays on G-03 (G-01 §4 C07). */
-      html += '<div class="badge-oos" data-el="G-01-C07">' +
+      html += '<div class="badge badge--out badge--block" data-el="G-01-C07">' +
               esc(qty > 0 ? t('common.oos.n', { n: qty }) : t('common.oos')) + '</div>';
     } else if (qty <= 0) {
-      html += '<button type="button" class="btn-add" data-el="G-01-B04" data-act="add" ' +
+      html += '<button type="button" class="card__add" data-el="G-01-B04" data-act="add" ' +
               'data-id="' + esc(id) + '">' + esc(t('common.add')) + '</button>';
     } else {
       html += '<div class="stepper">';
-      html += '<button type="button" class="step-btn" data-el="G-01-B05" data-act="dec" ' +
+      html += '<button type="button" class="stepper__btn" data-el="G-01-B05" data-act="dec" ' +
               'data-id="' + esc(id) + '">−</button>';
-      html += '<span class="qty-box" data-el="G-01-C06">' + qty + '</span>';
-      html += '<button type="button" class="step-btn' + (qty >= MAX_QTY ? ' disabled' : '') + '" ' +
+      html += '<span class="stepper__qty" data-el="G-01-C06">' + qty + '</span>';
+      html += '<button type="button" class="stepper__btn" ' +
               'data-el="G-01-B06" data-act="inc" data-id="' + esc(id) + '"' +
               (qty >= MAX_QTY ? ' disabled aria-disabled="true"' : '') + '>+</button>';
       html += '</div>';
@@ -582,28 +613,29 @@
     html += '</div>';
     /* C08 only at exactly 10 (G-01 §4 C08, §7.1). */
     if (!oos && qty === MAX_QTY) {
-      html += '<div class="max-helper" data-el="G-01-C08">' + esc(t('common.max10')) + '</div>';
+      html += '<div class="stepper__note" data-el="G-01-C08">' + esc(t('common.max10')) + '</div>';
     }
     return html;
   }
 
   function g01Card(p) {
     var oos = isOutOfStock(p.id);
-    var html = '<article class="card" data-el="G-01-C05" data-act="card" data-id="' + esc(p.id) + '">';
-    html += imageBox('img-box' + (oos ? ' dim' : ''), null, productImage(p), productName(p));
-    html += '<div class="name">' + esc(productName(p)) + '</div>';
-    html += '<div class="price">' + esc(money(num(p.price))) + '</div>';
+    var html = '<article class="card' + (oos ? ' card--out' : '') + '" data-el="G-01-C05" ' +
+               'data-act="card" data-id="' + esc(p.id) + '">';
+    html += imageBox('card__img', null, productImage(p), productName(p));
+    html += '<div class="card__name">' + esc(productName(p)) + '</div>';
+    html += '<div class="card__price">' + esc(money(num(p.price))) + '</div>';
     html += g01ActionRow(p);
     html += '</article>';
     return html;
   }
 
   function g01List(groups) {
-    var html = '<div class="list" data-el="G-01-S03">';
+    var html = '<div data-el="G-01-S03">';
     for (var i = 0; i < groups.length; i++) {
       var g = groups[i];
       html += '<section class="section-block" data-el="G-01-S04" data-cat="' + esc(g.cat.id) + '">';
-      html += '<h2 class="section-title" data-el="G-01-C04">' + esc(categoryName(g.cat)) + '</h2>';
+      html += '<h2 class="section__title" data-el="G-01-C04">' + esc(categoryName(g.cat)) + '</h2>';
       html += '<div class="grid">';
       for (var j = 0; j < g.items.length; j++) html += g01Card(g.items[j]);
       html += '</div></section>';
@@ -615,23 +647,31 @@
   /* 4 placeholder chips and 6 placeholder cards, no text anywhere in the list
      area (G-01 §4 C10, §6.1). */
   function g01Skeleton() {
-    var html = '<nav class="catbar skel-catbar" data-el="G-01-C10">';
-    for (var i = 0; i < 4; i++) html += '<span class="skeleton-chip"></span>';
-    html += '</nav>';
-    html += '<div class="list skel-grid" data-el="G-01-C10"><div class="grid">';
-    for (var j = 0; j < 6; j++) html += '<div class="skeleton-card"></div>';
+    var html = '<nav class="catbar" data-el="G-01-C10"><div class="catbar__row">';
+    for (var i = 0; i < 4; i++) html += '<span class="skeleton skeleton--chip"></span>';
+    html += '</div></nav>';
+    html += '<div data-el="G-01-C10"><div class="grid">';
+    for (var j = 0; j < 6; j++) {
+      html += '<div class="card">' +
+                '<div class="skeleton skeleton--img"></div>' +
+                '<div class="skeleton skeleton--line"></div>' +
+                '<div class="skeleton skeleton--line skeleton--short"></div>' +
+              '</div>';
+    }
     html += '</div></div>';
     return html;
   }
 
   function g01Empty() {
+    /* B08 sits inside the empty block: .empty is the centred column and gives
+       the button its 8px of air (.empty .btn). */
     return '' +
-      '<div class="empty-wrap" data-el="G-01-C09">' +
-        '<div class="empty-title">' + esc(t('g01.empty.l1')) + '</div>' +
-        '<div class="empty-sub">' + esc(t('g01.empty.l2')) + '</div>' +
-      '</div>' +
-      '<button type="button" class="btn-refresh" data-el="G-01-B08" data-act="refresh">' +
-        esc(t('g01.refresh')) + '</button>';
+      '<div class="empty" data-el="G-01-C09">' +
+        '<div class="empty__title">' + esc(t('g01.empty.l1')) + '</div>' +
+        '<div class="empty__text">' + esc(t('g01.empty.l2')) + '</div>' +
+        '<button type="button" class="btn" data-el="G-01-B08" data-act="refresh">' +
+          esc(t('g01.refresh')) + '</button>' +
+      '</div>';
   }
 
   Views['G-01'] = {
@@ -641,10 +681,12 @@
       if (App.storeUnavailable) return Views['G-08'].render({});
 
       var loading = (catalogState !== 'ready');
-      var html = g01Header(loading);
+      /* .screen is what reserves room at the bottom for whichever fixed bar is
+         on screen, so every state of every screen here is wrapped in one. */
+      var html = '<section class="screen">' + g01Header(loading);
 
       /* Loading: banner and cart bar hidden (G-01 §6.1). */
-      if (loading) return html + g01Skeleton();
+      if (loading) return html + g01Skeleton() + '</section>';
 
       html += g01Banner();
 
@@ -652,13 +694,13 @@
       if (!groups.length) {
         /* Empty: category bar and cart bar hidden, banner still allowed
            (G-01 §6.2). */
-        return html + g01Empty();
+        return html + g01Empty() + '</section>';
       }
 
       html += g01CatBar(groups);
       html += g01List(groups);
       html += cartBar('G-01-S05', 'G-01-B07');
-      return html;
+      return html + '</section>';
     },
 
     mount: function (root) {
@@ -674,14 +716,14 @@
      above the bottom edge of the sticky category bar (G-01 §5.3). */
   function updateActiveChip(root) {
     if (!root || Date.now() < chipSuppressUntil) return;
-    var bar = root.querySelector('.catbar');
+    var bar = root.querySelector('.catbar__row');
     if (!bar) return;
     var sections = root.querySelectorAll('.section-block');
     if (!sections.length) return;
     var edge = HEADER_H + CATBAR_H + 1;
     var activeId = sections[0].getAttribute('data-cat');
     for (var i = 0; i < sections.length; i++) {
-      var title = sections[i].querySelector('.section-title');
+      var title = sections[i].querySelector('.section__title');
       if (!title) continue;
       if (title.getBoundingClientRect().top <= edge) activeId = sections[i].getAttribute('data-cat');
     }
@@ -693,9 +735,9 @@
     for (var i = 0; i < chips.length; i++) {
       var on = chips[i].getAttribute('data-cat') === catId;
       if (on) {
-        if (chips[i].className.indexOf('active') === -1) chips[i].className = 'chip active';
+        if (chips[i].className.indexOf('chip--active') === -1) chips[i].className = 'chip chip--active';
         ensureChipVisible(bar, chips[i]);
-      } else if (chips[i].className.indexOf('active') !== -1) {
+      } else if (chips[i].className.indexOf('chip--active') !== -1) {
         chips[i].className = 'chip';
       }
     }
@@ -717,12 +759,12 @@
      300 ms) so the section title sits directly under the category bar; the
      scroll-position rule resumes when the animation ends (G-01 §4 B03, §5.3). */
   function chipTap(root, catId) {
-    var bar = root.querySelector('.catbar');
+    var bar = root.querySelector('.catbar__row');
     if (bar) setActiveChip(bar, catId);
     chipSuppressUntil = Date.now() + 400;
     var section = root.querySelector('.section-block[data-cat="' + catId + '"]');
     if (!section) return;
-    var title = section.querySelector('.section-title') || section;
+    var title = section.querySelector('.section__title') || section;
     var top = (window.pageYOffset || 0) + title.getBoundingClientRect().top - (HEADER_H + CATBAR_H);
     if (top < 0) top = 0;
     scrollMem['G-01'] = top;
@@ -753,29 +795,35 @@
     /* The end edge of the header is deliberately empty: no toggle, no
        "My orders", no cart icon (G-02 §5.1). */
     return '' +
-      '<header class="g2-header" data-el="G-02-S01">' +
-        '<button type="button" class="g2-back" data-el="G-02-B01" data-act="back" ' +
-                'aria-label="' + esc(t('common.back')) + '"></button>' +
-        '<div class="g2-title" data-el="G-02-C01">' + esc(title) + '</div>' +
-        '<span class="g2-spacer"></span>' +
+      '<header class="topbar" data-el="G-02-S01">' +
+        '<div class="topbar__side">' +
+          '<button type="button" class="iconbtn" data-el="G-02-B01" data-act="back" ' +
+                  'aria-label="' + esc(t('common.back')) + '">' +
+            '<span class="iconbtn__glyph chev" aria-hidden="true">\u203A</span>' +
+          '</button>' +
+        '</div>' +
+        '<div class="topbar__main">' +
+          '<div class="topbar__title" data-el="G-02-C01">' + esc(title) + '</div>' +
+        '</div>' +
+        '<div class="topbar__side topbar__side--end"></div>' +
       '</header>';
   }
 
   function g02ActionRow(p) {
     var id = p.id, qty = cartQty(id), oos = isOutOfStock(id);
-    var html = '<div class="action-row2" data-el="G-02-S03">';
+    var html = '<div data-el="G-02-S03">';
     if (oos) {
-      html += '<div class="badge-oos2" data-el="G-02-C07">' +
+      html += '<div class="badge badge--out badge--block" data-el="G-02-C07">' +
               esc(qty > 0 ? t('common.oos.n', { n: qty }) : t('common.oos')) + '</div>';
     } else if (qty <= 0) {
-      html += '<button type="button" class="btn-add2" data-el="G-02-B02" data-act="add" ' +
+      html += '<button type="button" class="btn btn--block" data-el="G-02-B02" data-act="add" ' +
               'data-id="' + esc(id) + '">' + esc(t('common.add')) + '</button>';
     } else {
-      html += '<div class="stepper2">';
-      html += '<button type="button" class="step-btn2" data-el="G-02-B03" data-act="dec" ' +
+      html += '<div class="stepper">';
+      html += '<button type="button" class="stepper__btn" data-el="G-02-B03" data-act="dec" ' +
               'data-id="' + esc(id) + '">−</button>';
-      html += '<span class="qty-box2" data-el="G-02-C05">' + qty + '</span>';
-      html += '<button type="button" class="step-btn2' + (qty >= MAX_QTY ? ' disabled' : '') + '" ' +
+      html += '<span class="stepper__qty" data-el="G-02-C05">' + qty + '</span>';
+      html += '<button type="button" class="stepper__btn" ' +
               'data-el="G-02-B04" data-act="inc" data-id="' + esc(id) + '"' +
               (qty >= MAX_QTY ? ' disabled aria-disabled="true"' : '') + '>+</button>';
       html += '</div>';
@@ -785,9 +833,9 @@
     /* C06 and C08 exclude each other: C06 needs the stepper, C08 needs the
        badge plus a cart line (G-02 §4 C08). */
     if (!oos && qty === MAX_QTY) {
-      html += '<div class="helper14" data-el="G-02-C06">' + esc(t('common.max10')) + '</div>';
+      html += '<div class="stepper__note" data-el="G-02-C06">' + esc(t('common.max10')) + '</div>';
     } else if (oos && qty > 0) {
-      html += '<div class="helper14" data-el="G-02-C08">' + esc(t('g02.oos.helper')) + '</div>';
+      html += '<div class="small muted center" data-el="G-02-C08">' + esc(t('g02.oos.helper')) + '</div>';
     }
     return html;
   }
@@ -800,60 +848,61 @@
          renders from the session catalog copy with no skeleton (G-02 §6.1).
          The header title is the fixed fallback in loading and error. */
       if (catalogState !== 'ready') {
-        return g02Header(t('g02.title.fallback')) +
-          '<div class="g2-body" data-el="G-02-C11">' +
-            '<div class="skel-image"></div>' +
-            '<div class="skel-bar name"></div>' +
-            '<div class="skel-bar price"></div>' +
-            '<div class="skel-bar action"></div>' +
-            '<div class="skel-bar desc"></div>' +
-            '<div class="skel-bar desc"></div>' +
-            '<div class="skel-bar desc"></div>' +
-          '</div>';
+        return '<section class="screen">' + g02Header(t('g02.title.fallback')) +
+          '<div class="screen__body" data-el="G-02-C11">' +
+            '<div class="skeleton skeleton--img"></div>' +
+            '<div class="skeleton skeleton--line"></div>' +
+            '<div class="skeleton skeleton--line skeleton--short"></div>' +
+            '<div class="skeleton skeleton--line"></div>' +
+            '<div class="skeleton skeleton--line"></div>' +
+            '<div class="skeleton skeleton--line"></div>' +
+            '<div class="skeleton skeleton--line skeleton--short"></div>' +
+          '</div></section>';
       }
 
       var p = productById(safeDecode(params.id));
       if (!p) {
         /* Error state: fallback title, no C13, no cart bar, device cart
            untouched (G-02 §6.3 case 1). */
-        return g02Header(t('g02.title.fallback')) +
-          '<div class="error-wrap" data-el="G-02-C12">' +
-            '<div class="error-l1">' + esc(t('g02.error.l1')) + '</div>' +
-            '<div class="error-l2">' + esc(t('g02.error.l2')) + '</div>' +
-          '</div>' +
-          '<button type="button" class="btn-back-store" data-el="G-02-B06" data-act="backstore">' +
-            esc(t('g02.backtostore')) + '</button>';
+        return '<section class="screen">' + g02Header(t('g02.title.fallback')) +
+          '<div class="empty" data-el="G-02-C12">' +
+            '<div class="empty__title">' + esc(t('g02.error.l1')) + '</div>' +
+            '<div class="empty__text">' + esc(t('g02.error.l2')) + '</div>' +
+            '<button type="button" class="btn" data-el="G-02-B06" data-act="backstore">' +
+              esc(t('g02.backtostore')) + '</button>' +
+          '</div></section>';
       }
 
       var oos = isOutOfStock(p.id);
       /* Success: the header carries the product name (G-02 §5.1, decision 1). */
-      var html = g02Header(productName(p));
-      html += '<div class="g2-body" data-el="G-02-S02"><div class="g2-content-wrap">';
+      var html = '<section class="screen">' + g02Header(productName(p));
+      html += '<div class="screen__body stack" data-el="G-02-S02">';
       /* 4:3, contained, never cropped, never tappable (G-02 §5.2, §7.6). */
-      html += imageBox('prod-image' + (oos ? ' dim' : ''), 'G-02-C02', productImage(p), productName(p));
-      html += '<div class="prod-name" data-el="G-02-C03">' + esc(productName(p)) + '</div>';
-      html += '<div class="prod-price" data-el="G-02-C04">' + esc(money(num(p.price))) + '</div>';
+      html += imageBox('card__img card__img--wide' + (oos ? ' card__img--dim' : ''),
+                       'G-02-C02', productImage(p), productName(p));
+      html += '<div class="subhead" data-el="G-02-C03">' + esc(productName(p)) + '</div>';
+      html += '<div class="bold" data-el="G-02-C04">' + esc(money(num(p.price))) + '</div>';
       html += g02ActionRow(p);
 
       /* C13 — the same sentence as G-01's banner line 2, decided from the
          orders already saved on the device. G-02 sends no status request of any
          kind (G-02 §5.7, decision 13). Not tappable, never gates Add. */
       if (hasActiveOrder()) {
-        html += '<div class="active-line" data-el="G-02-C13">' + esc(t('common.newOrderNote')) + '</div>';
+        html += '<div class="small start" data-el="G-02-C13">' + esc(t('common.newOrderNote')) + '</div>';
       }
 
       /* With no description in either language S04 is hidden entirely: no
          title, no placeholder (G-02 §5.4, decision 9). */
       var desc = productDesc(p);
       if (desc) {
-        html += '<section class="desc-section" data-el="G-02-S04">';
-        html += '<div class="desc-title" data-el="G-02-C09">' + esc(t('g02.desc.title')) + '</div>';
-        html += '<div class="desc-line" data-el="G-02-C10">' + esc(cutDescription(desc)) + '</div>';
+        html += '<section data-el="G-02-S04">';
+        html += '<div class="subhead" data-el="G-02-C09">' + esc(t('g02.desc.title')) + '</div>';
+        html += '<div data-el="G-02-C10">' + esc(cutDescription(desc)) + '</div>';
         html += '</section>';
       }
-      html += '</div></div>';
+      html += '</div>';
       html += cartBar('G-02-S05', 'G-02-B05');
-      return html;
+      return html + '</section>';
     },
 
     mount: function (root) {
@@ -889,37 +938,38 @@
     var v = lineView(line);
     var oos = isOutOfStock(line.productId);
     var id = line.productId;
-    var html = '<div class="cart-line" data-el="G-03-C02" data-id="' + esc(id) + '">';
-    html += imageBox('line-img' + (oos ? ' dim' : ''), null, v.image, v.name);
-    html += '<div class="line-text">';
-    html += '<div class="name">' + esc(v.name) + '</div>';
-    html += '<div class="unit-price">' + esc(money(v.price)) + '</div>';
+    var html = '<div class="line' + (oos ? ' line--out' : '') + '" data-el="G-03-C02" ' +
+               'data-id="' + esc(id) + '">';
+    html += imageBox('line__media', null, v.image, v.name);
+    html += '<div>';
+    html += '<div class="line__name">' + esc(v.name) + '</div>';
+    html += '<div class="line__sub">' + esc(money(v.price)) + '</div>';
     if (oos) {
       /* Every line has N ≥ 1 by definition, so the bare badge form never occurs
          on this screen (G-03 §5.4). */
-      html += '<div class="oos-badge" data-el="G-03-C06">' +
+      html += '<div class="badge badge--out" data-el="G-03-C06">' +
               esc(t('common.oos.n', { n: line.qty })) + '</div>';
     }
     html += '</div>';
 
-    html += '<div class="line-end">';
+    html += '<div class="end">';
     /* The line total is shown on out-of-stock lines too, because the Total
        still includes them until they are removed (G-03 §5.4, §7.2). */
-    html += '<div class="line-total" data-el="G-03-C05">' + esc(money(v.price * line.qty)) + '</div>';
+    html += '<div class="line__price" data-el="G-03-C05">' + esc(money(v.price * line.qty)) + '</div>';
     if (oos) {
-      html += '<button type="button" class="btn-remove" data-el="G-03-B04" data-act="remove" ' +
+      html += '<button type="button" class="btn btn--sm" data-el="G-03-B04" data-act="remove" ' +
               'data-id="' + esc(id) + '">' + esc(t('g03.remove')) + '</button>';
     } else {
-      html += '<div class="line-stepper">';
-      html += '<button type="button" class="line-step-btn" data-el="G-03-B02" data-act="dec" ' +
+      html += '<div class="stepper">';
+      html += '<button type="button" class="stepper__btn" data-el="G-03-B02" data-act="dec" ' +
               'data-id="' + esc(id) + '">−</button>';
-      html += '<span class="line-qty-box" data-el="G-03-C03">' + line.qty + '</span>';
-      html += '<button type="button" class="line-step-btn' + (line.qty >= MAX_QTY ? ' disabled' : '') + '" ' +
+      html += '<span class="stepper__qty" data-el="G-03-C03">' + line.qty + '</span>';
+      html += '<button type="button" class="stepper__btn" ' +
               'data-el="G-03-B03" data-act="inc" data-id="' + esc(id) + '"' +
               (line.qty >= MAX_QTY ? ' disabled aria-disabled="true"' : '') + '>+</button>';
       html += '</div>';
       if (line.qty === MAX_QTY) {
-        html += '<div class="line-max-helper" data-el="G-03-C04">' + esc(t('common.max10')) + '</div>';
+        html += '<div class="stepper__note" data-el="G-03-C04">' + esc(t('common.max10')) + '</div>';
       }
     }
     html += '</div></div>';
@@ -947,25 +997,29 @@
 
   function g03BottomBar() {
     var disabled = checkoutDisabled();
+    /* --tall: this bar carries the totals and the helper line above the
+       button, so .screen reserves more than the 64px of a plain bar. */
     return '' +
-      '<div class="bottombar" data-el="G-03-S03">' +
+      '<div class="actionbar actionbar--tall" data-el="G-03-S03">' +
+        '<div class="actionbar__row">' +
         /* Exactly two rows: no delivery fee, service charge, tax, discount or
            promo code (G-03 §5.5, decision 7). */
-        '<div class="totals" data-el="G-03-C07">' +
-          '<div class="totals-row items">' +
-            '<span class="label">' + esc(t('g03.items')) + '</span>' +
-            '<span class="value">' + cartCount() + '</span>' +
+        '<div data-el="G-03-C07">' +
+          '<div class="row row--split small">' +
+            '<span>' + esc(t('g03.items')) + '</span>' +
+            '<span class="num">' + cartCount() + '</span>' +
           '</div>' +
-          '<div class="totals-row total">' +
-            '<span class="label">' + esc(t('g03.total')) + '</span>' +
-            '<span class="value">' + esc(money(cartTotal())) + '</span>' +
+          '<div class="total">' +
+            '<span class="total__label">' + esc(t('g03.total')) + '</span>' +
+            '<span class="total__value">' + esc(money(cartTotal())) + '</span>' +
           '</div>' +
         '</div>' +
-        '<div class="helper-row" data-el="G-03-C08">' + esc(g03Helper()) + '</div>' +
-        '<button type="button" class="btn-checkout' + (disabled ? ' disabled' : '') + '" ' +
+        '<div class="small muted center" data-el="G-03-C08">' + esc(g03Helper()) + '</div>' +
+        '<button type="button" class="btn btn--primary btn--block' + (disabled ? ' is-disabled' : '') + '" ' +
                 'data-el="G-03-B05" data-act="checkout"' +
                 (disabled ? ' disabled aria-disabled="true"' : '') + '>' +
           esc(t('g03.checkout')) + '</button>' +
+        '</div>' +
       '</div>';
   }
 
@@ -973,10 +1027,17 @@
     /* No language toggle, no "My orders", no active-order banner (G-03 §5.1,
        §5.9). */
     return '' +
-      '<header class="header" data-el="G-03-S01">' +
-        '<button type="button" class="back-btn" data-el="G-03-B01" data-act="back" ' +
-                'aria-label="' + esc(t('common.back')) + '"></button>' +
-        '<div class="header-title" data-el="G-03-C01">' + esc(t('g03.title')) + '</div>' +
+      '<header class="topbar" data-el="G-03-S01">' +
+        '<div class="topbar__side">' +
+          '<button type="button" class="iconbtn" data-el="G-03-B01" data-act="back" ' +
+                  'aria-label="' + esc(t('common.back')) + '">' +
+            '<span class="iconbtn__glyph chev" aria-hidden="true">\u203A</span>' +
+          '</button>' +
+        '</div>' +
+        '<div class="topbar__main">' +
+          '<div class="topbar__title" data-el="G-03-C01">' + esc(t('g03.title')) + '</div>' +
+        '</div>' +
+        '<div class="topbar__side topbar__side--end"></div>' +
       '</header>';
   }
 
@@ -984,19 +1045,20 @@
     render: function () {
       if (App.storeUnavailable) return Views['G-08'].render({});
 
-      var html = g03Header();
+      var html = '<section class="screen">' + g03Header();
 
       /* Loading: a reload / direct URL with no session catalog copy yet, or the
          Reorder merge waiting for its one availability check (G-03 §6.1). */
       if (catalogState !== 'ready' || g03.merging) {
-        html += '<div class="skel-wrap" data-el="G-03-C11">';
+        html += '<div class="pad-x" data-el="G-03-C11">';
         for (var i = 0; i < 3; i++) {
-          html += '<div class="skel-line"><div class="skel-img"></div>' +
-                  '<div class="skel-bars"><div class="skel-bar wide"></div>' +
-                  '<div class="skel-bar narrow"></div></div></div>';
+          html += '<div class="line"><div class="skeleton line__media"></div>' +
+                  '<div><div class="skeleton skeleton--line"></div>' +
+                  '<div class="skeleton skeleton--line skeleton--short"></div></div>' +
+                  '<div></div></div>';
         }
         html += '</div>';
-        return html;
+        return html + '</section>';
       }
 
       var lines = cartLines();
@@ -1004,20 +1066,20 @@
         /* Empty: the whole bottom bar is absent, never a greyed Checkout
            (G-03 decision 1). */
         return html +
-          '<div class="empty-wrap" data-el="G-03-C09">' +
-            '<span class="empty-icon" aria-hidden="true"></span>' +
-            '<div class="empty-title">' + esc(t('g03.empty.l1')) + '</div>' +
-            '<div class="empty-sub">' + esc(t('g03.empty.l2')) + '</div>' +
-          '</div>' +
-          '<button type="button" class="btn-continue" data-el="G-03-B06" data-act="continue">' +
-            esc(t('g03.continue')) + '</button>';
+          '<div class="empty" data-el="G-03-C09">' +
+            '<span class="empty__glyph" aria-hidden="true"></span>' +
+            '<div class="empty__title">' + esc(t('g03.empty.l1')) + '</div>' +
+            '<div class="empty__text">' + esc(t('g03.empty.l2')) + '</div>' +
+            '<button type="button" class="btn" data-el="G-03-B06" data-act="continue">' +
+              esc(t('g03.continue')) + '</button>' +
+          '</div></section>';
       }
 
-      html += '<div class="line-list" data-el="G-03-S02">';
+      html += '<div class="pad-x" data-el="G-03-S02">';
       for (var j = 0; j < lines.length; j++) html += g03Line(lines[j]);
       html += '</div>';
       html += g03BottomBar();
-      return html;
+      return html + '</section>';
     },
 
     mount: function (root) {
@@ -1190,41 +1252,46 @@
 
       /* The header holds exactly two controls and nothing else: no hotel name,
          no title, no back arrow (G-08 §5.1). */
-      var html = '<header class="header" data-el="G-08-S01">';
-      html += '<button type="button" class="lang-btn" data-el="G-08-B01" data-act="lang">' +
-                esc(I18N.otherLabel()) + '</button>';
+      var html = '<section class="screen"><header class="topbar" data-el="G-08-S01">';
+      html += '<div class="topbar__side">' +
+                '<button type="button" class="btn btn--link" data-el="G-08-B01" data-act="lang">' +
+                  esc(I18N.otherLabel()) +
+                '</button>' +
+              '</div>';
+      html += '<div class="topbar__main"></div>';
+      html += '<div class="topbar__side topbar__side--end">';
       /* B03 is rendered if and only if the device holds at least one readable
          order record — on both variants, never greyed, never disabled
          (G-08 §5.1, criteria 31–32). Its condition is the existence of a
          record, never its status. */
       if (savedOrders().length >= 1) {
-        html += '<button type="button" class="myorders-btn" data-el="G-08-B03" data-act="orders">' +
+        html += '<button type="button" class="btn btn--link" data-el="G-08-B03" data-act="orders">' +
                   esc(t('common.myorders')) + '</button>';
       }
-      html += '</header>';
+      html += '</div></header>';
 
-      html += '<div class="body-block" data-el="G-08-S02">';
-      html += '<span class="icon-exclaim" data-el="G-08-C01" aria-hidden="true"></span>';
-      html += '<div class="title-line" data-el="G-08-C02">' +
+      html += '<div class="empty" data-el="G-08-S02">';
+      html += '<span class="empty__glyph" data-el="G-08-C01" aria-hidden="true"></span>';
+      html += '<div class="empty__title" data-el="G-08-C02">' +
                 esc(invalid ? t('g08.title.invalid') : t('g08.title.retry')) + '</div>';
-      html += '<div class="body-line" data-el="G-08-C03">' +
+      html += '<div class="empty__text" data-el="G-08-C03">' +
                 esc(invalid ? t('g08.body.invalid') : t('g08.body.retry')) + '</div>';
 
       /* C04: always on the invalid-link variant; on the retryable variant only
          from the first failed Retry onwards, then for the rest of the visit
          (G-08 §5.3). It is text, never a number and never a tel: link. */
       if (invalid || g08.receptionShown) {
-        html += '<div class="reception-line" data-el="G-08-C04">' + esc(t('g08.reception')) + '</div>';
+        html += '<div class="empty__text" data-el="G-08-C04">' + esc(t('g08.reception')) + '</div>';
       }
 
       /* B02 is not rendered at all on the invalid-link variant (G-08 §5.2). */
       if (!invalid) {
-        html += '<button type="button" class="btn-retry' + (g08.trying ? ' trying' : '') + '" ' +
+        html += '<button type="button" class="btn btn--primary' + (g08.trying ? ' is-disabled' : '') + '" ' +
                 'data-el="G-08-B02" data-act="retry"' +
                 (g08.trying ? ' disabled aria-disabled="true"' : '') + '>';
         if (g08.trying) {
           /* C05 replaces B02's label inside the same pill (G-08 §5.4 rule 1). */
-          html += '<span class="trying" data-el="G-08-C05">' +
+          html += '<span class="row" data-el="G-08-C05">' +
                     '<span class="spinner" aria-hidden="true"></span>' +
                     esc(t('g08.trying')) +
                   '</span>';
@@ -1234,7 +1301,7 @@
         html += '</button>';
       }
       html += '</div>';
-      return html;
+      return html + '</section>';
     },
 
     mount: function () { /* nothing to wire: taps are handled by the dispatcher */ }

@@ -102,6 +102,12 @@ input, select, textarea { font-size: var(--t-body); }
 
 :focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--r-sm); }
 
+/* A component that sets its own `display` (every .error, .notice, .row and
+   flex block below) would otherwise beat the browser's [hidden] rule and show
+   an empty box — an error with no message is a bare "!" in a circle. The views
+   hide a message by setting `hidden`, so that has to be the stronger rule. */
+[hidden] { display: none !important; }
+
 body.is-modal-open { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -142,6 +148,9 @@ body.is-modal-open { overflow: hidden; }
 .screen { display: block; padding-block-end: calc(var(--s-5) + var(--safe-b)); }
 /* Room for whichever bar is pinned at the bottom. */
 body:has(.cartbar, .actionbar) .screen { padding-block-end: calc(var(--bottom-h) + var(--s-4) + var(--safe-b)); }
+/* G-03's bar stacks the totals block and the helper line above the button, so
+   it stands taller than the 64px the token assumes and needs its own reserve. */
+body:has(.actionbar--tall) .screen { padding-block-end: calc(168px + var(--safe-b)); }
 
 .screen__body { padding: var(--s-4); }
 
@@ -178,6 +187,11 @@ body:has(.cartbar, .actionbar) .screen { padding-block-end: calc(var(--bottom-h)
   border-inline-start: 4px solid var(--c-accent);
   padding: var(--s-3) var(--s-4); cursor: pointer; color: inherit;
 }
+/* Three lines, each on its own line: the views mark them up as spans inside
+   the one button that is the whole banner, so the display is set here. */
+.banner__line1,
+.banner__line2,
+.banner__line3 { display: block; }
 .banner__line1 { font-size: var(--t-small); font-weight: 700; }
 .banner__line2,
 .banner__line3 { font-size: var(--t-mini); color: var(--c-ink-2); }
@@ -305,7 +319,17 @@ body:has(.cartbar, .actionbar) .screen { padding-block-end: calc(var(--bottom-h)
   font-size: var(--t-small); font-weight: 700; cursor: pointer;
 }
 .card__add:hover { background: var(--c-surface-2); }
-.card--out .card__img { opacity: .5; }
+/* Dimmed photo of an out-of-stock product: on a card the state lives on the
+   card, on G-02 there is no card, so the box carries the modifier itself. */
+.card--out .card__img,
+.card__img--dim { opacity: .5; }
+/* The photo inside a placeholder box. The box is the grey placeholder and
+   stays visible on its own; views-shop.js removes the <img> when it fails to
+   load, so nothing else has to change. Shared with the 56px line thumbnail. */
+.card__img > img,
+.line__media > img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+/* G-02 shows the same box at the 4:3 of the detail screen (G-02 §5.2). */
+.card__img--wide { aspect-ratio: 4 / 3; }
 
 /* Stepper: two 40x40 controls with the quantity between them. */
 .stepper {
@@ -388,7 +412,12 @@ body:has(.cartbar, .actionbar) .screen { padding-block-end: calc(var(--bottom-h)
   border-radius: var(--r-sm);
   background: var(--c-surface-2);
   flex: 0 0 auto;
+  /* Centres the generic glyph and clips a photo to the rounded corners. */
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
+/* A row that is one run of text rather than quantity | name | price, but
+   still one row of a list with its separator (M-04 C03). */
+.line--plain { display: block; }
 .line--out .line__name { color: var(--c-ink-2); }
 .line--out .line__media { opacity: .5; }
 
@@ -512,6 +541,15 @@ body:has(.cartbar, .actionbar) .screen { padding-block-end: calc(var(--bottom-h)
 @keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
 .sheet__title { font-size: var(--t-lg); font-weight: 700; text-align: start; margin-block-end: var(--s-3); }
+/* The "!" slot a sheet title may carry (M-03 C01). The same shape .error and
+   .notice draw for themselves, but written by the view, because on a title it
+   is one child among several rather than the whole block. */
+.sheet__icon {
+  flex: 0 0 auto; width: 22px; height: 22px; margin-inline-end: var(--s-2);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: var(--t-small); font-weight: 700; line-height: 1;
+  border: 2px solid currentColor; border-radius: 50%;
+}
 .sheet__body { font-size: var(--t-body); text-align: start; }
 .sheet__body p + p { margin-block-start: var(--s-3); }
 .sheet__note {
@@ -622,6 +660,9 @@ body:has(.cartbar, .actionbar) .screen { padding-block-end: calc(var(--bottom-h)
 .skeleton--img { aspect-ratio: 1 / 1; border-radius: var(--r-sm); }
 .skeleton--line { height: 12px; margin-block-start: var(--s-2); }
 .skeleton--short { width: 60%; }
+/* A placeholder chip in the loading category bar (G-01 C10): the shape .chip
+   will have, so the loading bar stands at the height of the real one. */
+.skeleton--chip { flex: 0 0 auto; width: 84px; height: 32px; border-radius: var(--r-pill); }
 
 .spinner {
   width: 18px; height: 18px; border: 2px solid currentColor;
@@ -629,6 +670,29 @@ body:has(.cartbar, .actionbar) .screen { padding-block-end: calc(var(--bottom-h)
   animation: spin .8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* --- The three sizes a screen overrides ---------------------------------- */
+
+/* G-05 §5.2: the room number is 48px there, not the 28px of .num--room set
+   inline in a sentence and not M-01's 64px (.dialog__room); both stay as they
+   are. Scoped to G-05, so only that screen is affected. */
+.screen--g05 .num--room { font-size: 48px; }
+
+/* M-02 §5.3 overrides the shared 8px of a stacked pair to 16px, so at reduced
+   acuity the two answers do not read as one block. */
+.sheet__actions--gap16 { gap: var(--s-4); }
+
+/* G-07 §5.3: the status pill. The three active statuses stay filled
+   (.badge--status); the two finished ones are outlined and are told apart by
+   border weight and ink, never by colour alone, and the label is always
+   present anyway. */
+.badge[data-status="Delivered"] {
+  background: none; border-color: var(--c-ink); color: var(--c-ink); font-weight: 700;
+}
+.badge[data-status="Cancelled"] {
+  background: none; border-style: dashed; border-color: var(--c-border-strong);
+  color: var(--c-ink-2); font-weight: 400;
+}
 
 /* 13 — Utilities =========================================================== */
 
