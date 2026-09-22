@@ -37,46 +37,74 @@ same behaviour. From the next session onward they will be callable by name
 
 ---
 
-## Step 2 — Screens map (done)
+## Step 2 — Screens map (done, APPROVED)
 
-**What was done**
-- Thinker wrote `/spec/screens-map.md` (216 lines): **8 guest screens + 4 modals = 12 entries**,
-  every one with an Arabic + English name, a one-line purpose, and `Status = Draft`.
-- The map also fixes: the element-ID convention for the screen files
-  (`-B` button, `-F` field, `-C` card, `-S` section), the Status vocabulary
-  (`Draft` → `In cycle` → `Approved`), a full ASCII end-to-end flow, a per-screen
-  "reachable from / leads to" table, back-navigation and persistence rules, a
-  coverage check against the brief and the seven personas, and a list of 16
-  decisions the brief did not settle.
-- `/spec/screens/`, `/spec/tests/`, `/spec/reviews/` are intentionally still empty —
-  Checkpoint 1 forbids writing any screen before the map is approved.
+8 guest screens + 4 modals = 12 entries. Checkpoint 1 was cleared by the
+product manager, who approved the inventory, the navigation flow, and all 16
+decisions the brief did not settle. Those 16 are now locked for v1.
 
-**Inventory**
+| ID | English | Arabic | ID | English | Arabic |
+|---|---|---|---|---|---|
+| G-01 | Store | المتجر | G-05 | Order submitted | تم إرسال طلبك |
+| G-02 | Product details | تفاصيل المنتج | G-06 | Order tracking | متابعة الطلب |
+| G-03 | Cart | السلة | G-07 | My orders | طلباتي |
+| G-04 | Checkout | إتمام الطلب | G-08 | Store unavailable | المتجر غير متاح |
+| M-01 | Confirm room number | تأكيد رقم الغرفة | M-03 | Order not sent | لم يتم إرسال الطلب |
+| M-02 | Cancel order? | إلغاء الطلب؟ | M-04 | Items no longer available | منتجات غير متوفرة |
 
-| ID | English | Arabic |
-|---|---|---|
-| G-01 | Store | المتجر |
-| G-02 | Product details | تفاصيل المنتج |
-| G-03 | Cart | السلة |
-| G-04 | Checkout | إتمام الطلب |
-| G-05 | Order submitted | تم إرسال طلبك |
-| G-06 | Order tracking | متابعة الطلب |
-| G-07 | My orders | طلباتي |
-| G-08 | Store unavailable | المتجر غير متاح |
-| M-01 | Confirm room number | تأكيد رقم الغرفة |
-| M-02 | Cancel order? | إلغاء الطلب؟ |
-| M-03 | Order not sent | لم يتم إرسال الطلب |
-| M-04 | Items no longer available | منتجات غير متوفرة |
+---
+
+## Step 3 — G-01 Store: full cycle run, APPROVED
+
+The cycle ran once and closed; no second cycle was needed.
+
+1. **Thinker** wrote the screen: 23 elements, 35 acceptance criteria. It also
+   fixed the conventions every later screen inherits — Western digits in both
+   languages, currency after the amount in Arabic and before it in English with
+   two decimals, a 44x44px minimum tap area, 14px minimum body copy, the max-10
+   quantity cap, and the five canonical order-status labels.
+2. **Tester** walked it as all seven personas: 16 findings — 1 Critical,
+   9 Medium, 6 Minor.
+3. **Reviewer** judged all 39 items (23 elements + 16 findings):
+   **30 Essential, 4 Later, 5 Remove**. All three required checks passed: no
+   conflict with the locked decisions, two internal contradictions found and
+   ruled, one clear purpose confirmed.
+4. **Thinker** revised on the verdicts alone. Acceptance criteria 35 -> 41.
+
+**The Critical finding and how it was settled.** G-01 showed the active-order
+banner and a fully working product grid at once, so a guest trying to change a
+submitted order would silently build a second, separate one that staff would
+read as a single order. Ruled Essential, but fixed **only in the banner's
+wording** — a second line saying anything added now is sent as a new separate
+order. Disabling the grid, a warning modal, a confirmation, and any
+order-editing path were all explicitly rejected, so the screen keeps one
+purpose and editing a submitted order stays out of v1.
+
+Two documentation gaps the review found in `screens-map.md` were closed by the
+orchestrator: the empty-state Refresh action, and G-01's once-per-load
+active-order status fetch.
+
+`/spec/backlog.md` opened with 5 deferred items (search, load progress cue,
+verified 200% large-text reflow, fresher banner status, multi-order hint).
+`/spec/open-questions.md` is still not needed — every finding was ruled.
+
+---
+
+## Step 4 — In progress: wireframe G-01, specify the purchase path
+
+Running in parallel right now:
+- **Wireframer** draws `/wireframes/G-01.html` — main, loading, empty, error and
+  active-order-banner frames, grayscale, 390px, RTL, element IDs in circles.
+- **Thinker** writes G-02 (product details), G-03 (cart, incl. the only toast in
+  v1 and the first stock gate) and G-04 (checkout — room number, notes,
+  card/cash and the optional amount field; the highest-stakes screen).
 
 **Next**
-- **CHECKPOINT 1 — stopped, waiting for the owner's approval.**
-- On approval: start the work cycle on G-01 (Thinker → Tester → Reviewer → Thinker),
-  then mark G-01 `Approved` and hand it to the Wireframer, then stop again at
-  Checkpoint 2 so the owner can judge the level of detail and the wireframe style.
+- Tester and reviewer cycles on G-02/G-03/G-04, then the modals M-01/M-03/M-04,
+  then G-05..G-08 and M-02.
+- Wireframe every approved screen, then build `/wireframes/index.html`.
+- Close with the Checkpoint 3 summary.
 
 **Waiting on a decision from the owner**
-1. Approval of the 12-entry screen list and the navigation flow.
-2. Confirm or override the 16 decisions in section 4 of `screens-map.md` —
-   most notably: no splash screen, no search in v1, order-level notes,
-   a separate success screen (G-05), reorder merges into the cart, and
-   store opening hours not modeled.
+- Nothing. The product manager role was delegated, so decisions are being taken
+  here and recorded in the map, the reviews and the backlog.
