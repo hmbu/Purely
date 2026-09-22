@@ -24,11 +24,11 @@ Map status: **APPROVED by the product manager.** Checkpoint 1 is cleared; screen
 | ID | Name (English) | Name (Arabic) | Purpose (one line) | Status |
 |---|---|---|---|---|
 | G-01 | Store | المتجر | Landing screen after the QR scan: sticky category bar, product grid with add and +/− on each card, floating cart bar. | **Approved** |
-| G-02 | Product details | تفاصيل المنتج | Full view of one product: large image, name, description, price, availability, add and +/− controls. |**Approved** |
-| G-03 | Cart | السلة | Review and adjust the selected products and quantities before checkout; see the total. |**Approved** |
-| G-04 | Checkout | إتمام الطلب | Enter room number, optional order notes, choose payment on delivery (card / cash + optional "amount you will pay with"), review summary, submit. |**Approved** (OQ-01 open) |
+| G-02 | Product details | تفاصيل المنتج | Full view of one product: large image, name, description, price, availability, add and +/− controls. | **Approved** |
+| G-03 | Cart | السلة | Review and adjust the selected products and quantities before checkout; see the total. | **Approved** |
+| G-04 | Checkout | إتمام الطلب | Enter room number, optional order notes, choose payment on delivery (card / cash + optional "amount you will pay with"), review summary, submit. | **Approved** (OQ-01 open) |
 | G-05 | Order submitted | تم إرسال طلبك | Success confirmation with order number and room number; entry to tracking. | **Approved** |
-| G-06 | Order tracking | متابعة الطلب | Timeline of the order's status (New → Accepted & preparing → On the way → Delivered / Cancelled), order details, cancel before acceptance, reorder after completion. | Draft |
+| G-06 | Order tracking | متابعة الطلب | Timeline of the order's status (New → Accepted & preparing → On the way → Delivered / Cancelled), order details, cancel before acceptance, reorder after completion. | **Approved** |
 | G-07 | My orders | طلباتي | List of orders stored on this device (no login), newest first; opens tracking for any of them. | **Approved** |
 | G-08 | Store unavailable | المتجر غير متاح | Full-screen replacement for G-01 when the store cannot be loaded (no connection / server error → Retry) or the scanned link is not valid (no Retry). | **Approved** |
 
@@ -37,7 +37,7 @@ Map status: **APPROVED by the product manager.** Checkpoint 1 is cleared; screen
 | ID | Name (English) | Name (Arabic) | Opens on top of | Purpose (one line) | Status |
 |---|---|---|---|---|---|
 | M-01 | Confirm room number | تأكيد رقم الغرفة | G-04 | Mandatory (locked decision 2): shows the typed room number in large type; guest confirms or goes back to edit. Cannot be dismissed by tapping outside. | **Approved** |
-| M-02 | Cancel order? | إلغاء الطلب؟ | G-06 | Confirms cancellation of an order that is still in status "New" (locked decision 6). | Draft |
+| M-02 | Cancel order? | إلغاء الطلب؟ | G-06 | Confirms cancellation of an order that is still in status "New" (locked decision 6). | **Approved** |
 | M-03 | Order not sent | لم يتم إرسال الطلب | G-04 | Shown when the submission request fails (connection dropped / server error). Retry or close; the order data is kept. | **Approved** |
 | M-04 | Items no longer available | منتجات غير متوفرة | G-04 | Shown when the server rejects the submission because one or more cart items went out of stock; lists them and lets the guest remove them or go back to the cart. | **Approved** |
 
