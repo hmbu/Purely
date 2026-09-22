@@ -90,21 +90,72 @@ verified 200% large-text reflow, fresher banner status, multi-order hint).
 
 ---
 
-## Step 4 — In progress: wireframe G-01, specify the purchase path
+## Step 4 — All twelve screens specified, tested, reviewed and APPROVED
 
-Running in parallel right now:
-- **Wireframer** draws `/wireframes/G-01.html` — main, loading, empty, error and
-  active-order-banner frames, grayscale, 390px, RTL, element IDs in circles.
-- **Thinker** writes G-02 (product details), G-03 (cart, incl. the only toast in
-  v1 and the first stock gate) and G-04 (checkout — room number, notes,
-  card/cash and the optional amount field; the highest-stakes screen).
+Every screen and modal completed its cycle: Thinker wrote it, Tester walked it
+as the seven personas, Reviewer ruled every element and every finding, Thinker
+revised on the verdicts alone. No screen needed more than one cycle, and no
+Critical finding is left open.
 
-**Next**
-- Tester and reviewer cycles on G-02/G-03/G-04, then the modals M-01/M-03/M-04,
-  then G-05..G-08 and M-02.
-- Wireframe every approved screen, then build `/wireframes/index.html`.
-- Close with the Checkpoint 3 summary.
+| ID | Elements | Criteria | Status | Wireframe |
+|---|---|---|---|---|
+| G-01 Store | 23 | 42 | Approved | yes |
+| G-02 Product details | 24 | 52 | Approved | yes |
+| G-03 Cart | 20 | 43 | Approved | yes |
+| G-04 Checkout | 28 | 60 | Approved (OQ-01 open) | yes |
+| G-05 Order submitted | 15 | 30 | Approved | yes |
+| G-06 Order tracking | 25 | 54 | Approved | in progress |
+| G-07 My orders | 13 | 35 | Approved | yes |
+| G-08 Store unavailable | 10 | 36 | Approved | yes |
+| M-01 Confirm room number | 8 | 38 | Approved | yes |
+| M-02 Cancel order? | 9 | 33 | Approved | in progress |
+| M-03 Order not sent | 8 | 26 | Approved | yes |
+| M-04 Items unavailable | 9 | 27 | Approved | yes |
 
-**Waiting on a decision from the owner**
-- Nothing. The product manager role was delegated, so decisions are being taken
-  here and recorded in the map, the reviews and the backlog.
+### The ten Critical findings and how each was settled
+
+Every one was the same shape: the guest believes one thing, the system knows
+another, and nothing says so. Each was fixed with honest wording or by removing
+a state — never by building new machinery.
+
+1. **G-01** — the active-order banner sat above a working product grid, so a
+   guest "changing" an order silently built a second one. Fixed in the banner's
+   wording. Disabling the grid, a warning modal and an editing path all rejected.
+2. **G-02** — the same warning was missing where the Add button actually is.
+   One identical line added, read from the device, no extra request.
+3. **G-03** — Reorder capped a line at ten and dropped the excess silently.
+   The existing toast now reports it, with Arabic plural forms for both cases.
+4. **G-04** — a guest in room 7 could not order; a padded "07" passed every
+   check and would reach a different door. Room numbers now take 1 to 5 digits.
+5. **G-04** — alphanumeric rooms are still unsupported. This needs a fact about
+   the real hotel, so it is OQ-01 with the alternative already worked out.
+6. **G-04** — nothing said the order had not been sent after M-04. A persistent
+   notice now does.
+7. **G-04 / M-01** — the key rule replaced itself on every edit, re-creating the
+   duplicate it existed to prevent; the first correction would then have let the
+   server swallow a corrected room number. Settled across five files at once.
+8. **G-06** — past New, Cancel disappeared and nothing replaced it. One line now
+   says the window is closed and to call reception.
+9. **G-08** — a catalog failure could consume the cancel window locked decision
+   6 grants. The map was amended so both variants reach the saved orders.
+10. **M-02** — "no such order" was rendered as a connection failure, telling the
+    guest to retry the one action that could never succeed. It became a fourth
+    outcome that closes the sheet, not a fourth error message.
+
+### Also fixed along the way
+
+- **G-07's trim** could delete an order still being tracked. Active orders are
+  now never deleted, and a list of 23 active orders is simply drawn longer.
+- **Two fit proofs** were recomputed with the safe-area inset counted. G-06's
+  held. G-05's did not, so the guarantee was reduced honestly rather than
+  shrinking an element to rescue the claim.
+- **Eight map gaps** closed, and two map rows amended by the product manager
+  where the structure itself blocked a fix.
+
+### Files
+
+`/spec/backlog.md` — deferred to v2, by screen.
+`/spec/open-questions.md` — OQ-01 plus four accepted residual risks.
+
+**Next:** the last two wireframes, then `/wireframes/index.html`, then the
+closing summary.
