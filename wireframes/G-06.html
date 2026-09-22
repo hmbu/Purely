@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>G-06 — متابعة الطلب / Order tracking — Wireframes</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background:#ddd;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#000;
+    padding: 24px;
+    margin:0;
+  }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .doc-sub { font-size:12px; color:#333; margin:0 0 20px; }
+  .frames {
+    display:flex;
+    flex-wrap:nowrap;
+    gap:28px;
+    overflow-x:auto;
+    align-items:flex-start;
+    padding-bottom:20px;
+  }
+  .frame { flex:0 0 auto; width:390px; text-align:center; }
+  .frame h2 { font-size:14px; margin:0 0 2px; }
+  .frame .state-sub { font-size:11px; color:#333; margin:0 0 10px; }
+  .frame .note { font-size:10px; color:#333; margin-top:8px; text-align:right; }
+
+  /* ===== Outer physical frame ===== */
+  .phone-frame {
+    width:390px;
+    height:664px;
+    border:2px solid #000;
+    background:#fff;
+    position:relative;
+    overflow:hidden;
+    text-align:right;
+  }
+  .phone-frame.tall { height:auto; min-height:400px; overflow:visible; }
+
+  .g06-scroll {
+    position:absolute;
+    inset:0;
+    overflow-y:auto;
+  }
+  .phone-frame.tall .g06-scroll { position:static; overflow:visible; height:auto; }
+
+  /* small circled ID badges, shown next to their element */
+  .idb {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:16px;
+    height:16px;
+    padding:0 2px;
+    border:1px solid #000;
+    border-radius:50%;
+    font-size:8px;
+    background:#fff;
+    vertical-align:middle;
+    margin:0 3px;
+    line-height:1;
+    font-family: Arial, sans-serif;
+  }
+  .corner {
+    position:absolute;
+    top:2px;
+    left:2px;
+    z-index:6;
+    background:#fff;
+  }
+
+  /* ===== S01 header ===== */
+  .header {
+    position:sticky;
+    top:0;
+    z-index:5;
+    background:#fff;
+    height:56px;
+    display:flex;
+    align-items:center;
+    padding:0 6px;
+    border-bottom:1px solid #000;
+  }
+  .back-btn {
+    width:44px; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px;
+    flex:0 0 auto;
+    position:relative;
+  }
+  .header-title { flex:1; text-align:center; font-size:18px; font-weight:bold; position:relative; }
+  .header-spacer { width:44px; flex:0 0 auto; }
+
+  /* ===== S02 body ===== */
+  .body { padding:24px 16px 16px; position:relative; }
+
+  .c02-banner {
+    border:1px solid #000; border-radius:8px; padding:12px;
+    margin-bottom:16px; position:relative; text-align:right;
+  }
+  .c02-l1 { font-size:14px; font-weight:bold; margin-bottom:4px; }
+  .c02-l2 { font-size:14px; }
+
+  .c03-line { font-size:14px; margin-bottom:8px; position:relative; }
+  .c03-line .num { font-size:20px; font-weight:bold; }
+
+  .c04-headline { font-size:22px; font-weight:bold; margin-bottom:8px; position:relative; }
+
+  .c05-stale { font-size:14px; color:#555; margin-bottom:8px; position:relative; }
+
+  .c06-room { font-size:16px; line-height:1.5; margin-bottom:8px; position:relative; }
+  .c06-room .roomnum { font-size:28px; font-weight:bold; letter-spacing:0.08em; }
+
+  .c16-repair { font-size:14px; line-height:1.5; margin-bottom:16px; position:relative; }
+
+  /* ===== S03 timeline ===== */
+  .tl { position:relative; padding-bottom:16px; border-bottom:1px solid #000; margin-bottom:16px; }
+  .tl-row { display:flex; align-items:center; gap:12px; height:40px; position:relative; }
+  .tl-marker {
+    width:24px; height:24px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; flex:0 0 auto;
+  }
+  .tl-marker.reached { background:#000; color:#fff; }
+  .tl-marker.current  { background:#000; color:#fff; font-weight:bold; }
+  .tl-marker.notyet   { background:#fff; border:1px solid #999; color:#999; }
+  .tl-label { font-size:16px; }
+  .tl-label.reached { color:#000; }
+  .tl-label.current  { color:#000; font-weight:bold; }
+  .tl-label.notyet   { color:#999; }
+  .tl-connector { width:2px; height:16px; margin-right:11px; }
+  .tl-connector.dark { background:#000; }
+  .tl-connector.gray { background:#999; }
+  .c08-line { font-size:14px; margin-right:36px; margin-top:2px; }
+
+  /* ===== S04 details ===== */
+  .details-title { font-size:16px; font-weight:bold; margin-bottom:12px; position:relative; }
+  .order-time { font-size:14px; margin-bottom:8px; position:relative; }
+  .order-line {
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:14px; min-height:40px; border-bottom:1px dotted #ccc; position:relative;
+  }
+  .order-line .total { font-weight:bold; }
+  .totals { margin-top:8px; border-top:1px solid #000; padding-top:8px; }
+  .totals-row { display:flex; justify-content:space-between; font-size:14px; padding:2px 0; position:relative; }
+  .totals-row.total { font-size:18px; font-weight:bold; }
+  .payment-line { font-size:14px; margin-top:8px; position:relative; }
+  .notes-block { font-size:14px; margin-top:8px; position:relative; }
+  .notes-label { font-weight:bold; }
+
+  /* ===== C15 error block ===== */
+  .c15-wrap { padding:60px 24px; text-align:center; position:relative; }
+  .c15-icon {
+    width:48px; height:48px; border:1px solid #000; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:22px;
+    margin:0 auto 16px;
+  }
+  .c15-l1 { font-size:18px; font-weight:bold; margin-bottom:8px; }
+  .c15-l2 { font-size:14px; margin-bottom:8px; }
+  .c15-l3 { font-size:14px; }
+
+  /* ===== S05 action bar (fixed, strict frames) ===== */
+  .action-bar-fixed {
+    position:absolute; left:0; right:0; bottom:0;
+    background:#fff; border-top:1px solid #000; z-index:6;
+  }
+  .bar-buttons { padding:12px 16px; }
+  .safe-area-strip {
+    height:34px; border-top:1px dashed #000;
+    background:repeating-linear-gradient(45deg,#fff,#fff 4px,#ccc 4px,#ccc 8px);
+    font-size:7px; text-align:center; line-height:1.3; padding-top:2px;
+  }
+
+  /* ===== S05 action bar (normal flow, tall frames) ===== */
+  .action-bar-flow { border-top:1px solid #000; padding:12px 16px; position:relative; }
+
+  .btn-outline {
+    width:100%; height:56px;
+    border:1px solid #000; border-radius:28px;
+    background:#fff; font-size:16px; font-weight:bold;
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .btn-filled {
+    width:100%; height:56px;
+    border:1px solid #000; border-radius:28px;
+    background:#000; color:#fff; font-size:16px; font-weight:bold;
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .btn-gap { margin-top:12px; }
+
+  .info-block { padding:20px 16px; font-size:13px; line-height:1.7; text-align:right; }
+  .info-block .rule { font-size:11px; color:#333; margin-bottom:6px; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<h1>G-06 — متابعة الطلب / Order tracking — واجهات سلكية / Wireframes</h1>
+<p class="doc-sub">390px wide (664px viewport on Frames 1 &amp; 6) · RTL (Arabic default) · Grayscale low-fidelity · Element IDs shown in small circles next to each element, matching the elements table in /spec/screens/G-06.md · 25 elements: S01, B01, C01, S02, C02, C03, C04, C05, C06, C16, S03, C07, C08, S04, C09, C10, C11, C12, C13, C14, S05, B02, B03, B04, C15</p>
+
+<div class="frames">
+
+<!-- ============================================================ -->
+<!-- FRAME 1: STATUS NEW — the §5.9 fit proof, drawn honestly at 390x664 -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الحالة "جديد" — إثبات القسم 5.9 (رقم الغرفة + C16 + إلغاء الطلب في الشاشة الأولى)</h2>
+  <div class="state-sub">Status New — the §5.9 fit proof (room number + C16 + Cancel order all in the first painted frame)</div>
+  <div class="phone-frame">
+    <div class="g06-scroll">
+
+      <div class="header">
+        <span class="idb corner">S01</span>
+        <div class="back-btn">→<span class="idb">B01</span></div>
+        <div class="header-title">متابعة الطلب<span class="idb">C01</span></div>
+        <div class="header-spacer"></div>
+      </div>
+
+      <div class="body" style="padding-bottom:198px;">
+        <span class="idb corner" style="top:6px;">S02</span>
+
+        <!-- C02 hidden: no race outcome in this frame -->
+
+        <div class="c03-line">رقم الطلب <span class="num">1042</span><span class="idb">C03</span></div>
+
+        <div class="c04-headline">جديد<span class="idb">C04</span></div>
+
+        <!-- C05 shown: worst-case per §5.9 arithmetic (2 lines) -->
+        <div class="c05-stale">تعذّر تحديث الحالة — هذه آخر حالة معروفة<span class="idb">C05</span></div>
+
+        <div class="c06-room">سيُوصَّل طلبك إلى الغرفة <span class="roomnum">0305</span><span class="idb">C06</span></div>
+
+        <!-- C16 variant A, worst case 3 lines -->
+        <div class="c16-repair">
+          هل هناك خطأ في هذا الطلب — رقم الغرفة أو المنتجات أو طريقة الدفع؟ ألغِ الطلب ما دام الفندق لم يقبله بعد، ثم أرسل طلبًا جديدًا.
+          <span class="idb">C16</span>
+        </div>
+
+        <!-- S03 timeline: New current, three not-yet -->
+        <div class="tl">
+          <span class="idb corner" style="top:-6px;">S03</span>
+          <div class="tl-row"><div class="tl-marker current">●</div><div class="tl-label current">جديد<span class="idb">C07</span></div></div>
+          <div class="tl-connector gray"></div>
+          <div class="tl-row"><div class="tl-marker notyet"></div><div class="tl-label notyet">تم القبول وجارٍ التحضير<span class="idb">C07</span></div></div>
+          <div class="tl-connector gray"></div>
+          <div class="tl-row"><div class="tl-marker notyet"></div><div class="tl-label notyet">في الطريق<span class="idb">C07</span></div></div>
+          <div class="tl-connector gray"></div>
+          <div class="tl-row"><div class="tl-marker notyet"></div><div class="tl-label notyet">تم التوصيل<span class="idb">C07</span></div></div>
+        </div>
+
+        <!-- S04 details -->
+        <div>
+          <span class="idb corner" style="top:-6px;">S04</span>
+          <div class="details-title">تفاصيل الطلب<span class="idb">C09</span></div>
+          <div class="order-time">وقت الطلب: اليوم 14:32<span class="idb">C10</span></div>
+          <div class="order-line">2 × عصير برتقال<span class="idb">C11</span><span class="total">24.00 ر.س</span></div>
+          <div class="order-line">1 × ماء معدني<span class="idb">C11</span><span class="total">4.00 ر.س</span></div>
+          <div class="totals">
+            <div class="totals-row">المنتجات<span class="idb">C12</span><span>3</span></div>
+            <div class="totals-row total">الإجمالي<span class="idb">C12</span><span>28.00 ر.س</span></div>
+          </div>
+          <div class="payment-line">الدفع عند الاستلام: نقدًا — ستدفع بـ 50.00 ر.س<span class="idb">C13</span></div>
+          <div class="notes-block"><span class="notes-label">ملاحظات الطلب</span><span class="idb">C14</span><br>بدون بصل من فضلك</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- S05 fixed action bar: New status, 148 + 34px safe-area = 182 -->
+    <div class="action-bar-fixed" style="height:182px;">
+      <span class="idb corner" style="top:2px;">S05</span>
+      <div class="bar-buttons">
+        <div class="btn-outline">إلغاء الطلب<span class="idb">B02</span></div>
+        <div class="btn-outline btn-gap">العودة إلى المتجر<span class="idb">B04</span></div>
+      </div>
+      <div class="safe-area-strip">↑ هامش أمان المنطقة السفلية 34px (توضيحي فقط، ليس عنصرًا في المواصفة)<br>Safe-area inset 34px (illustrative only, not a spec element)</div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: هذا الإطار مرسوم بحجم 390×664px فعليًا (وليس تخطيطًا حرًا) لإثبات حساب القسم 5.9: الترويسة 56 + الحشو العلوي 24 + C03 24 + فجوة 8 + C04 28 + فجوة 8 + C05 (سطران، أسوأ حالة) 40 + فجوة 8 + C06 (سطران) 68 + فجوة 8 + C16 (ثلاثة أسطر، أسوأ حالة) 60 = 332px من أعلى الشاشة، بينما يبدأ شريط الإجراءات عند 664−182=482px، أي مساحة حرة 150px تكفي لعرض أول صفَّي المخطط الزمني أيضًا دون أي تمرير. لا تمرير مطلوب لرؤية C03 وC04 وC05 وC06 وC16 وB02 معًا.<br>
+    Note: this frame is drawn at an honest 390×664px (not free-flowing layout) to make §5.9's arithmetic checkable: header 56 + top padding 24 + C03 24 + gap 8 + C04 28 + gap 8 + C05 (2 lines, worst case) 40 + gap 8 + C06 (2 lines) 68 + gap 8 + C16 (3 lines, worst case) 60 = 332px from the top, while the action bar's top edge sits at 664−182=482px — 150px of free space, enough to also show the timeline's first two rows with no scrolling at all. No scroll is needed to see C03, C04, C05, C06, C16 and B02 together.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 2: STATUS ACCEPTED & PREPARING -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الحالة "تم القبول وجارٍ التحضير" — C16 نسخة B، بلا زر إلغاء</h2>
+  <div class="state-sub">Status Accepted &amp; preparing — C16 variant B, "Cancel order" absent from the action bar</div>
+  <div class="phone-frame tall">
+    <div class="g06-scroll">
+
+      <div class="header">
+        <span class="idb corner">S01</span>
+        <div class="back-btn">→<span class="idb">B01</span></div>
+        <div class="header-title">متابعة الطلب<span class="idb">C01</span></div>
+        <div class="header-spacer"></div>
+      </div>
+
+      <div class="body">
+        <span class="idb corner" style="top:6px;">S02</span>
+
+        <div class="c03-line">رقم الطلب <span class="num">1042</span><span class="idb">C03</span></div>
+        <div class="c04-headline">تم القبول وجارٍ التحضير<span class="idb">C04</span></div>
+        <!-- C05 hidden: last poll succeeded -->
+        <div class="c06-room">سيُوصَّل طلبك إلى الغرفة <span class="roomnum">0305</span><span class="idb">C06</span></div>
+
+        <!-- C16 variant B, copied verbatim -->
+        <div class="c16-repair">
+          لم يعد بالإمكان إلغاء هذا الطلب من هاتفك بعد أن قبله الفندق. إذا كان فيه أي خطأ — رقم الغرفة أو المنتجات — اتصل بالاستقبال من هاتف الغرفة الآن.
+          <span class="idb">C16</span>
+        </div>
+
+        <div class="tl">
+          <span class="idb corner" style="top:-6px;">S03</span>
+          <div class="tl-row"><div class="tl-marker reached">✓</div><div class="tl-label reached">جديد<span class="idb">C07</span></div></div>
+          <div class="tl-connector dark"></div>
+          <div class="tl-row"><div class="tl-marker current">●</div><div class="tl-label current">تم القبول وجارٍ التحضير<span class="idb">C07</span></div></div>
+          <div class="tl-connector gray"></div>
+          <div class="tl-row"><div class="tl-marker notyet"></div><div class="tl-label notyet">في الطريق<span class="idb">C07</span></div></div>
+          <div class="tl-connector gray"></div>
+          <div class="tl-row"><div class="tl-marker notyet"></div><div class="tl-label notyet">تم التوصيل<span class="idb">C07</span></div></div>
+        </div>
+
+        <div>
+          <span class="idb corner" style="top:-6px;">S04</span>
+          <div class="details-title">تفاصيل الطلب<span class="idb">C09</span></div>
+          <div class="order-time">وقت الطلب: اليوم 14:32<span class="idb">C10</span></div>
+          <div class="order-line">2 × عصير برتقال<span class="idb">C11</span><span class="total">24.00 ر.س</span></div>
+          <div class="order-line">1 × ماء معدني<span class="idb">C11</span><span class="total">4.00 ر.س</span></div>
+          <div class="totals">
+            <div class="totals-row">المنتجات<span class="idb">C12</span><span>3</span></div>
+            <div class="totals-row total">الإجمالي<span class="idb">C12</span><span>28.00 ر.س</span></div>
+          </div>
+          <div class="payment-line">الدفع عند الاستلام: نقدًا — ستدفع بـ 50.00 ر.س<span class="idb">C13</span></div>
+          <!-- C14 hidden: no notes on this order -->
+        </div>
+
+      </div>
+
+      <div class="action-bar-flow">
+        <span class="idb corner" style="top:2px;">S05</span>
+        <div class="btn-outline">العودة إلى المتجر<span class="idb">B04</span></div>
+      </div>
+
+    </div>
+  </div>
+  <div class="note">
+    ملاحظة: زر "إلغاء الطلب" B02 مخفي تمامًا لأن الحالة تجاوزت "جديد" (القرار المقفل 6). شريط الإجراءات يحتوي على B04 فقط.<br>
+    Note: "Cancel order" B02 is fully hidden because the status has moved past New (locked decision 6). The action bar contains only B04.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 3: STATUS ON THE WAY -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الحالة "في الطريق"</h2>
+  <div class="state-sub">Status On the way</div>
+  <div class="phone-frame tall">
+    <div class="g06-scroll">
+
+      <div class="header">
+        <span class="idb corner">S01</span>
+        <div class="back-btn">→<span class="idb">B01</span></div>
+        <div class="header-title">متابعة الطلب<span class="idb">C01</span></div>
+        <div class="header-spacer"></div>
+      </div>
+
+      <div class="body">
+        <span class="idb corner" style="top:6px;">S02</span>
+
+        <div class="c03-line">رقم الطلب <span class="num">1042</span><span class="idb">C03</span></div>
+        <div class="c04-headline">في الطريق<span class="idb">C04</span></div>
+        <div class="c06-room">سيُوصَّل طلبك إلى الغرفة <span class="roomnum">0305</span><span class="idb">C06</span></div>
+
+        <div class="c16-repair">
+          لم يعد بالإمكان إلغاء هذا الطلب من هاتفك بعد أن قبله الفندق. إذا كان فيه أي خطأ — رقم الغرفة أو المنتجات — اتصل بالاستقبال من هاتف الغرفة الآن.
+          <span class="idb">C16</span>
+        </div>
+
+        <div class="tl">
+          <span class="idb corner" style="top:-6px;">S03</span>
+          <div class="tl-row"><div class="tl-marker reached">✓</div><div class="tl-label reached">جديد<span class="idb">C07</span></div></div>
+          <div class="tl-connector dark"></div>
+          <div class="tl-row"><div class="tl-marker reached">✓</div><div class="tl-label reached">تم القبول وجارٍ التحضير<span class="idb">C07</span></div></div>
+          <div class="tl-connector dark"></div>
+          <div class="tl-row"><div class="tl-marker current">●</div><div class="tl-label current">في الطريق<span class="idb">C07</span></div></div>
+          <div class="tl-connector gray"></div>
+          <div class="tl-row"><div class="tl-marker notyet"></div><div class="tl-label notyet">تم التوصيل<span class="idb">C07</span></div></div>
+        </div>
+
+        <div>
+          <span class="idb corner" style="top:-6px;">S04</span>
+          <div class="details-title">تفاصيل الطلب<span class="idb">C09</span></div>
+          <div class="order-time">وقت الطلب: اليوم 14:32<span class="idb">C10</span></div>
+          <div class="order-line">2 × عصير برتقال<span class="idb">C11</span><span class="total">24.00 ر.س</span></div>
+          <div class="order-line">1 × ماء معدني<span class="idb">C11</span><span class="total">4.00 ر.س</span></div>
+          <div class="totals">
+            <div class="totals-row">المنتجات<span class="idb">C12</span><span>3</span></div>
+            <div class="totals-row total">الإجمالي<span class="idb">C12</span><span>28.00 ر.س</span></div>
+          </div>
+          <div class="payment-line">الدفع عند الاستلام: نقدًا — ستدفع بـ 50.00 ر.س<span class="idb">C13</span></div>
+        </div>
+
+      </div>
+
+      <div class="action-bar-flow">
+        <span class="idb corner" style="top:2px;">S05</span>
+        <div class="btn-outline">العودة إلى المتجر<span class="idb">B04</span></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 4: STATUS DELIVERED -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الحالة "تم التوصيل" — C16 مخفي، B03 "إعادة الطلب" ظاهر</h2>
+  <div class="state-sub">Status Delivered — C16 hidden, "Reorder" present</div>
+  <div class="phone-frame tall">
+    <div class="g06-scroll">
+
+      <div class="header">
+        <span class="idb corner">S01</span>
+        <div class="back-btn">→<span class="idb">B01</span></div>
+        <div class="header-title">متابعة الطلب<span class="idb">C01</span></div>
+        <div class="header-spacer"></div>
+      </div>
+
+      <div class="body">
+        <span class="idb corner" style="top:6px;">S02</span>
+
+        <div class="c03-line">رقم الطلب <span class="num">1042</span><span class="idb">C03</span></div>
+        <div class="c04-headline">تم التوصيل<span class="idb">C04</span></div>
+        <div class="c06-room" style="margin-bottom:24px;">تم توصيل طلبك إلى الغرفة <span class="roomnum">0305</span><span class="idb">C06</span></div>
+        <!-- C16 not rendered on Delivered -->
+
+        <div class="tl">
+          <span class="idb corner" style="top:-6px;">S03</span>
+          <div class="tl-row"><div class="tl-marker reached">✓</div><div class="tl-label reached">جديد<span class="idb">C07</span></div></div>
+          <div class="tl-connector dark"></div>
+          <div class="tl-row"><div class="tl-marker reached">✓</div><div class="tl-label reached">تم القبول وجارٍ التحضير<span class="idb">C07</span></div></div>
+          <div class="tl-connector dark"></div>
+          <div class="tl-row"><div class="tl-marker reached">✓</div><div class="tl-label reached">في الطريق<span class="idb">C07</span></div></div>
+          <div class="tl-connector dark"></div>
+          <div class="tl-row"><div class="tl-marker current">●</div><div class="tl-label current">تم التوصيل<span class="idb">C07</span></div></div>
+        </div>
+
+        <div>
+          <span class="idb corner" style="top:-6px;">S04</span>
+          <div class="details-title">تفاصيل الطلب<span class="idb">C09</span></div>
+          <div class="order-time">وقت الطلب: اليوم 14:32<span class="idb">C10</span></div>
+          <div class="order-line">2 × عصير برتقال<span class="idb">C11</span><span class="total">24.00 ر.س</span></div>
+          <div class="order-line">1 × ماء معدني<span class="idb">C11</span><span class="total">4.00 ر.س</span></div>
+          <div class="totals">
+            <div class="totals-row">المنتجات<span class="idb">C12</span><span>3</span></div>
+            <div class="totals-row total">الإجمالي<span class="idb">C12</span><span>28.00 ر.س</span></div>
+          </div>
+          <div class="payment-line">الدفع عند الاستلام: نقدًا — ستدفع بـ 50.00 ر.س<span class="idb">C13</span></div>
+        </div>
+
+      </div>
+
+      <div class="action-bar-flow">
+        <span class="idb corner" style="top:2px;">S05</span>
+        <div class="btn-filled">إعادة الطلب<span class="idb">B03</span></div>
+        <div class="btn-outline btn-gap">العودة إلى المتجر<span class="idb">B04</span></div>
+      </div>
+
+    </div>
+  </div>
+  <div class="note">
+    ملاحظة: C16 غير مرسوم أبدًا في حالة "تم التوصيل" — لا شيء يمكن إصلاحه ولا شيء قادم. B03 "إعادة الطلب" هو الزر المعبّأ الوحيد على هذه الشاشة.<br>
+    Note: C16 is never rendered when Delivered — nothing can be repaired and nothing is coming. B03 "Reorder" is the only dark-filled button on this screen.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 5: CANCELLED — hotel cancelled after acceptance -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>ملغى — ألغاه الفندق بعد القبول (ثلاثة صفوف فقط)</h2>
+  <div class="state-sub">Cancelled — cancelled by the hotel after acceptance (exactly three rows render)</div>
+  <div class="phone-frame tall">
+    <div class="g06-scroll">
+
+      <div class="header">
+        <span class="idb corner">S01</span>
+        <div class="back-btn">→<span class="idb">B01</span></div>
+        <div class="header-title">متابعة الطلب<span class="idb">C01</span></div>
+        <div class="header-spacer"></div>
+      </div>
+
+      <div class="body">
+        <span class="idb corner" style="top:6px;">S02</span>
+
+        <div class="c03-line">رقم الطلب <span class="num">1042</span><span class="idb">C03</span></div>
+        <div class="c04-headline">ملغى<span class="idb">C04</span></div>
+        <div class="c06-room" style="margin-bottom:24px;">كان هذا الطلب للغرفة <span class="roomnum">0305</span><span class="idb">C06</span></div>
+        <!-- C16 not rendered on Cancelled -->
+
+        <!-- S03: New reached, Accepted & preparing reached, then terminal Cancelled row.
+             The steps after the point of cancellation (On the way, Delivered) are NOT rendered
+             at all — no grey rows, no strikethrough, no placeholders. -->
+        <div class="tl">
+          <span class="idb corner" style="top:-6px;">S03</span>
+          <div class="tl-row"><div class="tl-marker reached">✓</div><div class="tl-label reached">جديد<span class="idb">C07</span></div></div>
+          <div class="tl-connector dark"></div>
+          <div class="tl-row"><div class="tl-marker reached">✓</div><div class="tl-label reached">تم القبول وجارٍ التحضير<span class="idb">C07</span></div></div>
+          <div class="tl-connector dark"></div>
+          <div class="tl-row"><div class="tl-marker current">✕</div><div class="tl-label current">ملغى<span class="idb">C07</span></div></div>
+          <div class="c08-line">ألغى الفندق هذا الطلب: نفد المخزون من أحد المنتجات<span class="idb">C08</span></div>
+        </div>
+
+        <div>
+          <span class="idb corner" style="top:-6px;">S04</span>
+          <div class="details-title">تفاصيل الطلب<span class="idb">C09</span></div>
+          <div class="order-time">وقت الطلب: اليوم 14:32<span class="idb">C10</span></div>
+          <div class="order-line">2 × عصير برتقال<span class="idb">C11</span><span class="total">24.00 ر.س</span></div>
+          <div class="order-line">1 × ماء معدني<span class="idb">C11</span><span class="total">4.00 ر.س</span></div>
+          <div class="totals">
+            <div class="totals-row">المنتجات<span class="idb">C12</span><span>3</span></div>
+            <div class="totals-row total">الإجمالي<span class="idb">C12</span><span>28.00 ر.س</span></div>
+          </div>
+          <div class="payment-line">الدفع عند الاستلام: نقدًا — ستدفع بـ 50.00 ر.س<span class="idb">C13</span></div>
+        </div>
+
+      </div>
+
+      <div class="action-bar-flow">
+        <span class="idb corner" style="top:2px;">S05</span>
+        <div class="btn-filled">إعادة الطلب<span class="idb">B03</span></div>
+        <div class="btn-outline btn-gap">العودة إلى المتجر<span class="idb">B04</span></div>
+      </div>
+
+    </div>
+  </div>
+  <div class="note">
+    ملاحظة: الإلغاء وقع بعد "تم القبول وجارٍ التحضير"، لذا يُرسم صفّان "منجَزان" ثم صف "ملغى" النهائي — ثلاثة صفوف بالضبط. صفَّا "في الطريق" و"تم التوصيل" غير مرسومين إطلاقًا: لا صفوف رمادية ولا خط يتوسطها ولا عناصر نائبة (القسم 5.3). سطر C08 يحمل سببًا اختياريًا من الفندق كما ورد بالضبط.<br>
+    Note: cancellation happened after Accepted &amp; preparing, so two "reached" rows render, then the terminal Cancelled row — exactly three rows. "On the way" and "Delivered" are not rendered at all: no grey rows, no strikethrough, no placeholders (§5.3). C08 carries an optional reason from the hotel, shown exactly as received.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 6: "ALREADY ACCEPTED" BANNER (C02) — cancellation race -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>البانر "لم يُلغَ الطلب — قبِله الفندق" (C02) — سباق الإلغاء، C16 مقموع</h2>
+  <div class="state-sub">The "already accepted" banner (C02) — the cancellation race, C16 suppressed while it is shown</div>
+  <div class="phone-frame">
+    <div class="g06-scroll">
+
+      <div class="header">
+        <span class="idb corner">S01</span>
+        <div class="back-btn">→<span class="idb">B01</span></div>
+        <div class="header-title">متابعة الطلب<span class="idb">C01</span></div>
+        <div class="header-spacer"></div>
+      </div>
+
+      <div class="body" style="padding-bottom:130px;">
+        <span class="idb corner" style="top:6px;">S02</span>
+
+        <!-- C02 banner -->
+        <div class="c02-banner">
+          <span class="idb corner" style="top:-6px;left:-6px;">C02</span>
+          <div class="c02-l1">لم يُلغَ الطلب — قبِله الفندق قبل وصول طلب الإلغاء</div>
+          <div class="c02-l2">إذا كان في الطلب أي خطأ، اتصل بالاستقبال من هاتف الغرفة الآن.</div>
+        </div>
+
+        <div class="c03-line">رقم الطلب <span class="num">1042</span><span class="idb">C03</span></div>
+        <div class="c04-headline">تم القبول وجارٍ التحضير<span class="idb">C04</span></div>
+        <div class="c06-room" style="margin-bottom:24px;">سيُوصَّل طلبك إلى الغرفة <span class="roomnum">0305</span><span class="idb">C06</span></div>
+        <!-- C16 suppressed while C02 is shown: its second line already carries the same instruction -->
+
+        <div class="tl">
+          <span class="idb corner" style="top:-6px;">S03</span>
+          <div class="tl-row"><div class="tl-marker reached">✓</div><div class="tl-label reached">جديد<span class="idb">C07</span></div></div>
+          <div class="tl-connector dark"></div>
+          <div class="tl-row"><div class="tl-marker current">●</div><div class="tl-label current">تم القبول وجارٍ التحضير<span class="idb">C07</span></div></div>
+          <div class="tl-connector gray"></div>
+          <div class="tl-row"><div class="tl-marker notyet"></div><div class="tl-label notyet">في الطريق<span class="idb">C07</span></div></div>
+          <div class="tl-connector gray"></div>
+          <div class="tl-row"><div class="tl-marker notyet"></div><div class="tl-label notyet">تم التوصيل<span class="idb">C07</span></div></div>
+        </div>
+
+        <div>
+          <span class="idb corner" style="top:-6px;">S04</span>
+          <div class="details-title">تفاصيل الطلب<span class="idb">C09</span></div>
+          <div class="order-time">وقت الطلب: اليوم 14:32<span class="idb">C10</span></div>
+          <div class="order-line">2 × عصير برتقال<span class="idb">C11</span><span class="total">24.00 ر.س</span></div>
+          <div class="order-line">1 × ماء معدني<span class="idb">C11</span><span class="total">4.00 ر.س</span></div>
+          <div class="totals">
+            <div class="totals-row">المنتجات<span class="idb">C12</span><span>3</span></div>
+            <div class="totals-row total">الإجمالي<span class="idb">C12</span><span>28.00 ر.س</span></div>
+          </div>
+          <div class="payment-line">الدفع عند الاستلام: نقدًا — ستدفع بـ 50.00 ر.س<span class="idb">C13</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- S05 fixed: Accepted & preparing bar, 80 + 34px safe area = 114 -->
+    <div class="action-bar-fixed" style="height:114px;">
+      <span class="idb corner" style="top:2px;">S05</span>
+      <div class="bar-buttons" style="padding:12px 16px;">
+        <div class="btn-outline">العودة إلى المتجر<span class="idb">B04</span></div>
+      </div>
+      <div class="safe-area-strip">↑ هامش أمان 34px (توضيحي)<br>Safe-area inset 34px (illustrative)</div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: إثبات القسم 5.9 للحالة "بعد جديد" — بارتفاع بانر ≈80px وشريط إجراءات 80+34=114px، ينتهي أسفل C06 عند نحو 344px بينما يبدأ الشريط عند 664−114=550px: C02 وC04 وC06 كلها ظاهرة في الشاشة الأولى دون تمرير.<br>
+    Note: §5.9's "past-New" proof — with the banner at ≈80px and the action bar at 80+34=114px, the bottom of C06 sits at roughly 344px against a bar top of 664−114=550px: C02, C04 and C06 are all visible on the first painted frame with no scrolling.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 7: STALE-STATUS NOTICE (C05) shown mid-journey -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>إشعار الحالة القديمة C05 — أثناء "في الطريق" (فشل تحديث الحالة)</h2>
+  <div class="state-sub">The stale-status line C05 — during "On the way" (a status poll just failed)</div>
+  <div class="phone-frame tall">
+    <div class="g06-scroll">
+
+      <div class="header">
+        <span class="idb corner">S01</span>
+        <div class="back-btn">→<span class="idb">B01</span></div>
+        <div class="header-title">متابعة الطلب<span class="idb">C01</span></div>
+        <div class="header-spacer"></div>
+      </div>
+
+      <div class="body">
+        <span class="idb corner" style="top:6px;">S02</span>
+
+        <div class="c03-line">رقم الطلب <span class="num">1042</span><span class="idb">C03</span></div>
+        <div class="c04-headline">في الطريق<span class="idb">C04</span></div>
+        <div class="c05-stale">تعذّر تحديث الحالة — هذه آخر حالة معروفة<span class="idb">C05</span></div>
+        <div class="c06-room">سيُوصَّل طلبك إلى الغرفة <span class="roomnum">0305</span><span class="idb">C06</span></div>
+
+        <div class="c16-repair">
+          لم يعد بالإمكان إلغاء هذا الطلب من هاتفك بعد أن قبله الفندق. إذا كان فيه أي خطأ — رقم الغرفة أو المنتجات — اتصل بالاستقبال من هاتف الغرفة الآن.
+          <span class="idb">C16</span>
+        </div>
+
+        <div class="tl">
+          <span class="idb corner" style="top:-6px;">S03</span>
+          <div class="tl-row"><div class="tl-marker reached">✓</div><div class="tl-label reached">جديد<span class="idb">C07</span></div></div>
+          <div class="tl-connector dark"></div>
+          <div class="tl-row"><div class="tl-marker reached">✓</div><div class="tl-label reached">تم القبول وجارٍ التحضير<span class="idb">C07</span></div></div>
+          <div class="tl-connector dark"></div>
+          <div class="tl-row"><div class="tl-marker current">●</div><div class="tl-label current">في الطريق<span class="idb">C07</span></div></div>
+          <div class="tl-connector gray"></div>
+          <div class="tl-row"><div class="tl-marker notyet"></div><div class="tl-label notyet">تم التوصيل<span class="idb">C07</span></div></div>
+        </div>
+
+        <div>
+          <span class="idb corner" style="top:-6px;">S04</span>
+          <div class="details-title">تفاصيل الطلب<span class="idb">C09</span></div>
+          <div class="order-time">وقت الطلب: اليوم 14:32<span class="idb">C10</span></div>
+          <div class="order-line">2 × عصير برتقال<span class="idb">C11</span><span class="total">24.00 ر.س</span></div>
+          <div class="order-line">1 × ماء معدني<span class="idb">C11</span><span class="total">4.00 ر.س</span></div>
+          <div class="totals">
+            <div class="totals-row">المنتجات<span class="idb">C12</span><span>3</span></div>
+            <div class="totals-row total">الإجمالي<span class="idb">C12</span><span>28.00 ر.س</span></div>
+          </div>
+          <div class="payment-line">الدفع عند الاستلام: نقدًا — ستدفع بـ 50.00 ر.س<span class="idb">C13</span></div>
+        </div>
+
+      </div>
+
+      <div class="action-bar-flow">
+        <span class="idb corner" style="top:2px;">S05</span>
+        <div class="btn-outline">العودة إلى المتجر<span class="idb">B04</span></div>
+      </div>
+
+    </div>
+  </div>
+  <div class="note">
+    ملاحظة: C05 يظهر متى فشلت آخر محاولة لجلب الحالة، في أي حالة نشطة (هنا: "في الطريق")، ويختفي عند أول نجاح — بلا زر إعادة محاولة وبلا عدّاد (القسم 5.5).<br>
+    Note: C05 appears whenever the most recent status attempt failed, in any active status (here: "On the way"), and disappears on the first success — no retry button, no counter (§5.5).
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 8: ERROR STATE — "Order not found" (C15) -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>حالة الخطأ "لم نعثر على هذا الطلب" (C15)</h2>
+  <div class="state-sub">Error state — "We could not find this order" (C15)</div>
+  <div class="phone-frame tall">
+    <div class="g06-scroll">
+
+      <div class="header">
+        <span class="idb corner">S01</span>
+        <div class="back-btn">→<span class="idb">B01</span></div>
+        <div class="header-title">متابعة الطلب<span class="idb">C01</span></div>
+        <div class="header-spacer"></div>
+      </div>
+
+      <div class="c15-wrap">
+        <span class="idb corner" style="top:6px;">C15</span>
+        <div class="c15-icon">؟</div>
+        <div class="c15-l1">لم نعثر على هذا الطلب</div>
+        <div class="c15-l2">قد يكون أُرسل من جهاز آخر، أو لم يعد موجودًا لدى الفندق</div>
+        <div class="c15-l3">للسؤال عنه، اتصل بالاستقبال من هاتف الغرفة</div>
+      </div>
+
+      <div class="action-bar-flow">
+        <span class="idb corner" style="top:2px;">S05</span>
+        <div class="btn-outline">العودة إلى المتجر<span class="idb">B04</span></div>
+      </div>
+
+    </div>
+  </div>
+  <div class="note">
+    ملاحظة: لا يُرسم أي جزء من جسم الطلب (C02–C14 وC16) ولا المخطط الزمني في هذه الحالة؛ شريط الإجراءات يحتوي على B04 فقط، ولا يُرسل أي طلب حالة أثناء عرضها. هذه الحالة الواحدة لها أربعة مسبِّبات: لا سجل على الجهاز، سجل غير قابل للقراءة، رد "لا يوجد طلب بهذا الرقم"، أو نتيجة M-02 "order not found" (القسم 6.3).<br>
+    Note: no part of the order body (C02–C14, C16) or the timeline is rendered in this state; the action bar contains only B04, and no status request is sent while it is shown. This one state has four triggers: no device record, an unreadable record, a "no such order" status response, or M-02 reporting `order not found` (§6.3).
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>M-02 — إلغاء الطلب؟ / Cancel order? — Wireframes</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background:#ddd;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#000;
+    padding: 24px;
+    margin:0;
+  }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .doc-sub { font-size:12px; color:#333; margin:0 0 20px; }
+  .frames {
+    display:flex;
+    flex-wrap:nowrap;
+    gap:28px;
+    overflow-x:auto;
+    align-items:flex-start;
+    padding-bottom:20px;
+  }
+  .frame { flex:0 0 auto; width:390px; text-align:center; }
+  .frame h2 { font-size:14px; margin:0 0 2px; }
+  .frame .state-sub { font-size:11px; color:#333; margin:0 0 10px; }
+  .frame .note { font-size:10px; color:#333; margin-top:8px; text-align:right; }
+
+  .phone {
+    width:390px;
+    height:640px;
+    border:2px solid #000;
+    background:#fff;
+    position:relative;
+    overflow:hidden;
+    text-align:right;
+  }
+
+  /* small circled ID badges, shown next to their element */
+  .idb {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:16px;
+    height:16px;
+    padding:0 2px;
+    border:1px solid #000;
+    border-radius:50%;
+    font-size:8px;
+    background:#fff;
+    vertical-align:middle;
+    margin:0 3px;
+    line-height:1;
+    font-family: Arial, sans-serif;
+  }
+  .corner {
+    position:absolute;
+    top:2px;
+    left:2px;
+    z-index:7;
+    background:#fff;
+  }
+
+  /* ===== illustrative underlying screen G-06 (NOT a spec element) ===== */
+  .wash { position:absolute; inset:0; background:#eee; z-index:1; }
+  .wash-lines {
+    position:absolute; inset:0;
+    background-image: repeating-linear-gradient(135deg, transparent, transparent 18px, #ddd 18px, #ddd 20px);
+    z-index:1;
+  }
+  .wash-label {
+    position:absolute; top:8px; right:8px; left:8px;
+    font-size:9px; font-style:italic; color:#555; text-align:center; z-index:2;
+  }
+  /* illustrative fixed action bar of G-06 sitting beneath the backdrop */
+  .wash-bar {
+    position:absolute; left:0; right:0; bottom:0; height:70px;
+    background:#e2e2e2; border-top:1px solid #999; z-index:1;
+  }
+  .wash-bar-label {
+    position:absolute; left:0; right:0; bottom:0; height:70px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:8px; font-style:italic; color:#555; z-index:2; padding:0 20px; text-align:center;
+  }
+
+  /* ===== S01 backdrop ===== */
+  .backdrop {
+    position:absolute; inset:0;
+    background:#000; opacity:0.5; z-index:3;
+  }
+
+  /* ===== S02 sheet: bottom sheet, rounded top corners ===== */
+  .sheet {
+    position:absolute; left:0; right:0; bottom:0;
+    background:#fff; border:1px solid #000; border-bottom:none;
+    border-radius:16px 16px 0 0;
+    padding:24px 24px 16px;
+    z-index:5;
+  }
+  .c01-title { font-size:18px; font-weight:bold; margin-bottom:12px; position:relative; }
+  .c02-effect { font-size:16px; margin-bottom:12px; position:relative; line-height:1.5; }
+  .c03-finality { font-size:16px; margin-bottom:12px; position:relative; line-height:1.5; }
+
+  .c04-rule { border-top:1px solid #999; margin:0 0 12px; padding-top:12px; position:relative; }
+  .c04-l1 { font-size:16px; font-weight:bold; margin-bottom:8px; }
+  .c04-l2 { font-size:16px; }
+
+  .c05-reception { font-size:16px; margin-top:12px; margin-bottom:12px; position:relative; line-height:1.5; }
+
+  .btn-outline {
+    width:100%; height:48px;
+    border:1px solid #000; border-radius:24px;
+    background:#fff; font-size:16px; font-weight:bold;
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .btn-filled {
+    width:100%; height:48px;
+    border:1px solid #000; border-radius:24px;
+    background:#000; color:#fff; font-size:16px; font-weight:bold;
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .btn-filled.disabled { opacity:0.5; }
+  .btn-gap16 { margin-top:16px; }
+
+  .spinner-ring {
+    width:16px; height:16px;
+    border:2px solid #fff; border-top-color:#888;
+    border-radius:50%; display:inline-block; margin-left:8px;
+  }
+
+  .info-block { padding:20px 16px; font-size:13px; line-height:1.7; text-align:right; }
+  .info-block .rule { font-size:11px; color:#333; margin-bottom:6px; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<h1>M-02 — إلغاء الطلب؟ / Cancel order? — واجهات سلكية / Wireframes</h1>
+<p class="doc-sub">390px wide · RTL (Arabic default) · Grayscale low-fidelity · Bottom sheet over a dimmed backdrop over G-06 · Element IDs shown in small circles next to each element, matching the elements table in /spec/screens/M-02.md · 9 elements: S01, S02, C01, C02, C03, C04, C05, B01, B02</p>
+
+<div class="frames">
+
+<!-- ============================================================ -->
+<!-- FRAME 1: READY -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>جاهزة (عند الفتح)</h2>
+  <div class="state-sub">Ready state (on open)</div>
+  <div class="phone">
+
+    <div class="wash"></div>
+    <div class="wash-lines"></div>
+    <div class="wash-bar"></div>
+    <div class="wash-bar-label">(شريط إجراءات G-06 الثابت أسفل الشاشة — طبقة توضيحية فقط، ليست عنصرًا في المواصفة<br>G-06's fixed action bar beneath — illustrative only, not a spec element)</div>
+    <div class="wash-label">(الشاشة الخلفية G-06 — طبقة رمادية توضيحية فقط، ليست عنصرًا في المواصفة ولم تُعَد رسمها<br>Underlying screen G-06 — plain grey wash, illustrative only, not a spec element and not redrawn)</div>
+
+    <!-- S01 backdrop: covers the whole screen, including G-06's fixed action bar -->
+    <div class="backdrop"><span class="idb corner" style="background:#000;color:#fff;border-color:#fff;">S01</span></div>
+
+    <!-- S02 sheet -->
+    <div class="sheet">
+      <span class="idb corner">S02</span>
+
+      <div class="c01-title">إلغاء الطلب؟<span class="idb">C01</span></div>
+
+      <div class="c02-effect">سيُلغى طلبك رقم 1042، ولن يصل إلى غرفتك.<span class="idb">C02</span></div>
+
+      <div class="c03-finality">لا يمكن التراجع عن الإلغاء. بعد الإلغاء يمكنك إعادة منتجات هذا الطلب إلى سلتك بضغطة واحدة من زر «إعادة الطلب» في صفحة المتابعة.<span class="idb">C03</span></div>
+
+      <!-- C04, C05 hidden in the ready state -->
+
+      <div class="btn-outline">نعم، ألغِ الطلب<span class="idb">B01</span></div>
+      <div class="btn-filled btn-gap16">لا، احتفظ بالطلب<span class="idb">B02</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: "لا، احتفظ بالطلب" هو الزر الأساسي المعبّأ ويقع أسفل الزوج عند موضع راحة الإبهام؛ "نعم، ألغِ الطلب" هو الزر الثانوي المحدَّد ويعلوه. الفجوة بين الزرين 16px عمدًا (وليست 8px كما في M-03). لا أيقونة، لا ملخص طلب، لا رقم غرفة، لا حالة، لا مخطط زمني على هذه الورقة.<br>
+    Note: "No, keep my order" is the primary filled button and sits lower, at the thumb's resting position; "Yes, cancel" is the outlined secondary above it. The gap between them is deliberately 16px (not 8px as on M-03). No icon, no order summary, no room number, no status, no timeline on this sheet.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 2: CANCELLING (IN FLIGHT) -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>جارٍ الإلغاء (حالة الإرسال)</h2>
+  <div class="state-sub">Cancelling — the in-flight state</div>
+  <div class="phone">
+
+    <div class="wash"></div>
+    <div class="wash-lines"></div>
+    <div class="wash-bar"></div>
+    <div class="wash-bar-label">(شريط إجراءات G-06 الثابت — توضيحي فقط<br>G-06's fixed action bar — illustrative only)</div>
+    <div class="wash-label">(الشاشة الخلفية G-06 — طبقة رمادية توضيحية فقط<br>Underlying screen G-06 — plain grey wash, illustrative only)</div>
+
+    <div class="backdrop"><span class="idb corner" style="background:#000;color:#fff;border-color:#fff;">S01</span></div>
+
+    <div class="sheet">
+      <span class="idb corner">S02</span>
+
+      <div class="c01-title">إلغاء الطلب؟<span class="idb">C01</span></div>
+      <div class="c02-effect">سيُلغى طلبك رقم 1042، ولن يصل إلى غرفتك.<span class="idb">C02</span></div>
+      <div class="c03-finality">لا يمكن التراجع عن الإلغاء. بعد الإلغاء يمكنك إعادة منتجات هذا الطلب إلى سلتك بضغطة واحدة من زر «إعادة الطلب» في صفحة المتابعة.<span class="idb">C03</span></div>
+
+      <!-- B01 in flight: label replaced by spinner + "Cancelling…", stays 100% opacity -->
+      <div class="btn-outline">
+        <span class="spinner-ring"></span>جارٍ الإلغاء…<span class="idb">B01</span>
+      </div>
+      <!-- B02 at 50% opacity, inert -->
+      <div class="btn-filled disabled btn-gap16">لا، احتفظ بالطلب<span class="idb">B02</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: تُفتَح هذه الحالة فور الضغط على B01 قبل إرسال الطلب فعليًا (علم حالة الإرسال). الخلفية والزران والرجوع من المتصفح وسحب الورقة كلها معطَّلة أثناء هذه الحالة. الحد الأقصى للانتظار 15 ثانية.<br>
+    Note: this state is entered synchronously on the B01 tap, before the request is even assembled. The backdrop, both buttons, browser back and a downward swipe are all inert while this state is shown. The wait is capped at 15 seconds.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 3: FAILED (1st failure) -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>فشل الإلغاء (المحاولة الأولى) — C04</h2>
+  <div class="state-sub">Failed — 1st attempt — C04</div>
+  <div class="phone">
+
+    <div class="wash"></div>
+    <div class="wash-lines"></div>
+    <div class="wash-bar"></div>
+    <div class="wash-bar-label">(شريط إجراءات G-06 الثابت — توضيحي فقط<br>G-06's fixed action bar — illustrative only)</div>
+    <div class="wash-label">(الشاشة الخلفية G-06 — طبقة رمادية توضيحية فقط<br>Underlying screen G-06 — plain grey wash, illustrative only)</div>
+
+    <div class="backdrop"><span class="idb corner" style="background:#000;color:#fff;border-color:#fff;">S01</span></div>
+
+    <div class="sheet">
+      <span class="idb corner">S02</span>
+
+      <div class="c01-title">إلغاء الطلب؟<span class="idb">C01</span></div>
+      <div class="c02-effect">سيُلغى طلبك رقم 1042، ولن يصل إلى غرفتك.<span class="idb">C02</span></div>
+      <div class="c03-finality">لا يمكن التراجع عن الإلغاء. بعد الإلغاء يمكنك إعادة منتجات هذا الطلب إلى سلتك بضغطة واحدة من زر «إعادة الطلب» في صفحة المتابعة.<span class="idb">C03</span></div>
+
+      <!-- C04 failure block, from the 1st failure -->
+      <div class="c04-rule">
+        <span class="idb corner" style="top:-8px;left:-8px;">C04</span>
+        <div class="c04-l1">لم نتلقَّ تأكيدًا بوصول طلب الإلغاء إلى الفندق. اعتبر أن طلبك ما زال قائمًا حتى تتغيّر حالته إلى «ملغى».</div>
+        <div class="c04-l2">تحقّق من اتصالك بالإنترنت ثم اضغط «نعم، ألغِ الطلب» مرة أخرى. إعادة المحاولة آمنة: لا يمكن إلغاء الطلب مرتين.</div>
+      </div>
+
+      <!-- C05 hidden: only 1 consecutive failure so far -->
+
+      <!-- Both buttons present, unchanged labels -->
+      <div class="btn-outline">نعم، ألغِ الطلب<span class="idb">B01</span></div>
+      <div class="btn-filled btn-gap16">لا، احتفظ بالطلب<span class="idb">B02</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: نص السطر الأول من C04 كما هو حرفيًا — يذكر فقط ما لاحظه الجهاز (لم يصل تأكيد)، لا ما لا يمكنه معرفته. لا عداد محاولات، لا سقف، لا إعادة محاولة تلقائية. الورقة لا تُغلَق ولا تنزلق مرة أخرى.<br>
+    Note: C04's line 1 is copied verbatim — it states only what the device observed (no confirmation received), never what it cannot know. No attempt counter, no cap, no automatic retry. The sheet does not close and does not slide again.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 4: FAILED (2nd consecutive failure) — C05 -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>فشل الإلغاء (من المحاولة الثانية المتتالية) — C05 يظهر</h2>
+  <div class="state-sub">From the 2nd consecutive failure — reception line C05 visible, at 16px</div>
+  <div class="phone">
+
+    <div class="wash"></div>
+    <div class="wash-lines"></div>
+    <div class="wash-bar"></div>
+    <div class="wash-bar-label">(شريط إجراءات G-06 الثابت — توضيحي فقط<br>G-06's fixed action bar — illustrative only)</div>
+    <div class="wash-label">(الشاشة الخلفية G-06 — طبقة رمادية توضيحية فقط<br>Underlying screen G-06 — plain grey wash, illustrative only)</div>
+
+    <div class="backdrop"><span class="idb corner" style="background:#000;color:#fff;border-color:#fff;">S01</span></div>
+
+    <div class="sheet">
+      <span class="idb corner">S02</span>
+
+      <div class="c01-title">إلغاء الطلب؟<span class="idb">C01</span></div>
+      <div class="c02-effect">سيُلغى طلبك رقم 1042، ولن يصل إلى غرفتك.<span class="idb">C02</span></div>
+      <div class="c03-finality">لا يمكن التراجع عن الإلغاء. بعد الإلغاء يمكنك إعادة منتجات هذا الطلب إلى سلتك بضغطة واحدة من زر «إعادة الطلب» في صفحة المتابعة.<span class="idb">C03</span></div>
+
+      <div class="c04-rule">
+        <span class="idb corner" style="top:-8px;left:-8px;">C04</span>
+        <div class="c04-l1">لم نتلقَّ تأكيدًا بوصول طلب الإلغاء إلى الفندق. اعتبر أن طلبك ما زال قائمًا حتى تتغيّر حالته إلى «ملغى».</div>
+        <div class="c04-l2">تحقّق من اتصالك بالإنترنت ثم اضغط «نعم، ألغِ الطلب» مرة أخرى. إعادة المحاولة آمنة: لا يمكن إلغاء الطلب مرتين.</div>
+      </div>
+
+      <!-- C05: shown from the 2nd consecutive failure, 16px, plain text (no tel: link) -->
+      <div class="c05-reception">
+        إذا استمرت المشكلة، اتصل بالاستقبال من هاتف الغرفة واذكر رقم الطلب 1042. قد يكون الفندق قد بدأ بتحضير طلبك.
+        <span class="idb">C05</span>
+      </div>
+
+      <div class="btn-outline">نعم، ألغِ الطلب<span class="idb">B01</span></div>
+      <div class="btn-filled btn-gap16">لا، احتفظ بالطلب<span class="idb">B02</span></div>
+    </div>
+
+  </div>
+  <div class="note">
+    ملاحظة: C05 بحجم 16px (وليس أصغر) لأن من يقرأه هو الضيف الأقل قدرة على الانتظار. النص عادي وليس رابط اتصال؛ اكتشاف الهاتف يُعطَّل عمدًا لهذا الرقم. لا تغيير في تسميتَي الزرَّين ولا ترتيبهما بعد أي عدد من المحاولات الفاشلة.<br>
+    Note: C05 is 16px (not smaller) because the guest reading it is the one least able to wait. It is plain text, never a dial link; phone-number detection is deliberately turned off for this number. Neither button's label nor order changes after any number of consecutive failures.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 5: "ORDER NOT FOUND" OUTCOME — no rendered state -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>نتيجة "لم يُعثر على الطلب" — لا حالة مرسومة</h2>
+  <div class="state-sub">The "order not found" outcome — there is no rendered state for it</div>
+  <div class="info-block" style="background:#fff;border:2px solid #000;width:390px;">
+    <div class="rule">القسم 5.4 / 6.4 — لماذا لا يوجد إطار هنا</div>
+    <p>عندما يجيب الخادم بأن الفندق لا يملك طلبًا بهذا الرقم، تُزال M-02 والخلفية المعتمة فورًا (خلال 100ms) بلا أي رسالة، وبلا علامة صح، وبلا أي شيء من M-02 نفسها — تمامًا كما في نتيجتَي النجاح. تنتقل الشاشة الخلفية G-06 مباشرة إلى حالة الخطأ الخاصة بها "لم نعثر على هذا الطلب" (انظر ملف G-06 الخاص بحالة C15). لذلك، ووفق التعليمات، لا يُرسم أي مربع هاتف هنا؛ الرسم الصحيح الوحيد هو عدم وجود رسم.</p>
+    <div class="rule">EN — why there is no frame here</div>
+    <p>When the server answers that the hotel holds no order with this number, M-02 and the backdrop are removed at once (within 100ms) with no message, no checkmark, and nothing of M-02's own — exactly like the two successful outcomes. The screen beneath, G-06, moves straight into its own error state "We could not find this order" (see the G-06 wireframe file, C15). So, per the task, no phone mockup is drawn here; the only correct drawing is no drawing.</p>
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
