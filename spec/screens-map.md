@@ -144,7 +144,7 @@ These are elements or states inside the screens above. They are listed here so n
 
 | ID | Reachable from | Leads to (action → destination) |
 |---|---|---|
-| G-01 Store | QR scan (entry point); G-08 → Retry; G-02 → back; G-03 → back or "Continue shopping"; G-05 → "Back to store" / browser back; G-06 → back or "Back to store"; G-07 → back or "Browse the store" | Product card → G-02; floating cart bar → G-03; "My orders" icon → G-07; active-order banner → G-06; category chip → scroll in place; language toggle → same screen, other language; Add / + / − → cart updated in place |
+| G-01 Store | QR scan (entry point); G-08 → Retry; G-02 → back; G-03 → back or "Continue shopping"; G-05 → "Back to store" / browser back; G-06 → back or "Back to store"; G-07 → back or "Browse the store" | Product card → G-02; floating cart bar → G-03; "My orders" icon → G-07; active-order banner → G-06; category chip → scroll in place; language toggle → same screen, other language; Add / + / − → cart updated in place; "Refresh" (empty state only) → re-fetches the catalog and stays on G-01 |
 | G-02 Product details | G-01 → product card | Back → G-01; Add / + / − → cart updated in place; floating cart bar → G-03; error state "Product not available" → "Back to store" → G-01 |
 | G-03 Cart | G-01 or G-02 → floating cart bar; G-04 → back or "Edit cart"; M-04 → "Back to cart" or "Remove them and continue" when the cart became empty; G-06 → "Reorder" | Back → G-01 or G-02 (whichever opened it); "Continue shopping" (empty state) → G-01; + / − → line updated (− at qty 1 removes the line); "Checkout" → G-04. "Checkout" is disabled while the cart is empty or while any line is marked out of stock. |
 | G-04 Checkout | G-03 → "Checkout"; M-01 → "Edit room number"; M-03 → "Close" or a failed "Retry"; M-04 → "Remove them and continue" (cart not empty) | Back / "Edit cart" → G-03; Card ↔ Cash selection → in place (Cash shows the optional amount field); "Submit order" → inline validation errors on G-04, or M-01 when valid |
@@ -163,7 +163,7 @@ These are elements or states inside the screens above. They are listed here so n
 2. Modals are not history entries. Browser back while a modal is open closes the modal (same as its dismiss action) — except M-01, where browser back is ignored and the guest must use one of its two buttons.
 3. After a successful submission, G-04 and M-01 are dropped from the history: back from G-05 goes to G-01, never to the checkout of an already-sent order.
 4. The cart is saved on the device and survives a page reload or closed browser tab. It is emptied only by the guest (− to zero / M-04 removal) or by a successful submission.
-5. On a successful submission the order (number, items, room number, payment choice, timestamp, last known status) is saved on the device; that is the only source for G-07 (locked decision 4). G-06 always fetches the live status from the server and updates the saved copy.
+5. On a successful submission the order (number, items, room number, payment choice, timestamp, last known status) is saved on the device; that is the only source for G-07 (locked decision 4). G-06 always fetches the live status from the server and updates the saved copy. G-01 also fetches the status of active orders once per load, for the active-order banner only; it does not poll, and on failure it shows the last known saved status with no error text.
 6. Language: the header toggle on G-01/G-08 is the only way to switch. All other screens use the current language. The choice persists on the device.
 
 ---
