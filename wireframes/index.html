@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>خريطة الشاشات / Screens Map — Wireframes Index</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background:#ddd;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#000;
+    padding: 24px;
+    margin:0;
+  }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .doc-sub { font-size:12px; color:#333; margin:0 0 16px; }
+
+  /* small circled ID badges, shown next to their element — same style as the screen files */
+  .idb {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:16px;
+    height:16px;
+    padding:0 3px;
+    border:1px solid #000;
+    border-radius:50%;
+    font-size:8px;
+    background:#fff;
+    vertical-align:middle;
+    line-height:1;
+    font-family: Arial, sans-serif;
+  }
+
+  /* ===== Legend ===== */
+  .legend {
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px;
+    align-items:center;
+    font-size:11px;
+    border:1px solid #000;
+    background:#fff;
+    padding:8px 12px;
+    margin-bottom:16px;
+    max-width:1850px;
+  }
+  .legend-item { display:flex; align-items:center; gap:6px; white-space:nowrap; }
+  .sw-screen { width:26px; height:16px; border:2px solid #000; background:#fff; display:inline-block; }
+  .sw-modal  { width:26px; height:16px; border:2px dashed #000; background:#eee; border-radius:6px; display:inline-block; }
+  .sw-entry  { width:26px; height:16px; border:1px dashed #666; border-radius:8px; background:#fff; display:inline-block; }
+  .ln-fwd  { width:34px; height:0; border-top:2px solid #000; display:inline-block; }
+  .ln-back { width:34px; height:0; border-top:2px dashed #000; display:inline-block; }
+
+  /* ===== Canvas ===== */
+  .canvas-wrap {
+    overflow:auto;
+    border:1px solid #000;
+    background:#fff;
+    max-width:100%;
+  }
+  .canvas {
+    position:relative;
+    width:1850px;
+    height:940px;
+  }
+  svg.arrows { position:absolute; top:0; left:0; width:1850px; height:940px; }
+
+  .node {
+    position:absolute;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    text-decoration:none;
+    color:#000;
+    padding:4px;
+    gap:2px;
+  }
+  .screen-node { border:2px solid #000; background:#fff; }
+  .screen-node:hover { background:#ccc; }
+  .modal-node { border:2px dashed #000; background:#eee; border-radius:12px; }
+  .modal-node:hover { background:#ccc; }
+  .entry-node { border:1px dashed #666; border-radius:20px; background:#fff; }
+  .node-ar { font-size:13px; font-weight:bold; line-height:1.15; }
+  .node-en { font-size:10px; color:#333; line-height:1.15; }
+  .entry-node .node-ar { font-size:11px; font-weight:bold; }
+  .entry-node .node-en { font-size:9px; color:#333; }
+
+  text.lbl {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size:11px;
+    fill:#000;
+    paint-order: stroke;
+    stroke:#fff;
+    stroke-width:4px;
+    stroke-linejoin:round;
+  }
+  path.fwd  { stroke:#000; stroke-width:2; fill:none; marker-end:url(#arrowhead); }
+  path.back { stroke:#000; stroke-width:2; stroke-dasharray:6 5; fill:none; marker-end:url(#arrowhead); }
+
+  .footnote { font-size:11px; color:#333; margin-top:14px; max-width:1850px; }
+</style>
+</head>
+<body>
+
+<h1><span class="idb">‎</span> خريطة الشاشات / Screens Map</h1>
+<p class="doc-sub">
+  اثنتا عشرة بطاقة (٨ شاشات + ٤ نوافذ منبثقة) والأسهم بينها كما وردت في screens-map.md (القسمان 2.1 و2.2) — كل بطاقة رابط لملف الشاشة الخاص بها.<br>
+  Twelve cards (8 screens + 4 modals) with the navigation arrows between them, exactly as in screens-map.md (§2.1 and §2.2) — every card links to its own wireframe file.
+</p>
+
+<div class="legend">
+  <div class="legend-item"><span class="sw-screen"></span> شاشة كاملة، لها رابط خاص بها / Screen — has its own URL</div>
+  <div class="legend-item"><span class="sw-modal"></span> نافذة منبثقة، تفتح فوق شاشة، لا رابط خاص بها / Modal — opens on top of a screen, no URL of its own</div>
+  <div class="legend-item"><span class="sw-entry"></span> نقطة الدخول (ليست شاشة) / Entry point (not a screen)</div>
+  <div class="legend-item"><span class="ln-fwd"></span> إجراء للأمام في الرحلة / Forward action</div>
+  <div class="legend-item"><span class="ln-back"></span> رجوع أو إغلاق / Back or close</div>
+</div>
+
+<div class="canvas-wrap">
+<div class="canvas">
+
+  <svg class="arrows" viewBox="0 0 1850 940" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+      </marker>
+    </defs>
+
+    <!-- ===== Adjacent-column arrows (main spine) ===== -->
+    <!-- A1 G-01 -> G-02 -->
+    <path class="fwd" d="M1545,368 L1495,368"/>
+    <text class="lbl" x="1520" y="360" text-anchor="middle">بطاقة المنتج / product card</text>
+    <!-- A2 G-02 -> G-01 -->
+    <path class="back" d="M1495,392 L1545,392"/>
+    <text class="lbl" x="1520" y="410" text-anchor="middle">رجوع / back</text>
+
+    <!-- A3 G-02 -> G-03 -->
+    <path class="fwd" d="M1325,368 L1275,368"/>
+    <text class="lbl" x="1300" y="360" text-anchor="middle">سلة عائمة / cart bar</text>
+    <!-- A4 G-03 -> G-02 -->
+    <path class="back" d="M1275,392 L1325,392"/>
+    <text class="lbl" x="1300" y="410" text-anchor="middle">رجوع / back</text>
+
+    <!-- A5 G-03 -> G-04 -->
+    <path class="fwd" d="M1105,368 L1055,368"/>
+    <text class="lbl" x="1080" y="360" text-anchor="middle">إتمام الطلب / checkout</text>
+    <!-- A6 G-04 -> G-03 -->
+    <path class="back" d="M1055,392 L1105,392"/>
+    <text class="lbl" x="1080" y="410" text-anchor="middle">تعديل السلة / edit cart</text>
+
+    <!-- A7 G-04 -> M-01 -->
+    <path class="fwd" d="M885,368 L825,368"/>
+    <text class="lbl" x="855" y="360" text-anchor="middle">إرسال الطلب / submit order</text>
+    <!-- A8 M-01 -> G-04 -->
+    <path class="back" d="M825,392 L885,392"/>
+    <text class="lbl" x="855" y="410" text-anchor="middle">تعديل الغرفة / edit room</text>
+
+    <!-- A9 M-01 -> G-05 -->
+    <path class="fwd" d="M675,374 L615,374"/>
+    <text class="lbl" x="645" y="366" text-anchor="middle">نجاح الإرسال / send success</text>
+
+    <!-- A10 G-05 -> G-06 -->
+    <path class="fwd" d="M445,374 L395,374"/>
+    <text class="lbl" x="420" y="366" text-anchor="middle">تتبع الطلب / track order</text>
+
+    <!-- A11 G-06 -> G-07 (back, opened from My orders) -->
+    <path class="back" d="M225,392 L175,392"/>
+    <text class="lbl" x="200" y="410" text-anchor="middle">رجوع لطلباتي / back to orders</text>
+    <!-- A12 G-07 -> G-06 (tap an order) -->
+    <path class="fwd" d="M175,368 L225,368"/>
+    <text class="lbl" x="200" y="360" text-anchor="middle">فتح الطلب / open order</text>
+
+    <!-- ===== Local / vertical arrows ===== -->
+    <!-- V1 ENTRY -> G-01 -->
+    <path class="fwd" d="M1600,225 L1600,340"/>
+    <text class="lbl" x="1600" y="282" text-anchor="middle">تحميل ناجح / load OK</text>
+
+    <!-- V2 ENTRY -> G-08 (bulges right, cannot cross G-01) -->
+    <path class="fwd" d="M1715,210 C1750,250 1750,500 1715,555"/>
+    <text class="lbl" x="1750" y="386" text-anchor="middle">فشل التحميل / load failed</text>
+
+    <!-- V3 G-08 -> G-01 (retry succeeds) -->
+    <path class="fwd" d="M1660,520 L1660,420"/>
+    <text class="lbl" x="1660" y="478" text-anchor="middle">إعادة محاولة ناجحة / retry OK</text>
+
+    <!-- V4 M-01 -> M-03 -->
+    <path class="fwd" d="M720,415 L530,460"/>
+    <text class="lbl" x="640" y="432" text-anchor="middle">فشل الاتصال / connection fail</text>
+
+    <!-- V5 M-01 -> M-04 -->
+    <path class="fwd" d="M770,415 C830,480 750,560 605,585"/>
+    <text class="lbl" x="740" y="500" text-anchor="middle">نفاد المخزون / out of stock</text>
+
+    <!-- V6 M-03 -> M-04 -->
+    <path class="fwd" d="M510,520 L510,560"/>
+    <text class="lbl" x="470" y="544" text-anchor="middle">إعادة: نفاد / retry: OOS</text>
+
+    <!-- V7 M-03 -> G-05 (retry succeeds) -->
+    <path class="fwd" d="M550,460 L550,420"/>
+    <text class="lbl" x="592" y="444" text-anchor="middle">إعادة: نجاح / retry: OK</text>
+
+    <!-- V8 G-06 -> M-02 -->
+    <path class="fwd" d="M290,420 L290,460"/>
+    <text class="lbl" x="252" y="444" text-anchor="middle">إلغاء الطلب / cancel order</text>
+
+    <!-- V9 M-02 -> G-06 -->
+    <path class="back" d="M330,460 L330,420"/>
+    <text class="lbl" x="368" y="444" text-anchor="middle">إلغاء/احتفاظ / cancel or keep</text>
+
+    <!-- ===== Skip arcs ABOVE (forward hub jumps) ===== -->
+    <!-- S1 G-01 -> G-03 (floating cart bar direct) -->
+    <path class="fwd" d="M1545,340 C1545,300 1275,300 1275,340"/>
+    <text class="lbl" x="1410" y="292" text-anchor="middle">سلة عائمة / cart bar</text>
+
+    <!-- S2 G-01 -> G-07 (My orders icon) -->
+    <path class="fwd" d="M1545,340 C1250,140 300,140 155,340"/>
+    <text class="lbl" x="850" y="132" text-anchor="middle">أيقونة طلباتي / orders icon</text>
+
+    <!-- S3 G-08 -> G-07 (My orders control) -->
+    <path class="fwd" d="M1545,560 C1300,100 350,100 115,355"/>
+    <text class="lbl" x="830" y="92" text-anchor="middle">طلباتي / my orders</text>
+
+    <!-- ===== Skip arcs BELOW (returns) ===== -->
+    <!-- S4 G-03 -> G-01 -->
+    <path class="back" d="M1275,420 C1275,480 1545,480 1545,420"/>
+    <text class="lbl" x="1410" y="496" text-anchor="middle">متابعة التسوق / continue shopping</text>
+
+    <!-- S5 M-03 -> G-04 -->
+    <path class="back" d="M605,520 C750,570 800,470 885,420"/>
+    <text class="lbl" x="745" y="548" text-anchor="middle">إغلاق / close</text>
+
+    <!-- S6 M-04 -> G-04 -->
+    <path class="fwd" d="M605,620 C780,660 820,480 885,420"/>
+    <text class="lbl" x="745" y="602" text-anchor="middle">إزالة والمتابعة / remove &amp; continue</text>
+
+    <!-- S7 M-04 -> G-03 -->
+    <path class="back" d="M585,630 C850,700 950,480 1105,420"/>
+    <text class="lbl" x="855" y="704" text-anchor="middle">رجوع للسلة / back to cart</text>
+
+    <!-- S8 G-05 -> G-01 -->
+    <path class="back" d="M615,420 C900,740 1300,740 1545,420"/>
+    <text class="lbl" x="1080" y="756" text-anchor="middle">العودة للمتجر / back to store</text>
+
+    <!-- S9 G-06 -> G-03 (reorder) -->
+    <path class="fwd" d="M395,420 C650,780 900,780 1105,420"/>
+    <text class="lbl" x="750" y="796" text-anchor="middle">إعادة الطلب / reorder</text>
+
+    <!-- S10 G-06 -> G-01 -->
+    <path class="back" d="M395,440 C700,820 1300,820 1545,440"/>
+    <text class="lbl" x="970" y="836" text-anchor="middle">العودة للمتجر / back to store</text>
+
+    <!-- S11 G-07 -> G-01 -->
+    <path class="back" d="M175,460 C600,880 1300,880 1545,460"/>
+    <text class="lbl" x="860" y="896" text-anchor="middle">تصفح المتجر / browse store</text>
+
+  </svg>
+
+  <!-- ===== Cards ===== -->
+
+  <div class="node entry-node" style="left:1545px; top:175px; width:170px; height:50px;">
+    <div class="node-ar">مسح رمز الاستجابة السريعة</div>
+    <div class="node-en">QR code scan</div>
+  </div>
+
+  <a class="node screen-node" href="G-01.html" style="left:1545px; top:340px; width:170px; height:80px;">
+    <span class="idb">G-01</span>
+    <div class="node-ar">المتجر</div>
+    <div class="node-en">Store</div>
+  </a>
+
+  <a class="node screen-node" href="G-08.html" style="left:1545px; top:520px; width:170px; height:80px;">
+    <span class="idb">G-08</span>
+    <div class="node-ar">المتجر غير متاح</div>
+    <div class="node-en">Store unavailable</div>
+  </a>
+
+  <a class="node screen-node" href="G-02.html" style="left:1325px; top:340px; width:170px; height:80px;">
+    <span class="idb">G-02</span>
+    <div class="node-ar">تفاصيل المنتج</div>
+    <div class="node-en">Product details</div>
+  </a>
+
+  <a class="node screen-node" href="G-03.html" style="left:1105px; top:340px; width:170px; height:80px;">
+    <span class="idb">G-03</span>
+    <div class="node-ar">السلة</div>
+    <div class="node-en">Cart</div>
+  </a>
+
+  <a class="node screen-node" href="G-04.html" style="left:885px; top:340px; width:170px; height:80px;">
+    <span class="idb">G-04</span>
+    <div class="node-ar">إتمام الطلب</div>
+    <div class="node-en">Checkout</div>
+  </a>
+
+  <a class="node modal-node" href="M-01.html" style="left:675px; top:345px; width:150px; height:70px;">
+    <span class="idb">M-01</span>
+    <div class="node-ar">تأكيد رقم الغرفة</div>
+    <div class="node-en">Confirm room number</div>
+  </a>
+
+  <a class="node screen-node" href="G-05.html" style="left:445px; top:340px; width:170px; height:80px;">
+    <span class="idb">G-05</span>
+    <div class="node-ar">تم إرسال طلبك</div>
+    <div class="node-en">Order submitted</div>
+  </a>
+
+  <a class="node modal-node" href="M-03.html" style="left:455px; top:460px; width:150px; height:60px;">
+    <span class="idb">M-03</span>
+    <div class="node-ar">لم يتم إرسال الطلب</div>
+    <div class="node-en">Order not sent</div>
+  </a>
+
+  <a class="node modal-node" href="M-04.html" style="left:455px; top:560px; width:150px; height:60px;">
+    <span class="idb">M-04</span>
+    <div class="node-ar">منتجات غير متوفرة</div>
+    <div class="node-en">Items no longer available</div>
+  </a>
+
+  <a class="node screen-node" href="G-06.html" style="left:225px; top:340px; width:170px; height:80px;">
+    <span class="idb">G-06</span>
+    <div class="node-ar">متابعة الطلب</div>
+    <div class="node-en">Order tracking</div>
+  </a>
+
+  <a class="node modal-node" href="M-02.html" style="left:235px; top:460px; width:150px; height:60px;">
+    <span class="idb">M-02</span>
+    <div class="node-ar">إلغاء الطلب؟</div>
+    <div class="node-en">Cancel order?</div>
+  </a>
+
+  <a class="node screen-node" href="G-07.html" style="left:5px; top:340px; width:170px; height:80px;">
+    <span class="idb">G-07</span>
+    <div class="node-ar">طلباتي</div>
+    <div class="node-en">My orders</div>
+  </a>
+
+</div>
+</div>
+
+<p class="footnote">
+  المصدر: <code>/spec/screens-map.md</code> §2.1 و§2.2. جميع الاثنتي عشرة بطاقة معتمدة (Approved) وكل بطاقة تفتح ملف الشاشة السلكي الخاص بها.<br>
+  Source: <code>/spec/screens-map.md</code> §2.1 and §2.2. All twelve cards are Approved and each opens its own wireframe file.
+</p>
+
+</body>
+</html>
