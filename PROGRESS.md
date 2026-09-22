@@ -192,3 +192,39 @@ removes what the spec has, and those two were gaps the review had closed.
 separators in its room numbers? Version 1 accepts 1–5 digits. The alternative
 is fully worked out and the files that must change are listed; it needs the
 hotel's answer before build, not before spec.
+
+
+---
+
+# Step 6 — The working system: guest, staff and admin
+
+The owner extended the scope past the specification to three working apps. No backend:
+static HTML, CSS and JavaScript sharing one browser `localStorage`, with a `storage` event
+carrying each change to every other open tab. Open the root `index.html`.
+
+| App | Folder | Spec | Screens | Verified in Chromium |
+|---|---|---|---|---|
+| Guest | `app/` | `spec/screens/` | 8 screens, 4 modals | full journey, both languages |
+| Staff | `staff/` | `spec/staff/` | 3 screens, 2 modals | 29 loop checks + state checks |
+| Admin | `admin/` | `spec/admin/` | 7 screens, 4 modals | 116 checks, 0 failed |
+| Shared data | `shared/` | `shared/CONTRACT.md` | `HotelDB` | cross-tab loop |
+
+**The loop, proved end to end:** a guest orders → it reaches the staff board within
+milliseconds, no reload → staff accept → the guest's tracking screen flips to Accepted and
+its cancel button disappears (locked decision 6, across tabs) → delivery through SM-02 → a
+hotel cancellation whose reason the guest reads word for word. Admin price, stock, product
+and currency changes all reach the guest.
+
+**OQ-01 is closed in practice.** Admin A-07 lets the hotel choose its room-number format;
+AM-04 protects the change with a live test that runs the exact rule the guest will run, so
+it cannot approve a value the guest would refuse. The default reproduces the approved guest
+behaviour exactly.
+
+**Real bugs found by building across apps, all fixed:** the guest loaded the hotel's order
+table once, so staff changes would never have reached it; the room rule was re-read on every
+keystroke, so a format change could land mid-checkout; the order record had no language, so
+a cancellation reason could not be written in the guest's; a lettered format accepted `ABC`
+as a room; the currency label was hard-coded, so an admin change never reached the guest.
+
+**Still open, both needing the hotel:** OQ-01's final answer (the tool to apply it now
+exists), and OQ-02 — a card refused at the door with no cash.
