@@ -1,0 +1,665 @@
+/* ==========================================================================
+   Hotel In-Room Store — guest web app
+   Single stylesheet. Plain, ordinary, clean: neutral greys, one calm accent
+   (muted teal), soft borders, almost no shadow, no gradients, no animation
+   beyond short transitions. System fonts only — nothing is loaded remotely.
+
+   RTL is the default (index.html ships dir="rtl"); i18n.js flips
+   <html dir> to "ltr" for English. Every direction-dependent rule below uses
+   logical properties (inline-start / inline-end / margin-inline / text-align
+   start|end), so this one file serves both directions with no [dir=] forks
+   except the two places where a glyph must physically mirror.
+
+   Sections
+     1  Tokens
+     2  Reset and base
+     3  App shell and demo bar
+     4  Screen, header, category bar
+     5  Buttons and tap areas
+     6  Product grid, cards, stepper, badges
+     7  Bottom bars (cart bar, action bar)
+     8  Lines, summaries, totals
+     9  Forms, errors, notices
+    10  Modals: backdrop, bottom sheet, centred dialog
+    11  Timeline
+    12  Toast, empty, loading
+    13  Utilities
+   ========================================================================== */
+
+/* 1 — Tokens =============================================================== */
+
+:root {
+  /* Neutrals */
+  --c-page:          #e9ebed;   /* the desk around the phone column */
+  --c-surface:       #ffffff;
+  --c-surface-2:     #f4f5f6;   /* quiet fills: image boxes, summary blocks */
+  --c-ink:           #1b1e20;   /* body text, primary fill */
+  --c-ink-2:         #555d63;   /* secondary text, ≥ 4.5:1 on white */
+  --c-ink-3:         #767e84;   /* not-yet-reached labels, still ≥ 4.5:1 */
+  --c-border:        #dde1e4;
+  --c-border-strong: #b6bdc2;
+
+  /* One accent, used sparingly: links, active chip, focus ring */
+  --c-accent:        #13706a;
+  --c-accent-dark:   #0e5852;
+  --c-accent-soft:   #e7f0ef;
+
+  /* Danger — always paired with the "!" icon slot and a border, never alone */
+  --c-danger:        #8c2f24;
+  --c-danger-soft:   #fbf1f0;
+
+  /* Type scale (px, as the spec states its sizes in px) */
+  --t-micro:  10px;   /* "My orders" label, the one 10px string in the spec */
+  --t-mini:   12px;   /* counters, banner lines 2–3 */
+  --t-small:  14px;   /* minimum body size */
+  --t-body:   16px;   /* default, and the minimum on form fields (no zoom) */
+  --t-lg:     18px;   /* screen and modal titles */
+  --t-xl:     20px;
+  --t-2xl:    22px;   /* G-06 status headline */
+  --t-room:   28px;   /* room number inline in a sentence */
+  --t-huge:   64px;   /* M-01 room number */
+
+  /* Spacing */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px;
+
+  /* Radius */
+  --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-pill: 999px;
+
+  /* Layout */
+  --app-w:     390px;
+  --topbar-h:  60px;
+  --catbar-h:  52px;
+  --bottom-h:  64px;   /* cart bar / action bar, excluding the safe area */
+  --safe-b:    env(safe-area-inset-bottom, 0px);
+
+  --shadow: 0 1px 2px rgba(0, 0, 0, .06);
+  --ring:   0 0 0 2px var(--c-surface), 0 0 0 4px var(--c-accent);
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic",
+          "Segoe UI Arabic", "Geeza Pro", Roboto, Tahoma, Arial, sans-serif;
+}
+
+/* 2 — Reset and base ======================================================= */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0; font-family: var(--font); font-size: var(--t-body);
+  line-height: 1.5; color: var(--c-ink); background: var(--c-page);
+}
+
+h1, h2, h3, p, ul, ol, figure { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+img { max-width: 100%; display: block; }
+a { color: var(--c-accent); }
+
+button, input, select, textarea { font: inherit; color: inherit; margin: 0; }
+
+/* 16px on every typed field so mobile browsers never auto-zoom on focus. */
+input, select, textarea { font-size: var(--t-body); }
+
+:focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--r-sm); }
+
+body.is-modal-open { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+
+/* 3 — App shell and demo bar =============================================== */
+
+/* The phone column. On a desktop it is centred on a plain grey page. */
+.app {
+  max-width: var(--app-w); min-height: 100vh; margin-inline: auto;
+  background: var(--c-surface); border-inline: 1px solid var(--c-border);
+  position: relative;
+}
+
+/* Not part of the product: a plain dark strip in small type, above the app. */
+.demo-bar {
+  background: #23262a; color: #d8dbde; font-size: var(--t-mini);
+  line-height: 1.4; padding: var(--s-2) var(--s-3); display: flex;
+  flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3);
+  border-block-end: 2px dashed #4a4f55;
+}
+.demo-bar__tag {
+  font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: #ffffff; border: 1px solid #6b7278; border-radius: var(--r-sm);
+  padding: 1px var(--s-2);
+}
+.demo-bar label { display: inline-flex; align-items: center; gap: var(--s-1); }
+.demo-bar select, .demo-bar button {
+  font-size: var(--t-mini); background: #34383d; color: #f0f2f3;
+  border: 1px solid #5a6066; border-radius: var(--r-sm);
+  padding: 3px var(--s-2);
+}
+.demo-bar button { cursor: pointer; }
+
+/* 4 — Screen, header, category bar ========================================= */
+
+.screen { display: block; padding-block-end: calc(var(--s-5) + var(--safe-b)); }
+/* Room for whichever bar is pinned at the bottom. */
+body:has(.cartbar, .actionbar) .screen { padding-block-end: calc(var(--bottom-h) + var(--s-4) + var(--safe-b)); }
+
+.screen__body { padding: var(--s-4); }
+
+/* --- Sticky header ------------------------------------------------------- */
+.topbar {
+  position: sticky; top: 0; z-index: 30; min-height: var(--topbar-h);
+  display: grid; grid-template-columns: 56px 1fr 56px; align-items: center;
+  gap: var(--s-2); padding: var(--s-2) var(--s-3);
+  background: var(--c-surface); border-block-end: 1px solid var(--c-border);
+}
+.topbar__side { display: flex; align-items: center; }
+.topbar__side--end { justify-content: flex-end; }
+.topbar__main { text-align: center; min-width: 0; }
+.topbar__title {
+  font-size: var(--t-lg); font-weight: 700; line-height: 1.25;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.topbar__sub { font-size: var(--t-mini); color: var(--c-ink-2); }
+
+/* Icon button with a label under it (B02 "My orders"): 10px is allowed there. */
+.iconbtn {
+  background: none; border: 0; padding: var(--s-1); display: inline-flex;
+  flex-direction: column; align-items: center; gap: 2px; cursor: pointer;
+  color: var(--c-ink);
+}
+.iconbtn__glyph { font-size: 20px; line-height: 1; }
+.iconbtn__label { font-size: var(--t-micro); line-height: 1.2; }
+
+/* --- Active-order banner ------------------------------------------------- */
+.banner {
+  display: block; width: 100%; min-height: 84px; text-align: start;
+  background: var(--c-accent-soft); border: 0;
+  border-block-end: 1px solid var(--c-border);
+  border-inline-start: 4px solid var(--c-accent);
+  padding: var(--s-3) var(--s-4); cursor: pointer; color: inherit;
+}
+.banner__line1 { font-size: var(--t-small); font-weight: 700; }
+.banner__line2,
+.banner__line3 { font-size: var(--t-mini); color: var(--c-ink-2); }
+.banner__line3 { color: var(--c-accent-dark); font-weight: 600; margin-block-start: 2px; }
+
+/* --- Sticky category bar ------------------------------------------------- */
+.catbar {
+  position: sticky; top: var(--topbar-h); z-index: 20;
+  background: var(--c-surface); border-block-end: 1px solid var(--c-border);
+  padding: var(--s-2) var(--s-3);
+}
+.catbar__row {
+  display: flex; gap: var(--s-2); overflow-x: auto; scroll-behavior: smooth;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.catbar__row::-webkit-scrollbar { display: none; }
+
+.chip {
+  flex: 0 0 auto; min-height: 32px; display: inline-flex; align-items: center;
+  padding-inline: var(--s-3); font-size: var(--t-small); white-space: nowrap;
+  background: var(--c-surface-2); color: var(--c-ink);
+  border: 1px solid var(--c-border); border-radius: var(--r-pill);
+  cursor: pointer; transition: background-color .15s ease, color .15s ease;
+}
+.chip--active { background: var(--c-ink); color: #ffffff; border-color: var(--c-ink); font-weight: 600; }
+
+.section__title {
+  font-size: var(--t-body);
+  font-weight: 700;
+  padding: var(--s-4) var(--s-4) var(--s-2);
+  scroll-margin-block-start: calc(var(--topbar-h) + var(--catbar-h));
+}
+
+/* 5 — Buttons and tap areas ================================================ */
+
+.btn {
+  position: relative; display: inline-flex; align-items: center;
+  justify-content: center; gap: var(--s-2); min-height: 48px;
+  padding-inline: var(--s-4); font-size: var(--t-body); font-weight: 700;
+  text-align: center; text-decoration: none; background: var(--c-surface);
+  color: var(--c-ink); border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md); cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, opacity .15s ease;
+}
+.btn--primary { background: var(--c-ink); color: #ffffff; border-color: var(--c-ink); }
+.btn--primary:hover { background: #000000; }
+/* Outlined secondary. The 2px border is the M-01 §5.3 rule and is safe
+   everywhere: a secondary must never read as a display box. */
+.btn--ghost {
+  background: transparent;
+  border: 2px solid var(--c-ink);
+  color: var(--c-ink);
+}
+.btn--ghost:hover { background: var(--c-surface-2); }
+/* A bare text action (e.g. "Edit cart"), still 44px tall for the tap area. */
+.btn--link {
+  min-height: 44px; padding-inline: var(--s-2); background: none; border: 0;
+  border-radius: 0; color: var(--c-accent-dark); font-weight: 600;
+  text-decoration: underline;
+}
+.btn--block { display: flex; width: 100%; }
+.btn--tall  { min-height: 56px; }
+.btn--sm    { min-height: 40px; font-size: var(--t-small); padding-inline: var(--s-3); }
+
+/* Disabled never relies on colour: reduced opacity + greyscale + a dashed
+   border + the not-allowed cursor, so it reads in grayscale and for a
+   colour-blind guest. */
+.btn[disabled],
+.btn.is-disabled,
+.btn[aria-disabled="true"],
+.stepper__btn[disabled] {
+  opacity: .5;
+  filter: grayscale(1);
+  border-style: dashed;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Minimum 44 x 44 tap area around controls whose visible shape is smaller.
+   The overlay is a pseudo-element of the control itself, so a tap on it is a
+   tap on the control; centring is direction-neutral, so no RTL fork needed. */
+.tap, .chip, .iconbtn, .btn--sm, .btn--link, .stepper__btn, .card__add {
+  position: relative;
+}
+.tap::after, .chip::after, .iconbtn::after, .btn--sm::after, .btn--link::after, .stepper__btn::after, .card__add::after {
+  content: ""; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%); width: 100%; height: 100%;
+  min-width: 44px; min-height: 44px; z-index: 1;
+}
+
+/* 6 — Product grid, cards, stepper, badges ================================= */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-3);
+  padding-inline: var(--s-4);
+}
+
+.card {
+  display: flex; flex-direction: column; gap: var(--s-2);
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: var(--r-md); padding: var(--s-2); text-align: start;
+  cursor: pointer; color: inherit;
+}
+.card__img {
+  aspect-ratio: 1 / 1; width: 100%; background: var(--c-surface-2);
+  border-radius: var(--r-sm); object-fit: cover; display: flex;
+  align-items: center; justify-content: center; font-size: 32px;
+  color: var(--c-border-strong); overflow: hidden;
+}
+.card__name {
+  font-size: var(--t-small); line-height: 1.35; display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  min-height: calc(var(--t-small) * 1.35 * 2);
+}
+.card__price { font-size: var(--t-small); font-weight: 700; }
+.card__action {
+  position: relative; z-index: 1; min-height: 40px; display: flex;
+  align-items: center; margin-block-start: auto;
+}
+.card__add {
+  width: 100%; min-height: 40px; border: 1px solid var(--c-ink);
+  border-radius: var(--r-sm); background: var(--c-surface);
+  font-size: var(--t-small); font-weight: 700; cursor: pointer;
+}
+.card__add:hover { background: var(--c-surface-2); }
+.card--out .card__img { opacity: .5; }
+
+/* Stepper: two 40x40 controls with the quantity between them. */
+.stepper {
+  display: grid; grid-template-columns: 40px 1fr 40px; align-items: center;
+  width: 100%; min-height: 40px; border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-sm); overflow: visible;
+}
+.stepper__btn {
+  width: 40px; height: 40px; display: inline-flex; align-items: center;
+  justify-content: center; font-size: var(--t-lg); font-weight: 700;
+  line-height: 1; background: none; border: 0; cursor: pointer;
+}
+.stepper__qty {
+  text-align: center;
+  font-size: var(--t-small);
+  font-weight: 700;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.stepper__note {
+  font-size: var(--t-mini);
+  color: var(--c-ink-2);
+  text-align: center;
+  margin-block-start: var(--s-1);
+}
+
+/* Badges: state on a card or a list row, carried by text plus border. */
+.badge {
+  display: inline-flex; align-items: center; min-height: 24px;
+  padding-inline: var(--s-2); font-size: var(--t-mini); font-weight: 600;
+  border: 1px solid var(--c-border-strong); border-radius: var(--r-sm);
+  background: var(--c-surface-2); color: var(--c-ink-2);
+}
+.badge--out    { border-style: dashed; color: var(--c-ink); }
+.badge--status { background: var(--c-ink); border-color: var(--c-ink); color: #fff; }
+.badge--block  { display: flex; width: 100%; min-height: 40px; justify-content: center; font-size: var(--t-small); }
+
+/* 7 — Bottom bars ========================================================== */
+
+/* Both bars are pinned to the bottom of the phone column, not the viewport
+   edge, so they stay under the app on a desktop screen. Centring with
+   left/translate is direction-neutral. */
+.cartbar, .actionbar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: var(--app-w); z-index: 40;
+  background: var(--c-surface); border-block-start: 1px solid var(--c-border);
+  padding: var(--s-2) var(--s-3) calc(var(--s-2) + var(--safe-b));
+  box-shadow: 0 -1px 2px rgba(0, 0, 0, .05);
+}
+
+.cartbar__btn {
+  width: 100%; min-height: 48px; display: grid;
+  grid-template-columns: auto 1fr auto; align-items: center; gap: var(--s-3);
+  padding-inline: var(--s-4); background: var(--c-ink); color: #ffffff;
+  border: 0; border-radius: var(--r-md); cursor: pointer; text-align: start;
+}
+.cartbar__count { font-size: var(--t-small); }
+.cartbar__label { font-size: var(--t-body); font-weight: 700; text-align: center; }
+.cartbar__total { font-size: var(--t-body); font-weight: 700; }
+
+.actionbar__row { display: flex; flex-direction: column; gap: var(--s-2); }
+.actionbar .btn { width: 100%; }
+
+/* 8 — Lines, summaries, totals ============================================= */
+
+/* One row of an order or cart: quantity, name, price. */
+.line {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: start;
+  gap: var(--s-3); padding-block: var(--s-3);
+  border-block-end: 1px solid var(--c-border); font-size: var(--t-small);
+}
+.line:last-child { border-block-end: 0; }
+.line__qty { min-width: 32px; font-weight: 700; direction: ltr; unicode-bidi: isolate; text-align: start; }
+.line__name { line-height: 1.4; }
+.line__sub  { display: block; font-size: var(--t-mini); color: var(--c-ink-2); }
+.line__price { font-weight: 700; white-space: nowrap; }
+.line__media {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--r-sm);
+  background: var(--c-surface-2);
+  flex: 0 0 auto;
+}
+.line--out .line__name { color: var(--c-ink-2); }
+.line--out .line__media { opacity: .5; }
+
+.panel {
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: var(--s-4);
+  margin: var(--s-4);
+}
+.panel__title { font-size: var(--t-body); font-weight: 700; margin-block-end: var(--s-2); }
+
+.total {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--s-3); padding-block-start: var(--s-3);
+  margin-block-start: var(--s-2);
+  border-block-start: 1px solid var(--c-border-strong);
+}
+.total__label { font-size: var(--t-body); font-weight: 700; }
+.total__value { font-size: var(--t-lg); font-weight: 700; }
+
+/* 9 — Forms, errors, notices =============================================== */
+
+.field { display: block; padding: var(--s-4) var(--s-4) 0; }
+.field__label { display: block; font-size: var(--t-small); font-weight: 700; margin-block-end: var(--s-2); }
+.field__input, .field__area {
+  width: 100%; min-height: 56px; padding: var(--s-3) var(--s-4);
+  font-size: var(--t-body); background: var(--c-surface); color: var(--c-ink);
+  border: 1px solid var(--c-border-strong); border-radius: var(--r-md);
+  transition: border-color .15s ease;
+}
+.field__input:focus,
+.field__area:focus { border-color: var(--c-accent); }
+.field__input--big { font-size: 24px; font-weight: 700; direction: ltr; unicode-bidi: isolate; text-align: start; }
+.field__area { min-height: 96px; resize: vertical; line-height: 1.5; }
+.field__hint,
+.field__counter { font-size: var(--t-small); color: var(--c-ink-2); margin-block-start: var(--s-1); }
+.field__counter { font-size: var(--t-mini); direction: ltr; unicode-bidi: isolate; text-align: end; }
+.field__counter--full { font-weight: 700; color: var(--c-ink); }
+
+/* A field with a static suffix inside it (the currency label on F03). */
+.field__wrap { position: relative; display: block; }
+.field__suffix {
+  position: absolute; inset-block: 0; inset-inline-end: var(--s-4);
+  display: flex; align-items: center; font-size: var(--t-small);
+  color: var(--c-ink-2); pointer-events: none;
+}
+.field__wrap:has(.field__suffix) .field__input { padding-inline-end: 72px; }
+
+/* Error state: a heavier border AND an icon AND the message. Never colour
+   alone — the screen must still read in grayscale. */
+.field--error .field__input,
+.field--error .field__area {
+  border-width: 2px;
+  border-color: var(--c-danger);
+  background: var(--c-danger-soft);
+}
+.error, .notice {
+  display: flex; align-items: flex-start; gap: var(--s-2);
+  font-size: var(--t-small); line-height: 1.45;
+  margin-block-start: var(--s-2);
+}
+.error { color: var(--c-danger); }
+.notice {
+  color: var(--c-ink);
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md);
+  padding: var(--s-3);
+}
+.notice--flat { background: none; border: 0; padding: 0; }
+/* The shared "!" icon slot. */
+.error::before, .notice::before {
+  content: "!"; flex: 0 0 auto; width: 20px; height: 20px;
+  margin-block-start: 1px; display: inline-flex; align-items: center;
+  justify-content: center; font-size: var(--t-mini); font-weight: 700;
+  line-height: 1; border: 2px solid currentColor; border-radius: 50%;
+}
+
+/* Radio-style choice rows (payment method): 72px tall, selection shown by a
+   2px border and a filled mark, not by colour. */
+.choice {
+  display: flex; align-items: center; gap: var(--s-3); width: 100%;
+  min-height: 72px; padding: var(--s-3) var(--s-4); text-align: start;
+  background: var(--c-surface); border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md); cursor: pointer; color: inherit;
+}
+.choice + .choice { margin-block-start: var(--s-2); }
+.choice__mark { flex: 0 0 auto; width: 22px; height: 22px; border: 2px solid var(--c-ink); border-radius: 50%; }
+.choice__label { font-size: var(--t-body); font-weight: 700; }
+.choice__sub   { display: block; font-size: var(--t-small); font-weight: 400; color: var(--c-ink-2); }
+.choice.is-selected { border-width: 2px; border-color: var(--c-ink); background: var(--c-surface-2); }
+.choice.is-selected .choice__mark { background: radial-gradient(circle, var(--c-ink) 0 5px, transparent 6px); }
+
+/* 10 — Modals ============================================================== */
+
+/* app.js creates .backdrop (adding .backdrop--locked for M-01) and puts the
+   modal markup inside it. Sheets sit at the bottom edge; a .dialog is centred. */
+.backdrop {
+  position: fixed; inset: 0; z-index: 100; background: rgba(0, 0, 0, .5);
+  display: flex; justify-content: center; align-items: flex-end; padding: 0;
+  overflow-y: auto;
+}
+.backdrop--locked,
+.backdrop:has(.dialog) {
+  align-items: center;
+  /* M-01 §5.1: the card's bottom edge is never within 96px of the viewport
+     bottom, where the submit button was a moment ago. */
+  padding: var(--s-4) var(--s-4) 96px;
+}
+.backdrop.is-busy { cursor: progress; }
+
+/* --- Bottom sheet (M-02, M-03, M-04) — conventions from M-03 §intro ------ */
+.sheet {
+  width: 100%; max-width: var(--app-w); max-height: 85vh; overflow-y: auto;
+  background: var(--c-surface); border-start-start-radius: var(--r-lg);
+  border-start-end-radius: var(--r-lg);
+  padding: var(--s-5) var(--s-5) calc(var(--s-4) + var(--safe-b));
+  animation: sheet-up .2s ease-out;
+}
+@keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.sheet__title { font-size: var(--t-lg); font-weight: 700; text-align: start; margin-block-end: var(--s-3); }
+.sheet__body { font-size: var(--t-body); text-align: start; }
+.sheet__body p + p { margin-block-start: var(--s-3); }
+.sheet__note {
+  font-size: var(--t-small);
+  color: var(--c-ink-2);
+  padding-block-start: var(--s-3);
+  margin-block-start: var(--s-3);
+  border-block-start: 1px solid var(--c-border);
+}
+.sheet__actions { display: flex; flex-direction: column; gap: var(--s-2); margin-block-start: var(--s-5); }
+.sheet__actions .btn { width: 100%; min-height: 48px; }
+
+/* --- Centred card (M-01) ------------------------------------------------- */
+.dialog {
+  width: 100%; max-width: 358px; max-height: 100%; overflow-y: auto;
+  background: var(--c-surface); border-radius: var(--r-lg);
+  padding: var(--s-5); text-align: center;
+}
+.dialog__title { font-size: var(--t-lg); font-weight: 700; margin-block-end: var(--s-3); }
+.dialog__lead  { font-size: var(--t-body); margin-block-end: var(--s-4); }
+/* The room number: the largest thing on the screen, in its own bordered box. */
+.dialog__room {
+  min-height: 112px; display: flex; align-items: center;
+  justify-content: center; padding: var(--s-3); font-size: var(--t-huge);
+  font-weight: 700; line-height: 1.1; letter-spacing: .08em; direction: ltr;
+  unicode-bidi: isolate; white-space: nowrap; color: #000000;
+  background: var(--c-surface-2); border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-md);
+}
+.dialog__actions { display: flex; flex-direction: column; gap: var(--s-2); margin-block-start: var(--s-5); }
+.dialog__actions .btn { width: 100%; min-height: 56px; }
+
+/* 11 — Timeline (G-06) ===================================================== */
+
+.timeline { padding: var(--s-4); }
+.timeline__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: var(--s-3);
+  padding-block-end: var(--s-5);
+}
+.timeline__row:last-child { padding-block-end: 0; }
+/* The 2px connector, drawn from this marker down to the next one. */
+.timeline__row::before {
+  content: ""; position: absolute; inset-block: 24px 0;
+  inset-inline-start: 11px; width: 2px; background: var(--c-border-strong);
+}
+.timeline__row:last-child::before { display: none; }
+.timeline__row--reached::before,
+.timeline__row--current::before { background: var(--c-ink); }
+
+.timeline__marker {
+  width: 24px; height: 24px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center; font-size: var(--t-mini);
+  line-height: 1; color: #ffffff; background: var(--c-ink);
+  border: 2px solid var(--c-ink);
+}
+.timeline__label { font-size: var(--t-body); color: var(--c-ink); }
+
+/* Reached: filled marker, check glyph, regular label. */
+.timeline__row--reached .timeline__marker::before { content: "\2713"; }
+/* Current: filled marker, dot, bold label. */
+.timeline__row--current .timeline__marker::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+.timeline__row--current .timeline__label { font-weight: 700; }
+/* Terminal (Cancelled): filled marker, "×" glyph, bold label. */
+.timeline__row--end .timeline__marker::before { content: "\00D7"; font-size: var(--t-small); font-weight: 700; }
+.timeline__row--end .timeline__label { font-weight: 700; }
+/* Not yet reached: outlined grey marker, no glyph, grey label. */
+.timeline__row--next .timeline__marker { background: transparent; border-color: var(--c-border-strong); }
+.timeline__row--next .timeline__label { color: var(--c-ink-3); }
+
+.timeline__note { grid-column: 2; font-size: var(--t-small); color: var(--c-ink-2); margin-block-start: var(--s-1); }
+
+/* 12 — Toast, empty, loading =============================================== */
+
+#toast-root {
+  position: fixed; bottom: calc(var(--bottom-h) + var(--s-4) + var(--safe-b));
+  left: 50%; transform: translateX(-50%); width: 100%;
+  max-width: var(--app-w); padding-inline: var(--s-4); z-index: 60;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto; background: var(--c-ink); color: #ffffff;
+  font-size: var(--t-small); line-height: 1.45; text-align: start;
+  padding: var(--s-3) var(--s-4); border-radius: var(--r-md);
+  box-shadow: var(--shadow); cursor: pointer;
+}
+.toast p + p { margin-block-start: var(--s-1); }
+
+.empty {
+  display: flex; flex-direction: column; align-items: center; gap: var(--s-3);
+  text-align: center; padding: var(--s-6) var(--s-5); color: var(--c-ink-2);
+}
+.empty__glyph { font-size: 40px; line-height: 1; color: var(--c-border-strong); }
+.empty__title { font-size: var(--t-body); font-weight: 700; color: var(--c-ink); }
+.empty__text  { font-size: var(--t-small); }
+.empty .btn   { margin-block-start: var(--s-2); }
+
+/* Static placeholder blocks — a plain grey box, no shimmer. */
+.skeleton { background: var(--c-surface-2); border-radius: var(--r-sm); min-height: 12px; }
+.skeleton--img { aspect-ratio: 1 / 1; border-radius: var(--r-sm); }
+.skeleton--line { height: 12px; margin-block-start: var(--s-2); }
+.skeleton--short { width: 60%; }
+
+.spinner {
+  width: 18px; height: 18px; border: 2px solid currentColor;
+  border-top-color: transparent; border-radius: 50%; display: inline-block;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 13 — Utilities =========================================================== */
+
+/* Numbers that must stay left-to-right inside Arabic copy: room numbers,
+   order numbers, prices, quantities. */
+.num { direction: ltr; unicode-bidi: isolate; }
+.num--room { font-size: var(--t-room); font-weight: 700; letter-spacing: .08em; color: #000000; white-space: nowrap; }
+.num--order { font-size: var(--t-xl); font-weight: 700; }
+
+/* The one pair of rules that must mirror physically: a chevron glyph. */
+.chev { display: inline-block; }
+[dir="ltr"] .chev { transform: scaleX(-1); }
+
+.headline   { font-size: var(--t-2xl); font-weight: 700; }
+.subhead    { font-size: var(--t-lg); font-weight: 700; }
+.muted      { color: var(--c-ink-2); }
+.small      { font-size: var(--t-small); }
+.mini       { font-size: var(--t-mini); }
+.bold       { font-weight: 700; }
+.center     { text-align: center; }
+.start      { text-align: start; }
+.end        { text-align: end; }
+.stack > * + * { margin-block-start: var(--s-3); }
+.row        { display: flex; align-items: center; gap: var(--s-2); }
+.row--split { justify-content: space-between; }
+.pad        { padding: var(--s-4); }
+.pad-x      { padding-inline: var(--s-4); }
+.divider    { height: 1px; background: var(--c-border); border: 0; margin-block: var(--s-4); }
+.is-hidden  { display: none !important; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
