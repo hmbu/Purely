@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>G-05 — تم إرسال طلبك / Order submitted — Wireframes</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background:#ddd;
+    font-family: Arial, Helvetica, sans-serif;
+    color:#000;
+    padding: 24px;
+    margin:0;
+  }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .doc-sub { font-size:12px; color:#333; margin:0 0 20px; }
+  .frames {
+    display:flex;
+    flex-wrap:nowrap;
+    gap:28px;
+    overflow-x:auto;
+    align-items:flex-start;
+    padding-bottom:20px;
+  }
+  .frame { flex:0 0 auto; width:390px; text-align:center; }
+  .frame h2 { font-size:14px; margin:0 0 2px; }
+  .frame .state-sub { font-size:11px; color:#333; margin:0 0 10px; }
+  .frame .note { font-size:10px; color:#333; margin-top:8px; text-align:right; }
+
+  /* ===== Outer physical frame: 390 x 664 viewport ===== */
+  .phone-frame {
+    width:390px;
+    height:664px;
+    border:2px solid #000;
+    background:#fff;
+    position:relative;
+    overflow:hidden;
+    text-align:right;
+  }
+  .phone-frame.tall { height:auto; min-height:664px; overflow:visible; }
+
+  /* the scrollable inner viewport content (header sticky + body) */
+  .phone-scroll {
+    position:absolute;
+    inset:0;
+    overflow-y:auto;
+  }
+  .phone-frame.tall .phone-scroll { position:static; overflow:visible; height:auto; }
+
+  /* small circled ID badges, shown next to their element */
+  .idb {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:16px;
+    height:16px;
+    padding:0 2px;
+    border:1px solid #000;
+    border-radius:50%;
+    font-size:8px;
+    background:#fff;
+    vertical-align:middle;
+    margin:0 3px;
+    line-height:1;
+    font-family: Arial, sans-serif;
+  }
+  .corner {
+    position:absolute;
+    top:2px;
+    left:2px;
+    z-index:6;
+    background:#fff;
+  }
+
+  /* ===== Header S01 (sticky; holds only B01) ===== */
+  .header {
+    position:sticky;
+    top:0;
+    z-index:5;
+    background:#fff;
+    height:56px;
+    display:flex;
+    align-items:center;
+    padding:0 6px;
+    border-bottom:1px solid #000;
+  }
+  .back-btn {
+    width:44px; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px;
+    flex:0 0 auto;
+    position:relative;
+  }
+
+  /* ===== Body S02 ===== */
+  .body {
+    padding:32px 16px 66px;
+    position:relative;
+  }
+
+  .success-mark {
+    width:64px; height:64px;
+    border:1px solid #000; border-radius:50%;
+    margin:0 auto 16px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:30px; line-height:1;
+    position:relative;
+  }
+
+  .title-c01 {
+    font-size:22px; font-weight:bold; text-align:center;
+    margin-bottom:24px; position:relative;
+  }
+
+  .label-c03 {
+    font-size:16px; text-align:center;
+    margin-bottom:8px; position:relative;
+  }
+
+  .roombox-c04 {
+    border:1px solid #000; border-radius:8px; background:#f0f0f0;
+    height:88px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:48px; font-weight:bold; letter-spacing:0.08em;
+    margin-bottom:12px; position:relative;
+  }
+
+  .notice-c09 {
+    background:#eee; border-radius:8px; padding:12px;
+    display:flex; align-items:flex-start; gap:6px;
+    font-size:14px; text-align:right;
+    margin-bottom:12px; position:relative;
+  }
+  .err-icon {
+    width:16px; height:16px; border:1px solid #000; border-radius:50%;
+    flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:bold; background:#fff;
+  }
+
+  .repair-c05 {
+    font-size:14px; text-align:center; line-height:1.4;
+    margin-bottom:24px; position:relative;
+  }
+  .repair-c05.worst3 { min-height:60px; display:flex; align-items:center; justify-content:center; }
+
+  .ordernum-c06 {
+    font-size:14px; text-align:center;
+    margin-bottom:8px; position:relative;
+  }
+  .ordernum-c06 .num { font-size:20px; font-weight:bold; margin-inline-start:4px; }
+
+  .total-c07 {
+    font-size:16px; font-weight:bold; text-align:center;
+    margin-bottom:4px; position:relative;
+  }
+
+  .payment-c08 {
+    font-size:14px; text-align:center;
+    margin-bottom:32px; position:relative;
+  }
+
+  /* ===== S03 button column ===== */
+  .btns-s03 { position:relative; }
+  .btn-primary {
+    background:#000; color:#fff;
+    border-radius:28px; height:56px; width:100%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; font-weight:bold;
+    margin-bottom:12px; position:relative;
+  }
+  .btn-outline {
+    background:#fff; color:#000; border:1px solid #000;
+    border-radius:28px; height:56px; width:100%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; font-weight:bold;
+    position:relative;
+  }
+
+  /* ===== Illustrative-only fold / safe-area overlay (NOT a spec element) ===== */
+  .fold-overlay {
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:34px;
+    border-top:1px dashed #000;
+    background:repeating-linear-gradient(45deg,#fff,#fff 4px,#ccc 4px,#ccc 8px);
+    z-index:8;
+    pointer-events:none;
+  }
+  .fold-label {
+    position:absolute;
+    right:4px; bottom:2px;
+    font-size:8px;
+    background:#fff;
+    padding:0 2px;
+    z-index:9;
+  }
+
+  .info-block { padding:24px 16px; font-size:13px; line-height:1.7; text-align:right; }
+  .info-block .rule { font-size:11px; color:#333; margin-bottom:10px; }
+</style>
+</head>
+<body>
+
+<h1>G-05 — تم إرسال طلبك / Order submitted — واجهات سلكية / Wireframes</h1>
+<p class="doc-sub">390×664px · RTL (Arabic default) · Grayscale low-fidelity · Element IDs shown in small circles next to each element, matching the elements table in /spec/screens/G-05.md · 15 elements total: S01, B01, C01, S02, C02, C03, C04, C09, C05, C06, C07, C08, S03, B02, B03</p>
+
+<div class="frames">
+
+<!-- ============================================================ -->
+<!-- FRAME 1: MAIN SUCCESS — STATUS NEW (no C09, C05 shown) -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الحالة الناجحة الأساسية — الحالة "جديد" (بدون إشعار الطلب السابق)</h2>
+  <div class="state-sub">Main success — status New (no already-existing notice)</div>
+  <div class="phone-frame">
+    <div class="phone-scroll">
+
+      <!-- S01 header: holds only B01, no title (title is C01 in the body) -->
+      <div class="header">
+        <span class="idb corner">S01</span>
+        <div class="back-btn">←<span class="idb">B01</span></div>
+      </div>
+
+      <!-- S02 body -->
+      <div class="body">
+        <span class="idb corner" style="top:6px;">S02</span>
+
+        <!-- C02 success mark -->
+        <div class="success-mark">✓<span class="idb" style="position:absolute;top:-8px;left:-8px;">C02</span></div>
+
+        <!-- C01 title -->
+        <div class="title-c01">تم إرسال طلبك<span class="idb">C01</span></div>
+
+        <!-- C03 room label -->
+        <div class="label-c03">سيُوصَّل طلبك إلى الغرفة<span class="idb">C03</span></div>
+
+        <!-- C04 room number, 48px bold -->
+        <div class="roombox-c04">0305<span class="idb" style="position:absolute;top:4px;left:4px;">C04</span></div>
+
+        <!-- C09 hidden: no already-existing flag was handed over -->
+
+        <!-- C05 repair sentence, worst-case 3-line box height per §7.5 fit proof -->
+        <div class="repair-c05 worst3">
+          هل هناك خطأ في الطلب — رقم الغرفة أو المنتجات أو طريقة الدفع؟ يمكنك إلغاء الطلب من صفحة المتابعة ما دام الفندق لم يقبله بعد، ثم إرسال طلب جديد.
+          <span class="idb" style="position:absolute;top:2px;right:2px;">C05</span>
+        </div>
+
+        <!-- C06 order number -->
+        <div class="ordernum-c06">رقم الطلب <span class="num">1042</span><span class="idb">C06</span></div>
+
+        <!-- C07 total -->
+        <div class="total-c07">الإجمالي 36.00 ر.س<span class="idb">C07</span></div>
+
+        <!-- C08 payment line: cash with amount variant -->
+        <div class="payment-c08">الدفع عند الاستلام: نقدًا — ستدفع بـ 50.00 ر.س<span class="idb">C08</span></div>
+
+        <!-- S03 buttons -->
+        <div class="btns-s03">
+          <span class="idb corner" style="top:-14px;left:auto;right:0;">S03</span>
+          <div class="btn-primary">متابعة الطلب<span class="idb" style="background:#fff;color:#000;">B02</span></div>
+          <div class="btn-outline">العودة إلى المتجر<span class="idb">B03</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Illustrative-only: safe-area / fold band, NOT a spec element -->
+    <div class="fold-overlay"></div>
+    <div class="fold-label">↑ خط الطي التقريبي (هامش أمان 34px)</div>
+  </div>
+  <div class="note">
+    ملاحظة: الشريط المُهشّر أسفل الإطار وخط الطي ليسا عنصرين من المواصفة — أداة توضيحية فقط لإظهار حدود العرض 390×664px مع هامش أمان 34px (القسم 7.5). كل ما بين S01 وحتى نهاية B02 مضمون الظهور دون تمرير (594px)؛ B03 يقع جزئيًا خلف خط الطي ويُتاح بتمرير قصير — الزر B01 في الترويسة الثابتة يبقى مخرجًا ظاهرًا دائمًا.<br>
+    Note: the hatched band and the fold line are illustrative only, not spec elements — they show the 390×664px viewport bound with a 34px safe-area inset (§7.5). Everything from S01 down through the end of B02 is guaranteed visible without scrolling (594px); B03 falls partly behind the fold and is reached by a short scroll — B01 in the fixed header remains the always-visible exit.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 2: ALREADY-EXISTING VARIANT — C09 SHOWN, STATUS NEW (C05 still shown) -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>الحالة "الطلب السابق موجود بالفعل" — C09 ظاهر (الحالة لا تزال "جديد")</h2>
+  <div class="state-sub">Already-existing variant — C09 shown (status still New, C05 unaffected)</div>
+  <div class="phone-frame tall">
+    <div class="phone-scroll">
+
+      <div class="header">
+        <span class="idb corner">S01</span>
+        <div class="back-btn">←<span class="idb">B01</span></div>
+      </div>
+
+      <div class="body">
+        <span class="idb corner" style="top:6px;">S02</span>
+
+        <div class="success-mark">✓<span class="idb" style="position:absolute;top:-8px;left:-8px;">C02</span></div>
+        <div class="title-c01">تم إرسال طلبك<span class="idb">C01</span></div>
+        <div class="label-c03">سيُوصَّل طلبك إلى الغرفة<span class="idb">C03</span></div>
+        <div class="roombox-c04">0305<span class="idb" style="position:absolute;top:4px;left:4px;">C04</span></div>
+
+        <!-- C09: rendered directly under C04, above C05, only because M-01/M-03 handed over the already-existing flag -->
+        <div class="notice-c09">
+          <span class="err-icon">!</span>
+          <span>طلبك السابق وصل إلى الفندق بالفعل ولم يتغيّر. الطلب المسجَّل هو للغرفة 0305. لتغييره، ألغِ الطلب من صفحة المتابعة ما دام الفندق لم يقبله بعد، ثم أرسل طلبًا جديدًا.<span class="idb">C09</span></span>
+        </div>
+
+        <div class="repair-c05">
+          هل هناك خطأ في الطلب — رقم الغرفة أو المنتجات أو طريقة الدفع؟ يمكنك إلغاء الطلب من صفحة المتابعة ما دام الفندق لم يقبله بعد، ثم إرسال طلب جديد.
+          <span class="idb" style="position:absolute;top:2px;right:2px;">C05</span>
+        </div>
+
+        <div class="ordernum-c06">رقم الطلب <span class="num">1042</span><span class="idb">C06</span></div>
+        <div class="total-c07">الإجمالي 36.00 ر.س<span class="idb">C07</span></div>
+        <div class="payment-c08">الدفع عند الاستلام: نقدًا — ستدفع بـ 50.00 ر.س<span class="idb">C08</span></div>
+
+        <div class="btns-s03">
+          <span class="idb corner" style="top:-14px;left:auto;right:0;">S03</span>
+          <div class="btn-primary">متابعة الطلب<span class="idb" style="background:#fff;color:#000;">B02</span></div>
+          <div class="btn-outline">العودة إلى المتجر<span class="idb">B03</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="note">
+    ملاحظة: يظهر C09 فقط عندما يسلّم M-01 أو M-03 علامة "طلب موجود بالفعل" (استجابة existing-different)، ويوضع مباشرة تحت مربع رقم الغرفة C04 وفوق C05 (القسم 5.2). يختلف هذا الإطار عن الإطار 1 بعنصر واحد مُضاف فقط (C09) — لا شيء آخر يتغيّر. لا يُضمن ظهور ما بعد أول سطر من C09 دون تمرير (القسم 7.5)؛ هذا الإطار طويل بعرض 664px+ ليعرض المحتوى الكامل دون قص. العلامة نفسها لا تُخزَّن في سجل الطلب، لذا لا تظهر بعد إعادة تحميل الصفحة.<br>
+    Note: C09 renders only when M-01 or M-03 hands over the already-existing flag (an existing-different response), placed directly under the room box C04 and above C05 (§5.2). This frame differs from Frame 1 by exactly one added element (C09) — nothing else changes. The no-scroll guarantee only covers C09's first line (§7.5); this frame is drawn taller than 664px so the full content is visible without clipping. The flag itself is not stored in the order record, so it does not reappear after a reload.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 3: RETURNED ORDER, STATUS PAST NEW — C05 SUPPRESSED -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>طلب بعد إعادة التحميل، الحالة تجاوزت "جديد" — C05 مخفي (وليس فارغًا)</h2>
+  <div class="state-sub">Order reopened, status past New — C05 suppressed entirely (not blank, not replaced)</div>
+  <div class="phone-frame">
+    <div class="phone-scroll">
+
+      <div class="header">
+        <span class="idb corner">S01</span>
+        <div class="back-btn">←<span class="idb">B01</span></div>
+      </div>
+
+      <div class="body">
+        <span class="idb corner" style="top:6px;">S02</span>
+
+        <div class="success-mark">✓<span class="idb" style="position:absolute;top:-8px;left:-8px;">C02</span></div>
+        <div class="title-c01">تم إرسال طلبك<span class="idb">C01</span></div>
+        <div class="label-c03">سيُوصَّل طلبك إلى الغرفة<span class="idb">C03</span></div>
+        <div class="roombox-c04" style="margin-bottom:12px;">0305<span class="idb" style="position:absolute;top:4px;left:4px;">C04</span></div>
+
+        <!-- C09 hidden here too: this is a reload, and the flag is never stored (§5.2) -->
+        <!-- C05 is genuinely ABSENT — no substitute sentence, no gap-filling placeholder -->
+
+        <div class="ordernum-c06" style="margin-top:0;">رقم الطلب <span class="num">1042</span><span class="idb">C06</span></div>
+        <div class="total-c07">الإجمالي 36.00 ر.س<span class="idb">C07</span></div>
+        <div class="payment-c08">الدفع عند الاستلام: نقدًا — ستدفع بـ 50.00 ر.س<span class="idb">C08</span></div>
+
+        <div class="btns-s03">
+          <span class="idb corner" style="top:-14px;left:auto;right:0;">S03</span>
+          <div class="btn-primary">متابعة الطلب<span class="idb" style="background:#fff;color:#000;">B02</span></div>
+          <div class="btn-outline">العودة إلى المتجر<span class="idb">B03</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="fold-overlay"></div>
+    <div class="fold-label">↑ خط الطي التقريبي</div>
+  </div>
+  <div class="note">
+    الفرق عن الإطار 1: نفس الطلب رقم 1042 وبنفس الغرفة والإجمالي وطريقة الدفع، لكن حالته في السجل تجاوزت الآن "جديد" (مقبول ويُحضَّر / في الطريق / تم التوصيل / ملغى). لذلك تم حذف C05 بالكامل — الجملة التي تَعِد بالإلغاء لم تعد صحيحة لأن الإلغاء متاح فقط قبل قبول الفندق للطلب (القرار المقفل 6). لا يحل أي نص بديل محل C05، ولا تُطبع كلمة الحالة نفسها في أي مكان بالشاشة (القسم 5.2، 5.5).<br>
+    Difference from Frame 1: the same order 1042, same room, total and payment method, but its record status has now moved past New (Accepted &amp; preparing / On the way / Delivered / Cancelled). C05 is therefore removed entirely — the sentence promising cancellation is no longer true, because cancellation is available only before the hotel accepts the order (locked decision 6). Nothing substitutes for C05, and the status word itself is never printed anywhere on this screen (§5.2, §5.5).
+    <br><br>
+    ملاحظة إضافية: تركيبة نادرة رابعة ممكنة نظريًا حسب المواصفة — C09 ظاهر مع C05 مخفي معًا (طلب "موجود بالفعل" وصل حالته إلى ما بعد "جديد") — غير مرسومة كإطار منفصل هنا لأنها مجرد جمع للفرقين الموضّحين في الإطارين 2 و3، دون أي عنصر إضافي.<br>
+    Additional note: a fourth combination is theoretically possible per spec — C09 shown together with C05 suppressed (an "already-existing" order whose status has since moved past New) — not drawn as its own frame here since it is simply the union of the two differences already shown in Frames 2 and 3, with no new element involved.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FRAME 4: LOADING / EMPTY / ERROR — UNREACHABLE ON G-05 (§6.1–6.3) -->
+<!-- ============================================================ -->
+<div class="frame">
+  <h2>لا توجد حالة تحميل ولا فارغة ولا خطأ على G-05</h2>
+  <div class="state-sub">No loading, empty, or error state exists on G-05 (§6.1 / §6.2 / §6.3)</div>
+  <div class="phone-frame">
+    <div class="phone-scroll">
+
+      <div class="header">
+        <span class="idb corner">S01</span>
+        <div class="back-btn">←<span class="idb">B01</span></div>
+      </div>
+
+      <div class="info-block">
+        <div class="rule">القسم 6.1 — التحميل (غير ممكن الوصول)</div>
+        <p>لا يوجد طلب شبكة على G-05 أبدًا: تُقرأ الشاشة من سجل الطلب المحفوظ على الجهاز، وهو مضمون الوجود قبل رسم الشاشة (M-01 §7.4). لا يوجد هيكل تحميل ولا مؤشر دوّار.</p>
+        <div class="rule">القسم 6.2 — الفراغ (غير ممكن الوصول)</div>
+        <p>السجل يحتوي دائمًا على رقم طلب ورقم غرفة وطريقة دفع وإجمالي. الحالة الوحيدة "لا شيء لعرضه" هي إعادة تحميل بلا سجل مطابق على الجهاز، وهذه الحالة لا تُرسم كـ G-05 أبدًا — بل تُعيد التوجيه إلى G-01 فورًا وبلا رسالة (القسم 3.3).</p>
+        <div class="rule">القسم 6.3 — الخطأ (لا يُعرض)</div>
+        <p>لا يوجد طلب فيُستحيل فشله. لا يوجد حقل مُدخل فيُستحيل خطأ حقل. السجل المفقود عند إعادة التحميل يُعالَج بإعادة التوجيه الصامتة أعلاه، وليس برسالة خطأ.</p>
+      </div>
+
+    </div>
+  </div>
+  <div class="note">
+    ملاحظة: طبقًا للتعليمات لا يُرسَم أي هيكل تحميل أو فراغ أو خطأ وهميّ هنا، لأن الأقسام 6.1 و6.2 و6.3 تنصّ صراحة على أن هذه الحالات غير قابلة للوصول على G-05 بحكم القاعدة: الشاشة لا ترسل طلبًا أبدًا وتُقرأ من سجل مضمون الوجود.<br>
+    Note: per the instructions, no fake loading/empty/error scaffolding is drawn here, because §6.1, §6.2 and §6.3 explicitly rule these states unreachable on G-05 by design: the screen never sends a request and renders from a record guaranteed to exist.
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
