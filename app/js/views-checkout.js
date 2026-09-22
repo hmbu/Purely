@@ -348,6 +348,10 @@
        the default rule). Checked on submit only, like the empty case: unlike
        the two blur checks, a short value CAN become valid by typing more. */
     if (includeEmpty && v.length < rule.minLen) return 'g04.err.room.rule.short';
+    /* A lettered format still requires one digit, so "ABC" is refused rather
+       than sent to staff as a room. Never fires under the default rule, whose
+       pattern is digits only. Submit only: typing a digit can still fix it. */
+    if (includeEmpty && rule.requireDigit && !/[0-9]/.test(v)) return 'g04.err.room.rule.nodigit';
     return null;
   }
 
@@ -360,15 +364,20 @@
   var DEFAULT_ROOM_RULE = { pattern: /^[0-9]+$/, minLen: 1, maxLen: ROOM_MAX,
                             allowLetters: false, separator: '', isDefault: true };
 
+  var tabRule = null;   /* captured once per tab — never changes mid-session */
+
   function roomRule() {
+    if (tabRule) return tabRule;
     var rule = null;
     try { rule = window.HotelDB ? HotelDB.roomRule() : null; } catch (e) { rule = null; }
-    if (!rule || !(rule.pattern instanceof RegExp)) return DEFAULT_ROOM_RULE;
+    if (!rule || !(rule.pattern instanceof RegExp)) return (tabRule = DEFAULT_ROOM_RULE);
+    tabRule = rule;
     if (!rule.isDefault && rule.messages) {
       I18N.register({
         'g04.err.room.rule.chars': rule.messages.chars,
         'g04.err.room.rule.long':  rule.messages.long,
-        'g04.err.room.rule.short': rule.messages.short
+        'g04.err.room.rule.short': rule.messages.short,
+        'g04.err.room.rule.nodigit': rule.messages.nodigit
       });
     }
     return rule;

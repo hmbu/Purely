@@ -70,9 +70,11 @@
    *     minLen:       1,      // integer >= 1  — fewest characters allowed
    *     maxLen:       5,      // integer >= minLen, <= 12 — most characters
    *     allowLetters: false,  // true: Latin letters A–Z / a–z allowed too
-   *     separator:    ''      // '' (none) or ONE of '-' '/' '.' — allowed
-   *   }                       //    between characters, never first, last or
-   *                           //    doubled ("12-B" yes; "-12", "12--B" no)
+   *     separator:    '',     // '' (none) or '-' only — allowed
+   *     requireDigit: true    //    between characters, never first, last or
+   *   }                       //    doubled ("12-B" yes; "-12", "12--B" no).
+   *                           //  requireDigit: at least one 0-9 somewhere, so a
+   *                           //  lettered format still refuses "ABC".
    *
    * Length is counted on the whole trimmed value, separator included.
    * Digits are always allowed. Arabic-Indic digits are converted to 0–9 by
@@ -83,8 +85,8 @@
    * three messages. Anything missing or invalid in a stored roomFormat falls
    * back to the default value for that field.
    * ------------------------------------------------------------------ */
-  var DEFAULT_ROOM_FORMAT = { minLen: 1, maxLen: 5, allowLetters: false, separator: '' };
-  var SEPARATORS = ['-', '/', '.'];
+  var DEFAULT_ROOM_FORMAT = { minLen: 1, maxLen: 5, allowLetters: false, separator: '', requireDigit: true };
+  var SEPARATORS = ['-'];   // hyphen only: PM ruling on AM-04 disagreement 1
   var ROOM_LEN_CAP = 12;
 
   /* ------------------------------------------------------------------ *
@@ -275,7 +277,8 @@
       minLen: min,
       maxLen: max,
       allowLetters: f.allowLetters === true,
-      separator: SEPARATORS.indexOf(f.separator) !== -1 ? f.separator : ''
+      separator: SEPARATORS.indexOf(f.separator) !== -1 ? f.separator : '',
+      requireDigit: f.requireDigit !== false
     };
   }
 
@@ -290,9 +293,14 @@
      the guest shows its own three reviewed messages (G-04 §7.1) unchanged.
      `messages` are for a NON-default rule only — PROVISIONAL copy until the
      admin spec (A-07 / AM-04) rules it. */
-  function roomRule() {
-    var s = settings();
-    var f = normaliseRoomFormat(s && s.roomFormat);
+  function roomRule(format) {
+    var f;
+    if (format) {
+      f = normaliseRoomFormat(format);
+    } else {
+      var s = settings();
+      f = normaliseRoomFormat(s && s.roomFormat);
+    }
     var cls = f.allowLetters ? '0-9A-Za-z' : '0-9';
     var sep = f.separator ? escapeRe(f.separator) : '';
     var pattern = sep
@@ -316,7 +324,21 @@
       maxLen: f.maxLen,
       allowLetters: f.allowLetters,
       separator: f.separator,
+      requireDigit: f.requireDigit,
       isDefault: isDefault,
+      /* One acceptance test for everyone. The guest's G-04 and admin's AM-04
+         both call this, so the live test can never pass a value the guest
+         would then refuse. Returns '' when valid, else 'empty' | 'chars' |
+         'long' | 'short' | 'nodigit'. */
+      test: function (value) {
+        var v = String(value == null ? '' : value).trim();
+        if (!v) return 'empty';
+        if (!pattern.test(v)) return 'chars';
+        if (v.length > f.maxLen) return 'long';
+        if (v.length < f.minLen) return 'short';
+        if (f.requireDigit && !/[0-9]/.test(v)) return 'nodigit';
+        return '';
+      },
       label: {
         ar: whatAr + ' فقط، ' + rangeAr + ' خانات' + sepAr,
         en: whatEn + ' only, ' + rangeEn + ' characters' + sepEn
@@ -327,7 +349,9 @@
         long:  { ar: 'رقم الغرفة طويل جدًا: ' + f.maxLen + ' خانات كحد أقصى',
                  en: 'Room number is too long: ' + f.maxLen + ' characters at most' },
         short: { ar: 'رقم الغرفة قصير جدًا: ' + f.minLen + ' خانات على الأقل',
-                 en: 'Room number is too short: ' + f.minLen + ' characters at least' }
+                 en: 'Room number is too short: ' + f.minLen + ' characters at least' },
+        nodigit: { ar: 'رقم الغرفة يجب أن يحتوي على رقم واحد على الأقل',
+                   en: 'The room number must contain at least one digit' }
       }
     };
   }

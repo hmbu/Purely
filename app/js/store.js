@@ -884,6 +884,11 @@
           total: round2(payload.total),
           status: 'New',
           createdAt: Date.now(),
+          /* The guest's interface language when they ordered. SM-01 writes the
+             cancellation reason in this language, so the guest reads it in the
+             language they ordered in. Not part of the fingerprint: switching
+             language after a lost response is the same order, not a new one. */
+          lang: payload.lang === 'en' ? 'en' : 'ar',
           fingerprint: print
         };
         db.byKey[key] = order;
