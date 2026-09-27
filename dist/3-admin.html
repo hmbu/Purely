@@ -1005,6 +1005,12 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
 .adm-prow__price { width: 120px; white-space: nowrap; }
 .adm-prow__stock { width: 160px; }
 .adm-prow__order { width: 80px; white-space: nowrap; }
+.adm-prow__qty { width: 190px; }
+.adm-qty { display: inline-flex; align-items: center; gap: 6px; }
+.adm-qty__input { width: 76px; height: 36px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; direction: ltr; }
+.adm-qty__unit { font-size: 13px; color: var(--c-ink-2); }
+.adm-qty.is-zero .adm-qty__input { border: 2px solid var(--c-danger); background: var(--c-danger-soft); }
+.adm-qty__zero { display: block; white-space: nowrap; margin-top: 4px; font-size: 12px; font-weight: 700; color: var(--c-danger); }
 .adm-prow__act { width: 100px; }
 .adm-thumb {
   width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; overflow: hidden;
@@ -1543,7 +1549,12 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
 
      roomstore.catalog     { categories:[{id,nameAr,nameEn,order}],
                              products:[{id,nameAr,nameEn,descAr,descEn,price,
-                                        category,inStock,removed}] }
+                                        category,inStock,qty,removed}] }
+                           qty: whole units on the shelf (0–9999). A guest can
+                           order a product only when inStock (the manager's
+                           switch) is on AND qty > 0 (HotelDB.sellable).
+                           Deducted when an order is created, returned in full
+                           when that order is cancelled, by anyone.
      roomstore.settings    { hotelNameAr, hotelNameEn, currencyAr, currencyEn,
                              timeZone, roomFormat }
      roomstore.fakeserver  { byKey, byNo, nextNo } — the hotel's order table.
@@ -1643,6 +1654,34 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
     };
   }
 
+  /* Units given to a product that has no quantity yet: every seeded product,
+     and catalogs saved before quantities existed. */
+  var DEFAULT_QTY = 20;
+  var MAX_QTY = 9999;
+
+  function normaliseQty(p) {
+    var n = Math.floor(Number(p.qty));
+    if (p.qty == null || p.qty === '' || !isFinite(n)) n = p.inStock !== false ? DEFAULT_QTY : 0;
+    p.qty = Math.max(0, Math.min(MAX_QTY, n));
+    return p;
+  }
+
+  function sellable(p) { return !!p && !p.removed && !!p.inStock && Number(p.qty) > 0; }
+
+  /* One synchronous read-change-write of the catalog's quantities.
+     sign -1 takes the lines' units off the shelf, +1 puts them back. */
+  function moveStock(lines, sign) {
+    var c = read(K.catalog);
+    if (!c || !c.products) return false;
+    var byId = {};
+    c.products.forEach(function (p) { normaliseQty(p); byId[p.id] = p; });
+    (lines || []).forEach(function (l) {
+      var p = byId[l.productId];
+      if (p) p.qty = Math.max(0, Math.min(MAX_QTY, p.qty + sign * (Number(l.qty) || 0)));
+    });
+    return write(K.catalog, c);
+  }
+
   function seedCatalog() {
     var D = window.Data;
     if (!D || !D.products) return null;          // nothing to seed from yet
@@ -1655,7 +1694,8 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
           id: p.id, nameAr: p.nameAr, nameEn: p.nameEn,
           descAr: p.descAr || '', descEn: p.descEn || '',
           price: Number(p.price), category: p.category,
-          inStock: p.inStock !== false, removed: false
+          inStock: p.inStock !== false, removed: false,
+          qty: p.qty != null ? p.qty : (p.inStock !== false ? DEFAULT_QTY : 0)
         };
       })
     };
@@ -1905,7 +1945,7 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
     var cats = (c.categories || []).slice().sort(function (a, b) {
       return (a.order || 0) - (b.order || 0);
     });
-    return { categories: clone(cats), products: clone(c.products || []) };
+    return { categories: clone(cats), products: clone(c.products || []).map(normaliseQty) };
   }
 
   function settings() {
@@ -1920,6 +1960,26 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
 
     /* ---- catalog ---- */
     catalog: catalog,
+    MAX_QTY: MAX_QTY,
+    sellable: sellable,
+
+    /* Called by the guest's Server.submitOrder before it creates an order.
+       All-or-nothing: when any line asks for more units than are sellable,
+       nothing is deducted and { ok:false, ids:[productId…] } names the short
+       lines, so the order is rejected as out of stock (M-04). */
+    reserveStock: function (lines) {
+      var c = catalog(), byId = {}, short = [];
+      c.products.forEach(function (p) { byId[p.id] = p; });
+      (lines || []).forEach(function (l) {
+        var p = byId[l.productId];
+        if (!sellable(p) || p.qty < (Number(l.qty) || 0)) short.push(l.productId);
+      });
+      if (short.length) return { ok: false, ids: short };
+      return { ok: moveStock(lines, -1), ids: [] };
+    },
+
+    /* Puts a cancelled order's units back on the shelf. */
+    returnStock: function (lines) { return moveStock(lines, +1); },
     saveCatalog: function (c) {
       return write(K.catalog, {
         categories: (c && c.categories) || [],
@@ -1982,7 +2042,7 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
        Delivered or Cancelled). */
     cancel: function (orderNo, reasonAr, reasonEn, staffId, at) {
       var meta = { staffId: staffId || null, at: at || Date.now() };
-      return changeOrder(orderNo, function (order) {
+      var res = changeOrder(orderNo, function (order) {
         if (isFinal(order.status)) return 'stale';
         order.cancelledFrom = order.status;
         order.cancelledByGuest = false;
@@ -1994,6 +2054,8 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
         logRow(order, 'Cancelled', meta);
         return null;
       });
+      if (res.ok) HotelDB.returnStock(res.order.lines);
+      return res;
     },
 
     /* ---- staff and admin records (CONTRACT key table) ---- */
@@ -3090,7 +3152,7 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
     try {
       var c = HotelDB.catalog();
       var active = (c.products || []).filter(function (p) { return !p.removed; });
-      var onSale = active.filter(function (p) { return p.inStock; }).length;
+      var onSale = active.filter(function (p) { return HotelDB.sellable(p); }).length;
       var out = active.length - onSale;
       var cutoff = Date.now() - 10 * 60 * 1000;
       var late = A.orders().filter(function (o) { return o.status === 'New' && o.createdAt < cutoff; }).length;
@@ -3286,6 +3348,9 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
     'a03.c03': { ar: '{name} — {N} منتجات', en: '{name} — {N} products' },
     'a03.b04.on':  { ar: 'معروض', en: 'On sale' },
     'a03.b04.off': { ar: 'غير متوفر', en: 'Out of stock' },
+    'a03.f04.label': { ar: 'الكمية', en: 'Quantity' },
+    'a03.f04.unit':  { ar: 'حبة', en: 'units' },
+    'a03.f04.zero':  { ar: 'نفدت الكمية — لا يظهر للضيف', en: 'Sold out — hidden from guests' },
     'a03.b05.remove':  { ar: 'إزالة', en: 'Remove' },
     'a03.b05.restore': { ar: 'استعادة', en: 'Restore' },
     'a03.b06': { ar: 'نقل لأعلى', en: 'Move up' },
@@ -3368,14 +3433,14 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
     else if (S.cat && p.category !== S.cat) return false;
     if (S.stock === 'removed') return !!p.removed;
     if (p.removed) return false;                        // "All" excludes removed (§7.2)
-    if (S.stock === 'onsale') return !!p.inStock;
-    if (S.stock === 'out') return !p.inStock;
+    if (S.stock === 'onsale') return HotelDB.sellable(p);
+    if (S.stock === 'out') return !HotelDB.sellable(p);
     return true;
   }
 
   function counts(c) {
     var T = c.products.length, R = 0, Av = 0, O = 0;
-    c.products.forEach(function (p) { if (p.removed) R++; else if (p.inStock) Av++; else O++; });
+    c.products.forEach(function (p) { if (p.removed) R++; else if (HotelDB.sellable(p)) Av++; else O++; });
     return { T: T, A: Av, O: O, R: R };
   }
 
@@ -3400,6 +3465,15 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
          A.el('A-03-B04') + ' data-ctl="stock"' + (p.removed || busy ? ' disabled' : '') + '>' +
          '<span class="adm-switch__track" aria-hidden="true"><span class="adm-switch__knob"></span></span>' +
          '<span class="adm-switch__word">' + esc(t(on ? 'a03.b04.on' : 'a03.b04.off')) + '</span></button></td>';
+    /* The units on the shelf, edited in place. Orders take units off at
+       submission and cancellations put them back (shared/hotel-db.js). */
+    var name = I18N.lang === 'en' ? (p.nameEn || p.nameAr) : (p.nameAr || p.nameEn);
+    var zero = !p.removed && p.qty === 0;
+    h += '<td class="adm-prow__qty"><label class="adm-qty' + (zero ? ' is-zero' : '') + '">' +
+         '<input type="number" inputmode="numeric" min="0" max="' + HotelDB.MAX_QTY + '" step="1" class="adm-input adm-qty__input"' +
+         A.el('A-03-F04') + ' value="' + p.qty + '" aria-label="' + esc(t('a03.f04.label') + ' — ' + name) + '"' + (p.removed ? ' disabled' : '') + '>' +
+         '<span class="adm-qty__unit">' + esc(t('a03.f04.unit')) + '</span></label>' +
+         (zero ? '<span class="adm-qty__zero"' + A.el('A-03-C12') + '>' + esc(t('a03.f04.zero')) + '</span>' : '') + '</td>';
     h += '<td class="adm-prow__order">';
     if (grouped) {
       h += '<button type="button" class="adm-iconbtn" data-ctl="up" aria-label="' + esc(t('a03.b06')) + '"' + A.el('A-03-B06') + (first || p.removed ? ' disabled' : '') + '>↑</button>' +
@@ -3435,7 +3509,7 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
       if (orphan.items.length) groups.push(orphan);
       groups.forEach(function (g) {
         var name = g.cat ? A.catName(g.cat) : t('a03.f02.none');
-        h += '<tr class="adm-ghead"' + A.el('A-03-C03') + '><th colspan="7">' + esc(t('a03.c03', { name: name, N: A.count(g.items.length) })) + '</th></tr>';
+        h += '<tr class="adm-ghead"' + A.el('A-03-C03') + '><th colspan="8">' + esc(t('a03.c03', { name: name, N: A.count(g.items.length) })) + '</th></tr>';
         g.items.forEach(function (p, i) {
           any = true;
           h += rowHtml(p, cats, true, i === 0, i === g.items.length - 1, fl === p.id);
@@ -3555,6 +3629,33 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
       });
       fc.addEventListener('change', function () { S.cat = fc.value; refreshList(); });
       fs.addEventListener('change', function () { S.stock = fs.value; refreshList(); });
+      S.refresh = refreshList;
+
+      /* Quantity: saved when the field is left or Enter is pressed. Only a
+         whole number from 0 to MAX_QTY is kept; anything else puts the stored
+         value back. */
+      root.addEventListener('change', function (e) {
+        var inp = e.target.closest && e.target.closest('.adm-qty__input');
+        if (!inp) return;
+        var row = inp.closest('.adm-prow'), id = row && row.getAttribute('data-id');
+        var p = id && Cat.product(id);
+        if (!p || p.removed) return;
+        var raw = String(inp.value).trim(), n = Number(raw);
+        if (raw === '' || !isFinite(n) || n < 0 || n > HotelDB.MAX_QTY || Math.floor(n) !== n) { inp.value = p.qty; return; }
+        if (n !== p.qty) {
+          var res = Cat.change(id, function (x) { x.qty = n; });
+          S.failed = !res;
+        }
+        var keep = document.activeElement === inp;
+        refreshList();
+        if (keep) {
+          var again = document.querySelector('.adm-prow[data-id="' + id + '"] .adm-qty__input');
+          if (again) again.focus();
+        }
+      });
+      root.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('adm-qty__input')) e.target.blur();
+      });
 
       root.addEventListener('click', function (e) {
         var ctl = e.target.closest('[data-ctl]');
@@ -3598,6 +3699,7 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
           }
           return;
         }
+        if (e.target.closest('.adm-prow__qty')) return;     // the quantity cell never opens A-04
         if (row && root.contains(row)) {
           A.lastRowId = row.getAttribute('data-id');
           A.navigate('#/products/' + encodeURIComponent(row.getAttribute('data-id')));
@@ -3609,6 +3711,16 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
       if (fl) setTimeout(function () { fl.classList.remove('is-flash'); }, 3000);
     }
   };
+
+  /* A guest order or a cancellation in another app changes the quantities:
+     redraw the open list, unless the manager is typing a quantity. */
+  HotelDB.onChange(function (e) {
+    if (!e || e.source !== 'remote' || e.key !== HotelDB.keys.catalog) return;
+    if (!S.refresh || !document.getElementById('a03-list')) return;
+    var a = document.activeElement;
+    if (a && a.classList && a.classList.contains('adm-qty__input')) return;
+    S.refresh();
+  });
 
   /* For AM-02 and A-04: an action whose result belongs on A-03. */
   A.a03 = {
@@ -5477,7 +5589,7 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
       if (p.variant === 'P') {
         /* §5.3 — is this the only active, in-stock product? */
         try {
-          var onSale = A.Cat.load().products.filter(function (x) { return !x.removed && x.inStock; });
+          var onSale = A.Cat.load().products.filter(function (x) { return HotelDB.sellable(x); });
           p.lastOnSale = onSale.length === 1 && onSale[0].id === p.product.id;
         } catch (e) { p.lastOnSale = false; }
       }

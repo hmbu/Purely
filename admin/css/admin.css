@@ -262,6 +262,12 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
 .adm-prow__price { width: 120px; white-space: nowrap; }
 .adm-prow__stock { width: 160px; }
 .adm-prow__order { width: 80px; white-space: nowrap; }
+.adm-prow__qty { width: 190px; }
+.adm-qty { display: inline-flex; align-items: center; gap: 6px; }
+.adm-qty__input { width: 76px; height: 36px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; direction: ltr; }
+.adm-qty__unit { font-size: 13px; color: var(--c-ink-2); }
+.adm-qty.is-zero .adm-qty__input { border: 2px solid var(--c-danger); background: var(--c-danger-soft); }
+.adm-qty__zero { display: block; white-space: nowrap; margin-top: 4px; font-size: 12px; font-weight: 700; color: var(--c-danger); }
 .adm-prow__act { width: 100px; }
 .adm-thumb {
   width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; overflow: hidden;

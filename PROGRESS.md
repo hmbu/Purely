@@ -242,3 +242,14 @@ exists), and OQ-02 — a card refused at the door with no cash.
 
 **Waiting for the owner**
 - Nothing blocking.
+
+---
+
+## Step — Stock quantity per product (done, 2026-09-27)
+
+**What was done**
+- Admin A-03 has a quantity field (`A-03-F04`) next to each product's switch. At 0 it shows the "sold out" note `A-03-C12` (spec: A-03 Amendment A1; contract: `shared/CONTRACT.md`).
+- A guest can order a product only if its switch is on and its quantity is above 0. The guest never sees the number.
+- Units are deducted when the order is created (all lines or none). A line asking for more than is left rejects the order through M-04.
+- Units come back in full on any cancellation (guest, staff or admin). A delivered order keeps its units deducted.
+- Verified in the single file in Chromium: 20/20 stock checks passed, and the 17/17 loop checks still pass, with no JS errors.

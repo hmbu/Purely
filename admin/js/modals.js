@@ -174,7 +174,7 @@
       if (p.variant === 'P') {
         /* §5.3 — is this the only active, in-stock product? */
         try {
-          var onSale = A.Cat.load().products.filter(function (x) { return !x.removed && x.inStock; });
+          var onSale = A.Cat.load().products.filter(function (x) { return HotelDB.sellable(x); });
           p.lastOnSale = onSale.length === 1 && onSale[0].id === p.product.id;
         } catch (e) { p.lastOnSale = false; }
       }

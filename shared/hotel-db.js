@@ -7,7 +7,12 @@
 
      roomstore.catalog     { categories:[{id,nameAr,nameEn,order}],
                              products:[{id,nameAr,nameEn,descAr,descEn,price,
-                                        category,inStock,removed}] }
+                                        category,inStock,qty,removed}] }
+                           qty: whole units on the shelf (0–9999). A guest can
+                           order a product only when inStock (the manager's
+                           switch) is on AND qty > 0 (HotelDB.sellable).
+                           Deducted when an order is created, returned in full
+                           when that order is cancelled, by anyone.
      roomstore.settings    { hotelNameAr, hotelNameEn, currencyAr, currencyEn,
                              timeZone, roomFormat }
      roomstore.fakeserver  { byKey, byNo, nextNo } — the hotel's order table.
@@ -107,6 +112,34 @@
     };
   }
 
+  /* Units given to a product that has no quantity yet: every seeded product,
+     and catalogs saved before quantities existed. */
+  var DEFAULT_QTY = 20;
+  var MAX_QTY = 9999;
+
+  function normaliseQty(p) {
+    var n = Math.floor(Number(p.qty));
+    if (p.qty == null || p.qty === '' || !isFinite(n)) n = p.inStock !== false ? DEFAULT_QTY : 0;
+    p.qty = Math.max(0, Math.min(MAX_QTY, n));
+    return p;
+  }
+
+  function sellable(p) { return !!p && !p.removed && !!p.inStock && Number(p.qty) > 0; }
+
+  /* One synchronous read-change-write of the catalog's quantities.
+     sign -1 takes the lines' units off the shelf, +1 puts them back. */
+  function moveStock(lines, sign) {
+    var c = read(K.catalog);
+    if (!c || !c.products) return false;
+    var byId = {};
+    c.products.forEach(function (p) { normaliseQty(p); byId[p.id] = p; });
+    (lines || []).forEach(function (l) {
+      var p = byId[l.productId];
+      if (p) p.qty = Math.max(0, Math.min(MAX_QTY, p.qty + sign * (Number(l.qty) || 0)));
+    });
+    return write(K.catalog, c);
+  }
+
   function seedCatalog() {
     var D = window.Data;
     if (!D || !D.products) return null;          // nothing to seed from yet
@@ -119,7 +152,8 @@
           id: p.id, nameAr: p.nameAr, nameEn: p.nameEn,
           descAr: p.descAr || '', descEn: p.descEn || '',
           price: Number(p.price), category: p.category,
-          inStock: p.inStock !== false, removed: false
+          inStock: p.inStock !== false, removed: false,
+          qty: p.qty != null ? p.qty : (p.inStock !== false ? DEFAULT_QTY : 0)
         };
       })
     };
@@ -369,7 +403,7 @@
     var cats = (c.categories || []).slice().sort(function (a, b) {
       return (a.order || 0) - (b.order || 0);
     });
-    return { categories: clone(cats), products: clone(c.products || []) };
+    return { categories: clone(cats), products: clone(c.products || []).map(normaliseQty) };
   }
 
   function settings() {
@@ -384,6 +418,26 @@
 
     /* ---- catalog ---- */
     catalog: catalog,
+    MAX_QTY: MAX_QTY,
+    sellable: sellable,
+
+    /* Called by the guest's Server.submitOrder before it creates an order.
+       All-or-nothing: when any line asks for more units than are sellable,
+       nothing is deducted and { ok:false, ids:[productId…] } names the short
+       lines, so the order is rejected as out of stock (M-04). */
+    reserveStock: function (lines) {
+      var c = catalog(), byId = {}, short = [];
+      c.products.forEach(function (p) { byId[p.id] = p; });
+      (lines || []).forEach(function (l) {
+        var p = byId[l.productId];
+        if (!sellable(p) || p.qty < (Number(l.qty) || 0)) short.push(l.productId);
+      });
+      if (short.length) return { ok: false, ids: short };
+      return { ok: moveStock(lines, -1), ids: [] };
+    },
+
+    /* Puts a cancelled order's units back on the shelf. */
+    returnStock: function (lines) { return moveStock(lines, +1); },
     saveCatalog: function (c) {
       return write(K.catalog, {
         categories: (c && c.categories) || [],
@@ -446,7 +500,7 @@
        Delivered or Cancelled). */
     cancel: function (orderNo, reasonAr, reasonEn, staffId, at) {
       var meta = { staffId: staffId || null, at: at || Date.now() };
-      return changeOrder(orderNo, function (order) {
+      var res = changeOrder(orderNo, function (order) {
         if (isFinal(order.status)) return 'stale';
         order.cancelledFrom = order.status;
         order.cancelledByGuest = false;
@@ -458,6 +512,8 @@
         logRow(order, 'Cancelled', meta);
         return null;
       });
+      if (res.ok) HotelDB.returnStock(res.order.lines);
+      return res;
     },
 
     /* ---- staff and admin records (CONTRACT key table) ---- */

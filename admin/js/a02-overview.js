@@ -40,7 +40,7 @@
     try {
       var c = HotelDB.catalog();
       var active = (c.products || []).filter(function (p) { return !p.removed; });
-      var onSale = active.filter(function (p) { return p.inStock; }).length;
+      var onSale = active.filter(function (p) { return HotelDB.sellable(p); }).length;
       var out = active.length - onSale;
       var cutoff = Date.now() - 10 * 60 * 1000;
       var late = A.orders().filter(function (o) { return o.status === 'New' && o.createdAt < cutoff; }).length;

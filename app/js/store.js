@@ -533,7 +533,14 @@
      fetch, the G-03 availability check and the submission check alike. */
   function liveProducts() {
     var c = window.HotelDB ? HotelDB.catalog() : { products: (window.Data && Data.products) || [] };
-    return (c.products || []).filter(function (p) { return p && !p.removed; });
+    /* A product the guest can order is one whose switch is on AND that has
+       units left (HotelDB.sellable); the guest never sees the number itself. */
+    return (c.products || []).filter(function (p) { return p && !p.removed; }).map(function (p) {
+      var q = clone(p);
+      q.inStock = window.HotelDB && HotelDB.sellable ? HotelDB.sellable(p) : !!p.inStock;
+      delete q.qty;
+      return q;
+    });
   }
 
   function liveCategories() {
@@ -872,6 +879,14 @@
           return;
         }
 
+        /* Stock is taken off the shelf at submission, all lines or none. A
+           line asking for more units than are left rejects the whole order as
+           out of stock, before any record is written (same path as above). */
+        if (window.HotelDB && HotelDB.reserveStock) {
+          var stock = HotelDB.reserveStock(payload.lines || []);
+          if (!stock.ok) { reject({ type: 'outOfStock', ids: stock.ids }); return; }
+        }
+
         var orderNo = String(db.nextNo++);
         var order = {
           orderNo: orderNo,
@@ -939,6 +954,7 @@
             if (!order.log) order.log = [];
             order.log.push({ status: 'Cancelled', at: now, staffId: 'guest' });
             ServerDB.write(db);
+            if (window.HotelDB && HotelDB.returnStock) HotelDB.returnStock(order.lines);
           }
           Server.lastCancelStatus = 'Cancelled';
           resolve('cancelled');

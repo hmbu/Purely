@@ -22,6 +22,9 @@
     'a03.c03': { ar: '{name} — {N} منتجات', en: '{name} — {N} products' },
     'a03.b04.on':  { ar: 'معروض', en: 'On sale' },
     'a03.b04.off': { ar: 'غير متوفر', en: 'Out of stock' },
+    'a03.f04.label': { ar: 'الكمية', en: 'Quantity' },
+    'a03.f04.unit':  { ar: 'حبة', en: 'units' },
+    'a03.f04.zero':  { ar: 'نفدت الكمية — لا يظهر للضيف', en: 'Sold out — hidden from guests' },
     'a03.b05.remove':  { ar: 'إزالة', en: 'Remove' },
     'a03.b05.restore': { ar: 'استعادة', en: 'Restore' },
     'a03.b06': { ar: 'نقل لأعلى', en: 'Move up' },
@@ -104,14 +107,14 @@
     else if (S.cat && p.category !== S.cat) return false;
     if (S.stock === 'removed') return !!p.removed;
     if (p.removed) return false;                        // "All" excludes removed (§7.2)
-    if (S.stock === 'onsale') return !!p.inStock;
-    if (S.stock === 'out') return !p.inStock;
+    if (S.stock === 'onsale') return HotelDB.sellable(p);
+    if (S.stock === 'out') return !HotelDB.sellable(p);
     return true;
   }
 
   function counts(c) {
     var T = c.products.length, R = 0, Av = 0, O = 0;
-    c.products.forEach(function (p) { if (p.removed) R++; else if (p.inStock) Av++; else O++; });
+    c.products.forEach(function (p) { if (p.removed) R++; else if (HotelDB.sellable(p)) Av++; else O++; });
     return { T: T, A: Av, O: O, R: R };
   }
 
@@ -136,6 +139,15 @@
          A.el('A-03-B04') + ' data-ctl="stock"' + (p.removed || busy ? ' disabled' : '') + '>' +
          '<span class="adm-switch__track" aria-hidden="true"><span class="adm-switch__knob"></span></span>' +
          '<span class="adm-switch__word">' + esc(t(on ? 'a03.b04.on' : 'a03.b04.off')) + '</span></button></td>';
+    /* The units on the shelf, edited in place. Orders take units off at
+       submission and cancellations put them back (shared/hotel-db.js). */
+    var name = I18N.lang === 'en' ? (p.nameEn || p.nameAr) : (p.nameAr || p.nameEn);
+    var zero = !p.removed && p.qty === 0;
+    h += '<td class="adm-prow__qty"><label class="adm-qty' + (zero ? ' is-zero' : '') + '">' +
+         '<input type="number" inputmode="numeric" min="0" max="' + HotelDB.MAX_QTY + '" step="1" class="adm-input adm-qty__input"' +
+         A.el('A-03-F04') + ' value="' + p.qty + '" aria-label="' + esc(t('a03.f04.label') + ' — ' + name) + '"' + (p.removed ? ' disabled' : '') + '>' +
+         '<span class="adm-qty__unit">' + esc(t('a03.f04.unit')) + '</span></label>' +
+         (zero ? '<span class="adm-qty__zero"' + A.el('A-03-C12') + '>' + esc(t('a03.f04.zero')) + '</span>' : '') + '</td>';
     h += '<td class="adm-prow__order">';
     if (grouped) {
       h += '<button type="button" class="adm-iconbtn" data-ctl="up" aria-label="' + esc(t('a03.b06')) + '"' + A.el('A-03-B06') + (first || p.removed ? ' disabled' : '') + '>↑</button>' +
@@ -171,7 +183,7 @@
       if (orphan.items.length) groups.push(orphan);
       groups.forEach(function (g) {
         var name = g.cat ? A.catName(g.cat) : t('a03.f02.none');
-        h += '<tr class="adm-ghead"' + A.el('A-03-C03') + '><th colspan="7">' + esc(t('a03.c03', { name: name, N: A.count(g.items.length) })) + '</th></tr>';
+        h += '<tr class="adm-ghead"' + A.el('A-03-C03') + '><th colspan="8">' + esc(t('a03.c03', { name: name, N: A.count(g.items.length) })) + '</th></tr>';
         g.items.forEach(function (p, i) {
           any = true;
           h += rowHtml(p, cats, true, i === 0, i === g.items.length - 1, fl === p.id);
@@ -291,6 +303,33 @@
       });
       fc.addEventListener('change', function () { S.cat = fc.value; refreshList(); });
       fs.addEventListener('change', function () { S.stock = fs.value; refreshList(); });
+      S.refresh = refreshList;
+
+      /* Quantity: saved when the field is left or Enter is pressed. Only a
+         whole number from 0 to MAX_QTY is kept; anything else puts the stored
+         value back. */
+      root.addEventListener('change', function (e) {
+        var inp = e.target.closest && e.target.closest('.adm-qty__input');
+        if (!inp) return;
+        var row = inp.closest('.adm-prow'), id = row && row.getAttribute('data-id');
+        var p = id && Cat.product(id);
+        if (!p || p.removed) return;
+        var raw = String(inp.value).trim(), n = Number(raw);
+        if (raw === '' || !isFinite(n) || n < 0 || n > HotelDB.MAX_QTY || Math.floor(n) !== n) { inp.value = p.qty; return; }
+        if (n !== p.qty) {
+          var res = Cat.change(id, function (x) { x.qty = n; });
+          S.failed = !res;
+        }
+        var keep = document.activeElement === inp;
+        refreshList();
+        if (keep) {
+          var again = document.querySelector('.adm-prow[data-id="' + id + '"] .adm-qty__input');
+          if (again) again.focus();
+        }
+      });
+      root.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('adm-qty__input')) e.target.blur();
+      });
 
       root.addEventListener('click', function (e) {
         var ctl = e.target.closest('[data-ctl]');
@@ -334,6 +373,7 @@
           }
           return;
         }
+        if (e.target.closest('.adm-prow__qty')) return;     // the quantity cell never opens A-04
         if (row && root.contains(row)) {
           A.lastRowId = row.getAttribute('data-id');
           A.navigate('#/products/' + encodeURIComponent(row.getAttribute('data-id')));
@@ -345,6 +385,16 @@
       if (fl) setTimeout(function () { fl.classList.remove('is-flash'); }, 3000);
     }
   };
+
+  /* A guest order or a cancellation in another app changes the quantities:
+     redraw the open list, unless the manager is typing a quantity. */
+  HotelDB.onChange(function (e) {
+    if (!e || e.source !== 'remote' || e.key !== HotelDB.keys.catalog) return;
+    if (!S.refresh || !document.getElementById('a03-list')) return;
+    var a = document.activeElement;
+    if (a && a.classList && a.classList.contains('adm-qty__input')) return;
+    S.refresh();
+  });
 
   /* For AM-02 and A-04: an action whose result belongs on A-03. */
   A.a03 = {

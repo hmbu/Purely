@@ -25,7 +25,7 @@ HotelDB, so the shapes cannot drift.
 
 | Key | Holds | Written by |
 |---|---|---|
-| `roomstore.catalog` | `{ categories:[{id,nameAr,nameEn,order}], products:[{id,nameAr,nameEn,descAr,descEn,price,category,inStock,removed}] }` | admin; seeded once from `window.Data` |
+| `roomstore.catalog` | `{ categories:[{id,nameAr,nameEn,order}], products:[{id,nameAr,nameEn,descAr,descEn,price,category,inStock,qty,removed}] }` — `qty` whole units 0–9999 (A-03 Amendment A1) | admin; guest submission and any cancellation change `qty`; seeded once from `window.Data` |
 | `roomstore.settings` | `{ hotelNameAr, hotelNameEn, currencyAr, currencyEn, timeZone, roomFormat, roomFormatChangedAt, roomFormatChangedBy }` — `roomFormat` is `{ minLen, maxLen, allowLetters, separator, requireDigit }`, separator `''` or `'-'` only | admin |
 | `roomstore.fakeserver` | the hotel's order table `{ byKey, byNo, nextNo }` — shape defined by `app/js/store.js` | guest (create), staff (status), admin (read) |
 | `roomstore.staff` | `{ members:[{id,name,pin}], session:{memberId, since} }` | staff, admin |
@@ -58,7 +58,17 @@ status fields HotelDB adds as the order moves (see the header of `shared/hotel-d
 - `HotelDB.orders()` → every order the hotel holds, newest first.
 - `HotelDB.getOrder(orderNo)`.
 - `HotelDB.setStatus(orderNo, status, meta)` — `meta` carries `{ staffId, at }`.
-- `HotelDB.cancel(orderNo, reasonAr, reasonEn, staffId)`.
+- `HotelDB.cancel(orderNo, reasonAr, reasonEn, staffId)` — also returns the order's units to stock.
+- `HotelDB.sellable(product)` — true only when the product is not removed, its switch
+  `inStock` is on **and** `qty > 0`. The guest app shows a product as orderable only
+  when this is true; the guest never sees `qty`.
+- `HotelDB.reserveStock(lines)` → `{ ok, ids }` — called by the guest's
+  `Server.submitOrder` just before it creates an order. All lines or none: if any line
+  asks for more than is sellable, nothing is deducted and `ids` names those lines
+  (the order is rejected as out of stock, M-04).
+- `HotelDB.returnStock(lines)` — puts units back. Called on **every** cancellation:
+  the guest's own (store.js `cancelOrder`) and staff/admin (`HotelDB.cancel`). A
+  delivered order keeps its units deducted.
 - `HotelDB.onChange(fn)` — fires on the cross-tab `storage` event **and** on same-tab writes.
 - **Every read reloads from storage.** Never cache the order table in memory across
   calls: another tab may have changed it.
