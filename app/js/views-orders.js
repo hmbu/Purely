@@ -453,6 +453,18 @@
     g06.timer = setInterval(pollTick, 20000);
   }
 
+  /* DEMO ONLY, not part of the spec: in this prototype the "server" is the
+     browser's shared storage, so when the staff or admin app writes to it the
+     open tracking screen polls straight away instead of waiting up to 20 s.
+     A real build keeps the 20 s poll above and drops this listener. The same
+     pause rules apply as for a scheduled tick. */
+  if (window.HotelDB && typeof HotelDB.onChange === 'function') {
+    HotelDB.onChange(function (e) {
+      if (!e || e.source !== 'remote' || !g06.timer) return;
+      pollTick();
+    });
+  }
+
   function pollTick() {
     if (g06.notFound) { stopPolling(); return; }
     if (document.hidden) return;        /* rule 5 — paused while the tab is hidden */

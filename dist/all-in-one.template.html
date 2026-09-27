@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>متجر الغرفة — نسخة التجربة</title>
+<style>
+:root{
+  --paper:#eef2f1; --surface:#ffffff; --ink:#15201e; --ink-2:#4a5957; --ink-3:#6c7a78;
+  --line:#d5dedb; --accent:#0f6b63; --accent-ink:#ffffff; --accent-soft:#e0eeeb; --warn:#8f5410;
+  --r-guest:#2c5ea3; --r-staff:#0f6b63; --r-admin:#9b3a3a;
+  --bar-h:56px;
+  font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--paper);color:var(--ink);font-size:15px;line-height:1.6;display:flex;flex-direction:column}
+
+/* top bar — always visible */
+header.bar{flex:none;height:var(--bar-h);display:flex;align-items:center;gap:6px;padding-inline:12px;
+  background:var(--ink);color:#fff;overflow-x:auto;scrollbar-width:none}
+header.bar::-webkit-scrollbar{display:none}
+.brand{font-weight:700;font-size:15px;white-space:nowrap;margin-inline-end:10px;display:flex;align-items:center;gap:8px}
+.brand small{font-weight:400;opacity:.7;font-size:12px}
+.nav{display:flex;gap:4px}
+.nav button,.tool{font-family:inherit;font-weight:600;font-size:13.5px;color:#dfe7e5;background:transparent;border:1px solid transparent;
+  border-radius:8px;padding:7px 12px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+.nav button:hover,.tool:hover{background:rgba(255,255,255,.08)}
+.nav button[aria-current="page"]{background:#fff;color:var(--ink)}
+.nav button:focus-visible,.tool:focus-visible{outline:2px solid #7fd3c9;outline-offset:2px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--c);flex:none}
+[data-app="guest"]{--c:var(--r-guest)} [data-app="staff"]{--c:var(--r-staff)} [data-app="admin"]{--c:var(--r-admin)}
+.spacer{flex:1 1 auto}
+.tool{border-color:rgba(255,255,255,.22)}
+.tool.armed{background:#b34a3a;border-color:#b34a3a;color:#fff}
+
+/* main stage */
+main{flex:1 1 auto;min-height:0;position:relative}
+
+/* home */
+#home{height:100%;overflow:auto}
+.home{max-width:980px;margin:0 auto;padding:28px 16px 48px;display:grid;gap:22px}
+.home h1{margin:0;font-size:26px}
+.home .lead{margin:0;color:var(--ink-2);font-size:16px;max-width:64ch}
+.cards{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:grid;gap:8px;
+  text-align:start;cursor:pointer;font:inherit;color:inherit;border-top:4px solid var(--c)}
+.card:hover{border-color:var(--c)} .card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card h2{margin:0;font-size:18px;display:flex;align-items:center;gap:8px}
+.card p{margin:0;color:var(--ink-2);font-size:14px}
+.card .who{font-size:12.5px;color:var(--ink-3)}
+.card .login{font-size:13px;background:var(--paper);border-radius:8px;padding:6px 10px;justify-self:start}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;direction:ltr;unicode-bidi:isolate;
+  background:var(--accent-soft);border-radius:4px;padding:0 5px}
+.split-cta{background:var(--accent);color:var(--accent-ink);border:0;border-radius:12px;padding:16px 18px;cursor:pointer;
+  font-family:inherit;font-weight:700;font-size:17px;line-height:1.5;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:start}
+.split-cta span{font-weight:400;font-size:14.5px;opacity:.92}
+.split-cta:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
+.panel h3{margin:0;font-size:16px}
+.panel ol{margin:0;padding-inline-start:20px;display:grid;gap:6px}
+.panel p{margin:0;color:var(--ink-2);font-size:14px}
+
+/* app frames: created once, then only shown or hidden, never moved, so each app
+   keeps its state while you switch between views */
+#stage{position:absolute;inset:0;display:none;gap:10px;padding:10px}
+#stage.on{display:flex}
+.pane{display:none;flex-direction:column;min-width:0;min-height:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.pane.show{display:flex}
+.pane-h{flex:none;display:flex;align-items:center;gap:8px;padding:7px 12px;font-weight:600;font-size:13px;
+  border-bottom:1px solid var(--line);background:var(--paper)}
+.pane-h .hint{font-weight:400;color:var(--ink-3)}
+.pane iframe{flex:1 1 auto;width:100%;border:0;background:#fff;min-height:0}
+/* single app view: one pane, full size */
+#stage.single .pane.show{flex:1 1 auto}
+#stage.single .pane-h{display:none}
+/* side by side: the guest at phone width, room service takes the rest */
+#stage.split .pane[data-app="guest"].show{flex:0 0 430px}
+#stage.split .pane[data-app="staff"].show{flex:1 1 auto}
+@media (max-width:900px){
+  #stage.split{flex-direction:column;overflow:auto}
+  #stage.split .pane.show{flex:0 0 78vh !important}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand">متجر الغرفة <small>نسخة التجربة</small></div>
+  <nav class="nav" aria-label="الصفحات">
+    <button type="button" data-go="home" aria-current="page">الرئيسية</button>
+    <button type="button" data-go="guest" data-app="guest"><span class="dot"></span>الضيف</button>
+    <button type="button" data-go="staff" data-app="staff"><span class="dot"></span>الروم سيرفس والمندوب</button>
+    <button type="button" data-go="admin" data-app="admin"><span class="dot"></span>الإدارة</button>
+    <button type="button" data-go="split">جنباً إلى جنب</button>
+  </nav>
+  <span class="spacer"></span>
+  <button type="button" class="tool" id="reset">تصفير التجربة</button>
+</header>
+
+<main>
+  <section id="home" aria-label="الرئيسية">
+    <div class="home">
+      <div style="display:grid;gap:6px">
+        <h1>متجر الغرفة — فندق الواحة</h1>
+        <p class="lead">الصفحات الثلاث في ملف واحد. أي طلب يُرسَل من صفحة الضيف يصل فوراً إلى صفحة الروم سيرفس، وأي تغيير هناك يظهر عند الضيف، وكل شيء يظهر في الإدارة.</p>
+      </div>
+
+      <button type="button" class="split-cta" data-go="split">
+        <div>جرّب الدورة كاملة جنباً إلى جنب<br><span>الضيف على اليمين والروم سيرفس على اليسار: اطلب وشاهد الطلب يصل.</span></div>
+        <span aria-hidden="true" style="font-size:22px">←</span>
+      </button>
+
+      <div class="cards">
+        <button type="button" class="card" data-go="guest" data-app="guest">
+          <h2><span class="dot"></span>صفحة الضيف</h2>
+          <p>ما يفتحه الضيف بمسح رمز QR في غرفته: يتصفّح، يطلب، ويتابع طلبه.</p>
+          <span class="who">جوال الضيف</span>
+          <span class="login">بلا تسجيل دخول</span>
+        </button>
+        <button type="button" class="card" data-go="staff" data-app="staff">
+          <h2><span class="dot"></span>الروم سيرفس والمندوب</h2>
+          <p>تصل إليها الطلبات مباشرة: القبول، التحضير، التوصيل، واستلام الدفع عند الباب.</p>
+          <span class="who">تابلت أو جوال</span>
+          <span class="login">رمز الدخول <code>1111</code></span>
+        </button>
+        <button type="button" class="card" data-go="admin" data-app="admin">
+          <h2><span class="dot"></span>لوحة الإدارة</h2>
+          <p>المنتجات والأسعار والمخزون، سجل الطلبات، وإعدادات الفندق.</p>
+          <span class="who">حاسوب</span>
+          <span class="login">البريد <code>manager@alwaha.example</code><br>كلمة المرور <code>alwaha2026</code></span>
+        </button>
+      </div>
+
+      <div class="panel">
+        <h3>خطوات التجربة</h3>
+        <ol>
+          <li>افتح <strong>جنباً إلى جنب</strong>، وسجّل الدخول في الروم سيرفس بالرمز <code>1111</code>.</li>
+          <li>في صفحة الضيف أضف منتجاً، واطلبه برقم غرفة مثل <code>305</code> ورقم جوال مثل <code>0512345678</code>.</li>
+          <li>يظهر الطلب فوراً عند الروم سيرفس مع تنبيه صوتي. افتحه واقبله.</li>
+          <li>تتغيّر حالة الطلب عند الضيف ويختفي زر الإلغاء. أكمل حتى «تم التوصيل».</li>
+          <li>افتح <strong>الإدارة</strong> لترى الطلب في السجل، وغيّر سعر منتج ثم ارجع للضيف لتراه.</li>
+        </ol>
+      </div>
+
+      <div class="panel">
+        <h3>ملاحظات</h3>
+        <p>البيانات محفوظة في هذا المتصفح فقط، وتبقى بعد إغلاق الملف. زر <strong>تصفير التجربة</strong> في الأعلى يمسحها ويبدأ من جديد.</p>
+        <p>هذه نسخة تجريبية بلا خادم، وبيانات الدخول قيم عرض وليست حماية حقيقية.</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="stage">
+    <section class="pane" data-app="guest" aria-label="صفحة الضيف">
+      <div class="pane-h"><span class="dot"></span>الضيف <span class="hint">· جوال الضيف</span></div>
+    </section>
+    <section class="pane" data-app="staff" aria-label="الروم سيرفس والمندوب">
+      <div class="pane-h"><span class="dot"></span>الروم سيرفس والمندوب <span class="hint">· رمز الدخول 1111</span></div>
+    </section>
+    <section class="pane" data-app="admin" aria-label="لوحة الإدارة">
+      <div class="pane-h"><span class="dot"></span>الإدارة</div>
+    </section>
+  </div>
+</main>
+
+<script>
+/* Each app is a complete HTML document, stored base64 so its inline scripts
+   cannot end this <script> early. */
+var APPS = {
+/*__APPS__*/
+};
+
+(function () {
+  'use strict';
+  var TITLES = { guest: 'صفحة الضيف', staff: 'الروم سيرفس والمندوب', admin: 'لوحة الإدارة' };
+  var frames = {};
+  var home = document.getElementById('home');
+  var stage = document.getElementById('stage');
+
+  function decode(b64) {
+    var bin = atob(b64), bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    var html = new TextDecoder('utf-8').decode(bytes);
+    /* Inside a srcdoc frame a relative "#/route" resolves against this
+       launcher's address, so location.replace('#/x') would load the launcher
+       into the frame. Pinning the base keeps every "#..." inside the frame. */
+    return html.replace(/<head[^>]*>/i, '$&<base href="about:srcdoc">');
+  }
+
+  /* srcdoc frames inherit this page's origin, so all three share its
+     localStorage and receive each other's storage events. */
+  function frame(key) {
+    if (frames[key]) return frames[key];
+    var f = document.createElement('iframe');
+    f.title = TITLES[key];
+    f.setAttribute('data-app', key);
+    f.srcdoc = decode(APPS[key]);
+    stage.querySelector('.pane[data-app="' + key + '"]').appendChild(f);
+    frames[key] = f;
+    return f;
+  }
+
+  function show(view) {
+    document.querySelectorAll('.nav button').forEach(function (b) {
+      if (b.getAttribute('data-go') === view) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+    });
+    var panes = stage.querySelectorAll('.pane');
+    if (view === 'home') {
+      home.hidden = false;
+      stage.className = '';
+    } else {
+      home.hidden = true;
+      var visible = view === 'split' ? ['guest', 'staff'] : [view];
+      visible.forEach(frame);
+      panes.forEach(function (p) { p.classList.toggle('show', visible.indexOf(p.getAttribute('data-app')) !== -1); });
+      stage.className = 'on ' + (view === 'split' ? 'split' : 'single');
+    }
+    try { sessionStorage.setItem('allinone.view', view); } catch (e) {}
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-go]');
+    if (t) show(t.getAttribute('data-go'));
+  });
+
+  /* Reset: two taps, so one stray click cannot wipe a test in progress. */
+  var reset = document.getElementById('reset'), armedAt = 0;
+  reset.addEventListener('click', function () {
+    if (Date.now() - armedAt > 3000) {
+      armedAt = Date.now();
+      reset.classList.add('armed');
+      reset.textContent = 'اضغط مرة ثانية للتأكيد';
+      setTimeout(function () {
+        if (Date.now() - armedAt >= 3000) { reset.classList.remove('armed'); reset.textContent = 'تصفير التجربة'; }
+      }, 3100);
+      return;
+    }
+    armedAt = 0;
+    try {
+      Object.keys(localStorage).forEach(function (k) { if (k.indexOf('roomstore') === 0) localStorage.removeItem(k); });
+      Object.keys(sessionStorage).forEach(function (k) { if (k.indexOf('roomstore') === 0) sessionStorage.removeItem(k); });
+    } catch (e) {}
+    Object.keys(frames).forEach(function (k) { frames[k].srcdoc = decode(APPS[k]); });
+    reset.classList.remove('armed');
+    reset.textContent = 'تمّ التصفير';
+    setTimeout(function () { reset.textContent = 'تصفير التجربة'; }, 1600);
+  });
+
+  var start = 'home';
+  try { start = sessionStorage.getItem('allinone.view') || 'home'; } catch (e) {}
+  show(['home', 'guest', 'staff', 'admin', 'split'].indexOf(start) !== -1 ? start : 'home');
+})();
+</script>
+</body>
+</html>

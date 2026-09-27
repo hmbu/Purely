@@ -1,18 +1,25 @@
-"""Bundle each app into one self-contained HTML file that opens straight from
-disk: every stylesheet and script is inlined, in the original order.
+"""Build the testable versions of the three apps.
 
     python3 dist/build.py
 
-The three files share the browser's localStorage, so opened in the same
-browser (Chrome or Edge) they behave as one hotel: an order placed in the
-guest file appears in the staff file."""
-import os, re, sys
+Writes to dist/:
+  1-guest-order.html, 2-room-service-staff.html, 3-admin.html
+      each app as one self-contained file (every stylesheet and script inlined)
+  room-store-all-in-one.html
+      ONE file with a main page that opens all three. Each app runs in its own
+      srcdoc iframe, so their globals (App, Views, I18N) and stylesheets never
+      collide, while all three share the page's localStorage: an order placed
+      in the guest frame fires a storage event in the staff frame and appears
+      there live. A side-by-side mode shows the guest and room service at once.
+"""
+import base64, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DIST = os.path.join(ROOT, 'dist')
 APPS = [
-    ('app',   '1-guest-order.html'),
-    ('staff', '2-room-service-staff.html'),
-    ('admin', '3-admin.html'),
+    ('guest', 'app',   '1-guest-order.html'),
+    ('staff', 'staff', '2-room-service-staff.html'),
+    ('admin', 'admin', '3-admin.html'),
 ]
 
 def read(path):
@@ -39,9 +46,24 @@ def bundle(app_dir):
         sys.exit('unbundled references left in %s: %s' % (app_dir, left))
     return html
 
-for app_dir, out in APPS:
-    html = bundle(app_dir)
-    path = os.path.join(ROOT, 'dist', out)
-    with open(path, 'w', encoding='utf-8') as f:
+def write(name, html):
+    with open(os.path.join(DIST, name), 'w', encoding='utf-8') as f:
         f.write(html)
-    print('%-28s %7d bytes  (from %s/)' % (out, len(html.encode('utf-8')), app_dir))
+    print('%-30s %8d bytes' % (name, len(html.encode('utf-8'))))
+
+def main():
+    bundles = {}
+    for key, app_dir, out in APPS:
+        bundles[key] = bundle(app_dir)
+        write(out, bundles[key])
+
+    shell = read(os.path.join(DIST, 'all-in-one.template.html'))
+    payload = ',\n'.join(
+        '  %s: "%s"' % (k, base64.b64encode(bundles[k].encode('utf-8')).decode('ascii'))
+        for k, _, _ in APPS)
+    if '/*__APPS__*/' not in shell:
+        sys.exit('template is missing the /*__APPS__*/ marker')
+    write('room-store-all-in-one.html', shell.replace('/*__APPS__*/', payload))
+
+if __name__ == '__main__':
+    main()
