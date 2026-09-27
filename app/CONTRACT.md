@@ -41,8 +41,10 @@ State lives on the device (`localStorage`). No login (locked decision 4).
   A line whose product left the session catalog is priced from its **snapshot**
   (G-01 §7.2 as revised, G-03 decision 10).
 - `Store.orders` → newest first, the saved order record shape from M-01 §7.4:
-  `{ orderNo, key, roomNumber, lines:[{productId,nameAr,nameEn,qty,price}], notes,
+  `{ orderNo, key, roomNumber, phone, lines:[{productId,nameAr,nameEn,qty,price}], notes,
      payment:'card'|'cash', amount, total, status, createdAt, cancelledByGuest }`
+  — `phone` is the normalised `+…` mobile number (G-04 §7.11); the next
+  checkout pre-fills G-04-F04 from the newest record (G-04 §5.8).
 - `Store.activeOrders()` → status in New / Accepted / OnTheWay.
 - `Store.trimOrders()` — keeps the last 20 **finished** orders; a record whose
   status is New, Accepted or OnTheWay is **never deleted** (G-07 §5.4 as revised).
@@ -63,6 +65,9 @@ error paths are demonstrable.
   - failure → rejects `{ type:'noConnection'|'timeout'|'serverError' }`
   The server **never creates a second order for a key it already holds**
   (G-04 §7.7, map §4 decision 10).
+  Identical means the same lines, quantities, room number, **mobile number**,
+  payment method, amount and notes (G-04 §7.7 rule 4); the payload carries
+  `phone` in its normalised `+…` form.
 - `Server.cancelOrder(orderNo)` → `'cancelled'` | `'alreadyAccepted'` |
   rejects `{ type:'orderNotFound' }` | rejects `{ type:'failed' }` (M-02 §5.4).
 - `Server.getStatus(orderNo)` → status string, or rejects.

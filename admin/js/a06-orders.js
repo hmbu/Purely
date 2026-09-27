@@ -57,6 +57,7 @@
     'a06.csv.date':   { ar: 'التاريخ', en: 'Date' },
     'a06.csv.time':   { ar: 'الوقت', en: 'Time' },
     'a06.csv.room':   { ar: 'الغرفة', en: 'Room' },
+    'a06.csv.phone':  { ar: 'رقم الجوال', en: 'Mobile number' },
     'a06.csv.status': { ar: 'الحالة', en: 'Status' },
     'a06.csv.pay':    { ar: 'الدفع', en: 'Payment' },
     'a06.csv.amount': { ar: 'المبلغ الذي سيدفع به', en: 'Amount the guest will pay with' },
@@ -166,7 +167,7 @@
   function buildCsv(list) {
     var s = A.settings();
     var label = I18N.lang === 'en' ? (s.currencyEn || 'SAR') : (s.currencyAr || 'ر.س');
-    var head = ['no', 'date', 'time', 'room', 'status', 'pay', 'amount', 'items', 'units', 'total', 'notes', 'last', 'reason']
+    var head = ['no', 'date', 'time', 'room', 'phone', 'status', 'pay', 'amount', 'items', 'units', 'total', 'notes', 'last', 'reason']
       .map(function (k) { return cell(t('a06.csv.' + k, { label: label })); }).join(',');
     var rows = [head];
     list.forEach(function (o) {
@@ -174,6 +175,9 @@
       var last = o.updatedAt || o.cancelledAt || o.createdAt;
       rows.push([
         o.orderNo, A.fmtDate(o.createdAt), A.fmtTime(o.createdAt), o.roomNumber,
+        /* The stored "+…" value. cell() applies the formula guard to it like
+           every other cell, so a leading "+" is written as '+… (§7.7). */
+        o.phone || '',
         t('ad.status.' + o.status), t(o.payment === 'cash' ? 'ad.pay.cash' : 'ad.pay.card'),
         o.payment === 'cash' && o.amount != null && o.amount !== '' ? String(o.amount) : '',
         items, A.units(o), A.amount(o.total), o.notes || '', A.fmtDT(last), reasonOf(o)

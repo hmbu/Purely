@@ -420,6 +420,10 @@
         orderNo: String(order.orderNo),
         key: order.key,
         roomNumber: String(order.roomNumber),
+        /* The guest's mobile number, normalised "+…" (G-04 §7.11). Kept on
+           the device only so the next checkout can pre-fill it (G-04 §5.8);
+           no guest tracking screen displays it. */
+        phone: order.phone == null ? '' : String(order.phone),
         lines: (order.lines || []).map(function (l) {
           return {
             productId: l.productId,
@@ -680,8 +684,11 @@
 
   /* --- the payload fingerprint: how identical is told from different ---
      G-04 §7.7 rule 4 lists exactly what makes two submissions "the same
-     order": the lines, their quantities, the room number, the payment method,
-     the amount and the notes. Everything else in the payload is deliberately
+     order": the lines, their quantities, the room number, the mobile number,
+     the payment method, the amount and the notes. The mobile number is in
+     for the same reason as the room number: a guest who corrects it after a
+     lost response must get existing-different, never a silent success that
+     leaves staff calling the wrong number. Everything else in the payload is deliberately
      excluded:
        - the interface language, because a guest who switched to English after
          a lost response submitted the same order, not a different one;
@@ -705,6 +712,7 @@
     }).join('|');
     return [
       'room:' + String(payload.roomNumber == null ? '' : payload.roomNumber),
+      'phone:' + String(payload.phone == null ? '' : payload.phone),
       'pay:' + String(payload.payment || ''),
       'amt:' + (payload.amount == null || payload.amount === '' ? 'none' : String(payload.amount)),
       'notes:' + String(payload.notes == null ? '' : payload.notes),
@@ -820,8 +828,8 @@
        Identical versus different is decided by comparing the canonical
        fingerprint of the payload (see fingerprint() above) against the one
        recorded when the order was created. Same fingerprint → identical.
-       Any difference in lines, quantities, room number, payment, amount or
-       notes → different. Language, total and the key itself are excluded on
+       Any difference in lines, quantities, room number, mobile number,
+       payment, amount or notes → different. Language, total and the key itself are excluded on
        purpose; they are not the order.
        ================================================================ */
     submitOrder: function (payload) {
@@ -869,6 +877,9 @@
           orderNo: orderNo,
           key: key,
           roomNumber: String(payload.roomNumber),
+          /* Required since the owner's decision of 2026-09-27: the guest's
+             mobile number, already normalised to "+…" by G-04 (§7.11). */
+          phone: payload.phone == null ? '' : String(payload.phone),
           lines: (payload.lines || []).map(function (l) {
             return {
               productId: l.productId,

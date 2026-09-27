@@ -31,6 +31,22 @@ HotelDB, so the shapes cannot drift.
 | `roomstore.staff` | `{ members:[{id,name,pin}], session:{memberId, since} }` | staff, admin |
 | `roomstore.admin` | `{ email, passwordHash, session }` | admin |
 
+### The order record (one entry of `byKey`)
+`{ orderNo, key, roomNumber, phone, lines:[{productId,nameAr,nameEn,qty,price}], notes,
+payment:'card'|'cash', amount, total, status, createdAt, lang, fingerprint }` plus the
+status fields HotelDB adds as the order moves (see the header of `shared/hotel-db.js`).
+
+- **`phone`** — the guest's mobile number, **required** at checkout since the owner's
+  decision of 2026-09-27 (G-04 §7.11). Always stored normalised: `+` then 8–15 digits
+  (a Saudi `05…` or `5…` number becomes `+9665…`). It is part of the payload
+  **fingerprint**, so a corrected number after a lost response returns
+  `existing-different`, exactly as a corrected room number does. An order created
+  before the field existed holds `''`.
+- Where it appears: staff **S-02** order detail, as a `tel:` link next to the room
+  block (never on the S-01 board cards); admin **AM-03** order details and the
+  **A-06 CSV** "Mobile number" column (under the same formula guard as every
+  cell). It is **not** on M-01 and not on the guest's G-05, G-06 or G-07.
+
 ### API
 - `HotelDB.catalog()` / `HotelDB.saveCatalog(c)` — the guest's `Server.getCatalog()` must
   read this, so a price or stock change in admin reaches the guest.

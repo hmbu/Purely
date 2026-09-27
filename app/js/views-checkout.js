@@ -18,7 +18,7 @@
      notice, notice--flat, error,
      panel, panel__title, line, line__name, line__price, divider,
      total, total__label, total__value,
-     field, field--error, field__label, field__hint, field__input,
+     field, field--error, field__label, field__hint, field__hint--above, field__input,
      field__input--big, field__area, field__wrap, field__suffix,
      field__counter, field__counter--full,
      section__title, choice, choice__mark, choice__label, choice__sub,
@@ -52,6 +52,9 @@
     'g04.c04':        { ar: 'الإجمالي', en: 'Total' },
     'g04.b02':        { ar: 'تعديل السلة', en: 'Edit cart' },
     'g04.c05':        { ar: 'رقم الغرفة', en: 'Room number' },
+    /* G-04 §4 S07 — the mobile-number block (owner decision, 2026-09-27). */
+    'g04.c15':        { ar: 'رقم الجوال', en: 'Mobile number' },
+    'g04.c16':        { ar: 'يتّصل بك الموظف عند الحاجة فقط', en: 'Staff will call only if needed' },
     'g04.c07':        { ar: 'ملاحظات على الطلب (اختياري)', en: 'Order notes (optional)' },
     'g04.c08':        { ar: '{n}/200', en: '{n}/200' },
     'g04.c14':        { ar: 'تم اختصار ملاحظتك إلى 200 حرف',
@@ -76,6 +79,13 @@
     'g04.err.room.chars': { ar: 'استخدم الأرقام فقط (0–9)', en: 'Use digits only (0–9)' },
     'g04.err.room.long':  { ar: 'رقم الغرفة طويل جدًا: 5 أرقام كحد أقصى',
                             en: 'Room number is too long: 5 digits at most' },
+
+    /* G-04 §7.11 — the two mobile-number messages, and there is no third.
+       The Arabic example number is preceded by U+200E so that the "+" stays
+       on the left of the digits inside the right-to-left sentence. */
+    'g04.err.phone.empty':   { ar: 'اكتب رقم جوالك', en: 'Enter your mobile number' },
+    'g04.err.phone.invalid': { ar: 'اكتب رقماً صحيحاً، مثل 0512345678 أو \u200E+971501234567',
+                               en: 'Enter a valid number, such as 0512345678 or +971501234567' },
 
     /* G-04 §7.3 — the payment-choice message. */
     'g04.err.pay':        { ar: 'اختر طريقة الدفع', en: 'Choose a payment method' },
@@ -153,6 +163,9 @@
   function emptyDraft() {
     return {
       room: '',       /* raw, as typed (G-04 §7.7) */
+      /* raw, as typed. null = not yet decided in this draft: the first render
+         pre-fills it from the most recent order on the device (G-04 §5.8). */
+      phone: null,
       notes: '',
       payment: '',    /* '' | 'card' | 'cash' — no default (G-04 §7.3) */
       amount: '',
@@ -392,6 +405,42 @@
     return 'type="text" inputmode="numeric" pattern="[0-9]*" ';
   }
 
+  /* G-04 §7.11 — the mobile number. Digits are converted as typed (the
+     same toWestern as F01); spaces, hyphens and parentheses are ignored;
+     then exactly four shapes are accepted, and each is stored in one
+     normalised "+" form:
+       +  then 8–15 digits  → kept as is
+       00 then 8–15 digits  → "00" becomes "+"
+       05 then 8 digits     → +9665…   (a Saudi mobile written with its 0)
+       5  then 8 digits     → +9665…   (the same number without the 0)
+     Anything else returns null (invalid). */
+  function normalizePhone(raw) {
+    var v = trim(toWestern(raw)).replace(/[\s\-\u2010\u2011()]/g, '');
+    var m;
+    if ((m = /^\+([0-9]{8,15})$/.exec(v))) return '+' + m[1];
+    if ((m = /^00([0-9]{8,15})$/.exec(v))) return '+' + m[1];
+    if ((m = /^05([0-9]{8})$/.exec(v)))    return '+9665' + m[1];
+    if ((m = /^5([0-9]{8})$/.exec(v)))     return '+9665' + m[1];
+    return null;
+  }
+
+  /* G-04 §7.11. Two cases, in this priority order: empty (submit only),
+     then invalid (blur and submit). Same `includeEmpty` contract as F01. */
+  function phoneError(raw, includeEmpty) {
+    var v = trim(toWestern(raw));
+    if (!v) return includeEmpty ? 'g04.err.phone.empty' : null;
+    return normalizePhone(v) ? null : 'g04.err.phone.invalid';
+  }
+
+  /* G-04 §5.8: the pre-fill is the phone of the most recent order record
+     saved on this device (Store.orders is newest first). A record saved
+     before the field existed carries none, and F04 then starts empty. */
+  function lastOrderPhone() {
+    var list = (window.Store && Store.orders) ? Store.orders : [];
+    var o = list.length ? list[0] : null;
+    return (o && o.phone) ? String(o.phone) : '';
+  }
+
   /* G-04 §7.4. Three cases, in this priority order. An empty field never
      errors. An amount lower than the total BLOCKS submission — it is an
      error, not a warning. An amount equal to the total is valid. */
@@ -419,6 +468,7 @@
   var guardTripped = false;   /* §3.1 guard fired on this render */
   var lastSubmitTap = 0;      /* §7.6 rule 7 debounce */
   var roomMode = 'blur';      /* 'blur' | 'submit' — see roomError() */
+  var phoneMode = 'blur';     /* 'blur' | 'submit' — see phoneError() */
   var showC14 = false;        /* C14 is transient, never persisted */
   var pasteInNotes = false;
   /* Raised around the device writes M-04 performs as it opens: those writes
@@ -525,6 +575,10 @@
         }
       }
       draft.lastTotal = total;
+      /* §5.8: the mobile number is pre-filled once per draft from the most
+         recent order on the device; after that the draft's own value wins,
+         including an emptied field. */
+      if (draft.phone === null || draft.phone === undefined) draft.phone = lastOrderPhone();
       saveDraft(draft);
 
       var notesCount = charCount(draft.notes);
@@ -573,6 +627,22 @@
                'aria-describedby="G-04-C06" aria-invalid="false" ' +
                'value="' + esc(draft.room) + '">' +
              errorHtml('G-04-C06', '', true) +
+           '</section>';
+
+      /* ---- S07 mobile number: required, directly after the room number
+             and before the notes (§4, §7.11). Left-to-right in both
+             languages; the telephone keypad. ---- */
+      h += '<section class="field" data-el="G-04-S07">' +
+             '<label class="field__label" for="g04-f04" data-el="G-04-C15">' +
+               esc(t('g04.c15')) + '</label>' +
+             '<p class="field__hint field__hint--above" id="G-04-C16" data-el="G-04-C16">' +
+               esc(t('g04.c16')) + '</p>' +
+             '<input id="g04-f04" class="field__input" data-el="G-04-F04" ' +
+               'type="tel" inputmode="tel" autocomplete="tel" dir="ltr" ' +
+               'autocorrect="off" autocapitalize="off" spellcheck="false" ' +
+               'aria-required="true" aria-describedby="G-04-C16 G-04-C17" aria-invalid="false" ' +
+               'value="' + esc(draft.phone || '') + '">' +
+             errorHtml('G-04-C17', '', true) +
            '</section>';
 
       /* ---- S04 notes ---- */
@@ -630,8 +700,11 @@
          freshly drawn G-04 starts with the blur ruleset again — the empty
          room-number message belongs to submit alone. */
       roomMode = 'blur';
+      phoneMode = 'blur';
 
       var f01 = root.querySelector('[data-el="G-04-F01"]');
+      var f04 = root.querySelector('[data-el="G-04-F04"]');
+      var c17 = root.querySelector('[data-el="G-04-C17"]');
       var f02 = root.querySelector('[data-el="G-04-F02"]');
       var c06 = root.querySelector('[data-el="G-04-C06"]');
       var c08 = root.querySelector('[data-el="G-04-C08"]');
@@ -679,6 +752,14 @@
         return key;
       }
 
+      function validatePhone() {
+        /* §7.11, same presentation and re-validation rules as F01 (§7.6
+           rule 4); the empty case joins the set once B05 was tapped. */
+        var key = phoneError(f04.value, phoneMode === 'submit');
+        setError(c17, f04, key);
+        return key;
+      }
+
       function validateAmount() {
         var input = amountInput();
         if (!input) return null;
@@ -703,6 +784,24 @@
 
       /* §7.1: wrong characters and too long fire on blur; empty does not. */
       f01.addEventListener('blur', function () { validateRoom(); });
+
+      /* ---- F04: Arabic-Indic digits converted as typed (§7.11); the
+             displayed value is never otherwise rewritten ---- */
+      f04.addEventListener('input', function () {
+        var caret = null;
+        try { caret = f04.selectionStart; } catch (e) {}
+        var conv = toWestern(f04.value);
+        if (conv !== f04.value) {
+          f04.value = conv;
+          if (caret !== null) { try { f04.setSelectionRange(caret, caret); } catch (e) {} }
+        }
+        draft.phone = f04.value;
+        saveDraft(draft);
+        if (c17 && !c17.hasAttribute('hidden')) validatePhone();
+      });
+
+      /* §7.11: invalid fires on blur; empty does not (submit only). */
+      f04.addEventListener('blur', function () { validatePhone(); });
 
       /* ---- F02: hard cap at 200, counter always visible, C14 on a cut
              paste only (§7.2) ---- */
@@ -819,21 +918,25 @@
         }
 
         roomMode = 'submit';
+        phoneMode = 'submit';
         var total = cartTotal();
 
         var rErr = roomError(f01.value, true);
+        var mErr = phoneError(f04.value, true);
         var pErr = draft.payment ? null : 'g04.err.pay';
         var aErr = (draft.payment === 'cash' && amountInput())
           ? amountError(amountInput().value, total) : null;
 
         /* rule 3: ALL failing elements show their error at once. */
         setError(c06, f01, rErr);
+        setError(c17, f04, mErr);
         setError(c10, null, pErr);
         if (amountInput()) setError(amountErrEl(), amountInput(), aErr, { total: money(total) });
 
         /* rule 3: scroll to the FIRST failing element in the order
-           F01 → payment → F03, and focus it when it is a field. */
+           F01 → F04 → payment → F03, and focus it when it is a field. */
         if (rErr) { scrollToLabel(root.querySelector('[data-el="G-04-C05"]')); focusField(f01); return; }
+        if (mErr) { scrollToLabel(root.querySelector('[data-el="G-04-C15"]')); focusField(f04); return; }
         if (pErr) { scrollToLabel(root.querySelector('[data-el="G-04-C09"]')); return; }
         if (aErr) { scrollToLabel(root.querySelector('[data-el="G-04-C11"]')); focusField(amountInput()); return; }
 
@@ -849,7 +952,7 @@
 
         /* §7.8: the handoff. The order is NEVER sent from G-04 (locked
            decision 2); only M-01's "Confirm and send" sends it. */
-        var payload = buildPayload(f01.value, f02.value, draft.payment,
+        var payload = buildPayload(f01.value, f04.value, f02.value, draft.payment,
                                    amountInput() ? amountInput().value : '', total);
         App.openModal('M-01', { room: payload.roomNumber, payload: payload });
       });
@@ -884,7 +987,7 @@
   }
 
   /* §7.8 — what G-04 hands to M-01, read-only. */
-  function buildPayload(roomRaw, notesRaw, payment, amountRaw, total) {
+  function buildPayload(roomRaw, phoneRaw, notesRaw, payment, amountRaw, total) {
     var lines = cartLines().map(function (line) {
       var s = line.snapshot || {};
       return {
@@ -901,6 +1004,7 @@
     return {
       key: acquireKey(),                          /* §7.7 rules 1, 2, 8 */
       roomNumber: trim(toWestern(roomRaw)),       /* trimmed, leading zeros kept */
+      phone: normalizePhone(phoneRaw),            /* §7.11: the normalised "+" form */
       notes: trim(notesRaw),                      /* only spaces/breaks → empty */
       payment: payment,
       amount: (payment === 'cash' && amt !== '') ? Number(amt) : null,
@@ -1027,6 +1131,9 @@
       orderNo: order.orderNo,
       key: payload.key,
       roomNumber: (order.roomNumber != null) ? order.roomNumber : payload.roomNumber,
+      /* The phone the SERVER holds, like every other value here; it is what
+         the next checkout on this device pre-fills (G-04 §5.8). */
+      phone: (order.phone != null) ? order.phone : payload.phone,
       lines: normalizeLines(order.lines, payload.lines),
       notes: (order.notes != null) ? order.notes : payload.notes,
       payment: (order.payment != null) ? order.payment : payload.payment,

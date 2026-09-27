@@ -456,6 +456,8 @@ body:has(.actionbar--tall) .screen { padding-block-end: calc(168px + var(--safe-
 .field__hint,
 .field__counter { font-size: var(--t-small); color: var(--c-ink-2); margin-block-start: var(--s-1); }
 .field__counter { font-size: var(--t-mini); direction: ltr; unicode-bidi: isolate; text-align: end; }
+/* A helper line between a field's label and the field itself (G-04-C16). */
+.field__hint--above { margin-block: 0 var(--s-2); }
 .field__counter--full { font-weight: 700; color: var(--c-ink); }
 
 /* A field with a static suffix inside it (the currency label on F03). */

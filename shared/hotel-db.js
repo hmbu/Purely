@@ -15,6 +15,8 @@
                            ServerDB). Each order record, as the guest's
                            Server.submitOrder creates it:
                              { orderNo, key, roomNumber,
+                               phone ('+' then 8–15 digits, G-04 §7.11;
+                                      '' on orders placed before it existed),
                                lines:[{productId,nameAr,nameEn,qty,price}],
                                notes, payment ('card'|'cash'), amount (null|string),
                                total, status, createdAt (ms), fingerprint }

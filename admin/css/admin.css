@@ -379,6 +379,9 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
 .adm-bullets { list-style: disc; padding-inline-start: 20px; font-size: 13px; display: flex; flex-direction: column; gap: var(--s-1); }
 
 .adm-am03-room__n { font-size: 28px; font-weight: 700; letter-spacing: .04em; }
+.adm-am03-phone { margin-block-start: 8px; }
+.adm-am03-phone__n { font-size: 18px; font-weight: 700; letter-spacing: .02em; }
+.adm-am03-phone__n .num { direction: ltr; unicode-bidi: isolate; }
 .adm-am03-sec { padding-block-start: var(--s-3); border-block-start: 1px solid var(--c-border); }
 .adm-am03-h { font-size: 15px; font-weight: 700; margin-block-end: var(--s-2); }
 .adm-am03-line { display: flex; justify-content: space-between; gap: var(--s-3); padding-block: var(--s-2); font-size: 15px; }

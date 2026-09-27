@@ -465,6 +465,8 @@ body:has(.actionbar--tall) .screen { padding-block-end: calc(168px + var(--safe-
 .field__hint,
 .field__counter { font-size: var(--t-small); color: var(--c-ink-2); margin-block-start: var(--s-1); }
 .field__counter { font-size: var(--t-mini); direction: ltr; unicode-bidi: isolate; text-align: end; }
+/* A helper line between a field's label and the field itself (G-04-C16). */
+.field__hint--above { margin-block: 0 var(--s-2); }
 .field__counter--full { font-weight: 700; color: var(--c-ink); }
 
 /* A field with a static suffix inside it (the currency label on F03). */
@@ -944,6 +946,16 @@ body:has(.actionbar--tall) .screen { padding-block-end: calc(168px + var(--safe-
 /* The number keeps its own left-to-right run but sits at the start edge. */
 [dir="rtl"] .s-roomblock__no { text-align: right; }
 [dir="ltr"] .s-roomblock__no { text-align: left; }
+
+/* S-02-C19 — the guest's mobile number, under the room block, one tap to call. */
+.s-phone { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-1) var(--s-3); margin-block-start: var(--s-3); }
+.s-phone__label { font-size: var(--t-body); }
+.s-phone__link {
+  display: inline-flex; align-items: center; min-height: 44px;
+  font-size: 22px; font-weight: 700; letter-spacing: .02em; color: #000000;
+  text-decoration: underline; text-underline-offset: 3px;
+  direction: ltr; unicode-bidi: isolate; white-space: nowrap;
+}
 
 .s-sec { margin-block-start: var(--s-5); }
 .s-sec__title { font-size: var(--t-body); font-weight: 700; margin-block-end: var(--s-3); }
@@ -1501,6 +1513,8 @@ body:has(.actionbar--tall) .screen { padding-block-end: calc(168px + var(--safe-
                            ServerDB). Each order record, as the guest's
                            Server.submitOrder creates it:
                              { orderNo, key, roomNumber,
+                               phone ('+' then 8–15 digits, G-04 §7.11;
+                                      '' on orders placed before it existed),
                                lines:[{productId,nameAr,nameEn,qty,price}],
                                notes, payment ('card'|'cash'), amount (null|string),
                                total, status, createdAt (ms), fingerprint }
@@ -3401,6 +3415,9 @@ body:has(.actionbar--tall) .screen { padding-block-end: calc(168px + var(--safe-
     's02.c03':          { ar: 'تغيّرت حالة هذا الطلب من جهاز آخر', en: "This order's status was changed on another device" },
     's02.c06':          { ar: 'تعذّر تحديث هذا الطلب — هذه آخر حالة معروفة', en: 'Could not refresh this order — this is the last known status' },
     's02.c08':          { ar: 'ما يجب تجهيزه — {count}', en: 'To prepare — {count}' },
+    /* C19 — the guest's mobile number, owner decision of 2026-09-27. */
+    's02.c19':          { ar: 'جوال الضيف', en: 'Guest mobile' },
+    's02.sr.call':      { ar: 'اتصل بالضيف على {phone}', en: 'Call the guest on {phone}' },
     's02.c09.qty':      { ar: '×{n}', en: '×{n}' },
     's02.c11':          { ar: 'ملاحظات الضيف', en: 'Guest notes' },
     's02.c12':          { ar: 'الدفع عند الاستلام', en: 'Pay on delivery' },
@@ -3618,6 +3635,22 @@ body:has(.actionbar--tall) .screen { padding-block-end: calc(168px + var(--safe-
            '<p class="s-pay__line">' + third + '</p>';
   }
 
+  /* S-02-C19 — the guest's mobile number, directly under the room block, as
+     a tel: link so a staff member on a phone calls with one tap. Stored
+     normalised ("+" then 8–15 digits, G-04 §7.11); anything else is shown as
+     plain text and never becomes a link. Absent on orders placed before the
+     field existed, and never shown on the S-01 board cards. */
+  function phoneBlock(o) {
+    var phone = String(o.phone == null ? '' : o.phone).trim();
+    if (!phone) return '';
+    var value = /^\+[0-9]{8,15}$/.test(phone)
+      ? '<a class="s-phone__link" href="tel:' + esc(phone) + '" dir="ltr" ' +
+          'aria-label="' + esc(t('s02.sr.call', { phone: S.spaced(phone) })) + '">' + esc(phone) + '</a>'
+      : '<span class="s-phone__link" dir="ltr">' + esc(phone) + '</span>';
+    return '<div class="s-phone" data-el="S-02-C19">' +
+             '<span class="s-phone__label">' + t('s02.c19') + '</span>' + value + '</div>';
+  }
+
   /* The stored reason, never translated: of the two strings HotelDB keeps,
      the one in the interface language, else the other. Cut at 120 (§7.1). */
   function storedReason(o) {
@@ -3688,6 +3721,7 @@ body:has(.actionbar--tall) .screen { padding-block-end: calc(168px + var(--safe-
              'aria-label="' + esc(t('st.room') + ' ' + S.spaced(o.roomNumber)) + '">' +
              '<span class="s-roomblock__word" aria-hidden="true">' + t('st.room') + '</span>' +
              '<span class="s-roomno s-roomblock__no" aria-hidden="true">' + esc(o.roomNumber) + '</span></div>';
+      h += phoneBlock(o);
 
       /* Items — quantity first, names never truncated, no unit prices. */
       h += '<section class="s-sec" data-el="S-02-S03">' +

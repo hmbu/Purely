@@ -228,3 +228,17 @@ as a room; the currency label was hard-coded, so an admin change never reached t
 
 **Still open, both needing the hotel:** OQ-01's final answer (the tool to apply it now
 exists), and OQ-02 — a card refused at the door with no cash.
+
+---
+
+## Step — Guest mobile number and single test file (done, 2026-09-27)
+
+**What was done**
+- Guest mobile number is now required at checkout (`G-04-F04`, spec amendment A1 in `spec/screens/G-04.md`): validated, normalised to `+…`, pre-filled from the device's last order, part of the order fingerprint, never shown in M-01. Staff see it on S-02 as a `tel:` link (`S-02-C19`); admin sees it on AM-03 (`AM-03-C19`) and in the CSV (14th column). Staff map decision 19 and S-02 §5.0/criterion 35 updated to match.
+- `dist/room-store-all-in-one.html`: one file with a main page linking to all three apps, plus a side-by-side mode (guest and room service). The apps share data, so an order placed as a guest reaches room service live, and accepting it updates the guest's tracking screen. Built by `python3 dist/build.py` from `dist/all-in-one.template.html`. Verified in Chromium: 17/17 loop checks passed and 51/51 phone checks passed, with no JS errors.
+
+**What is next**
+- `wireframes/G-04.html` predates the phone field and needs a redraw by the wireframer.
+
+**Waiting for the owner**
+- Nothing blocking.

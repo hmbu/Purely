@@ -17,6 +17,9 @@
     's02.c03':          { ar: 'تغيّرت حالة هذا الطلب من جهاز آخر', en: "This order's status was changed on another device" },
     's02.c06':          { ar: 'تعذّر تحديث هذا الطلب — هذه آخر حالة معروفة', en: 'Could not refresh this order — this is the last known status' },
     's02.c08':          { ar: 'ما يجب تجهيزه — {count}', en: 'To prepare — {count}' },
+    /* C19 — the guest's mobile number, owner decision of 2026-09-27. */
+    's02.c19':          { ar: 'جوال الضيف', en: 'Guest mobile' },
+    's02.sr.call':      { ar: 'اتصل بالضيف على {phone}', en: 'Call the guest on {phone}' },
     's02.c09.qty':      { ar: '×{n}', en: '×{n}' },
     's02.c11':          { ar: 'ملاحظات الضيف', en: 'Guest notes' },
     's02.c12':          { ar: 'الدفع عند الاستلام', en: 'Pay on delivery' },
@@ -234,6 +237,22 @@
            '<p class="s-pay__line">' + third + '</p>';
   }
 
+  /* S-02-C19 — the guest's mobile number, directly under the room block, as
+     a tel: link so a staff member on a phone calls with one tap. Stored
+     normalised ("+" then 8–15 digits, G-04 §7.11); anything else is shown as
+     plain text and never becomes a link. Absent on orders placed before the
+     field existed, and never shown on the S-01 board cards. */
+  function phoneBlock(o) {
+    var phone = String(o.phone == null ? '' : o.phone).trim();
+    if (!phone) return '';
+    var value = /^\+[0-9]{8,15}$/.test(phone)
+      ? '<a class="s-phone__link" href="tel:' + esc(phone) + '" dir="ltr" ' +
+          'aria-label="' + esc(t('s02.sr.call', { phone: S.spaced(phone) })) + '">' + esc(phone) + '</a>'
+      : '<span class="s-phone__link" dir="ltr">' + esc(phone) + '</span>';
+    return '<div class="s-phone" data-el="S-02-C19">' +
+             '<span class="s-phone__label">' + t('s02.c19') + '</span>' + value + '</div>';
+  }
+
   /* The stored reason, never translated: of the two strings HotelDB keeps,
      the one in the interface language, else the other. Cut at 120 (§7.1). */
   function storedReason(o) {
@@ -304,6 +323,7 @@
              'aria-label="' + esc(t('st.room') + ' ' + S.spaced(o.roomNumber)) + '">' +
              '<span class="s-roomblock__word" aria-hidden="true">' + t('st.room') + '</span>' +
              '<span class="s-roomno s-roomblock__no" aria-hidden="true">' + esc(o.roomNumber) + '</span></div>';
+      h += phoneBlock(o);
 
       /* Items — quantity first, names never truncated, no unit prices. */
       h += '<section class="s-sec" data-el="S-02-S03">' +

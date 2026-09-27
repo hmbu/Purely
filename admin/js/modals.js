@@ -38,6 +38,8 @@
     'am03.c03': { ar: 'للعرض فقط — تُغيَّر حالة الطلب من واجهة الموظفين.', en: 'View only — an order\'s status is changed in the staff interface.' },
     'am03.c04': { ar: 'أُرسل في {date} الساعة {time}', en: 'Sent on {date} at {time}' },
     'am03.c05': { ar: 'الغرفة', en: 'Room' },
+    /* C19 — the guest's mobile number (owner decision, 2026-09-27). */
+    'am03.c19': { ar: 'جوال النزيل', en: 'Guest mobile' },
     'am03.c06': { ar: 'المنتجات — {count}', en: 'Items — {count}' },
     'am03.each': { ar: '{price} للقطعة', en: '{price} each' },
     'am03.c08': { ar: 'الإجمالي', en: 'Total' },
@@ -271,6 +273,13 @@
       } else {
         h += '<p class="small"' + A.el('AM-03-C04') + '>' + esc(t('am03.c04', { date: A.fmtDate(o.createdAt), time: A.fmtTime(o.createdAt) })) + '</p>';
         h += '<div class="adm-am03-room"' + A.el('AM-03-C05') + '><div class="small muted">' + esc(t('am03.c05')) + '</div><div class="adm-am03-room__n"><span class="num">' + esc(o.roomNumber) + '</span></div></div>';
+        /* C19 — under the room block; plain text, left-to-right, the stored
+           normalised "+…" value. Absent on orders placed before the field. */
+        var phone = A.trim(o.phone);
+        if (phone) {
+          h += '<div class="adm-am03-phone"' + A.el('AM-03-C19') + '><div class="small muted">' + esc(t('am03.c19')) + '</div>' +
+               '<div class="adm-am03-phone__n"><span class="num" dir="ltr">' + esc(phone) + '</span></div></div>';
+        }
 
         h += '<section class="adm-am03-sec"' + A.el('AM-03-S03') + '><h3 class="adm-am03-h"' + A.el('AM-03-C06') + '>' + esc(t('am03.c06', { count: A.itemsLabel(A.units(o)) })) + '</h3>';
         (o.lines || []).forEach(function (l) {

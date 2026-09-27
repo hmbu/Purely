@@ -464,6 +464,8 @@ body:has(.actionbar--tall) .screen { padding-block-end: calc(168px + var(--safe-
 .field__hint,
 .field__counter { font-size: var(--t-small); color: var(--c-ink-2); margin-block-start: var(--s-1); }
 .field__counter { font-size: var(--t-mini); direction: ltr; unicode-bidi: isolate; text-align: end; }
+/* A helper line between a field's label and the field itself (G-04-C16). */
+.field__hint--above { margin-block: 0 var(--s-2); }
 .field__counter--full { font-weight: 700; color: var(--c-ink); }
 
 /* A field with a static suffix inside it (the currency label on F03). */
@@ -1120,6 +1122,9 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
 .adm-bullets { list-style: disc; padding-inline-start: 20px; font-size: 13px; display: flex; flex-direction: column; gap: var(--s-1); }
 
 .adm-am03-room__n { font-size: 28px; font-weight: 700; letter-spacing: .04em; }
+.adm-am03-phone { margin-block-start: 8px; }
+.adm-am03-phone__n { font-size: 18px; font-weight: 700; letter-spacing: .02em; }
+.adm-am03-phone__n .num { direction: ltr; unicode-bidi: isolate; }
 .adm-am03-sec { padding-block-start: var(--s-3); border-block-start: 1px solid var(--c-border); }
 .adm-am03-h { font-size: 15px; font-weight: 700; margin-block-end: var(--s-2); }
 .adm-am03-line { display: flex; justify-content: space-between; gap: var(--s-3); padding-block: var(--s-2); font-size: 15px; }
@@ -1546,6 +1551,8 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
                            ServerDB). Each order record, as the guest's
                            Server.submitOrder creates it:
                              { orderNo, key, roomNumber,
+                               phone ('+' then 8–15 digits, G-04 §7.11;
+                                      '' on orders placed before it existed),
                                lines:[{productId,nameAr,nameEn,qty,price}],
                                notes, payment ('card'|'cash'), amount (null|string),
                                total, status, createdAt (ms), fingerprint }
@@ -4462,6 +4469,7 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
     'a06.csv.date':   { ar: 'التاريخ', en: 'Date' },
     'a06.csv.time':   { ar: 'الوقت', en: 'Time' },
     'a06.csv.room':   { ar: 'الغرفة', en: 'Room' },
+    'a06.csv.phone':  { ar: 'رقم الجوال', en: 'Mobile number' },
     'a06.csv.status': { ar: 'الحالة', en: 'Status' },
     'a06.csv.pay':    { ar: 'الدفع', en: 'Payment' },
     'a06.csv.amount': { ar: 'المبلغ الذي سيدفع به', en: 'Amount the guest will pay with' },
@@ -4571,7 +4579,7 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
   function buildCsv(list) {
     var s = A.settings();
     var label = I18N.lang === 'en' ? (s.currencyEn || 'SAR') : (s.currencyAr || 'ر.س');
-    var head = ['no', 'date', 'time', 'room', 'status', 'pay', 'amount', 'items', 'units', 'total', 'notes', 'last', 'reason']
+    var head = ['no', 'date', 'time', 'room', 'phone', 'status', 'pay', 'amount', 'items', 'units', 'total', 'notes', 'last', 'reason']
       .map(function (k) { return cell(t('a06.csv.' + k, { label: label })); }).join(',');
     var rows = [head];
     list.forEach(function (o) {
@@ -4579,6 +4587,9 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
       var last = o.updatedAt || o.cancelledAt || o.createdAt;
       rows.push([
         o.orderNo, A.fmtDate(o.createdAt), A.fmtTime(o.createdAt), o.roomNumber,
+        /* The stored "+…" value. cell() applies the formula guard to it like
+           every other cell, so a leading "+" is written as '+… (§7.7). */
+        o.phone || '',
         t('ad.status.' + o.status), t(o.payment === 'cash' ? 'ad.pay.cash' : 'ad.pay.card'),
         o.payment === 'cash' && o.amount != null && o.amount !== '' ? String(o.amount) : '',
         items, A.units(o), A.amount(o.total), o.notes || '', A.fmtDT(last), reasonOf(o)
@@ -5330,6 +5341,8 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
     'am03.c03': { ar: 'للعرض فقط — تُغيَّر حالة الطلب من واجهة الموظفين.', en: 'View only — an order\'s status is changed in the staff interface.' },
     'am03.c04': { ar: 'أُرسل في {date} الساعة {time}', en: 'Sent on {date} at {time}' },
     'am03.c05': { ar: 'الغرفة', en: 'Room' },
+    /* C19 — the guest's mobile number (owner decision, 2026-09-27). */
+    'am03.c19': { ar: 'جوال النزيل', en: 'Guest mobile' },
     'am03.c06': { ar: 'المنتجات — {count}', en: 'Items — {count}' },
     'am03.each': { ar: '{price} للقطعة', en: '{price} each' },
     'am03.c08': { ar: 'الإجمالي', en: 'Total' },
@@ -5563,6 +5576,13 @@ textarea.adm-input { min-height: 0; resize: vertical; line-height: 1.5; }
       } else {
         h += '<p class="small"' + A.el('AM-03-C04') + '>' + esc(t('am03.c04', { date: A.fmtDate(o.createdAt), time: A.fmtTime(o.createdAt) })) + '</p>';
         h += '<div class="adm-am03-room"' + A.el('AM-03-C05') + '><div class="small muted">' + esc(t('am03.c05')) + '</div><div class="adm-am03-room__n"><span class="num">' + esc(o.roomNumber) + '</span></div></div>';
+        /* C19 — under the room block; plain text, left-to-right, the stored
+           normalised "+…" value. Absent on orders placed before the field. */
+        var phone = A.trim(o.phone);
+        if (phone) {
+          h += '<div class="adm-am03-phone"' + A.el('AM-03-C19') + '><div class="small muted">' + esc(t('am03.c19')) + '</div>' +
+               '<div class="adm-am03-phone__n"><span class="num" dir="ltr">' + esc(phone) + '</span></div></div>';
+        }
 
         h += '<section class="adm-am03-sec"' + A.el('AM-03-S03') + '><h3 class="adm-am03-h"' + A.el('AM-03-C06') + '>' + esc(t('am03.c06', { count: A.itemsLabel(A.units(o)) })) + '</h3>';
         (o.lines || []).forEach(function (l) {
