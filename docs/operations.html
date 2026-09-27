@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>عمليات متجر الغرفة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Readex+Pro:wght@500;600;700&display=swap">
+<style>
+:root{
+  --paper:#f4f7f6; --surface:#ffffff; --sunk:#eef3f1;
+  --ink:#14201e; --ink-2:#465654; --ink-3:#6b7a78; --line:#d6dfdc;
+  --accent:#0f6b63; --accent-soft:#e0eeeb;
+  --change:#8f5410; --change-soft:#fbf0e1; --change-line:#e8c99c;
+  --r-guest:#2c5ea3; --r-system:#5a616a; --r-super:#0f6b63; --r-worker:#7a4ea0; --r-manager:#9b3a3a;
+  --minus:#9b3a3a; --plus:#2f7a4a;
+  --radius:10px;
+  --f-body:"IBM Plex Sans Arabic",system-ui,"Segoe UI",Tahoma,sans-serif;
+  --f-head:"Readex Pro","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --paper:#0e1413; --surface:#151d1c; --sunk:#111918;
+  --ink:#e4ebe9; --ink-2:#a7b4b1; --ink-3:#83918e; --line:#283432;
+  --accent:#55bdb1; --accent-soft:#163230;
+  --change:#e2a85c; --change-soft:#2a2115; --change-line:#5a4322;
+  --r-guest:#7ea9e8; --r-system:#a6adb5; --r-super:#55bdb1; --r-worker:#bb98de; --r-manager:#e58f8f;
+  --minus:#e58f8f; --plus:#7fcf9c;
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#0e1413; --surface:#151d1c; --sunk:#111918;
+  --ink:#e4ebe9; --ink-2:#a7b4b1; --ink-3:#83918e; --line:#283432;
+  --accent:#55bdb1; --accent-soft:#163230;
+  --change:#e2a85c; --change-soft:#2a2115; --change-line:#5a4322;
+  --r-guest:#7ea9e8; --r-system:#a6adb5; --r-super:#55bdb1; --r-worker:#bb98de; --r-manager:#e58f8f;
+  --minus:#e58f8f; --plus:#7fcf9c;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:16px/1.75 var(--f-body)}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:28px 64px;display:grid;gap:32px}
+@media (min-width:1000px){.wrap{grid-template-columns:230px minmax(0,1fr);align-items:start}}
+h1,h2,h3{font-family:var(--f-head);line-height:1.35;text-wrap:balance;margin:0}
+h1{font-size:30px;font-weight:700}
+h2{font-size:23px;font-weight:600}
+h3{font-size:17px;font-weight:600}
+p{margin:0}
+.muted{color:var(--ink-2)}
+code,.mono{font-family:var(--f-mono);font-size:13px;direction:ltr;unicode-bidi:isolate}
+code{background:var(--sunk);border:1px solid var(--line);border-radius:5px;padding:0 5px}
+
+/* table of contents */
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);display:grid;gap:4px;font-size:14px}
+nav.toc b{font-family:var(--f-head);font-size:12px;letter-spacing:.06em;color:var(--ink-3);margin-block-end:4px}
+nav.toc a{color:var(--ink-2);text-decoration:none;padding:5px 10px;border-radius:6px;border-inline-start:2px solid transparent}
+nav.toc a:hover,nav.toc a:focus-visible{color:var(--ink);background:var(--surface);border-inline-start-color:var(--accent);outline:none}
+@media (max-width:999px){nav.toc{position:static;display:flex;flex-wrap:wrap;gap:6px}nav.toc b{flex-basis:100%}
+  nav.toc a{background:var(--surface);border:1px solid var(--line)}}
+
+main{display:grid;gap:44px;min-width:0}
+section{display:grid;gap:16px;scroll-margin-top:16px}
+.lead{font-size:17px;color:var(--ink-2);max-width:68ch}
+.eyebrow{font-family:var(--f-head);font-size:12px;letter-spacing:.08em;color:var(--accent);font-weight:600}
+
+/* callouts */
+.note{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;display:grid;gap:6px}
+.note.change{background:var(--change-soft);border-color:var(--change-line)}
+.note.change .tag{color:var(--change)}
+.tag{font-family:var(--f-head);font-size:12px;font-weight:600;letter-spacing:.04em}
+
+/* role pills */
+.roles{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.role{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;display:grid;gap:6px;align-content:start}
+.role h3{display:flex;align-items:center;gap:8px}
+.dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--c)}
+.role .dev{font-size:13px;color:var(--ink-3)}
+.role p{font-size:14px;color:var(--ink-2)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;border:1px solid var(--line);
+  border-radius:999px;padding:1px 9px 1px 10px;background:var(--surface);white-space:nowrap}
+.pill .dot{width:8px;height:8px}
+[data-r="guest"]{--c:var(--r-guest)} [data-r="system"]{--c:var(--r-system)} [data-r="super"]{--c:var(--r-super)}
+[data-r="worker"]{--c:var(--r-worker)} [data-r="manager"]{--c:var(--r-manager)}
+
+/* role filter */
+.filter{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filter span{font-size:14px;color:var(--ink-3)}
+.filter button{font:600 13px var(--f-body);color:var(--ink);background:var(--surface);border:1px solid var(--line);
+  border-radius:999px;padding:5px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.filter button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.filter button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* journey steps */
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:s}
+ol.steps>li{counter-increment:s;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px 16px 14px 16px;display:grid;grid-template-columns:34px minmax(0,1fr);gap:4px 14px;
+  border-inline-start:4px solid var(--c,var(--line));transition:opacity .15s}
+ol.steps>li::before{content:counter(s);grid-row:1 / span 3;font:600 15px var(--f-mono);width:30px;height:30px;
+  border-radius:50%;display:grid;place-items:center;background:var(--sunk);color:var(--ink-2)}
+ol.steps>li.dim{opacity:.28}
+.step-h{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.step-h h3{margin-inline-end:4px}
+.where{font-size:13px;color:var(--ink-3)}
+.step-b{font-size:15px;color:var(--ink-2)}
+.fx{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.fx span{font:500 12.5px var(--f-body);border-radius:6px;padding:1px 8px;background:var(--sunk);border:1px solid var(--line)}
+.fx .minus{color:var(--minus);border-color:currentColor;background:transparent}
+.fx .plus{color:var(--plus);border-color:currentColor;background:transparent}
+.fx .st{color:var(--accent);border-color:currentColor;background:transparent}
+
+/* tables */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:560px}
+th,td{padding:10px 12px;text-align:start;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font:600 12.5px var(--f-head);color:var(--ink-3);background:var(--sunk);letter-spacing:.02em}
+tr:last-child td{border-bottom:0}
+td .st{font-weight:600}
+.num{font-variant-numeric:tabular-nums}
+
+/* rules list */
+ol.rules{margin:0;padding-inline-start:22px;display:grid;gap:8px}
+ol.rules li{padding-inline-start:4px}
+ol.rules li::marker{font:600 13px var(--f-mono);color:var(--ink-3)}
+
+/* stock equation */
+.eq{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px}
+.eq .box{flex:1 1 170px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;display:grid;gap:4px}
+.eq .box b{font:600 28px var(--f-mono)}
+.eq .box span{font-size:14px;color:var(--ink-2)}
+.eq .op{align-self:center;font:600 24px var(--f-mono);color:var(--ink-3)}
+.eq .box.shelf{border-color:var(--accent);background:var(--accent-soft)}
+
+/* mock stock board */
+.board{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden}
+.board-top{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line)}
+.board-top .kpis{display:flex;flex-wrap:wrap;gap:8px}
+.kpi{font-size:13px;border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+.kpi b{font-family:var(--f-mono)}
+.kpi.out{color:var(--minus);border-color:currentColor}
+.kpi.low{color:var(--change);border-color:currentColor}
+.sb{font-size:12px;font-weight:600;border-radius:999px;padding:1px 9px;border:1px solid currentColor;white-space:nowrap}
+.sb.ok{color:var(--plus)} .sb.low{color:var(--change)} .sb.out{color:var(--minus);border-style:dashed}
+.board .act{font:600 12.5px var(--f-body);color:var(--accent);background:transparent;border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+.example{font-size:12px;color:var(--ink-3);padding:8px 14px;border-top:1px dashed var(--line)}
+
+/* diagrams */
+.diagram{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.diagram pre.mermaid{margin:0;background:transparent;display:flex;justify-content:center}
+.cap{font-size:13px;color:var(--ink-3)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.svgwrap{display:flex;justify-content:center}.svgwrap svg{max-width:100%;height:auto}
+</style>
+</head>
+<body>
+
+<div class="wrap" dir="rtl" lang="ar">
+
+<nav class="toc" aria-label="المحتويات">
+  <b>المحتويات</b>
+  <a href="#intro">كيف تقرأ الوثيقة</a>
+  <a href="#roles">الأدوار</a>
+  <a href="#journey">رحلة الطلب</a>
+  <a href="#states">حالات الطلب</a>
+  <a href="#assign">التوزيع على العمّال</a>
+  <a href="#stock">المخزون</a>
+  <a href="#stockboard">لوحة المخزون</a>
+  <a href="#cancel">الإلغاء</a>
+  <a href="#pay">الدفع عند الباب</a>
+  <a href="#changes">ما يتغيّر في الشاشات</a>
+  <a href="#open">قرارات مفتوحة</a>
+</nav>
+
+<main>
+
+<section id="intro">
+  <span class="eyebrow">متجر الغرفة · فندق الواحة</span>
+  <h1>عمليات متجر الغرفة</h1>
+  <p class="lead">هذه الوثيقة تشرح <strong>كيف يعمل العمل</strong>: حين يطلب الضيف، إلى أين يذهب الطلب، ومن يتصرّف في كل خطوة، وما الذي يتغيّر في المخزون وفي حالة الطلب. هي موجّهة للمبرمج ليفهم المنطق قبل أن يبني.</p>
+  <div class="note">
+    <span class="tag">علاقتها ببقية الملفات</span>
+    <p>تفاصيل كل شاشة وكل زر موجودة في المواصفات: <code>spec/screens</code> للضيف، و<code>spec/staff</code> و<code>spec/admin</code>. هذه الوثيقة فوقها: تشرح التدفّق بين الشاشات. النموذج التفاعلي في <code>app/</code> و<code>staff/</code> و<code>admin/</code> مرجع للسلوك فقط، وليس كوداً للإنتاج.</p>
+  </div>
+  <div class="note change">
+    <span class="tag">حين تختلف هذه الوثيقة عن الشاشات</span>
+    <p>ثلاثة أمور هنا أحدث من المواصفات والنموذج: <strong>المخزون بالكميات</strong>، و<strong>توزيع الطلبات على العمّال</strong>، و<strong>لوحة المخزون لأدمن الروم سيرفس</strong>. في هذه الأمور الثلاثة، هذه الوثيقة هي المرجع. التفاصيل في قسم <a href="#changes">ما يتغيّر في الشاشات</a>.</p>
+  </div>
+</section>
+
+<section id="roles">
+  <h2>الأدوار</h2>
+  <p class="muted">خمسة أطراف. اللون الجانبي لكل خطوة في الوثيقة يدلّ على من يتصرّف فيها.</p>
+  <div class="roles">
+    <div class="role" data-r="guest"><h3><span class="dot"></span>الضيف</h3><span class="dev">جواله · بمسح رمز QR، بلا تطبيق وبلا تسجيل دخول</span><p>يتصفّح، يطلب، يتابع طلبه، ويلغيه ما دام «جديداً».</p></div>
+    <div class="role" data-r="system"><h3><span class="dot"></span>النظام</h3><span class="dev">تلقائي · لا أحد يضغط زراً</span><p>يستقبل الطلب، يخصم المخزون ويعيده عند الإلغاء، ويوصل كل تغيير لمن يعنيه فوراً.</p></div>
+    <div class="role" data-r="super"><h3><span class="dot"></span>أدمن الروم سيرفس</h3><span class="dev">جهاز ثابت (تابلت) عند مكتب خدمة الغرف</span><p>يستقبل كل الطلبات، يقبلها ويحوّلها لعامل بالاسم، ويدير المخزون الفعلي على الرف.</p></div>
+    <div class="role" data-r="worker"><h3><span class="dot"></span>العامل</h3><span class="dev">جواله الخاص</span><p>يرى الطلبات المحوّلة له فقط، يحضّرها، يوصلها، ويستلم الدفع عند الباب.</p></div>
+    <div class="role" data-r="manager"><h3><span class="dot"></span>مدير الفندق</h3><span class="dev">حاسوب · لوحة الإدارة</span><p>يقرّر ما يُباع وبأي سعر، ويحدّد حدّ التنبيه لكل منتج، ويتابع التقارير والإعدادات.</p></div>
+  </div>
+</section>
+
+<section id="journey">
+  <h2>رحلة الطلب من الضيف إلى الباب</h2>
+  <p class="muted">المسار الكامل لطلب واحد ناجح، خطوة بخطوة. اختر دوراً لترى خطواته فقط.</p>
+  <div class="filter" role="group" aria-label="عرض خطوات دور محدّد">
+    <span>اعرض:</span>
+    <button type="button" data-f="all" aria-pressed="true">الكل</button>
+    <button type="button" data-f="guest" aria-pressed="false" data-r="guest"><span class="dot"></span>الضيف</button>
+    <button type="button" data-f="system" aria-pressed="false" data-r="system"><span class="dot"></span>النظام</button>
+    <button type="button" data-f="super" aria-pressed="false" data-r="super"><span class="dot"></span>أدمن الروم سيرفس</button>
+    <button type="button" data-f="worker" aria-pressed="false" data-r="worker"><span class="dot"></span>العامل</button>
+    <button type="button" data-f="manager" aria-pressed="false" data-r="manager"><span class="dot"></span>مدير الفندق</button>
+  </div>
+
+  <ol class="steps">
+    <li data-r="guest" data-roles="guest"><div class="step-h"><h3>يمسح الضيف رمز QR</h3><span class="pill" data-r="guest"><span class="dot"></span>الضيف</span></div>
+      <p class="where">جوال الضيف · <code>G-01</code> المتجر</p>
+      <p class="step-b">يفتح المتجر في المتصفح مباشرة، بالعربية افتراضياً. رمز واحد لكل الفندق، ولا يُسأل عن رقم غرفته الآن.</p></li>
+
+    <li data-r="guest" data-roles="guest"><div class="step-h"><h3>يتصفّح ويضيف إلى السلة</h3><span class="pill" data-r="guest"><span class="dot"></span>الضيف</span></div>
+      <p class="where">جوال الضيف · <code>G-01</code> <code>G-02</code> <code>G-03</code></p>
+      <p class="step-b">السلة محفوظة على جهازه. <strong>السلة لا تحجز شيئاً من المخزون</strong>: قد يضع ضيفان آخر قطعة في سلّتيهما معاً، وأول من يرسل يأخذها. المنتج الذي كميته صفر يظهر «غير متوفر».</p></li>
+
+    <li data-r="guest" data-roles="guest"><div class="step-h"><h3>يكتب رقم الغرفة وطريقة الدفع</h3><span class="pill" data-r="guest"><span class="dot"></span>الضيف</span></div>
+      <p class="where">جوال الضيف · <code>G-04</code> إتمام الطلب</p>
+      <p class="step-b">رقم الغرفة بالصيغة التي حدّدها الفندق، وملاحظات اختيارية، وبطاقة أو نقداً. إن اختار نقداً يستطيع كتابة المبلغ الذي سيدفع به ليُحضر العامل الباقي.</p></li>
+
+    <li data-r="guest" data-roles="guest"><div class="step-h"><h3>يؤكّد رقم الغرفة</h3><span class="pill" data-r="guest"><span class="dot"></span>الضيف</span></div>
+      <p class="where">جوال الضيف · <code>M-01</code> تأكيد رقم الغرفة</p>
+      <p class="step-b">يظهر رقم الغرفة بخط كبير جداً، ولا شيء غيره. الضيف إمّا يؤكّد ويرسل، أو يعود ليصحّحه. هذه الخطوة إلزامية ولا يمكن تجاوزها.</p></li>
+
+    <li data-r="system" data-roles="system"><div class="step-h"><h3>يستقبل النظام الطلب ويخصم المخزون</h3><span class="pill" data-r="system"><span class="dot"></span>النظام</span></div>
+      <p class="where">تلقائي · لحظة الضغط على «تأكيد وإرسال»</p>
+      <p class="step-b">يفحص كمية كل المنتجات في الطلب <strong>في خطوة واحدة</strong>. إن كفت كلها: يخصمها كلها معاً، ويُنشئ الطلب برقم وحالة «جديد». إن نقص منتج واحد: <strong>لا يُخصم شيء</strong>، ويرى الضيف <code>M-04</code> ليزيل المنتج الناقص. وإن أُرسل الطلب نفسه مرتين بسبب انقطاع الاتصال، لا يُنشأ طلبان.</p>
+      <div class="fx"><span class="minus">المخزون ينقص</span><span class="st">الحالة: جديد</span><span>منتج وصل للصفر ← «غير متوفر» للبقية</span><span>أقل من حدّ التنبيه ← تنبيه</span></div></li>
+
+    <li data-r="guest" data-roles="guest"><div class="step-h"><h3>يرى الضيف «تم إرسال طلبك»</h3><span class="pill" data-r="guest"><span class="dot"></span>الضيف</span></div>
+      <p class="where">جوال الضيف · <code>G-05</code> ثم <code>G-06</code> متابعة الطلب</p>
+      <p class="step-b">يرى رقم الطلب ورقم غرفته بوضوح. ما دام الطلب «جديداً» يستطيع إلغاءه بنفسه، وإن اكتشف خطأ فهذا طريق التصحيح.</p></li>
+
+    <li data-r="super" data-roles="system super"><div class="step-h"><h3>يصل الطلب إلى جهاز الروم سيرفس</h3><span class="pill" data-r="system"><span class="dot"></span>النظام</span><span class="pill" data-r="super"><span class="dot"></span>أدمن الروم سيرفس</span></div>
+      <p class="where">تابلت الروم سيرفس · <code>S-01</code> لوحة الطلبات</p>
+      <p class="step-b">يظهر فوراً دون إعادة تحميل، مع تنبيه صوتي وعدّاد. رقم الغرفة أكبر ما في البطاقة. الطلب الذي ينتظر طويلاً دون قبول يُعلَّم «متأخر».</p></li>
+
+    <li data-r="super" data-roles="super system"><div class="step-h"><h3>يقبل الأدمن الطلب ويحوّله لعامل</h3><span class="pill" data-r="super"><span class="dot"></span>أدمن الروم سيرفس</span></div>
+      <p class="where">تابلت الروم سيرفس · <code>S-02</code> تفاصيل الطلب</p>
+      <p class="step-b"><strong>القبول والتحويل فعل واحد:</strong> يختار الأدمن اسم العامل ويضغط «قبول وتحويل». لا يوجد طلب مقبول بلا عامل مسؤول عنه. <strong>في هذه اللحظة تُغلق نافذة الإلغاء أمام الضيف.</strong></p>
+      <div class="fx"><span class="st">الحالة: تم القبول وجارٍ التحضير</span><span>الطلب يصل لجوال العامل</span><span>زر الإلغاء يختفي عند الضيف</span></div></li>
+
+    <li data-r="worker" data-roles="worker"><div class="step-h"><h3>يستلم العامل الطلب على جواله</h3><span class="pill" data-r="worker"><span class="dot"></span>العامل</span></div>
+      <p class="where">جوال العامل · <code>W-01</code> طلباتي</p>
+      <p class="step-b">يرى الطلبات المحوّلة له فقط: رقم الغرفة بخط كبير، والمنتجات والكميات، والملاحظات، وما سيستلمه عند الباب والباقي الذي يُحضره. يحضّر الطلب من الرف.</p></li>
+
+    <li data-r="worker" data-roles="worker"><div class="step-h"><h3>يخرج العامل بالطلب</h3><span class="pill" data-r="worker"><span class="dot"></span>العامل</span></div>
+      <p class="where">جوال العامل · <code>W-02</code> تفاصيل الطلب</p>
+      <p class="step-b">يضغط «خرجت بالطلب». المنتجات تغادر الرف الآن، فتخرج من رقم «المحجوز» في لوحة المخزون.</p>
+      <div class="fx"><span class="st">الحالة: في الطريق</span></div></li>
+
+    <li data-r="worker" data-roles="worker guest"><div class="step-h"><h3>يسلّم ويستلم المبلغ</h3><span class="pill" data-r="worker"><span class="dot"></span>العامل</span></div>
+      <p class="where">جوال العامل · <code>SM-02</code> تأكيد التوصيل والدفع</p>
+      <p class="step-b">الشاشة الوحيدة التي يُذكر فيها المال: المبلغ المطلوب، وبطاقة أو نقداً، والباقي. يؤكّد العامل فيُسجَّل الطلب «تم التوصيل». المخزون لا يتغيّر هنا لأنه خُصم في الخطوة ٥.</p>
+      <div class="fx"><span class="st">الحالة: تم التوصيل</span><span>الضيف يرى التحديث</span></div></li>
+
+    <li data-r="manager" data-roles="manager"><div class="step-h"><h3>يظهر الطلب في تقارير المدير</h3><span class="pill" data-r="manager"><span class="dot"></span>مدير الفندق</span></div>
+      <p class="where">لوحة الإدارة · <code>A-02</code> نظرة عامة · <code>A-06</code> الطلبات</p>
+      <p class="step-b">يدخل في الإيرادات، وفي النقد الذي يُفترض أن كل عامل استلمه، لتسوية الصندوق آخر الوردية.</p></li>
+  </ol>
+
+  <div class="diagram"><div class="svgwrap" dir="ltr"><svg aria-roledescription="sequence" role="graphics-document document" viewBox="-50 -10 942.5 769" style="max-width: 942.5px;" xmlns="http://www.w3.org/2000/svg" width="100%" id="d0"><g><rect class="actor actor-bottom" ry="3" rx="3" name="W" height="65" width="150" stroke="#666" fill="#eaeaea" y="683" x="692.5"></rect><text style="text-anchor: middle; font-size: 16px; font-weight: 400; font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif;" class="actor" alignment-baseline="central" dominant-baseline="central" y="715.5" x="767.5"><tspan dy="0" x="767.5">العامل</tspan></text></g><g><rect class="actor actor-bottom" ry="3" rx="3" name="R" height="65" width="153" stroke="#666" fill="#eaeaea" y="683" x="489.5"></rect><text style="text-anchor: middle; font-size: 16px; font-weight: 400; font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif;" class="actor" alignment-baseline="central" dominant-baseline="central" y="715.5" x="566"><tspan dy="0" x="566">أدمن الروم سيرفس</tspan></text></g><g><rect class="actor actor-bottom" ry="3" rx="3" name="S" height="65" width="150" stroke="#666" fill="#eaeaea" y="683" x="255"></rect><text style="text-anchor: middle; font-size: 16px; font-weight: 400; font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif;" class="actor" alignment-baseline="central" dominant-baseline="central" y="715.5" x="330"><tspan dy="0" x="330">النظام</tspan></text></g><g><rect class="actor actor-bottom" ry="3" rx="3" name="G" height="65" width="150" stroke="#666" fill="#eaeaea" y="683" x="0"></rect><text style="text-anchor: middle; font-size: 16px; font-weight: 400; font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif;" class="actor" alignment-baseline="central" dominant-baseline="central" y="715.5" x="75"><tspan dy="0" x="75">الضيف</tspan></text></g><g><line stroke="#999" stroke-width="0.5px" class="200" y2="683" x2="767.5" y1="5" x1="767.5" id="actor3"></line><g id="root-3"><rect class="actor actor-top" ry="3" rx="3" name="W" height="65" width="150" stroke="#666" fill="#eaeaea" y="0" x="692.5"></rect><text style="text-anchor: middle; font-size: 16px; font-weight: 400; font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif;" class="actor" alignment-baseline="central" dominant-baseline="central" y="32.5" x="767.5"><tspan dy="0" x="767.5">العامل</tspan></text></g></g><g><line stroke="#999" stroke-width="0.5px" class="200" y2="683" x2="566" y1="5" x1="566" id="actor2"></line><g id="root-2"><rect class="actor actor-top" ry="3" rx="3" name="R" height="65" width="153" stroke="#666" fill="#eaeaea" y="0" x="489.5"></rect><text style="text-anchor: middle; font-size: 16px; font-weight: 400; font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif;" class="actor" alignment-baseline="central" dominant-baseline="central" y="32.5" x="566"><tspan dy="0" x="566">أدمن الروم سيرفس</tspan></text></g></g><g><line stroke="#999" stroke-width="0.5px" class="200" y2="683" x2="330" y1="5" x1="330" id="actor1"></line><g id="root-1"><rect class="actor actor-top" ry="3" rx="3" name="S" height="65" width="150" stroke="#666" fill="#eaeaea" y="0" x="255"></rect><text style="text-anchor: middle; font-size: 16px; font-weight: 400; font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif;" class="actor" alignment-baseline="central" dominant-baseline="central" y="32.5" x="330"><tspan dy="0" x="330">النظام</tspan></text></g></g><g><line stroke="#999" stroke-width="0.5px" class="200" y2="683" x2="75" y1="5" x1="75" id="actor0"></line><g id="root-0"><rect class="actor actor-top" ry="3" rx="3" name="G" height="65" width="150" stroke="#666" fill="#eaeaea" y="0" x="0"></rect><text style="text-anchor: middle; font-size: 16px; font-weight: 400; font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif;" class="actor" alignment-baseline="central" dominant-baseline="central" y="32.5" x="75"><tspan dy="0" x="75">الضيف</tspan></text></g></g><style>#d0{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;font-size:16px;fill:#000000;}#d0 .error-icon{fill:#552222;}#d0 .error-text{fill:#552222;stroke:#552222;}#d0 .edge-thickness-normal{stroke-width:2px;}#d0 .edge-thickness-thick{stroke-width:3.5px;}#d0 .edge-pattern-solid{stroke-dasharray:0;}#d0 .edge-pattern-dashed{stroke-dasharray:3;}#d0 .edge-pattern-dotted{stroke-dasharray:2;}#d0 .marker{fill:#666;stroke:#666;}#d0 .marker.cross{stroke:#666;}#d0 svg{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;font-size:16px;}#d0 .actor{stroke:hsl(0, 0%, 83%);fill:#eee;}#d0 text.actor&gt;tspan{fill:#333;stroke:none;}#d0 .actor-line{stroke:#666;}#d0 .messageLine0{stroke-width:1.5;stroke-dasharray:none;stroke:#333;}#d0 .messageLine1{stroke-width:1.5;stroke-dasharray:2,2;stroke:#333;}#d0 #arrowhead path{fill:#333;stroke:#333;}#d0 .sequenceNumber{fill:white;}#d0 #sequencenumber{fill:#333;}#d0 #crosshead path{fill:#333;stroke:#333;}#d0 .messageText{fill:#333;stroke:none;}#d0 .labelBox{stroke:hsl(0, 0%, 83%);fill:#eee;}#d0 .labelText,#d0 .labelText&gt;tspan{fill:#333;stroke:none;}#d0 .loopText,#d0 .loopText&gt;tspan{fill:#333;stroke:none;}#d0 .loopLine{stroke-width:2px;stroke-dasharray:2,2;stroke:hsl(0, 0%, 83%);fill:hsl(0, 0%, 83%);}#d0 .note{stroke:#999;fill:#666;}#d0 .noteText,#d0 .noteText&gt;tspan{fill:#fff;stroke:none;}#d0 .activation0{fill:#f4f4f4;stroke:#666;}#d0 .activation1{fill:#f4f4f4;stroke:#666;}#d0 .activation2{fill:#f4f4f4;stroke:#666;}#d0 .actorPopupMenu{position:absolute;}#d0 .actorPopupMenuPanel{position:absolute;fill:#eee;box-shadow:0px 8px 16px 0px rgba(0,0,0,0.2);filter:drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));}#d0 .actor-man line{stroke:hsl(0, 0%, 83%);fill:#eee;}#d0 .actor-man circle,#d0 line{stroke:hsl(0, 0%, 83%);fill:#eee;stroke-width:2px;}#d0 :root{--mermaid-font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;}</style><g></g><defs><symbol height="24" width="24" id="computer"><path d="M2 2v13h20v-13h-20zm18 11h-16v-9h16v9zm-10.228 6l.466-1h3.524l.467 1h-4.457zm14.228 3h-24l2-6h2.104l-1.33 4h18.45l-1.297-4h2.073l2 6zm-5-10h-14v-7h14v7z" transform="scale(.5)"></path></symbol></defs><defs><symbol clip-rule="evenodd" fill-rule="evenodd" id="database"><path d="M12.258.001l.256.004.255.005.253.008.251.01.249.012.247.015.246.016.242.019.241.02.239.023.236.024.233.027.231.028.229.031.225.032.223.034.22.036.217.038.214.04.211.041.208.043.205.045.201.046.198.048.194.05.191.051.187.053.183.054.18.056.175.057.172.059.168.06.163.061.16.063.155.064.15.066.074.033.073.033.071.034.07.034.069.035.068.035.067.035.066.035.064.036.064.036.062.036.06.036.06.037.058.037.058.037.055.038.055.038.053.038.052.038.051.039.05.039.048.039.047.039.045.04.044.04.043.04.041.04.04.041.039.041.037.041.036.041.034.041.033.042.032.042.03.042.029.042.027.042.026.043.024.043.023.043.021.043.02.043.018.044.017.043.015.044.013.044.012.044.011.045.009.044.007.045.006.045.004.045.002.045.001.045v17l-.001.045-.002.045-.004.045-.006.045-.007.045-.009.044-.011.045-.012.044-.013.044-.015.044-.017.043-.018.044-.02.043-.021.043-.023.043-.024.043-.026.043-.027.042-.029.042-.03.042-.032.042-.033.042-.034.041-.036.041-.037.041-.039.041-.04.041-.041.04-.043.04-.044.04-.045.04-.047.039-.048.039-.05.039-.051.039-.052.038-.053.038-.055.038-.055.038-.058.037-.058.037-.06.037-.06.036-.062.036-.064.036-.064.036-.066.035-.067.035-.068.035-.069.035-.07.034-.071.034-.073.033-.074.033-.15.066-.155.064-.16.063-.163.061-.168.06-.172.059-.175.057-.18.056-.183.054-.187.053-.191.051-.194.05-.198.048-.201.046-.205.045-.208.043-.211.041-.214.04-.217.038-.22.036-.223.034-.225.032-.229.031-.231.028-.233.027-.236.024-.239.023-.241.02-.242.019-.246.016-.247.015-.249.012-.251.01-.253.008-.255.005-.256.004-.258.001-.258-.001-.256-.004-.255-.005-.253-.008-.251-.01-.249-.012-.247-.015-.245-.016-.243-.019-.241-.02-.238-.023-.236-.024-.234-.027-.231-.028-.228-.031-.226-.032-.223-.034-.22-.036-.217-.038-.214-.04-.211-.041-.208-.043-.204-.045-.201-.046-.198-.048-.195-.05-.19-.051-.187-.053-.184-.054-.179-.056-.176-.057-.172-.059-.167-.06-.164-.061-.159-.063-.155-.064-.151-.066-.074-.033-.072-.033-.072-.034-.07-.034-.069-.035-.068-.035-.067-.035-.066-.035-.064-.036-.063-.036-.062-.036-.061-.036-.06-.037-.058-.037-.057-.037-.056-.038-.055-.038-.053-.038-.052-.038-.051-.039-.049-.039-.049-.039-.046-.039-.046-.04-.044-.04-.043-.04-.041-.04-.04-.041-.039-.041-.037-.041-.036-.041-.034-.041-.033-.042-.032-.042-.03-.042-.029-.042-.027-.042-.026-.043-.024-.043-.023-.043-.021-.043-.02-.043-.018-.044-.017-.043-.015-.044-.013-.044-.012-.044-.011-.045-.009-.044-.007-.045-.006-.045-.004-.045-.002-.045-.001-.045v-17l.001-.045.002-.045.004-.045.006-.045.007-.045.009-.044.011-.045.012-.044.013-.044.015-.044.017-.043.018-.044.02-.043.021-.043.023-.043.024-.043.026-.043.027-.042.029-.042.03-.042.032-.042.033-.042.034-.041.036-.041.037-.041.039-.041.04-.041.041-.04.043-.04.044-.04.046-.04.046-.039.049-.039.049-.039.051-.039.052-.038.053-.038.055-.038.056-.038.057-.037.058-.037.06-.037.061-.036.062-.036.063-.036.064-.036.066-.035.067-.035.068-.035.069-.035.07-.034.072-.034.072-.033.074-.033.151-.066.155-.064.159-.063.164-.061.167-.06.172-.059.176-.057.179-.056.184-.054.187-.053.19-.051.195-.05.198-.048.201-.046.204-.045.208-.043.211-.041.214-.04.217-.038.22-.036.223-.034.226-.032.228-.031.231-.028.234-.027.236-.024.238-.023.241-.02.243-.019.245-.016.247-.015.249-.012.251-.01.253-.008.255-.005.256-.004.258-.001.258.001zm-9.258 20.499v.01l.001.021.003.021.004.022.005.021.006.022.007.022.009.023.01.022.011.023.012.023.013.023.015.023.016.024.017.023.018.024.019.024.021.024.022.025.023.024.024.025.052.049.056.05.061.051.066.051.07.051.075.051.079.052.084.052.088.052.092.052.097.052.102.051.105.052.11.052.114.051.119.051.123.051.127.05.131.05.135.05.139.048.144.049.147.047.152.047.155.047.16.045.163.045.167.043.171.043.176.041.178.041.183.039.187.039.19.037.194.035.197.035.202.033.204.031.209.03.212.029.216.027.219.025.222.024.226.021.23.02.233.018.236.016.24.015.243.012.246.01.249.008.253.005.256.004.259.001.26-.001.257-.004.254-.005.25-.008.247-.011.244-.012.241-.014.237-.016.233-.018.231-.021.226-.021.224-.024.22-.026.216-.027.212-.028.21-.031.205-.031.202-.034.198-.034.194-.036.191-.037.187-.039.183-.04.179-.04.175-.042.172-.043.168-.044.163-.045.16-.046.155-.046.152-.047.148-.048.143-.049.139-.049.136-.05.131-.05.126-.05.123-.051.118-.052.114-.051.11-.052.106-.052.101-.052.096-.052.092-.052.088-.053.083-.051.079-.052.074-.052.07-.051.065-.051.06-.051.056-.05.051-.05.023-.024.023-.025.021-.024.02-.024.019-.024.018-.024.017-.024.015-.023.014-.024.013-.023.012-.023.01-.023.01-.022.008-.022.006-.022.006-.022.004-.022.004-.021.001-.021.001-.021v-4.127l-.077.055-.08.053-.083.054-.085.053-.087.052-.09.052-.093.051-.095.05-.097.05-.1.049-.102.049-.105.048-.106.047-.109.047-.111.046-.114.045-.115.045-.118.044-.12.043-.122.042-.124.042-.126.041-.128.04-.13.04-.132.038-.134.038-.135.037-.138.037-.139.035-.142.035-.143.034-.144.033-.147.032-.148.031-.15.03-.151.03-.153.029-.154.027-.156.027-.158.026-.159.025-.161.024-.162.023-.163.022-.165.021-.166.02-.167.019-.169.018-.169.017-.171.016-.173.015-.173.014-.175.013-.175.012-.177.011-.178.01-.179.008-.179.008-.181.006-.182.005-.182.004-.184.003-.184.002h-.37l-.184-.002-.184-.003-.182-.004-.182-.005-.181-.006-.179-.008-.179-.008-.178-.01-.176-.011-.176-.012-.175-.013-.173-.014-.172-.015-.171-.016-.17-.017-.169-.018-.167-.019-.166-.02-.165-.021-.163-.022-.162-.023-.161-.024-.159-.025-.157-.026-.156-.027-.155-.027-.153-.029-.151-.03-.15-.03-.148-.031-.146-.032-.145-.033-.143-.034-.141-.035-.14-.035-.137-.037-.136-.037-.134-.038-.132-.038-.13-.04-.128-.04-.126-.041-.124-.042-.122-.042-.12-.044-.117-.043-.116-.045-.113-.045-.112-.046-.109-.047-.106-.047-.105-.048-.102-.049-.1-.049-.097-.05-.095-.05-.093-.052-.09-.051-.087-.052-.085-.053-.083-.054-.08-.054-.077-.054v4.127zm0-5.654v.011l.001.021.003.021.004.021.005.022.006.022.007.022.009.022.01.022.011.023.012.023.013.023.015.024.016.023.017.024.018.024.019.024.021.024.022.024.023.025.024.024.052.05.056.05.061.05.066.051.07.051.075.052.079.051.084.052.088.052.092.052.097.052.102.052.105.052.11.051.114.051.119.052.123.05.127.051.131.05.135.049.139.049.144.048.147.048.152.047.155.046.16.045.163.045.167.044.171.042.176.042.178.04.183.04.187.038.19.037.194.036.197.034.202.033.204.032.209.03.212.028.216.027.219.025.222.024.226.022.23.02.233.018.236.016.24.014.243.012.246.01.249.008.253.006.256.003.259.001.26-.001.257-.003.254-.006.25-.008.247-.01.244-.012.241-.015.237-.016.233-.018.231-.02.226-.022.224-.024.22-.025.216-.027.212-.029.21-.03.205-.032.202-.033.198-.035.194-.036.191-.037.187-.039.183-.039.179-.041.175-.042.172-.043.168-.044.163-.045.16-.045.155-.047.152-.047.148-.048.143-.048.139-.05.136-.049.131-.05.126-.051.123-.051.118-.051.114-.052.11-.052.106-.052.101-.052.096-.052.092-.052.088-.052.083-.052.079-.052.074-.051.07-.052.065-.051.06-.05.056-.051.051-.049.023-.025.023-.024.021-.025.02-.024.019-.024.018-.024.017-.024.015-.023.014-.023.013-.024.012-.022.01-.023.01-.023.008-.022.006-.022.006-.022.004-.021.004-.022.001-.021.001-.021v-4.139l-.077.054-.08.054-.083.054-.085.052-.087.053-.09.051-.093.051-.095.051-.097.05-.1.049-.102.049-.105.048-.106.047-.109.047-.111.046-.114.045-.115.044-.118.044-.12.044-.122.042-.124.042-.126.041-.128.04-.13.039-.132.039-.134.038-.135.037-.138.036-.139.036-.142.035-.143.033-.144.033-.147.033-.148.031-.15.03-.151.03-.153.028-.154.028-.156.027-.158.026-.159.025-.161.024-.162.023-.163.022-.165.021-.166.02-.167.019-.169.018-.169.017-.171.016-.173.015-.173.014-.175.013-.175.012-.177.011-.178.009-.179.009-.179.007-.181.007-.182.005-.182.004-.184.003-.184.002h-.37l-.184-.002-.184-.003-.182-.004-.182-.005-.181-.007-.179-.007-.179-.009-.178-.009-.176-.011-.176-.012-.175-.013-.173-.014-.172-.015-.171-.016-.17-.017-.169-.018-.167-.019-.166-.02-.165-.021-.163-.022-.162-.023-.161-.024-.159-.025-.157-.026-.156-.027-.155-.028-.153-.028-.151-.03-.15-.03-.148-.031-.146-.033-.145-.033-.143-.033-.141-.035-.14-.036-.137-.036-.136-.037-.134-.038-.132-.039-.13-.039-.128-.04-.126-.041-.124-.042-.122-.043-.12-.043-.117-.044-.116-.044-.113-.046-.112-.046-.109-.046-.106-.047-.105-.048-.102-.049-.1-.049-.097-.05-.095-.051-.093-.051-.09-.051-.087-.053-.085-.052-.083-.054-.08-.054-.077-.054v4.139zm0-5.666v.011l.001.02.003.022.004.021.005.022.006.021.007.022.009.023.01.022.011.023.012.023.013.023.015.023.016.024.017.024.018.023.019.024.021.025.022.024.023.024.024.025.052.05.056.05.061.05.066.051.07.051.075.052.079.051.084.052.088.052.092.052.097.052.102.052.105.051.11.052.114.051.119.051.123.051.127.05.131.05.135.05.139.049.144.048.147.048.152.047.155.046.16.045.163.045.167.043.171.043.176.042.178.04.183.04.187.038.19.037.194.036.197.034.202.033.204.032.209.03.212.028.216.027.219.025.222.024.226.021.23.02.233.018.236.017.24.014.243.012.246.01.249.008.253.006.256.003.259.001.26-.001.257-.003.254-.006.25-.008.247-.01.244-.013.241-.014.237-.016.233-.018.231-.02.226-.022.224-.024.22-.025.216-.027.212-.029.21-.03.205-.032.202-.033.198-.035.194-.036.191-.037.187-.039.183-.039.179-.041.175-.042.172-.043.168-.044.163-.045.16-.045.155-.047.152-.047.148-.048.143-.049.139-.049.136-.049.131-.051.126-.05.123-.051.118-.052.114-.051.11-.052.106-.052.101-.052.096-.052.092-.052.088-.052.083-.052.079-.052.074-.052.07-.051.065-.051.06-.051.056-.05.051-.049.023-.025.023-.025.021-.024.02-.024.019-.024.018-.024.017-.024.015-.023.014-.024.013-.023.012-.023.01-.022.01-.023.008-.022.006-.022.006-.022.004-.022.004-.021.001-.021.001-.021v-4.153l-.077.054-.08.054-.083.053-.085.053-.087.053-.09.051-.093.051-.095.051-.097.05-.1.049-.102.048-.105.048-.106.048-.109.046-.111.046-.114.046-.115.044-.118.044-.12.043-.122.043-.124.042-.126.041-.128.04-.13.039-.132.039-.134.038-.135.037-.138.036-.139.036-.142.034-.143.034-.144.033-.147.032-.148.032-.15.03-.151.03-.153.028-.154.028-.156.027-.158.026-.159.024-.161.024-.162.023-.163.023-.165.021-.166.02-.167.019-.169.018-.169.017-.171.016-.173.015-.173.014-.175.013-.175.012-.177.01-.178.01-.179.009-.179.007-.181.006-.182.006-.182.004-.184.003-.184.001-.185.001-.185-.001-.184-.001-.184-.003-.182-.004-.182-.006-.181-.006-.179-.007-.179-.009-.178-.01-.176-.01-.176-.012-.175-.013-.173-.014-.172-.015-.171-.016-.17-.017-.169-.018-.167-.019-.166-.02-.165-.021-.163-.023-.162-.023-.161-.024-.159-.024-.157-.026-.156-.027-.155-.028-.153-.028-.151-.03-.15-.03-.148-.032-.146-.032-.145-.033-.143-.034-.141-.034-.14-.036-.137-.036-.136-.037-.134-.038-.132-.039-.13-.039-.128-.041-.126-.041-.124-.041-.122-.043-.12-.043-.117-.044-.116-.044-.113-.046-.112-.046-.109-.046-.106-.048-.105-.048-.102-.048-.1-.05-.097-.049-.095-.051-.093-.051-.09-.052-.087-.052-.085-.053-.083-.053-.08-.054-.077-.054v4.153zm8.74-8.179l-.257.004-.254.005-.25.008-.247.011-.244.012-.241.014-.237.016-.233.018-.231.021-.226.022-.224.023-.22.026-.216.027-.212.028-.21.031-.205.032-.202.033-.198.034-.194.036-.191.038-.187.038-.183.04-.179.041-.175.042-.172.043-.168.043-.163.045-.16.046-.155.046-.152.048-.148.048-.143.048-.139.049-.136.05-.131.05-.126.051-.123.051-.118.051-.114.052-.11.052-.106.052-.101.052-.096.052-.092.052-.088.052-.083.052-.079.052-.074.051-.07.052-.065.051-.06.05-.056.05-.051.05-.023.025-.023.024-.021.024-.02.025-.019.024-.018.024-.017.023-.015.024-.014.023-.013.023-.012.023-.01.023-.01.022-.008.022-.006.023-.006.021-.004.022-.004.021-.001.021-.001.021.001.021.001.021.004.021.004.022.006.021.006.023.008.022.01.022.01.023.012.023.013.023.014.023.015.024.017.023.018.024.019.024.02.025.021.024.023.024.023.025.051.05.056.05.06.05.065.051.07.052.074.051.079.052.083.052.088.052.092.052.096.052.101.052.106.052.11.052.114.052.118.051.123.051.126.051.131.05.136.05.139.049.143.048.148.048.152.048.155.046.16.046.163.045.168.043.172.043.175.042.179.041.183.04.187.038.191.038.194.036.198.034.202.033.205.032.21.031.212.028.216.027.22.026.224.023.226.022.231.021.233.018.237.016.241.014.244.012.247.011.25.008.254.005.257.004.26.001.26-.001.257-.004.254-.005.25-.008.247-.011.244-.012.241-.014.237-.016.233-.018.231-.021.226-.022.224-.023.22-.026.216-.027.212-.028.21-.031.205-.032.202-.033.198-.034.194-.036.191-.038.187-.038.183-.04.179-.041.175-.042.172-.043.168-.043.163-.045.16-.046.155-.046.152-.048.148-.048.143-.048.139-.049.136-.05.131-.05.126-.051.123-.051.118-.051.114-.052.11-.052.106-.052.101-.052.096-.052.092-.052.088-.052.083-.052.079-.052.074-.051.07-.052.065-.051.06-.05.056-.05.051-.05.023-.025.023-.024.021-.024.02-.025.019-.024.018-.024.017-.023.015-.024.014-.023.013-.023.012-.023.01-.023.01-.022.008-.022.006-.023.006-.021.004-.022.004-.021.001-.021.001-.021-.001-.021-.001-.021-.004-.021-.004-.022-.006-.021-.006-.023-.008-.022-.01-.022-.01-.023-.012-.023-.013-.023-.014-.023-.015-.024-.017-.023-.018-.024-.019-.024-.02-.025-.021-.024-.023-.024-.023-.025-.051-.05-.056-.05-.06-.05-.065-.051-.07-.052-.074-.051-.079-.052-.083-.052-.088-.052-.092-.052-.096-.052-.101-.052-.106-.052-.11-.052-.114-.052-.118-.051-.123-.051-.126-.051-.131-.05-.136-.05-.139-.049-.143-.048-.148-.048-.152-.048-.155-.046-.16-.046-.163-.045-.168-.043-.172-.043-.175-.042-.179-.041-.183-.04-.187-.038-.191-.038-.194-.036-.198-.034-.202-.033-.205-.032-.21-.031-.212-.028-.216-.027-.22-.026-.224-.023-.226-.022-.231-.021-.233-.018-.237-.016-.241-.014-.244-.012-.247-.011-.25-.008-.254-.005-.257-.004-.26-.001-.26.001z" transform="scale(.5)"></path></symbol></defs><defs><symbol height="24" width="24" id="clock"><path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.848 12.459c.202.038.202.333.001.372-1.907.361-6.045 1.111-6.547 1.111-.719 0-1.301-.582-1.301-1.301 0-.512.77-5.447 1.125-7.445.034-.192.312-.181.343.014l.985 6.238 5.394 1.011z" transform="scale(.5)"></path></symbol></defs><defs><marker orient="auto" markerHeight="12" markerWidth="12" markerUnits="userSpaceOnUse" refY="5" refX="7.9" id="arrowhead"><path d="M 0 0 L 10 5 L 0 10 z"></path></marker></defs><defs><marker refY="4.5" refX="4" orient="auto" markerHeight="8" markerWidth="15" id="crosshead"><path style="stroke-dasharray: 0, 0;" d="M 1,2 L 6,7 M 6,2 L 1,7" stroke-width="1pt" stroke="#000000" fill="none"></path></marker></defs><defs><marker orient="auto" markerHeight="28" markerWidth="20" refY="7" refX="15.5" id="filled-head"><path d="M 18,7 L9,13 L14,7 L9,1 Z"></path></marker></defs><defs><marker orient="auto" markerHeight="40" markerWidth="60" refY="15" refX="15" id="sequencenumber"><circle r="6" cy="15" cx="15"></circle></marker></defs><text style="font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif; font-size: 16px; font-weight: 400;" dy="1em" class="messageText" alignment-baseline="middle" dominant-baseline="middle" text-anchor="middle" y="80" x="201">تأكيد وإرسال</text><line style="fill: none;" marker-start="url(#sequencenumber)" marker-end="url(#arrowhead)" stroke="none" stroke-width="2" class="messageLine0" y2="119" x2="326" y1="119" x1="76"></line><text class="sequenceNumber" text-anchor="middle" font-size="12px" font-family="sans-serif" y="123" x="76">1</text><text style="font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif; font-size: 16px; font-weight: 400;" dy="1em" class="messageText" alignment-baseline="middle" dominant-baseline="middle" text-anchor="middle" y="134" x="331">فحص الكميات وخصمها معاً</text><path style="fill: none;" marker-start="url(#sequencenumber)" marker-end="url(#arrowhead)" stroke="none" stroke-width="2" class="messageLine0" d="M 331,175 C 391,165 391,205 331,195"></path><text class="sequenceNumber" text-anchor="middle" font-size="12px" font-family="sans-serif" y="179" x="331">2</text><text style="font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif; font-size: 16px; font-weight: 400;" dy="1em" class="messageText" alignment-baseline="middle" dominant-baseline="middle" text-anchor="middle" y="220" x="204">تم إرسال طلبك (جديد)</text><line style="stroke-dasharray: 3, 3; fill: none;" marker-start="url(#sequencenumber)" marker-end="url(#arrowhead)" stroke="none" stroke-width="2" class="messageLine1" y2="255" x2="79" y1="255" x1="329"></line><text class="sequenceNumber" text-anchor="middle" font-size="12px" font-family="sans-serif" y="259" x="329">3</text><text style="font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif; font-size: 16px; font-weight: 400;" dy="1em" class="messageText" alignment-baseline="middle" dominant-baseline="middle" text-anchor="middle" y="270" x="447">طلب جديد + تنبيه صوتي</text><line style="fill: none;" marker-start="url(#sequencenumber)" marker-end="url(#arrowhead)" stroke="none" stroke-width="2" class="messageLine0" y2="305" x2="562" y1="305" x1="331"></line><text class="sequenceNumber" text-anchor="middle" font-size="12px" font-family="sans-serif" y="309" x="331">4</text><text style="font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif; font-size: 16px; font-weight: 400;" dy="1em" class="messageText" alignment-baseline="middle" dominant-baseline="middle" text-anchor="middle" y="320" x="450">قبول وتحويل إلى عامل</text><line style="fill: none;" marker-start="url(#sequencenumber)" marker-end="url(#arrowhead)" stroke="none" stroke-width="2" class="messageLine0" y2="355" x2="334" y1="355" x1="565"></line><text class="sequenceNumber" text-anchor="middle" font-size="12px" font-family="sans-serif" y="359" x="565">5</text><text style="font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif; font-size: 16px; font-weight: 400;" dy="1em" class="messageText" alignment-baseline="middle" dominant-baseline="middle" text-anchor="middle" y="370" x="204">تم القبول (يختفي زر الإلغاء)</text><line style="stroke-dasharray: 3, 3; fill: none;" marker-start="url(#sequencenumber)" marker-end="url(#arrowhead)" stroke="none" stroke-width="2" class="messageLine1" y2="405" x2="79" y1="405" x1="329"></line><text class="sequenceNumber" text-anchor="middle" font-size="12px" font-family="sans-serif" y="409" x="329">6</text><text style="font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif; font-size: 16px; font-weight: 400;" dy="1em" class="messageText" alignment-baseline="middle" dominant-baseline="middle" text-anchor="middle" y="420" x="547">الطلب على جوال العامل</text><line style="fill: none;" marker-start="url(#sequencenumber)" marker-end="url(#arrowhead)" stroke="none" stroke-width="2" class="messageLine0" y2="455" x2="763.5" y1="455" x1="331"></line><text class="sequenceNumber" text-anchor="middle" font-size="12px" font-family="sans-serif" y="459" x="331">7</text><text style="font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif; font-size: 16px; font-weight: 400;" dy="1em" class="messageText" alignment-baseline="middle" dominant-baseline="middle" text-anchor="middle" y="470" x="550">خرجت بالطلب</text><line style="fill: none;" marker-start="url(#sequencenumber)" marker-end="url(#arrowhead)" stroke="none" stroke-width="2" class="messageLine0" y2="505" x2="334" y1="505" x1="766.5"></line><text class="sequenceNumber" text-anchor="middle" font-size="12px" font-family="sans-serif" y="509" x="766.5">8</text><text style="font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif; font-size: 16px; font-weight: 400;" dy="1em" class="messageText" alignment-baseline="middle" dominant-baseline="middle" text-anchor="middle" y="520" x="204">في الطريق</text><line style="stroke-dasharray: 3, 3; fill: none;" marker-start="url(#sequencenumber)" marker-end="url(#arrowhead)" stroke="none" stroke-width="2" class="messageLine1" y2="555" x2="79" y1="555" x1="329"></line><text class="sequenceNumber" text-anchor="middle" font-size="12px" font-family="sans-serif" y="559" x="329">9</text><text style="font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif; font-size: 16px; font-weight: 400;" dy="1em" class="messageText" alignment-baseline="middle" dominant-baseline="middle" text-anchor="middle" y="570" x="550">سلّمت واستلمت المبلغ</text><line style="fill: none;" marker-start="url(#sequencenumber)" marker-end="url(#arrowhead)" stroke="none" stroke-width="2" class="messageLine0" y2="613" x2="334" y1="613" x1="766.5"></line><text class="sequenceNumber" text-anchor="middle" font-size="12px" font-family="sans-serif" y="617" x="766.5">10</text><text style="font-family: &quot;IBM Plex Sans Arabic&quot;, system-ui, sans-serif; font-size: 16px; font-weight: 400;" dy="1em" class="messageText" alignment-baseline="middle" dominant-baseline="middle" text-anchor="middle" y="628" x="204">تم التوصيل</text><line style="stroke-dasharray: 3, 3; fill: none;" marker-start="url(#sequencenumber)" marker-end="url(#arrowhead)" stroke="none" stroke-width="2" class="messageLine1" y2="663" x2="79" y1="663" x1="329"></line><text class="sequenceNumber" text-anchor="middle" font-size="12px" font-family="sans-serif" y="667" x="329">11</text></svg></div></div>
+  <p class="cap">المسار نفسه كمخطط تسلسلي. الأسهم المتقطعة هي ما يصل للضيف دون أن يطلبه.</p>
+</section>
+
+<section id="states">
+  <h2>حالات الطلب</h2>
+  <p class="muted">الضيف يرى خمس حالات فقط، ولا يرى اسم العامل أبداً. التحويل لعامل أمر داخلي لا يظهر له.</p>
+  <div class="diagram"><div class="svgwrap" dir="ltr"><svg aria-roledescription="stateDiagram" role="graphics-document document" viewBox="0 0 1041.9375 175.5" style="max-width: 1041.9375px;" class="statediagram" xmlns="http://www.w3.org/2000/svg" width="100%" id="d1"><style>#d1{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;font-size:16px;fill:#000000;}#d1 .error-icon{fill:#552222;}#d1 .error-text{fill:#552222;stroke:#552222;}#d1 .edge-thickness-normal{stroke-width:2px;}#d1 .edge-thickness-thick{stroke-width:3.5px;}#d1 .edge-pattern-solid{stroke-dasharray:0;}#d1 .edge-pattern-dashed{stroke-dasharray:3;}#d1 .edge-pattern-dotted{stroke-dasharray:2;}#d1 .marker{fill:#666;stroke:#666;}#d1 .marker.cross{stroke:#666;}#d1 svg{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;font-size:16px;}#d1 defs #statediagram-barbEnd{fill:#000;stroke:#000;}#d1 g.stateGroup text{fill:#999;stroke:none;font-size:10px;}#d1 g.stateGroup text{fill:#000000;stroke:none;font-size:10px;}#d1 g.stateGroup .state-title{font-weight:bolder;fill:#111111;}#d1 g.stateGroup rect{fill:#eee;stroke:#999;}#d1 g.stateGroup line{stroke:#666;stroke-width:1;}#d1 .transition{stroke:#000;stroke-width:1;fill:none;}#d1 .stateGroup .composit{fill:#ffffff;border-bottom:1px;}#d1 .stateGroup .alt-composit{fill:#e0e0e0;border-bottom:1px;}#d1 .state-note{stroke:#999;fill:#666;}#d1 .state-note text{fill:#fff;stroke:none;font-size:10px;}#d1 .stateLabel .box{stroke:none;stroke-width:0;fill:#eee;opacity:0.5;}#d1 .edgeLabel .label rect{fill:#eee;opacity:0.5;}#d1 .edgeLabel .label text{fill:#000000;}#d1 .label div .edgeLabel{color:#000000;}#d1 .stateLabel text{fill:#111111;font-size:10px;font-weight:bold;}#d1 .node circle.state-start{fill:#222;stroke:#222;}#d1 .node .fork-join{fill:#222;stroke:#222;}#d1 .node circle.state-end{fill:hsl(0, 0%, 83.3333333333%);stroke:#ffffff;stroke-width:1.5;}#d1 .end-state-inner{fill:#ffffff;stroke-width:1.5;}#d1 .node rect{fill:#eee;stroke:#000;stroke-width:1px;}#d1 .node polygon{fill:#eee;stroke:#000;stroke-width:1px;}#d1 #statediagram-barbEnd{fill:#666;}#d1 .statediagram-cluster rect{fill:#eee;stroke:#000;stroke-width:1px;}#d1 .cluster-label,#d1 .nodeLabel{color:#111111;}#d1 .statediagram-cluster rect.outer{rx:5px;ry:5px;}#d1 .statediagram-state .divider{stroke:#000;}#d1 .statediagram-state .title-state{rx:5px;ry:5px;}#d1 .statediagram-cluster.statediagram-cluster .inner{fill:#ffffff;}#d1 .statediagram-cluster.statediagram-cluster-alt .inner{fill:#f4f4f4;}#d1 .statediagram-cluster .inner{rx:0;ry:0;}#d1 .statediagram-state rect.basic{rx:5px;ry:5px;}#d1 .statediagram-state rect.divider{stroke-dasharray:10,10;fill:#f4f4f4;}#d1 .note-edge{stroke-dasharray:5;}#d1 .statediagram-note rect{fill:#666;stroke:#999;stroke-width:1px;rx:0;ry:0;}#d1 .statediagram-note rect{fill:#666;stroke:#999;stroke-width:1px;rx:0;ry:0;}#d1 .statediagram-note text{fill:#fff;}#d1 .statediagram-note .nodeLabel{color:#fff;}#d1 .statediagram .edgeLabel{color:red;}#d1 #dependencyStart,#d1 #dependencyEnd{fill:#666;stroke:#666;stroke-width:1;}#d1 .statediagramTitleText{text-anchor:middle;font-size:18px;fill:#000000;}#d1 :root{--mermaid-font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;}</style><g><defs><marker orient="auto" markerUnits="strokeWidth" markerHeight="14" markerWidth="20" refY="7" refX="19" id="d1_statediagram-barbEnd"><path d="M 19,7 L9,13 L14,7 L9,1 Z"></path></marker></defs><g class="root"><g class="clusters"></g><g class="edgePaths"><path marker-end="url(#d1_statediagram-barbEnd)" style="fill:none" class="edge-thickness-normal transition" id="edge0" d="M22,101.25L30.434,101.25C38.867,101.25,55.734,101.25,72.602,101.25C89.469,101.25,106.336,101.25,114.77,101.25L123.203,101.25"></path><path marker-end="url(#d1_statediagram-barbEnd)" style="fill:none" class="edge-thickness-normal transition" id="edge1" d="M169.344,94.62L180.577,91.391C191.81,88.163,214.276,81.707,236.742,78.478C259.208,75.25,281.674,75.25,292.908,75.25L304.141,75.25"></path><path marker-end="url(#d1_statediagram-barbEnd)" style="fill:none" class="edge-thickness-normal transition" id="edge2" d="M473.859,59.343L487.057,56.87C500.255,54.396,526.651,49.448,553.047,46.974C579.443,44.5,605.839,44.5,619.036,44.5L632.234,44.5"></path><path marker-end="url(#d1_statediagram-barbEnd)" style="fill:none" class="edge-thickness-normal transition" id="edge3" d="M722.375,37.457L735.66,35.381C748.945,33.304,775.516,29.152,802.086,27.076C828.656,25,855.227,25,868.512,25L881.797,25"></path><path marker-end="url(#d1_statediagram-barbEnd)" style="fill:none" class="edge-thickness-normal transition" id="edge4" d="M169.344,115.722L180.577,122.768C191.81,129.814,214.276,143.907,250.885,150.954C287.495,158,338.247,158,390.965,158C443.682,158,498.365,158,546.415,158C594.466,158,635.885,158,677.392,158C718.898,158,760.492,158,797.759,154.075C835.026,150.15,867.966,142.299,884.436,138.374L900.906,134.449"></path><path marker-end="url(#d1_statediagram-barbEnd)" style="fill:none" class="edge-thickness-normal transition" id="edge5" d="M455.4,92.25L471.674,96.417C487.949,100.583,520.498,108.917,557.482,113.083C594.466,117.25,635.885,117.25,677.392,117.25C718.898,117.25,760.492,117.25,797.759,118.747C835.026,120.244,867.966,123.238,884.436,124.734L900.906,126.231"></path><path marker-end="url(#d1_statediagram-barbEnd)" style="fill:none" class="edge-thickness-normal transition" id="edge6" d="M722.375,54.343L735.66,57.244C748.945,60.145,775.516,65.948,805.271,76.4C835.026,86.852,867.966,101.954,884.436,109.505L900.906,117.056"></path><path marker-end="url(#d1_statediagram-barbEnd)" style="fill:none" class="edge-thickness-normal transition" id="edge7" d="M969.938,25L974.104,25C978.271,25,986.604,25,995.477,32.391C1004.351,39.782,1013.764,54.564,1018.471,61.955L1023.177,69.346"></path><path marker-end="url(#d1_statediagram-barbEnd)" style="fill:none" class="edge-thickness-normal transition" id="edge8" d="M950.828,128.5L958.18,128.5C965.531,128.5,980.234,128.5,992.318,120.625C1004.402,112.75,1013.867,97,1018.599,89.125L1023.332,81.25"></path></g><g class="edgeLabels"><g transform="translate(72.6015625, 101.25)" class="edgeLabel"><g transform="translate(-25.6015625, -9.5)" class="label"><rect height="19" width="51.203125" ry="0" rx="0"></rect><foreignObject height="19" width="51.203125"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel">الإرسال</span></div></foreignObject></g></g><g transform="translate(236.7421875, 75.25)" class="edgeLabel"><g transform="translate(-42.3984375, -9.5)" class="label"><rect height="19" width="84.796875" ry="0" rx="0"></rect><foreignObject height="19" width="84.796875"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel">قبول وتحويل</span></div></foreignObject></g></g><g transform="translate(553.046875, 44.5)" class="edgeLabel"><g transform="translate(-48.875, -9.5)" class="label"><rect height="19" width="97.75" ry="0" rx="0"></rect><foreignObject height="19" width="97.75"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel">خرجت بالطلب</span></div></foreignObject></g></g><g transform="translate(802.0859375, 25)" class="edgeLabel"><g transform="translate(-54.7109375, -9.5)" class="label"><rect height="19" width="109.421875" ry="0" rx="0"></rect><foreignObject height="19" width="109.421875"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel">سلّمت واستلمت</span></div></foreignObject></g></g><g transform="translate(553.046875, 158)" class="edgeLabel"><g transform="translate(-54.1875, -9.5)" class="label"><rect height="19" width="108.375" ry="0" rx="0"></rect><foreignObject height="19" width="108.375"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel">الضيف أو الأدمن</span></div></foreignObject></g></g><g transform="translate(677.3046875, 117.25)" class="edgeLabel"><g transform="translate(-38.734375, -9.5)" class="label"><rect height="19" width="77.46875" ry="0" rx="0"></rect><foreignObject height="19" width="77.46875"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel">الأدمن فقط</span></div></foreignObject></g></g><g transform="translate(802.0859375, 71.75)" class="edgeLabel"><g transform="translate(-38.734375, -9.5)" class="label"><rect height="19" width="77.46875" ry="0" rx="0"></rect><foreignObject height="19" width="77.46875"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel">الأدمن فقط</span></div></foreignObject></g></g><g class="edgeLabel"><g transform="translate(0, 0)" class="label"><rect height="0" width="0" ry="0" rx="0"></rect><foreignObject height="0" width="0"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g transform="translate(0, 0)" class="label"><rect height="0" width="0" ry="0" rx="0"></rect><foreignObject height="0" width="0"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel"></span></div></foreignObject></g></g></g><g class="nodes"><g transform="translate(146.2734375, 101.25)" data-id="New" data-node="true" id="state-New-4" class="node  statediagram-state undefined"><rect height="34" width="46.140625" y="-17" x="-23.0703125" style="" class="basic label-container"></rect><g transform="translate(-15.5703125, -9.5)" style="" class="label"><rect></rect><foreignObject height="19" width="31.140625"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">جديد</span></div></foreignObject></g></g><g transform="translate(389, 75.25)" data-id="Acc" data-node="true" id="state-Acc-5" class="node  statediagram-state undefined"><rect height="34" width="169.71875" y="-17" x="-84.859375" style="" class="basic label-container"></rect><g transform="translate(-77.359375, -9.5)" style="" class="label"><rect></rect><foreignObject height="19" width="154.71875"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">تم القبول وجارٍ التحضير</span></div></foreignObject></g></g><g transform="translate(677.3046875, 44.5)" data-id="Way" data-node="true" id="state-Way-6" class="node  statediagram-state undefined"><rect height="34" width="90.140625" y="-17" x="-45.0703125" style="" class="basic label-container"></rect><g transform="translate(-37.5703125, -9.5)" style="" class="label"><rect></rect><foreignObject height="19" width="75.140625"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">في الطريق</span></div></foreignObject></g></g><g transform="translate(925.8671875, 25)" data-id="Del" data-node="true" id="state-Del-7" class="node  statediagram-state undefined"><rect height="34" width="88.140625" y="-17" x="-44.0703125" style="" class="basic label-container"></rect><g transform="translate(-36.5703125, -9.5)" style="" class="label"><rect></rect><foreignObject height="19" width="73.140625"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">تم التوصيل</span></div></foreignObject></g></g><g transform="translate(925.8671875, 128.5)" data-id="Can" data-node="true" id="state-Can-8" class="node  statediagram-state undefined"><rect height="34" width="49.921875" y="-17" x="-24.9609375" style="" class="basic label-container"></rect><g transform="translate(-17.4609375, -9.5)" style="" class="label"><rect></rect><foreignObject height="19" width="34.921875"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">ملغى</span></div></foreignObject></g></g><g transform="translate(15, 101.25)" data-id="root_start" data-node="true" id="state-root_start-0" class="node default"><circle height="14" width="14" r="7" class="state-start"></circle></g><g transform="translate(1026.9375, 75.25)" data-id="root_end" data-node="true" id="state-root_end-8" class="node default"><circle height="14" width="14" r="7" class="state-start"></circle><circle height="10" width="10" r="5" class="state-end"></circle></g></g></g></g></svg></div></div>
+  <div class="tbl"><table>
+    <thead><tr><th>من</th><th>إلى</th><th>من يستطيع</th><th>أثر على المخزون</th><th>يستطيع الضيف الإلغاء بعدها؟</th></tr></thead>
+    <tbody>
+      <tr><td>—</td><td class="st">جديد</td><td>النظام عند الإرسال</td><td>يُخصم</td><td>نعم</td></tr>
+      <tr><td>جديد</td><td class="st">تم القبول وجارٍ التحضير</td><td>أدمن الروم سيرفس (قبول وتحويل)</td><td>لا شيء</td><td>لا</td></tr>
+      <tr><td>تم القبول</td><td class="st">في الطريق</td><td>العامل، أو الأدمن نيابةً عنه</td><td>يخرج من «المحجوز»</td><td>لا</td></tr>
+      <tr><td>في الطريق</td><td class="st">تم التوصيل</td><td>العامل عبر تأكيد الدفع، أو الأدمن نيابةً عنه</td><td>لا شيء</td><td>—</td></tr>
+      <tr><td>جديد</td><td class="st">ملغى</td><td>الضيف، أو الأدمن بسبب</td><td>يعود كاملاً</td><td>—</td></tr>
+      <tr><td>تم القبول / في الطريق</td><td class="st">ملغى</td><td>الأدمن فقط، بسبب إلزامي</td><td>يعود كاملاً</td><td>—</td></tr>
+      <tr><td>تم التوصيل</td><td>—</td><td>لا أحد، حالة نهائية</td><td>—</td><td>—</td></tr>
+    </tbody></table></div>
+</section>
+
+<section id="assign">
+  <h2>التوزيع على العمّال</h2>
+  <ol class="rules">
+    <li>جهاز الروم سيرفس يرى <strong>كل</strong> الطلبات. جوال العامل يرى <strong>المحوّلة له فقط</strong>.</li>
+    <li>القبول والتحويل فعل واحد. يختار الأدمن العامل من قائمة من سجّلوا دخولهم في الوردية، ويستطيع أن يختار نفسه إن لم يكن عامل متاحاً.</li>
+    <li>يمكن تحويل الطلب لعامل آخر ما دام «تم القبول» أو «في الطريق»، فيختفي من جوال الأول ويظهر عند الثاني فوراً.</li>
+    <li>العامل ينقل طلبه إلى «في الطريق» ثم «تم التوصيل». إن تعطّل جواله يفعلها الأدمن نيابةً عنه، ويُسجَّل من فعلها.</li>
+    <li>العامل <strong>لا يلغي</strong> الطلبات. إن رفض الضيف الطلب عند الباب، يتّصل العامل بالأدمن فيلغيه الأدمن بسبب مكتوب.</li>
+    <li>يُسجَّل لكل طلب: من قبله، ولمن حُوّل، ومتى تغيّرت كل حالة. هذا ما يجعل التسوية وحلّ الشكاوى ممكنين.</li>
+  </ol>
+</section>
+
+<section id="stock">
+  <h2>المخزون</h2>
+  <p class="muted">المخزون بالكميات، ويُخصم عند إرسال الطلب. قواعده كاملة:</p>
+  <ol class="rules">
+    <li><strong>يُخصم عند الإرسال</strong>، لكل منتجات الطلب في خطوة واحدة. إمّا يُخصم الكل أو لا شيء.</li>
+    <li><strong>السلة لا تحجز.</strong> الحجز يبدأ فقط عند الإرسال.</li>
+    <li>إن طلب الضيف كمية أكبر من المتبقّي (مثلاً ٣ والمتبقّي ٢)، يُعامل المنتج كغير متوفر في <code>M-04</code>، ويستطيع الضيف إعادة إضافته بكمية أقل.</li>
+    <li>حين تصل كمية منتج إلى <strong>صفر</strong> يظهر «غير متوفر» لكل الضيوف تلقائياً، وحين تُضاف كمية جديدة يعود «متوفراً» تلقائياً.</li>
+    <li>الضيف لا يرى رقم الكمية أبداً، فقط «متوفر» أو «غير متوفر».</li>
+    <li>لكل منتج <strong>حدّ تنبيه</strong> (الافتراضي ٥). حين تنزل الكمية عنه يظهر تنبيه في لوحة المخزون وفي نظرة المدير العامة.</li>
+    <li><strong>أي إلغاء قبل التوصيل يعيد الكميات كاملة</strong>، مهما كان من ألغى.</li>
+    <li>الطلب المُوصَل لا يعيد شيئاً. المرتجعات خارج النسخة الأولى.</li>
+    <li>يستطيع المدير <strong>إيقاف بيع</strong> منتج يدوياً مهما كانت كميته (مثلاً لمشكلة في الجودة).</li>
+  </ol>
+  <div class="diagram"><div class="svgwrap" dir="ltr"><svg aria-roledescription="flowchart-v2" role="graphics-document document" viewBox="-8 -8 590 979.390625" style="max-width: 590px;" xmlns="http://www.w3.org/2000/svg" width="100%" id="d2"><style>#d2{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;font-size:16px;fill:#000000;}#d2 .error-icon{fill:#552222;}#d2 .error-text{fill:#552222;stroke:#552222;}#d2 .edge-thickness-normal{stroke-width:2px;}#d2 .edge-thickness-thick{stroke-width:3.5px;}#d2 .edge-pattern-solid{stroke-dasharray:0;}#d2 .edge-pattern-dashed{stroke-dasharray:3;}#d2 .edge-pattern-dotted{stroke-dasharray:2;}#d2 .marker{fill:#666;stroke:#666;}#d2 .marker.cross{stroke:#666;}#d2 svg{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;font-size:16px;}#d2 .label{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;color:#000000;}#d2 .cluster-label text{fill:#333;}#d2 .cluster-label span,#d2 p{color:#333;}#d2 .label text,#d2 span,#d2 p{fill:#000000;color:#000000;}#d2 .node rect,#d2 .node circle,#d2 .node ellipse,#d2 .node polygon,#d2 .node path{fill:#eee;stroke:#999;stroke-width:1px;}#d2 .flowchart-label text{text-anchor:middle;}#d2 .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#d2 .node .label{text-align:center;}#d2 .node.clickable{cursor:pointer;}#d2 .arrowheadPath{fill:#333333;}#d2 .edgePath .path{stroke:#666;stroke-width:2.0px;}#d2 .flowchart-link{stroke:#666;fill:none;}#d2 .edgeLabel{background-color:white;text-align:center;}#d2 .edgeLabel rect{opacity:0.5;background-color:white;fill:white;}#d2 .labelBkg{background-color:rgba(255, 255, 255, 0.5);}#d2 .cluster rect{fill:hsl(0, 0%, 98.9215686275%);stroke:#707070;stroke-width:1px;}#d2 .cluster text{fill:#333;}#d2 .cluster span,#d2 p{color:#333;}#d2 div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;font-size:12px;background:hsl(-160, 0%, 93.3333333333%);border:1px solid #707070;border-radius:2px;pointer-events:none;z-index:100;}#d2 .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#000000;}#d2 :root{--mermaid-font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;}</style><g><marker orient="auto" markerHeight="12" markerWidth="12" markerUnits="userSpaceOnUse" refY="5" refX="6" viewBox="0 0 10 10" class="marker flowchart" id="d2_flowchart-pointEnd"><path style="stroke-width: 1; stroke-dasharray: 1, 0;" class="arrowMarkerPath" d="M 0 0 L 10 5 L 0 10 z"></path></marker><marker orient="auto" markerHeight="12" markerWidth="12" markerUnits="userSpaceOnUse" refY="5" refX="4.5" viewBox="0 0 10 10" class="marker flowchart" id="d2_flowchart-pointStart"><path style="stroke-width: 1; stroke-dasharray: 1, 0;" class="arrowMarkerPath" d="M 0 5 L 10 10 L 10 0 z"></path></marker><marker orient="auto" markerHeight="11" markerWidth="11" markerUnits="userSpaceOnUse" refY="5" refX="11" viewBox="0 0 10 10" class="marker flowchart" id="d2_flowchart-circleEnd"><circle style="stroke-width: 1; stroke-dasharray: 1, 0;" class="arrowMarkerPath" r="5" cy="5" cx="5"></circle></marker><marker orient="auto" markerHeight="11" markerWidth="11" markerUnits="userSpaceOnUse" refY="5" refX="-1" viewBox="0 0 10 10" class="marker flowchart" id="d2_flowchart-circleStart"><circle style="stroke-width: 1; stroke-dasharray: 1, 0;" class="arrowMarkerPath" r="5" cy="5" cx="5"></circle></marker><marker orient="auto" markerHeight="11" markerWidth="11" markerUnits="userSpaceOnUse" refY="5.2" refX="12" viewBox="0 0 11 11" class="marker cross flowchart" id="d2_flowchart-crossEnd"><path style="stroke-width: 2; stroke-dasharray: 1, 0;" class="arrowMarkerPath" d="M 1,1 l 9,9 M 10,1 l -9,9"></path></marker><marker orient="auto" markerHeight="11" markerWidth="11" markerUnits="userSpaceOnUse" refY="5.2" refX="-1" viewBox="0 0 11 11" class="marker cross flowchart" id="d2_flowchart-crossStart"><path style="stroke-width: 2; stroke-dasharray: 1, 0;" class="arrowMarkerPath" d="M 1,1 l 9,9 M 10,1 l -9,9"></path></marker><g class="root"><g class="clusters"></g><g class="edgePaths"><path marker-end="url(#d2_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-A LE-B" id="L-A-B-0" d="M167.297,34L167.297,38.167C167.297,42.333,167.297,50.667,167.363,58.2C167.429,65.734,167.561,72.467,167.627,75.834L167.693,79.201"></path><path marker-end="url(#d2_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-B LE-C" id="L-B-C-0" d="M128.582,219.551L118.445,231.754C108.308,243.956,88.033,268.361,77.895,285.43C67.758,302.499,67.758,312.232,67.758,317.099L67.758,321.966"></path><path marker-end="url(#d2_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-B LE-D" id="L-B-D-0" d="M207.011,219.551L216.982,231.754C226.953,243.956,246.894,268.361,256.865,285.43C266.836,302.499,266.836,312.232,266.836,317.099L266.836,321.966"></path><path marker-end="url(#d2_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-D LE-E" id="L-D-E-0" d="M266.836,380.266L266.836,384.432C266.836,388.599,266.836,396.932,266.902,404.466C266.968,411.999,267.1,418.733,267.166,422.1L267.232,425.467"></path><path marker-end="url(#d2_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-E LE-F" id="L-E-F-0" d="M223.588,574.924L212.141,587.882C200.694,600.84,177.8,626.756,166.353,656.182C154.906,685.608,154.906,718.545,154.906,735.013L154.906,751.481"></path><path marker-end="url(#d2_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-E LE-G" id="L-E-G-0" d="M311.083,574.924L322.364,587.882C333.644,600.84,356.205,626.756,367.556,644.664C378.907,662.572,379.048,672.472,379.119,677.422L379.19,682.372"></path><path marker-end="url(#d2_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-F LE-H" id="L-F-H-0" d="M154.906,790.781L154.906,808.133C154.906,825.484,154.906,860.188,166.601,882.92C178.295,905.652,201.684,916.414,213.379,921.795L225.073,927.175"></path><path marker-end="url(#d2_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-G LE-H" id="L-G-H-0" d="M379.266,860.891L379.182,866.557C379.099,872.224,378.932,883.557,367.154,894.605C355.377,905.652,331.987,916.414,320.293,921.795L308.598,927.175"></path><path marker-end="url(#d2_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-X LE-Y" id="L-X-Y-0" d="M486.078,34L486.078,38.167C486.078,42.333,486.078,50.667,486.078,69.805C486.078,88.944,486.078,118.889,486.078,133.861L486.078,148.833"></path><path marker-end="url(#d2_flowchart-pointEnd)" style="fill:none;" class="edge-thickness-normal edge-pattern-solid flowchart-link LS-Y LE-Z" id="L-Y-Z-0" d="M486.078,188.133L486.078,205.572C486.078,223.01,486.078,257.888,486.078,281.777C486.078,305.666,486.078,318.566,486.078,325.016L486.078,331.466"></path></g><g class="edgeLabels"><g class="edgeLabel"><g transform="translate(0, 0)" class="label"><foreignObject height="0" width="0"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel"></span></div></foreignObject></g></g><g transform="translate(67.7578125, 292.765625)" class="edgeLabel"><g transform="translate(-4.5625, -9.5)" class="label"><foreignObject height="19" width="9.125"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel">لا</span></div></foreignObject></g></g><g transform="translate(266.8359375, 292.765625)" class="edgeLabel"><g transform="translate(-11.4140625, -9.5)" class="label"><foreignObject height="19" width="22.828125"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel">نعم</span></div></foreignObject></g></g><g class="edgeLabel"><g transform="translate(0, 0)" class="label"><foreignObject height="0" width="0"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel"></span></div></foreignObject></g></g><g transform="translate(154.90625, 652.671875)" class="edgeLabel"><g transform="translate(-11.4140625, -9.5)" class="label"><foreignObject height="19" width="22.828125"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel">نعم</span></div></foreignObject></g></g><g transform="translate(378.765625, 652.671875)" class="edgeLabel"><g transform="translate(-4.5625, -9.5)" class="label"><foreignObject height="19" width="9.125"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel">لا</span></div></foreignObject></g></g><g class="edgeLabel"><g transform="translate(0, 0)" class="label"><foreignObject height="0" width="0"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel"></span></div></foreignObject></g></g><g transform="translate(378.765625, 894.890625)" class="edgeLabel"><g transform="translate(-11.4140625, -9.5)" class="label"><foreignObject height="19" width="22.828125"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel">نعم</span></div></foreignObject></g></g><g class="edgeLabel"><g transform="translate(0, 0)" class="label"><foreignObject height="0" width="0"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g transform="translate(0, 0)" class="label"><foreignObject height="0" width="0"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="edgeLabel"></span></div></foreignObject></g></g></g><g class="nodes"><g transform="translate(167.296875, 17)" data-id="A" data-node="true" id="flowchart-A-0" class="node default default flowchart-label"><rect height="34" width="196.0625" y="-17" x="-98.03125" ry="0" rx="0" style="" class="basic label-container"></rect><g transform="translate(-90.53125, -9.5)" style="" class="label"><rect></rect><foreignObject height="19" width="181.0625"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">الضيف يضغط تأكيد وإرسال</span></div></foreignObject></g></g><g transform="translate(167.296875, 171.1328125)" data-id="B" data-node="true" id="flowchart-B-1" class="node default default flowchart-label"><polygon style="" transform="translate(-87.1328125,87.1328125)" class="label-container" points="87.1328125,0 174.265625,-87.1328125 87.1328125,-174.265625 0,-87.1328125"></polygon><g transform="translate(-53.1328125, -19)" style="" class="label"><rect></rect><foreignObject height="38" width="106.265625"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">هل تكفي الكمية<br>لكل المنتجات؟</span></div></foreignObject></g></g><g transform="translate(67.7578125, 353.765625)" data-id="C" data-node="true" id="flowchart-C-3" class="node default default flowchart-label"><rect height="53" width="135.515625" y="-26.5" x="-67.7578125" ry="0" rx="0" style="" class="basic label-container"></rect><g transform="translate(-60.2578125, -19)" style="" class="label"><rect></rect><foreignObject height="38" width="120.515625"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">لا يُخصم شيء<br>يرى الضيف M-04</span></div></foreignObject></g></g><g transform="translate(266.8359375, 353.765625)" data-id="D" data-node="true" id="flowchart-D-5" class="node default default flowchart-label"><rect height="53" width="162.640625" y="-26.5" x="-81.3203125" ry="0" rx="0" style="" class="basic label-container"></rect><g transform="translate(-73.8203125, -19)" style="" class="label"><rect></rect><foreignObject height="38" width="147.640625"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">تُخصم كل الكميات معاً<br>ويُنشأ الطلب جديد</span></div></foreignObject></g></g><g transform="translate(266.8359375, 524.21875)" data-id="E" data-node="true" id="flowchart-E-7" class="node default default flowchart-label"><polygon style="" transform="translate(-93.953125,93.953125)" class="label-container" points="93.953125,0 187.90625,-93.953125 93.953125,-187.90625 0,-93.953125"></polygon><g transform="translate(-69.453125, -9.5)" style="" class="label"><rect></rect><foreignObject height="19" width="138.90625"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">وصل منتج إلى صفر؟</span></div></foreignObject></g></g><g transform="translate(154.90625, 773.78125)" data-id="F" data-node="true" id="flowchart-F-9" class="node default default flowchart-label"><rect height="34" width="174.5" y="-17" x="-87.25" ry="0" rx="0" style="" class="basic label-container"></rect><g transform="translate(-79.75, -9.5)" style="" class="label"><rect></rect><foreignObject height="19" width="159.5"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">غير متوفر لبقية الضيوف</span></div></foreignObject></g></g><g transform="translate(378.765625, 773.78125)" data-id="G" data-node="true" id="flowchart-G-11" class="node default default flowchart-label"><polygon style="" transform="translate(-86.609375,86.609375)" class="label-container" points="86.609375,0 173.21875,-86.609375 86.609375,-173.21875 0,-86.609375"></polygon><g transform="translate(-62.109375, -9.5)" style="" class="label"><rect></rect><foreignObject height="19" width="124.21875"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">أقل من حدّ التنبيه؟</span></div></foreignObject></g></g><g transform="translate(266.8359375, 946.390625)" data-id="H" data-node="true" id="flowchart-H-13" class="node default default flowchart-label"><rect height="34" width="167.578125" y="-17" x="-83.7890625" ry="0" rx="0" style="" class="basic label-container"></rect><g transform="translate(-76.2890625, -9.5)" style="" class="label"><rect></rect><foreignObject height="19" width="152.578125"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">تنبيه في لوحة المخزون</span></div></foreignObject></g></g><g transform="translate(486.078125, 17)" data-id="X" data-node="true" id="flowchart-X-16" class="node default default flowchart-label"><rect height="34" width="132.15625" y="-17" x="-66.078125" ry="0" rx="0" style="" class="basic label-container"></rect><g transform="translate(-58.578125, -9.5)" style="" class="label"><rect></rect><foreignObject height="19" width="117.15625"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">إلغاء قبل التوصيل</span></div></foreignObject></g></g><g transform="translate(486.078125, 171.1328125)" data-id="Y" data-node="true" id="flowchart-Y-17" class="node default default flowchart-label"><rect height="34" width="139.84375" y="-17" x="-69.921875" ry="0" rx="0" style="" class="basic label-container"></rect><g transform="translate(-62.421875, -9.5)" style="" class="label"><rect></rect><foreignObject height="19" width="124.84375"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">تعود الكميات كاملة</span></div></foreignObject></g></g><g transform="translate(486.078125, 353.765625)" data-id="Z" data-node="true" id="flowchart-Z-19" class="node default default flowchart-label"><rect height="34" width="175.84375" y="-17" x="-87.921875" ry="0" rx="0" style="" class="basic label-container"></rect><g transform="translate(-80.421875, -9.5)" style="" class="label"><rect></rect><foreignObject height="19" width="160.84375"><div style="display: inline-block; white-space: nowrap;" xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel">يعود المنتج متوفراً تلقائياً</span></div></foreignObject></g></g></g></g></g></svg></div></div>
+</section>
+
+<section id="stockboard">
+  <h2>لوحة المخزون لأدمن الروم سيرفس</h2>
+  <p class="lead">الروم سيرفس هم من يقفون عند الرف، فهم من يعرف أولاً أن شيئاً نفد أو تلف أو وصلت بضاعة جديدة. لذلك لهم لوحة مخزون خاصة على جهازهم، منفصلة عن لوحة المدير.</p>
+
+  <h3>ثلاثة أرقام لا رقم واحد</h3>
+  <p class="muted">لأن المخزون يُخصم عند الإرسال، الرقم الظاهر للبيع ليس ما على الرف. الفرق هو المنتجات المحجوزة لطلبات لم تخرج بعد.</p>
+  <div class="eq" dir="rtl">
+    <div class="box"><b class="num">18</b><span><strong>متاح للبيع</strong> · ما يستطيع الضيوف طلبه الآن</span></div>
+    <span class="op">+</span>
+    <div class="box"><b class="num">4</b><span><strong>محجوز</strong> · في طلبات «جديد» أو «تم القبول» لم تخرج من الرف</span></div>
+    <span class="op">=</span>
+    <div class="box shelf"><b class="num">22</b><span><strong>على الرف</strong> · ما يعدّه الأدمن بيده</span></div>
+  </div>
+  <div class="note change">
+    <span class="tag">فخّ يجب أن يتجنّبه المبرمج</span>
+    <p>حين يعدّ الأدمن الرف ويُدخل العدد، يُدخله في خانة <strong>«على الرف»</strong>، والنظام يحسب «المتاح للبيع» بطرح المحجوز. لو أُدخل العدد مباشرة كـ«متاح للبيع»، لضاعت حجوزات الطلبات التي لم تخرج، ولبيع المنتج مرتين.</p>
+  </div>
+
+  <h3>شكل اللوحة</h3>
+  <div class="board" role="img" aria-label="مثال على لوحة المخزون">
+    <div class="board-top">
+      <strong>المخزون</strong>
+      <div class="kpis"><span class="kpi out">نفد: <b>2</b></span><span class="kpi low">منخفض: <b>3</b></span><span class="kpi">كل المنتجات: <b>28</b></span></div>
+    </div>
+    <div class="tbl" style="border:0;border-radius:0">
+    <table>
+      <thead><tr><th>المنتج</th><th>على الرف</th><th>محجوز</th><th>متاح للبيع</th><th>حدّ التنبيه</th><th>الحالة</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>لاتيه مثلج</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">5</td><td><span class="sb out">نفد</span></td><td><button class="act" type="button" tabindex="-1">استلام بضاعة</button></td></tr>
+        <tr><td>مياه معدنية 500 مل</td><td class="num">22</td><td class="num">4</td><td class="num">18</td><td class="num">10</td><td><span class="sb ok">متوفر</span></td><td><button class="act" type="button" tabindex="-1">تعديل</button></td></tr>
+        <tr><td>عصير برتقال طازج</td><td class="num">6</td><td class="num">2</td><td class="num">4</td><td class="num">5</td><td><span class="sb low">منخفض</span></td><td><button class="act" type="button" tabindex="-1">استلام بضاعة</button></td></tr>
+        <tr><td>كريم واقٍ من الشمس</td><td class="num">3</td><td class="num">0</td><td class="num">3</td><td class="num">5</td><td><span class="sb low">منخفض</span></td><td><button class="act" type="button" tabindex="-1">تعديل</button></td></tr>
+      </tbody>
+    </table></div>
+    <p class="example">مثال توضيحي بأرقام افتراضية. الترتيب: النافد أولاً، ثم المنخفض، ثم البقية.</p>
+  </div>
+
+  <h3>حركات المخزون</h3>
+  <p class="muted">كل تغيير في الكمية حركة مسجّلة: نوعها، والكمية، ومن فعلها، ومتى، والسبب. لا تتغيّر كمية بلا سجلّ.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>الحركة</th><th>الأثر</th><th>من يفعلها</th><th>السبب</th></tr></thead>
+    <tbody>
+      <tr><td>طلب أُرسل</td><td style="color:var(--minus)">− المتاح، + المحجوز</td><td>النظام</td><td>تلقائي، مربوط برقم الطلب</td></tr>
+      <tr><td>طلب خرج «في الطريق»</td><td style="color:var(--minus)">− المحجوز، − الرف</td><td>النظام</td><td>تلقائي</td></tr>
+      <tr><td>طلب أُلغي قبل الخروج</td><td style="color:var(--plus)">+ المتاح، − المحجوز</td><td>النظام</td><td>تلقائي</td></tr>
+      <tr><td>طلب أُلغي وهو «في الطريق»</td><td style="color:var(--plus)">+ المتاح، + الرف</td><td>النظام</td><td>تلقائي، العامل يعيد المنتجات للرف</td></tr>
+      <tr><td>استلام بضاعة</td><td style="color:var(--plus)">+ الرف، + المتاح</td><td>أدمن الروم سيرفس</td><td>إلزامي: الكمية المستلمة</td></tr>
+      <tr><td>تالف أو منتهي</td><td style="color:var(--minus)">− الرف، − المتاح</td><td>أدمن الروم سيرفس</td><td>إلزامي: اختيار السبب</td></tr>
+      <tr><td>جرد (تصحيح عدد)</td><td>الرف = العدد الجديد</td><td>أدمن الروم سيرفس</td><td>إلزامي، ويُسجَّل الفرق</td></tr>
+    </tbody></table></div>
+
+  <h3>من يستطيع ماذا</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>العملية</th><th>أدمن الروم سيرفس</th><th>مدير الفندق</th></tr></thead>
+    <tbody>
+      <tr><td>رؤية الكميات والتنبيهات</td><td>نعم</td><td>نعم</td></tr>
+      <tr><td>استلام بضاعة، تالف، جرد</td><td>نعم</td><td>نعم</td></tr>
+      <tr><td>إضافة منتج، تغيير السعر، الوصف، الصورة</td><td>لا</td><td>نعم</td></tr>
+      <tr><td>تحديد حدّ التنبيه</td><td>لا</td><td>نعم</td></tr>
+      <tr><td>إيقاف بيع منتج يدوياً</td><td>لا</td><td>نعم</td></tr>
+      <tr><td>سجلّ حركات المخزون</td><td>قراءة</td><td>قراءة وتصدير</td></tr>
+    </tbody></table></div>
+</section>
+
+<section id="cancel">
+  <h2>الإلغاء</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>الحالة</th><th>من يلغي</th><th>ماذا يحدث</th></tr></thead>
+    <tbody>
+      <tr><td>الضيف يلغي وطلبه «جديد»</td><td>الضيف</td><td>يُلغى فوراً، تعود الكميات، ويرى الأدمن البطاقة معلّمة «ألغى الضيف هذا الطلب».</td></tr>
+      <tr><td>الفندق يلغي قبل التوصيل</td><td>أدمن الروم سيرفس فقط</td><td>سبب إلزامي من قائمة جاهزة مع سطر اختياري. يقرأ الضيف السبب حرفياً بلغة طلبه، دون اسم الموظف. تعود الكميات.</td></tr>
+      <tr><td>الضيف يلغي والأدمن يقبل في اللحظة نفسها</td><td>—</td><td>من وصل أولاً يفوز. إن وصل الإلغاء أولاً يُرفض القبول ويظهر للأدمن تنبيه «ألغى الضيف». وإن وصل القبول أولاً يُرفض الإلغاء ويرى الضيف «قبله الفندق قبل وصول طلب الإلغاء».</td></tr>
+      <tr><td>الضيف يريد تعديل طلب أُرسل</td><td>—</td><td>لا تعديل. يلغيه ما دام «جديداً» ثم يطلب من جديد، وزر «إعادة الطلب» يعيد المنتجات لسلّته بضغطة.</td></tr>
+    </tbody></table></div>
+</section>
+
+<section id="pay">
+  <h2>الدفع عند الباب</h2>
+  <ol class="rules">
+    <li><strong>بطاقة:</strong> يأخذ العامل جهاز الدفع معه ويستلم المبلغ عند الباب.</li>
+    <li><strong>نقداً:</strong> إن كتب الضيف المبلغ الذي سيدفع به، يرى العامل الباقي الذي يُحضره مسبقاً على جواله.</li>
+    <li>لا توجد رسوم توصيل ولا رسوم خدمة ولا ضريبة منفصلة في النسخة الأولى. سعر المنتج هو ما يُدفع.</li>
+    <li>يؤكّد العامل استلام المبلغ في <code>SM-02</code>، وهي الشاشة الوحيدة التي يُذكر فيها المال.</li>
+    <li>آخر الوردية: تقرير الطلبات يُظهر النقد الذي يُفترض أن كل عامل استلمه، لتسوية الصندوق.</li>
+  </ol>
+</section>
+
+<section id="changes">
+  <h2>ما يتغيّر في الشاشات الحالية</h2>
+  <p class="muted">المواصفات والنموذج بُنيت قبل هذه القرارات. هذه هي الفروق التي يجب أن يبنيها المبرمج كما هنا، لا كما في النموذج.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>المكان</th><th>الحالي في المواصفات والنموذج</th><th>المطلوب</th></tr></thead>
+    <tbody>
+      <tr><td>المنتج</td><td>مفتاح «متوفر / غير متوفر» فقط</td><td>كمية على الرف، ومحجوز، ومتاح للبيع، وحدّ تنبيه، ومفتاح «إيقاف البيع» يدوي منفصل</td></tr>
+      <tr><td>إرسال الطلب</td><td>رفض المنتج إن كان «غير متوفر»</td><td>فحص الكميات وخصمها كلها في خطوة واحدة، والرفض إن نقص منتج واحد</td></tr>
+      <tr><td>الإلغاء</td><td>يغيّر الحالة فقط</td><td>يغيّر الحالة ويعيد الكميات</td></tr>
+      <tr><td>واجهة الموظف <code>S-01</code> <code>S-02</code></td><td>أي موظف يرى كل الطلبات ويقبلها وينقلها حتى التوصيل</td><td>تصبح جهاز <strong>أدمن الروم سيرفس</strong>: يرى الكل، ويقبل ويحوّل لعامل، ويعيد التحويل، ويلغي</td></tr>
+      <tr><td>جوال العامل</td><td>غير موجود</td><td>جديد: <code>W-01</code> طلباتي و<code>W-02</code> تفاصيل الطلب، للطلبات المحوّلة له فقط</td></tr>
+      <tr><td>تأكيد التوصيل <code>SM-02</code></td><td>على جهاز الموظف</td><td>ينتقل إلى جوال العامل</td></tr>
+      <tr><td>لوحة المخزون</td><td>غير موجودة</td><td>جديدة على جهاز الروم سيرفس: الأرقام الثلاثة، والتنبيهات، واستلام البضاعة، والتالف، والجرد، والسجلّ</td></tr>
+      <tr><td>لوحة المدير <code>A-03</code> <code>A-04</code></td><td>مفتاح المخزون في جدول المنتجات</td><td>الكمية وحدّ التنبيه في تفاصيل المنتج، وسجلّ الحركات، ومفتاح «إيقاف البيع»</td></tr>
+      <tr><td>نظرة المدير العامة <code>A-02</code></td><td>تنبّه على ما لا يُباع</td><td>تضيف قائمة المنتجات المنخفضة والنافدة</td></tr>
+      <tr><td>شاشات الضيف</td><td>—</td><td><strong>لا تتغيّر.</strong> يظهر «غير متوفر» الآن أيضاً حين تصل الكمية للصفر</td></tr>
+    </tbody></table></div>
+</section>
+
+<section id="open">
+  <h2>قرارات مفتوحة تحتاج الفندق</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>السؤال</th><th>ما تفعله النسخة الأولى الآن</th></tr></thead>
+    <tbody>
+      <tr><td><strong>OQ-01</strong> · هل أرقام الغرف فيها حروف أو شرطة (مثل <code>A-12</code>)؟</td><td>أرقام فقط من ١ إلى ٥. يستطيع المدير تغييرها من الإعدادات، والتغيير محمي باختبار رقم غرفة حقيقي قبل الحفظ.</td></tr>
+      <tr><td><strong>OQ-02</strong> · رُفضت بطاقة الضيف عند الباب وليس معه نقد</td><td>يتّصل العامل بالأدمن، فيلغي الأدمن بأقرب سبب ويشرح في السطر الاختياري. سياسة الفندق النهائية لم تُحسم: خصم على فاتورة الغرفة، أم حجز في الاستقبال، أم إلغاء.</td></tr>
+    </tbody></table></div>
+</section>
+
+</main>
+</div>
+
+<script>
+(function(){
+  var KEY='ops.roleFilter';
+  var btns=[].slice.call(document.querySelectorAll('.filter button'));
+  var steps=[].slice.call(document.querySelectorAll('ol.steps>li'));
+  function apply(f){
+    btns.forEach(function(b){b.setAttribute('aria-pressed',String(b.getAttribute('data-f')===f));});
+    steps.forEach(function(li){
+      var roles=(li.getAttribute('data-roles')||'').split(' ');
+      li.classList.toggle('dim', f!=='all' && roles.indexOf(f)===-1);
+    });
+    try{localStorage.setItem(KEY,f);}catch(e){}
+  }
+  btns.forEach(function(b){b.addEventListener('click',function(){apply(b.getAttribute('data-f'));});});
+  var saved='all'; try{saved=localStorage.getItem(KEY)||'all';}catch(e){}
+  if(!btns.some(function(b){return b.getAttribute('data-f')===saved;})) saved='all';
+  apply(saved);
+})();
+</script>
+</body>
+</html>
