@@ -46,7 +46,9 @@
                            The guest device record keeps ONE reason string,
                            `cancelReason`; store.js's getStatus copies the reason
                            in the guest's language into it (G-06 C08).
-     roomstore.staff       { members:[{id,name,pin}], session:{memberId,since}|null }
+     roomstore.staff       { members:[{id,name,pin,role}], session (desk),
+                             workerSession (worker phone), shift } — see
+                             seedStaff() below
      roomstore.admin       { email, passwordHash, session }
 
    Rules

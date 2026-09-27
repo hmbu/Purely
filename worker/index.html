@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<title>طلباتي — My orders</title>
+<link rel="stylesheet" href="../app/css/app.css">
+<link rel="stylesheet" href="../staff/css/staff.css">
+<link rel="stylesheet" href="css/worker.css">
+</head>
+<body class="staff worker">
+
+<!-- Demo strip: NOT part of the product. It lets a reviewer cut the
+     connection (to see the failure states) and reset the worker's session.
+     Drawn by js/app.js. -->
+<div id="demo-bar" class="demo-bar" data-demo="true"></div>
+
+<div id="app" class="app app--worker"></div>
+<div id="modal-root"></div>
+<div id="sr-live" class="sr-only" aria-live="polite"></div>
+
+<script src="../app/js/data.js"></script>
+<script src="../shared/hotel-db.js"></script>
+<script src="../app/js/i18n.js"></script>
+<script src="js/core.js"></script>
+<script src="js/app.js"></script>
+<script src="js/signin.js"></script>
+<script src="js/orders.js"></script>
+<script src="js/order.js"></script>
+<script>App.start();</script>
+</body>
+</html>

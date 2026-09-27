@@ -1,0 +1,75 @@
+/* ==========================================================================
+   Hotel In-Room Store — delivery worker's phone (المندوب)
+   Loaded AFTER ../app/css/app.css and ../staff/css/staff.css. The worker app
+   reuses the desk's components (header, PIN cells, cards, order detail,
+   bottom sheets) and only narrows them to a phone and adds what the desk
+   lacks. Same tokens, same restrained look. Logical properties throughout.
+   ========================================================================== */
+
+/* 1 — Frame: a phone, 390 px, never the desk's 1024 px. */
+.app--worker { max-width: var(--app-w); }
+.worker .s-bar { max-width: var(--app-w); }
+.worker .s-sheet { max-width: var(--app-w); }
+
+/* Left-to-right runs inside a sentence (room numbers). */
+.w-ltr { direction: ltr; unicode-bidi: isolate; font-weight: 700; }
+
+/* 2 — W-03 sign-in */
+.w-lead { font-size: var(--t-body); }
+
+/* 3 — W-01 My orders */
+.w-shiftline {
+  font-size: var(--t-small); padding: var(--s-2) var(--s-4);
+  background: var(--c-surface-2); border-block-end: 1px solid var(--c-border);
+}
+.w-sound { margin-block-end: var(--s-3); }
+.w-fail {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-3);
+  padding: var(--s-2) var(--s-3); margin-block-end: var(--s-3);
+  border: 1px solid var(--c-border-strong); border-radius: 8px; background: var(--c-surface-2);
+}
+.w-fail .btn { flex: 0 0 auto; }
+
+/* W-01-C09 — why an order left this phone. Dark, like the desk's banner. */
+.w-notice { position: relative; }
+.w-notice .s-banner__l2 + .s-banner__l2 { margin-block-start: 2px; }
+.w-notice__ok {
+  display: block; margin-block-start: var(--s-3); min-height: 44px; width: 100%;
+  background: transparent; color: #ffffff; border: 2px solid #ffffff;
+  border-radius: var(--r-pill); font-size: var(--t-body); font-weight: 700; cursor: pointer;
+}
+
+/* W-01-C04 — the card: room number is the largest thing (40 px). */
+.w-card { display: flex; flex-direction: column; gap: var(--s-1); }
+.w-card .s-card__top { align-items: center; }
+.w-card__status { font-size: var(--t-body); font-weight: 700; }
+.w-card__meta { font-size: var(--t-body); }
+.w-new { flex: 0 0 auto; }
+
+/* W-01-S04 — delivered today, collapsed by default. */
+.w-done { margin-block-start: var(--s-5); border-block-start: 1px solid var(--c-border); }
+.w-done__toggle {
+  display: flex; align-items: center; justify-content: space-between; width: 100%;
+  min-height: 48px; padding: 0; background: none; border: 0; cursor: pointer;
+  font-size: var(--t-body); font-weight: 700; color: var(--c-ink); text-align: start;
+}
+.w-done__chev { font-size: var(--t-small); }
+.w-done__row {
+  display: flex; justify-content: space-between; gap: var(--s-3);
+  min-height: 44px; align-items: center; font-size: var(--t-small);
+  border-block-end: 1px solid var(--c-border);
+}
+.w-done__desk { color: var(--c-ink-2); }
+.w-done__time { direction: ltr; unicode-bidi: isolate; color: var(--c-ink-2); white-space: nowrap; }
+
+/* 4 — W-02 Order detail */
+.w-change { margin-block-start: var(--s-1); }
+.w-hint {
+  font-size: var(--t-small); padding: var(--s-2) var(--s-3);
+  border: 1px dashed var(--c-border-strong); border-radius: 8px;
+}
+.w-record { font-size: var(--t-body); font-weight: 700; }
+
+/* 5 — W-M01 End shift */
+.w-warn { margin-block: var(--s-4) 0; font-weight: 400; }
+.w-sheet-hint { margin-block-start: var(--s-3); }

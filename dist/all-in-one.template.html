@@ -214,7 +214,13 @@ var APPS = {
     /* Inside a srcdoc frame a relative "#/route" resolves against this
        launcher's address, so location.replace('#/x') would load the launcher
        into the frame. Pinning the base keeps every "#..." inside the frame. */
-    return html.replace(/<head[^>]*>/i, '$&<base href="about:srcdoc">');
+    /* Several apps share one window here. An app that moves focus by itself
+       (a redraw, a new order arriving) must not pull the keyboard out of the
+       app the tester is typing in, so a frame may move focus only while it
+       already holds it. On separate devices this never comes up. */
+    var guard = '<script>(function(){var f=HTMLElement.prototype.focus;' +
+      'HTMLElement.prototype.focus=function(){if(!document.hasFocus())return;return f.apply(this,arguments);};})();<\/script>';
+    return html.replace(/<head[^>]*>/i, '$&<base href="about:srcdoc">' + guard);
   }
 
   /* srcdoc frames inherit this page's origin, so all three share its
