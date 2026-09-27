@@ -253,3 +253,17 @@ exists), and OQ-02 — a card refused at the door with no cash.
 - Units are deducted when the order is created (all lines or none). A line asking for more than is left rejects the order through M-04.
 - Units come back in full on any cancellation (guest, staff or admin). A delivered order keeps its units deducted.
 - Verified in the single file in Chromium: 20/20 stock checks passed, and the 17/17 loop checks still pass, with no JS errors.
+
+---
+
+## Step — Room service desk and delivery worker split (done, 2026-09-27)
+
+**What was done**
+- Owner feedback: orders must go to the room service desk, not straight to the delivery person. `staff/` is now the desk, for the supervisor only (PIN 1111). There is one action, "قبول وتحويل / Accept & assign", which opens the worker picker SM-03. The desk can reassign an order, can move it forward on the worker's behalf, and cancel stays desk-only.
+- New `worker/` app, the delivery worker's phone (PINs 2222, 3333). It shows only the orders assigned to that worker, live, with a chime. Screens: W-01 My orders, W-02 Order detail, W-03 Sign-in, WM-01 Confirm delivery and payment, and WM-02 End shift. Workers cannot cancel.
+- Shared data: roles, a separate worker session, the shift list, and `acceptAndAssign` / `assign` (`shared/CONTRACT.md`).
+- Specs: `spec/worker/` is new and Approved, SM-03 is new, and A2 amendments were added to staff-map, S-01, S-02, S-03, SM-02 and AM-03. All were reconciled line by line against the built code. Production requirements the prototype does not build are marked "Not in the prototype".
+- The single file now opens guest, desk, worker and hotel manager, and has a full-cycle view. In Chromium, 18/18 end-to-end checks passed: the desk tests passed 35/35 in each language and the worker tests 47/47 in each language.
+
+**Waiting for the owner**
+- Nothing blocking. Items flagged for review: a wrong-role PIN resets the lockout count on the worker app but not on the desk; a supervisor-held order reads "المندوب: سارة (المشرف)".

@@ -31,7 +31,7 @@
 <body>
 <main>
   <h1>متجر الغرفة — فندق الواحة</h1>
-  <p class="sub">In-room store · three apps sharing one hotel. No server, no installation.</p>
+  <p class="sub">In-room store · four apps sharing one hotel. No server, no installation.</p>
 
   <div class="apps">
     <a class="app" href="app/index.html">
@@ -41,10 +41,16 @@
       <span class="who">الجوال · Phone</span>
     </a>
     <a class="app" href="staff/index.html">
-      <h2>واجهة الموظف</h2>
-      <p class="en">Staff</p>
-      <p>لوحة الطلبات الواردة: القبول، التحضير، التوصيل، واستلام الدفع عند الباب.</p>
-      <span class="who">تابلت أو جوال · Tablet or phone</span>
+      <h2>مكتب الروم سيرفس</h2>
+      <p class="en">Room service desk</p>
+      <p>لوحة كل الطلبات للمشرف: القبول والتحويل لمندوب، إعادة التحويل، الإلغاء، والتنفيذ نيابةً عن المندوب.</p>
+      <span class="who">تابلت المكتب · Desk tablet · <code>1111</code></span>
+    </a>
+    <a class="app" href="worker/index.html">
+      <h2>المندوب</h2>
+      <p class="en">Delivery worker</p>
+      <p>جوال المندوب: الطلبات المحوّلة له فقط، «خرجت بالطلب»، ثم تأكيد التوصيل واستلام المبلغ عند الباب.</p>
+      <span class="who">جوال المندوب · Worker's phone · <code>2222</code> / <code>3333</code></span>
     </a>
     <a class="app" href="admin/index.html">
       <h2>لوحة الإدارة</h2>
@@ -62,17 +68,20 @@
   <section class="note">
     <h3>جرّب الدورة كاملة · Try the full loop</h3>
     <ol>
-      <li>افتح <strong>واجهة الموظف</strong> في تبويب وسجّل الدخول بالرمز <code>1111</code>.</li>
-      <li>افتح <strong>واجهة الضيف</strong> في تبويب آخر، أضف منتجاً واطلبه برقم غرفة مثل <code>305</code>.</li>
-      <li>يظهر الطلب فوراً عند الموظف دون إعادة تحميل. افتحه واقبله.</li>
-      <li>ارجع لشاشة متابعة الضيف: تتغيّر الحالة ويختفي زر الإلغاء.</li>
+      <li>افتح <strong>مكتب الروم سيرفس</strong> في تبويب وسجّل الدخول بالرمز <code>1111</code>.</li>
+      <li>افتح <strong>المندوب</strong> في تبويب ثانٍ وسجّل الدخول بالرمز <code>2222</code> (خالد) لتبدأ ورديته.</li>
+      <li>افتح <strong>واجهة الضيف</strong> في تبويب ثالث، أضف منتجاً واطلبه برقم غرفة مثل <code>305</code>.</li>
+      <li>يظهر الطلب فوراً في المكتب دون إعادة تحميل. افتحه واضغط «قبول وتحويل» واختر خالد.</li>
+      <li>يظهر الطلب على جوال المندوب مع نغمة: «خرجت بالطلب»، ثم «تم التوصيل واستلام المبلغ».</li>
+      <li>ارجع لشاشة متابعة الضيف: تتغيّر الحالة في كل خطوة ويختفي زر الإلغاء بعد القبول.</li>
     </ol>
   </section>
 
   <section class="note">
     <h3>بيانات الدخول التجريبية · Demo sign-in</h3>
     <ul>
-      <li>الموظف: <code>1111</code> (سارة) أو <code>2222</code> (خالد)</li>
+      <li>مكتب الروم سيرفس (المشرف): <code>1111</code> (سارة)</li>
+      <li>المندوب: <code>2222</code> (خالد) أو <code>3333</code> (أحمد)</li>
       <li>الإدارة: <code>manager@alwaha.example</code> / <code>alwaha2026</code></li>
     </ul>
     <p style="margin:10px 0 0;color:var(--ink-2);font-size:14px">
@@ -83,7 +92,7 @@
   <section class="note">
     <h3>المتصفح · Browser</h3>
     <p style="margin:0">
-      التطبيقات الثلاثة تتشارك ذاكرة المتصفح. على <strong>Chrome أو Edge</strong> افتح هذا الملف مباشرةً.
+      التطبيقات الأربعة تتشارك ذاكرة المتصفح. على <strong>Chrome أو Edge</strong> افتح هذا الملف مباشرةً.
       على Firefox أو Safari شغّل خادماً محلياً من هذا المجلد:
       <code>python3 -m http.server 8000</code> ثم افتح <code>http://localhost:8000/</code>.
     </p>
