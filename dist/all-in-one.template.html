@@ -8,7 +8,7 @@
 :root{
   --paper:#eef2f1; --surface:#ffffff; --ink:#15201e; --ink-2:#4a5957; --ink-3:#6c7a78;
   --line:#d5dedb; --accent:#0f6b63; --accent-ink:#ffffff; --accent-soft:#e0eeeb; --warn:#8f5410;
-  --r-guest:#2c5ea3; --r-staff:#0f6b63; --r-admin:#9b3a3a;
+  --r-guest:#2c5ea3; --r-staff:#0f6b63; --r-worker:#8a5a00; --r-admin:#9b3a3a;
   --bar-h:56px;
   font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
 }
@@ -29,7 +29,7 @@ header.bar::-webkit-scrollbar{display:none}
 .nav button[aria-current="page"]{background:#fff;color:var(--ink)}
 .nav button:focus-visible,.tool:focus-visible{outline:2px solid #7fd3c9;outline-offset:2px}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--c);flex:none}
-[data-app="guest"]{--c:var(--r-guest)} [data-app="staff"]{--c:var(--r-staff)} [data-app="admin"]{--c:var(--r-admin)}
+[data-app="guest"]{--c:var(--r-guest)} [data-app="staff"]{--c:var(--r-staff)} [data-app="worker"]{--c:var(--r-worker)} [data-app="admin"]{--c:var(--r-admin)}
 .spacer{flex:1 1 auto}
 .tool{border-color:rgba(255,255,255,.22)}
 .tool.armed{background:#b34a3a;border-color:#b34a3a;color:#fff}
@@ -75,9 +75,20 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;direction:
 #stage.single .pane.show{flex:1 1 auto}
 #stage.single .pane-h{display:none}
 /* side by side: the guest at phone width, room service takes the rest */
-#stage.split .pane[data-app="guest"].show{flex:0 0 430px}
+/* the full cycle: guest and worker at phone width, the desk takes the rest */
+#stage.split .pane[data-app="guest"].show{flex:0 0 400px}
 #stage.split .pane[data-app="staff"].show{flex:1 1 auto}
-@media (max-width:900px){
+#stage.split .pane[data-app="worker"].show{flex:0 0 400px}
+/* the flow strip on the home page */
+.flow{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;counter-reset:f}
+.flow li{position:relative;background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:12px;padding:12px 14px;display:grid;gap:2px}
+.flow li b{display:flex;align-items:center;gap:8px;font-size:15px}
+.flow li small{color:var(--ink-2);font-size:13px}
+.flow li:not(:last-child)::after{content:"←";position:absolute;inset-inline-end:-12px;top:50%;transform:translate(-50%,-50%);
+  font-weight:700;color:var(--ink-3);background:var(--paper);padding:0 2px;z-index:1}
+.flow li b .dot{order:-1}
+@media (max-width:640px){.flow{grid-template-columns:1fr}.flow li:not(:last-child)::after{content:"↓";inset-inline-end:auto;inset-inline-start:50%;top:auto;bottom:-16px;transform:translateX(50%)}}
+@media (max-width:1100px){
   #stage.split{flex-direction:column;overflow:auto}
   #stage.split .pane.show{flex:0 0 78vh !important}
 }
@@ -91,9 +102,10 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;direction:
   <nav class="nav" aria-label="الصفحات">
     <button type="button" data-go="home" aria-current="page">الرئيسية</button>
     <button type="button" data-go="guest" data-app="guest"><span class="dot"></span>الضيف</button>
-    <button type="button" data-go="staff" data-app="staff"><span class="dot"></span>الروم سيرفس والمندوب</button>
-    <button type="button" data-go="admin" data-app="admin"><span class="dot"></span>الإدارة</button>
-    <button type="button" data-go="split">جنباً إلى جنب</button>
+    <button type="button" data-go="staff" data-app="staff"><span class="dot"></span>مكتب الروم سيرفس</button>
+    <button type="button" data-go="worker" data-app="worker"><span class="dot"></span>المندوب</button>
+    <button type="button" data-go="admin" data-app="admin"><span class="dot"></span>مدير الفندق</button>
+    <button type="button" data-go="split">الدورة كاملة</button>
   </nav>
   <span class="spacer"></span>
   <button type="button" class="tool" id="reset">تصفير التجربة</button>
@@ -104,11 +116,17 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;direction:
     <div class="home">
       <div style="display:grid;gap:6px">
         <h1>متجر الغرفة — فندق الواحة</h1>
-        <p class="lead">الصفحات الثلاث في ملف واحد. أي طلب يُرسَل من صفحة الضيف يصل فوراً إلى صفحة الروم سيرفس، وأي تغيير هناك يظهر عند الضيف، وكل شيء يظهر في الإدارة.</p>
+        <p class="lead">أربع صفحات في ملف واحد، تتشارك نفس البيانات. الطلب يمرّ بالترتيب: الضيف يطلب، ثم مكتب الروم سيرفس يقبله ويحوّله لمندوب بالاسم، ثم المندوب يوصله ويستلم المبلغ. ومدير الفندق يرى كل شيء.</p>
       </div>
 
+      <ol class="flow" aria-label="مسار الطلب">
+        <li data-app="guest"><span class="dot"></span><b>الضيف</b><small>يطلب</small></li>
+        <li data-app="staff"><span class="dot"></span><b>مكتب الروم سيرفس</b><small>يقبل ويحوّل لمندوب</small></li>
+        <li data-app="worker"><span class="dot"></span><b>المندوب</b><small>يوصل ويستلم المبلغ</small></li>
+      </ol>
+
       <button type="button" class="split-cta" data-go="split">
-        <div>جرّب الدورة كاملة جنباً إلى جنب<br><span>الضيف على اليمين والروم سيرفس على اليسار: اطلب وشاهد الطلب يصل.</span></div>
+        <div>جرّب الدورة كاملة<br><span>الضيف والمكتب والمندوب جنباً إلى جنب: اطلب، حوّل، وصّل.</span></div>
         <span aria-hidden="true" style="font-size:22px">←</span>
       </button>
 
@@ -120,14 +138,20 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;direction:
           <span class="login">بلا تسجيل دخول</span>
         </button>
         <button type="button" class="card" data-go="staff" data-app="staff">
-          <h2><span class="dot"></span>الروم سيرفس والمندوب</h2>
-          <p>تصل إليها الطلبات مباشرة: القبول، التحضير، التوصيل، واستلام الدفع عند الباب.</p>
-          <span class="who">تابلت أو جوال</span>
-          <span class="login">رمز الدخول <code>1111</code></span>
+          <h2><span class="dot"></span>مكتب الروم سيرفس</h2>
+          <p>تصل إليه كل الطلبات. المشرف يقبل الطلب ويحوّله لمندوب بالاسم، ويستطيع إعادة التحويل أو الإلغاء.</p>
+          <span class="who">تابلت عند المكتب</span>
+          <span class="login">المشرفة سارة <code>1111</code></span>
+        </button>
+        <button type="button" class="card" data-go="worker" data-app="worker">
+          <h2><span class="dot"></span>المندوب</h2>
+          <p>جوال العامل: يرى الطلبات المحوّلة له فقط، يخرج بها، ويؤكّد التوصيل واستلام المبلغ.</p>
+          <span class="who">جوال العامل</span>
+          <span class="login">خالد <code>2222</code> · أحمد <code>3333</code></span>
         </button>
         <button type="button" class="card" data-go="admin" data-app="admin">
-          <h2><span class="dot"></span>لوحة الإدارة</h2>
-          <p>المنتجات والأسعار والمخزون، سجل الطلبات، وإعدادات الفندق.</p>
+          <h2><span class="dot"></span>مدير الفندق</h2>
+          <p>المنتجات والأسعار والكميات، سجل الطلبات والتقارير، وإعدادات الفندق.</p>
           <span class="who">حاسوب</span>
           <span class="login">البريد <code>manager@alwaha.example</code><br>كلمة المرور <code>alwaha2026</code></span>
         </button>
@@ -136,11 +160,12 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;direction:
       <div class="panel">
         <h3>خطوات التجربة</h3>
         <ol>
-          <li>افتح <strong>جنباً إلى جنب</strong>، وسجّل الدخول في الروم سيرفس بالرمز <code>1111</code>.</li>
+          <li>افتح <strong>الدورة كاملة</strong>. سجّل دخول المكتب بالرمز <code>1111</code>، والمندوب بالرمز <code>2222</code> (خالد).</li>
           <li>في صفحة الضيف أضف منتجاً، واطلبه برقم غرفة مثل <code>305</code> ورقم جوال مثل <code>0512345678</code>.</li>
-          <li>يظهر الطلب فوراً عند الروم سيرفس مع تنبيه صوتي. افتحه واقبله.</li>
-          <li>تتغيّر حالة الطلب عند الضيف ويختفي زر الإلغاء. أكمل حتى «تم التوصيل».</li>
-          <li>افتح <strong>الإدارة</strong> لترى الطلب في السجل، وغيّر سعر منتج ثم ارجع للضيف لتراه.</li>
+          <li>يصل الطلب إلى <strong>المكتب</strong> فقط، مع تنبيه صوتي. المندوب لا يراه بعد.</li>
+          <li>في المكتب افتح الطلب واضغط <strong>قبول وتحويل</strong> واختر خالد. يختفي زر الإلغاء عند الضيف.</li>
+          <li>يظهر الطلب فوراً على جوال <strong>المندوب</strong>. اضغط «خرجت بالطلب» ثم «تم التوصيل» وأكّد المبلغ. الضيف يرى كل حالة.</li>
+          <li>افتح <strong>مدير الفندق</strong> لترى الطلب في السجل مع اسم المندوب، ونقص الكمية في المنتجات.</li>
         </ol>
       </div>
 
@@ -156,11 +181,14 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;direction:
     <section class="pane" data-app="guest" aria-label="صفحة الضيف">
       <div class="pane-h"><span class="dot"></span>الضيف <span class="hint">· جوال الضيف</span></div>
     </section>
-    <section class="pane" data-app="staff" aria-label="الروم سيرفس والمندوب">
-      <div class="pane-h"><span class="dot"></span>الروم سيرفس والمندوب <span class="hint">· رمز الدخول 1111</span></div>
+    <section class="pane" data-app="staff" aria-label="مكتب الروم سيرفس">
+      <div class="pane-h"><span class="dot"></span>مكتب الروم سيرفس <span class="hint">· سارة 1111</span></div>
     </section>
-    <section class="pane" data-app="admin" aria-label="لوحة الإدارة">
-      <div class="pane-h"><span class="dot"></span>الإدارة</div>
+    <section class="pane" data-app="worker" aria-label="المندوب">
+      <div class="pane-h"><span class="dot"></span>المندوب <span class="hint">· خالد 2222 · أحمد 3333</span></div>
+    </section>
+    <section class="pane" data-app="admin" aria-label="مدير الفندق">
+      <div class="pane-h"><span class="dot"></span>مدير الفندق</div>
     </section>
   </div>
 </main>
@@ -174,7 +202,7 @@ var APPS = {
 
 (function () {
   'use strict';
-  var TITLES = { guest: 'صفحة الضيف', staff: 'الروم سيرفس والمندوب', admin: 'لوحة الإدارة' };
+  var TITLES = { guest: 'صفحة الضيف', staff: 'مكتب الروم سيرفس', worker: 'المندوب', admin: 'مدير الفندق' };
   var frames = {};
   var home = document.getElementById('home');
   var stage = document.getElementById('stage');
@@ -213,7 +241,7 @@ var APPS = {
       stage.className = '';
     } else {
       home.hidden = true;
-      var visible = view === 'split' ? ['guest', 'staff'] : [view];
+      var visible = view === 'split' ? ['guest', 'staff', 'worker'] : [view];
       visible.forEach(frame);
       panes.forEach(function (p) { p.classList.toggle('show', visible.indexOf(p.getAttribute('data-app')) !== -1); });
       stage.className = 'on ' + (view === 'split' ? 'split' : 'single');
@@ -251,7 +279,7 @@ var APPS = {
 
   var start = 'home';
   try { start = sessionStorage.getItem('allinone.view') || 'home'; } catch (e) {}
-  show(['home', 'guest', 'staff', 'admin', 'split'].indexOf(start) !== -1 ? start : 'home');
+  show(['home', 'guest', 'staff', 'worker', 'admin', 'split'].indexOf(start) !== -1 ? start : 'home');
 })();
 </script>
 </body>

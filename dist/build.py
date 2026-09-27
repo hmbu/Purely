@@ -1,14 +1,14 @@
-"""Build the testable versions of the three apps.
+"""Build the testable versions of the four apps.
 
     python3 dist/build.py
 
 Writes to dist/:
-  1-guest-order.html, 2-room-service-staff.html, 3-admin.html
+  1-guest-order.html, 2-room-service-desk.html, 3-delivery-worker.html, 4-hotel-manager.html
       each app as one self-contained file (every stylesheet and script inlined)
   room-store-all-in-one.html
-      ONE file with a main page that opens all three. Each app runs in its own
+      ONE file with a main page that opens all four. Each app runs in its own
       srcdoc iframe, so their globals (App, Views, I18N) and stylesheets never
-      collide, while all three share the page's localStorage: an order placed
+      collide, while all four share the page's localStorage: an order placed
       in the guest frame fires a storage event in the staff frame and appears
       there live. A side-by-side mode shows the guest and room service at once.
 """
@@ -17,9 +17,10 @@ import base64, os, re, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIST = os.path.join(ROOT, 'dist')
 APPS = [
-    ('guest', 'app',   '1-guest-order.html'),
-    ('staff', 'staff', '2-room-service-staff.html'),
-    ('admin', 'admin', '3-admin.html'),
+    ('guest',  'app',    '1-guest-order.html'),
+    ('staff',  'staff',  '2-room-service-desk.html'),
+    ('worker', 'worker', '3-delivery-worker.html'),
+    ('admin',  'admin',  '4-hotel-manager.html'),
 ]
 
 def read(path):
