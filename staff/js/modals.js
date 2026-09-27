@@ -1,5 +1,6 @@
-/* staff/js/modals.js — SM-01 Cancel order and SM-02 Confirm delivery and
-   payment. Both are bottom sheets on top of S-02 (SM-01 preamble), opened
+/* staff/js/modals.js — SM-01 Cancel order, SM-02 Confirm delivery and
+   payment, and SM-03 Choose the worker (accept & assign / assign /
+   reassign). All are bottom sheets on top of S-02 (SM-01 preamble), opened
    and closed by App.Modal. Each sends one request per confirmed tap and hands
    S-02 exactly one of the outcomes it expects (S-02 §5.8, §5.9). */
 (function () {
@@ -41,7 +42,28 @@
     'sm02.c05.equal':   { ar: 'سيدفع بالمبلغ المطابق — لا يوجد باقٍ', en: 'Paying the exact amount — no change' },
     'sm02.c05.none':    { ar: 'لم يحدّد الضيف المبلغ مسبقًا — أعطِه الباقي مما يدفعه', en: 'The guest did not state an amount in advance — give change from what they pay' },
     'sm02.c06':         { ar: 'اضغط فقط بعد أن يستلم الضيف الطلب وتستلم المبلغ', en: 'Tap only after the guest has the order and you have the payment' },
-    'sm02.b02':         { ar: 'سلّمتُ الطلب واستلمتُ المبلغ', en: 'Handed over and payment taken' }
+    'sm02.b02':         { ar: 'سلّمتُ الطلب واستلمتُ المبلغ', en: 'Handed over and payment taken' },
+
+    /* SM-03 — the worker picker (docs/operations.html "التوزيع على العمّال") */
+    'sm03.c01.accept':   { ar: 'قبول وتحويل الطلب', en: 'Accept & assign the order' },
+    'sm03.c01.assign':   { ar: 'تحويل لعامل', en: 'Assign to a worker' },
+    'sm03.c01.reassign': { ar: 'تحويل لعامل آخر', en: 'Reassign to another worker' },
+    'sm03.c02':          { ar: 'طلب رقم {no} — غرفة {room}', en: 'Order {no} — Room {room}' },
+    'sm03.c03.l1':       { ar: 'المندوب الحالي: {name}', en: 'Current worker: {name}' },
+    'sm03.c03.l2':       { ar: 'سيختفي الطلب من جواله ويظهر عند من تختاره فورًا', en: 'The order leaves their phone and appears on the new one at once' },
+    'sm03.c04':          { ar: 'من سيتولّى الطلب؟', en: 'Who will take the order?' },
+    'sm03.c05':          { ar: 'لا يوجد عامل في الوردية الآن — سجّل دخول المندوب أو اختر نفسك', en: 'No worker is on shift — sign a worker in or choose yourself' },
+    'sm03.on':           { ar: 'في الوردية', en: 'On shift' },
+    'sm03.off':          { ar: 'خارج الوردية', en: 'Off shift' },
+    'sm03.current':      { ar: 'المسؤول الآن', en: 'Current' },
+    'sm03.b02':          { ar: 'أنا (المشرف)', en: 'Me (supervisor)' },
+    'sm03.c06':          { ar: 'اختر عاملًا أو اختر نفسك', en: 'Choose a worker or yourself' },
+    'sm03.c07':          { ar: 'لم يصل التحويل إلى النظام — حاول مرة أخرى', en: 'The assignment did not reach the system — try again' },
+    'sm03.b04.accept':   { ar: 'قبول وتحويل', en: 'Accept & assign' },
+    'sm03.b04.acceptTo': { ar: 'قبول وتحويل إلى {name}', en: 'Accept & assign to {name}' },
+    'sm03.b04.assign':   { ar: 'تحويل', en: 'Assign' },
+    'sm03.b04.assignTo': { ar: 'تحويل إلى {name}', en: 'Assign to {name}' },
+    'sm03.stays':        { ar: 'تبقى الحالة: {label}', en: 'Status stays: {label}' }
   });
 
   var PRESETS = ['sm01.p1', 'sm01.p2', 'sm01.p3', 'sm01.p4'];
@@ -349,4 +371,183 @@
       sheet.querySelector('[data-el="SM-02-B02"]').addEventListener('click', c02Confirm);
     }
   };
+
+  /* ================================================================== *
+   * SM-03 — Choose the worker
+   *   accept   (order New)                   → HotelDB.acceptAndAssign
+   *   assign   (Accepted / On the way, none) → HotelDB.assign
+   *   reassign (Accepted / On the way)       → HotelDB.assign
+   * Rows: workers on shift first (selectable), then workers off shift
+   * (shown, disabled), then "Me (supervisor)" last. The list follows shift
+   * changes live while the sheet is open (a worker signing in on their
+   * phone becomes selectable at once).
+   * ================================================================== */
+  var W = {};
+
+  function sm03Mode(o) {
+    if (o.status === 'New') return 'accept';
+    return o.assignedTo ? 'reassign' : 'assign';
+  }
+
+  function sm03Rows() {
+    var ws = HotelDB.workers(), on = [], off = [];
+    for (var i = 0; i < ws.length; i++) (ws[i].onShift ? on : off).push(ws[i]);
+    on.sort(function (a, b) { return (a.since || 0) - (b.since || 0); });   /* longest on shift first */
+    return { on: on, off: off };
+  }
+
+  /* A row can be chosen when it is on shift (or "Me") and is not already
+     the one responsible. */
+  function sm03Selectable(id, rows) {
+    if (!id || id === W.current) return false;
+    if (id === myId()) return true;
+    for (var i = 0; i < rows.on.length; i++) if (rows.on[i].id === id) return true;
+    return false;
+  }
+
+  function sm03Row(el, id, name, tag, enabled) {
+    return '<button type="button" class="s-preset s-worker' + (enabled ? '' : ' is-off') + '" role="radio"' +
+             ' data-el="' + el + '" data-id="' + esc(id) + '"' +
+             ' aria-checked="' + (W.sel === id) + '"' + (enabled && !W.busy ? '' : ' aria-disabled="true"') + '>' +
+             '<span class="s-preset__mark" aria-hidden="true"></span>' +
+             '<span class="s-worker__name">' + esc(name) + '</span>' +
+             (tag ? '<span class="s-worker__tag">' + tag + '</span>' : '') + '</button>';
+  }
+
+  function sm03Html() {
+    var o = W.order, rows = sm03Rows(), me = myId(), i, w;
+    if (W.sel && !sm03Selectable(W.sel, rows)) W.sel = null;    /* went off shift meanwhile */
+    var h = '<div class="sheet s-sheet" data-el="SM-03-S02" role="dialog" aria-modal="true" aria-labelledby="sm03-title">' +
+      '<div class="s-sheet__scroll">' +
+        '<h2 id="sm03-title" class="s-sheet__title" data-el="SM-03-C01" tabindex="-1" data-title>' + t('sm03.c01.' + W.mode) + '</h2>' +
+        '<p class="s-effect" data-el="SM-03-C02">' + t('sm03.c02', {
+          no: '<span class="num">' + esc(o.orderNo) + '</span>',
+          room: '<b class="s-roomno">' + esc(o.roomNumber) + '</b>' }) + '</p>';
+    if (W.mode === 'reassign') {
+      h += '<div class="s-preview" data-el="SM-03-C03">' +
+             '<p class="s-preview__l2"><b>' + t('sm03.c03.l1', { name: esc(S.assigneeName(W.current)) }) + '</b></p>' +
+             '<p class="s-preview__l1">' + t('sm03.c03.l2') + '</p></div>';
+    }
+    h += '<p id="sm03-c04" class="s-field-label" data-el="SM-03-C04" style="margin-top:24px">' + t('sm03.c04') + '</p>';
+    if (!rows.on.length) {
+      h += '<p class="s-line s-line--boxed" data-el="SM-03-C05" role="status" style="margin-top:8px">' + t('sm03.c05') + '</p>';
+    }
+    h += '<div role="radiogroup" aria-labelledby="sm03-c04">';
+    for (i = 0; i < rows.on.length; i++) {
+      w = rows.on[i];
+      h += sm03Row('SM-03-B01', w.id, S.localName(w.name),
+                   w.id === W.current ? t('sm03.current') : t('sm03.on'), w.id !== W.current);
+    }
+    for (i = 0; i < rows.off.length; i++) {
+      w = rows.off[i];
+      h += sm03Row('SM-03-B01', w.id, S.localName(w.name),
+                   w.id === W.current ? t('sm03.current') + ' · ' + t('sm03.off') : t('sm03.off'), false);
+    }
+    h += sm03Row('SM-03-B02', me, t('sm03.b02'), me === W.current ? t('sm03.current') : '', me !== W.current);
+    h += '</div>' +
+        '<p class="error" data-el="SM-03-C06" role="alert"' + (W.c06 ? '' : ' hidden') + '>' + t('sm03.c06') + '</p>' +
+      '</div>';
+
+    /* Footer: Back, then the confirm button naming who gets the order. */
+    var name = W.sel ? esc(W.sel === me ? S.assigneeName(me) : S.localName(S.memberName(W.sel))) : '';
+    var l1 = W.mode === 'accept'
+      ? (name ? t('sm03.b04.acceptTo', { name: name }) : t('sm03.b04.accept'))
+      : (name ? t('sm03.b04.assignTo', { name: name }) : t('sm03.b04.assign'));
+    var l2 = W.mode === 'accept'
+      ? t('st.after', { label: t('st.status.Accepted') })
+      : t('sm03.stays', { label: t('st.status.' + o.status) });
+    h += '<div class="s-sheet__foot" data-el="SM-03-S03">' +
+           (W.failed && !W.busy ? '<p class="error" data-el="SM-03-C07" role="alert">' + t('sm03.c07') + '</p>' : '') +
+           '<button type="button" class="btn btn--ghost" data-el="SM-03-B03"' + (W.busy ? ' disabled aria-disabled="true"' : '') + '>' +
+             t('st.back') + '</button>' +
+           '<button type="button" class="btn btn--primary s-primary" data-el="SM-03-B04"' + (W.busy ? ' disabled aria-disabled="true"' : '') + '>' +
+             (W.busy
+               ? '<span class="s-primary__l1">' + t('st.sending') + '</span>'
+               : '<span class="s-primary__l1">' + l1 + '</span><span class="s-primary__l2">' + l2 + '</span>') +
+           '</button>' +
+         '</div>' +
+    '</div>';
+    return h;
+  }
+
+  function sm03Redraw() {
+    if (!Modal.isOpen() || Modal.cur.id !== 'SM-03') return;
+    Modal.draw(false);
+  }
+
+  function sm03Confirm() {
+    if (!Modal.armed() || W.busy) return;
+    var now = Date.now();
+    if (now - W.tapAt < 300) return;
+    W.tapAt = now;
+    if (!W.sel || !sm03Selectable(W.sel, sm03Rows())) {
+      W.sel = null;
+      W.c06 = true;
+      sm03Redraw();
+      return;
+    }
+    W.busy = true;
+    W.failed = false;
+    Modal.setBusy(true);
+    sm03Redraw();
+    var me = myId(), sel = W.sel, mode = W.mode;
+    var req = mode === 'accept'
+      ? Server.acceptAndAssign(W.order.orderNo, sel, me)
+      : Server.assign(W.order.orderNo, sel, me);
+    req.then(function (res) {
+      if (!Modal.isOpen() || Modal.cur.id !== 'SM-03') return;
+      W.busy = false;
+      Modal.setBusy(false);
+      var o = res && res.order;
+      if (res && res.ok && o) { Modal.finish('assigned', o); return; }
+      if (res && res.error === 'stale' && o) {
+        /* The same race as today's accept: whoever reached the server
+           first wins, and S-02 shows the truth that came back. */
+        if (o.status === 'Cancelled') { Modal.finish('refusedCancelled', o, o.cancelledByGuest ? 'G' : 'H'); return; }
+        if (o.status === 'Delivered') { Modal.finish('refusedDelivered', o); return; }
+        if (mode === 'accept' && o.assignedTo === sel && o.acceptedBy === me) { Modal.finish('assigned', o); return; }   /* a retry that had landed */
+        Modal.finish('refusedChanged', o);
+        return;
+      }
+      W.failed = true;
+      sm03Redraw();
+    }, function () {
+      if (!Modal.isOpen() || Modal.cur.id !== 'SM-03') return;
+      W.busy = false;
+      Modal.setBusy(false);
+      W.failed = true;
+      sm03Redraw();
+    });
+  }
+
+  Modals['SM-03'] = {
+    init: function (params) {
+      var o = params.order || {};
+      W = { order: o, mode: sm03Mode(o), current: o.assignedTo || null,
+            sel: null, c06: false, failed: false, busy: false, tapAt: 0 };
+    },
+    html: sm03Html,
+    bind: function (sheet) {
+      sheet.querySelector('[data-el="SM-03-B03"]').addEventListener('click', function () { Modal.dismiss(); });
+      sheet.querySelector('[data-el="SM-03-B04"]').addEventListener('click', sm03Confirm);
+      var rows = sheet.querySelectorAll('.s-worker');
+      for (var i = 0; i < rows.length; i++) {
+        rows[i].addEventListener('click', function (e) {
+          if (!Modal.armed() || W.busy) return;
+          if (e.currentTarget.getAttribute('aria-disabled') === 'true') return;
+          W.sel = e.currentTarget.getAttribute('data-id');
+          W.c06 = false;
+          W.failed = false;
+          sm03Redraw();
+        });
+      }
+    }
+  };
+
+  /* A worker signing in or out on their phone changes the list at once. */
+  HotelDB.onChange(function (e) {
+    if (e.key !== HotelDB.keys.staff && e.key != null) return;
+    if (!Modal.isOpen() || Modal.cur.id !== 'SM-03' || W.busy) return;
+    sm03Redraw();
+  });
 })();

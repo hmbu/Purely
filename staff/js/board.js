@@ -37,6 +37,8 @@
     's01.c13.l2':     { ar: 'تحقّق من الاتصال بالشبكة', en: 'Check the network connection' },
     's01.c13.l3':     { ar: 'إذا تكرّر ذلك، أبلغ المناوب المسؤول', en: 'If this keeps happening, tell the duty manager' },
     's01.b07':        { ar: 'إعادة المحاولة', en: 'Retry' },
+    /* C14 — who has the order (Accepted / On the way cards only). The
+       wording is shared with S-02: 'st.asg.worker' / 'st.asg.none'. */
     's01.sum':        { ar: '{count} · {total}', en: '{count} · {total}' },
     /* Screen reader only (§7.7). */
     's01.sr.card':    { ar: 'غرفة {room}، طلب رقم {no}، {count}، {total}، {chips}', en: 'Room {room}, order {no}, {count}, {total}, {chips}' },
@@ -219,6 +221,14 @@
     } else {
       chips.push(t('s01.c08'));
     }
+    /* C14 — the worker responsible, on Accepted and On the way cards. */
+    var worker = '';
+    if (!marked && !doneTab && (o.status === 'Accepted' || o.status === 'OnTheWay')) {
+      var wn = S.assigneeName(o.assignedTo);
+      var wt = wn ? t('st.asg.worker', { name: esc(wn) }) : t('st.asg.none');
+      chips.push(wt);
+      worker = '<span class="s-card__worker' + (wn ? '' : ' s-card__worker--none') + '" data-el="S-01-C14">' + wt + '</span>';
+    }
     var aria = t('s01.sr.card', {
       room: esc(S.spaced(o.roomNumber)), no: esc(o.orderNo), count: count,
       total: total, chips: chips.join('، ')
@@ -234,6 +244,7 @@
                (doneTab ? '<span class="s-card__status">' + t('st.status.' + o.status) + '</span>' : '') +
              '</span>' +
              '<span class="s-card__sum">' + t('s01.sum', { count: count, total: total }) + '</span>' +
+             worker +
              (marked
                ? '<span class="s-card__gone" data-el="S-01-C08">' + t('s01.c08') + '</span>'
                : '<span class="s-chips">' + chipsHtml + '</span>') +

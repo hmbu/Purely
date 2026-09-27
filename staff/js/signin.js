@@ -9,18 +9,20 @@
   var Server = S.Server, Alert = S.Alert, Chime = S.Chime, Session = S.Session;
 
   I18N.register({
-    's03.c01':        { ar: 'دخول الموظف', en: 'Staff sign-in' },
+    /* The desk tablet is the supervisor's device (split design). */
+    's03.c01':        { ar: 'مكتب الروم سيرفس', en: 'Room service desk' },
     's03.c02':        { ar: 'انتهت مدة الجلسة — أدخل رمزك لتعود إلى حيث كنت', en: 'The session has expired — enter your PIN to return to where you were' },
     's03.c06.count':  { ar: 'طلبات نشطة الآن: {n} — جديدة: {m}', en: 'Active orders now: {n} — new: {m}' },
     's03.c06.none':   { ar: 'لا توجد طلبات نشطة الآن', en: 'No active orders right now' },
     's03.c06.fail':   { ar: 'تعذّر تحديث عدد الطلبات', en: 'Could not update the order count' },
     's03.c07.off':    { ar: 'الصوت متوقف — لن تسمع نغمة الطلبات الجديدة. يمكن تشغيله من اللوحة بعد الدخول', en: 'Sound is off — you will not hear the new-order chime. It can be turned on from the board after signing in' },
     's03.c07.blocked':{ ar: 'الصوت لم يُفعَّل بعد — المس الشاشة مرة واحدة لتفعيله', en: 'Sound is not enabled yet — touch the screen once to enable it' },
-    's03.c03':        { ar: 'رمز الدخول (4 أرقام)', en: 'PIN (4 digits)' },
+    's03.c03':        { ar: 'رمز المشرف (4 أرقام)', en: 'Supervisor PIN (4 digits)' },
     's03.c04.wrong':  { ar: 'رمز الدخول غير صحيح — أعد إدخاله', en: 'Wrong PIN — enter it again' },
     's03.c04.locked': { ar: 'محاولات خاطئة كثيرة — انتظر دقيقة ثم حاول مرة أخرى', en: 'Too many wrong attempts — wait one minute, then try again' },
     's03.c04.failed': { ar: 'تعذّر الوصول إلى النظام — تحقّق من الشبكة ثم أعد إدخال الرمز', en: 'Could not reach the system — check the network, then enter the PIN again' },
     's03.c04.short':  { ar: 'رمز الدخول 4 أرقام — أكمل إدخاله', en: 'The PIN has 4 digits — finish entering it' },
+    's03.c04.worker': { ar: 'هذا الجهاز هو مكتب الروم سيرفس للمشرف فقط — المندوبون يستخدمون تطبيق المندوب على جوالهم', en: 'This device is the room service desk, for the supervisor only — workers use the worker app on their phone' },
     's03.c04.paste':  { ar: 'استخدم الأرقام فقط (0–9)', en: 'Use digits only (0–9)' },
     's03.c05':        { ar: 'جارٍ التحقق…', en: 'Checking…' },
     's03.c09':        { ar: 'نسيت رمزك؟ اطلبه من المناوب المسؤول', en: 'Forgot your PIN? Ask the duty manager' },
@@ -115,7 +117,7 @@
         paintPin();
         return;
       }
-      P.msg = (res && res.kind === 'wrong') ? 'wrong' : 'failed';
+      P.msg = (res && (res.kind === 'wrong' || res.kind === 'worker')) ? res.kind : 'failed';
       paintPin();
       focusPin();
     }, function () {
@@ -215,14 +217,17 @@
     return '';
   }
 
+  /* Supervisors only: worker PINs are not accepted on the desk. */
   function demoHint() {
     var members = (HotelDB.staff().members) || [], parts = [];
     for (var i = 0; i < members.length; i++) {
+      if (members[i].role !== 'supervisor') continue;
       parts.push('<span class="num">' + esc(members[i].pin) + '</span> ' + esc(members[i].name));
     }
     return '<aside class="s-demo-hint" data-demo="true">' +
              '<span class="s-demo-hint__tag">' + t('st.demo.tag') + '</span>' +
-             t('st.demo.pins') + ' ' + parts.join(' · ') + '</aside>';
+             t('st.demo.pins') + ' ' + parts.join(' · ') +
+             '<br>' + t('st.demo.workers') + '</aside>';
   }
 
   function draw() {

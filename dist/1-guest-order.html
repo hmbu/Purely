@@ -1240,6 +1240,12 @@ body:has(.actionbar--tall) .screen { padding-block-end: calc(168px + var(--safe-
                              cancelReasonEn   staff's reason, English ('' if none)
                              cancelledBy      staffId, or 'guest'
                              cancelledAt      ms
+                             acceptedBy       the supervisor who accepted it
+                             assignedTo       the worker responsible (memberId);
+                                              set by acceptAndAssign, changed
+                                              by assign
+                             assignLog        [{ from, to, at, by }] every
+                                              assignment, oldest first
                            The guest device record keeps ONE reason string,
                            `cancelReason`; store.js's getStatus copies the reason
                            in the guest's language into it (G-06 C08).
@@ -1362,14 +1368,44 @@ body:has(.actionbar--tall) .screen { padding-block-end: calc(168px + var(--safe-
     };
   }
 
+  /* Two roles (docs/operations.html, "التوزيع على العمّال"):
+       supervisor — the room service desk tablet (staff/): sees every order,
+                    accepts it and assigns it to a worker in one action.
+       worker     — a delivery worker's own phone (worker/): sees only the
+                    orders assigned to them, walks them to the room, takes
+                    payment.
+     session       the desk tablet's signed-in supervisor
+     workerSession the worker phone's signed-in worker (a separate device, so
+                   a separate session; one per browser in this prototype)
+     shift         { memberId: sinceMs } — workers currently signed in, the
+                   list the supervisor assigns from */
+  var SEED_MEMBERS = [
+    { id: 's-sara',   name: 'سارة / Sara',   pin: '1111', role: 'supervisor' },
+    { id: 's-khalid', name: 'خالد / Khalid', pin: '2222', role: 'worker' },
+    { id: 's-ahmed',  name: 'أحمد / Ahmed',  pin: '3333', role: 'worker' }
+  ];
+
   function seedStaff() {
-    return {
-      members: [
-        { id: 's-sara',   name: 'سارة / Sara',   pin: '1111' },
-        { id: 's-khalid', name: 'خالد / Khalid', pin: '2222' }
-      ],
-      session: null
-    };
+    return { members: clone(SEED_MEMBERS), session: null, workerSession: null, shift: {} };
+  }
+
+  /* A staff record saved before roles existed gets the seeded roles and the
+     third member; everything else in it is kept. */
+  function normaliseStaff(s) {
+    if (!s) return seedStaff();
+    var members = s.members || [];
+    if (members.some(function (m) { return !m.role; })) members = clone(SEED_MEMBERS);
+    s.members = members;
+    if (!s.shift || typeof s.shift !== 'object') s.shift = {};
+    if (s.workerSession === undefined) s.workerSession = null;
+    if (s.session === undefined) s.session = null;
+    return s;
+  }
+
+  function memberById(id) {
+    var list = normaliseStaff(read(K.staff)).members;
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    return null;
   }
 
   function seedAdmin() {
@@ -1720,7 +1756,68 @@ body:has(.actionbar--tall) .screen { padding-block-end: calc(168px + var(--safe-
     },
 
     /* ---- staff and admin records (CONTRACT key table) ---- */
-    staff: function () { return clone(ensure(K.staff, seedStaff)); },
+    staff: function () { return clone(normaliseStaff(ensure(K.staff, seedStaff))); },
+
+    /* ---- assignment (docs/operations.html, "التوزيع على العمّال") ---- */
+
+    /* Every worker, with whether they are signed in on a worker phone now. */
+    workers: function () {
+      var s = normaliseStaff(read(K.staff));
+      return s.members.filter(function (m) { return m.role === 'worker'; }).map(function (m) {
+        var since = s.shift[m.id];
+        return { id: m.id, name: m.name, onShift: !!since, since: since || null };
+      });
+    },
+    member: function (id) { return clone(memberById(id)); },
+
+    startShift: function (memberId) {
+      var s = normaliseStaff(read(K.staff));
+      s.shift[memberId] = Date.now();
+      return write(K.staff, s);
+    },
+    endShift: function (memberId) {
+      var s = normaliseStaff(read(K.staff));
+      delete s.shift[memberId];
+      return write(K.staff, s);
+    },
+
+    /* Accept and assign are ONE action: there is no accepted order without a
+       worker responsible for it. New → Accepted, and assignedTo is set.
+       meta = { staffId (the supervisor), at }.
+       Returns { ok, error, order }; error 'notFound' | 'stale' (no longer
+       New — the guest cancelled first, or another tab accepted) | 'invalid'
+       (no such member). */
+    acceptAndAssign: function (orderNo, workerId, meta) {
+      if (!memberById(workerId)) return { ok: false, error: 'invalid', order: HotelDB.getOrder(orderNo) };
+      var at = (meta && meta.at) || Date.now();
+      return changeOrder(orderNo, function (order) {
+        if (order.status !== 'New') return 'stale';
+        order.status = 'Accepted';
+        order.acceptedBy = (meta && meta.staffId) || null;
+        order.assignedTo = workerId;
+        if (!order.assignLog) order.assignLog = [];
+        order.assignLog.push({ from: null, to: workerId, at: at, by: order.acceptedBy });
+        logRow(order, 'Accepted', { staffId: order.acceptedBy, at: at });
+        return null;
+      });
+    },
+
+    /* Moves an Accepted or OnTheWay order to another worker (or assigns one
+       to an order that was accepted without one). The order leaves the first
+       worker's phone and appears on the second's at once. */
+    assign: function (orderNo, workerId, meta) {
+      if (!memberById(workerId)) return { ok: false, error: 'invalid', order: HotelDB.getOrder(orderNo) };
+      var at = (meta && meta.at) || Date.now();
+      return changeOrder(orderNo, function (order) {
+        if (order.status !== 'Accepted' && order.status !== 'OnTheWay') return 'stale';
+        if (order.assignedTo === workerId) return null;
+        if (!order.assignLog) order.assignLog = [];
+        order.assignLog.push({ from: order.assignedTo || null, to: workerId, at: at, by: (meta && meta.staffId) || null });
+        order.assignedTo = workerId;
+        order.updatedAt = at;
+        return null;
+      });
+    },
     saveStaff: function (s) { return write(K.staff, s); },
     admin: function () { return clone(ensure(K.admin, seedAdmin)); },
     saveAdmin: function (a) { return write(K.admin, a); },

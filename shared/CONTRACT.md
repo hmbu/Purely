@@ -5,7 +5,8 @@ Three static apps, no backend, one memory:
 | Folder | Who | Spec |
 |---|---|---|
 | `app/` | the guest, on their phone | `/spec/screens/` (approved, frozen) |
-| `staff/` | hotel staff, desk tablet or phone | `/spec/staff/` |
+| `staff/` | room service desk (supervisor), desk tablet | `/spec/staff/` |
+| `worker/` | delivery worker, the worker's own phone | `/spec/worker/` |
 | `admin/` | the manager, on a laptop | `/spec/admin/` |
 | `shared/` | the hotel's data, used by all three | this file |
 
@@ -28,7 +29,7 @@ HotelDB, so the shapes cannot drift.
 | `roomstore.catalog` | `{ categories:[{id,nameAr,nameEn,order}], products:[{id,nameAr,nameEn,descAr,descEn,price,category,inStock,qty,removed}] }` — `qty` whole units 0–9999 (A-03 Amendment A1) | admin; guest submission and any cancellation change `qty`; seeded once from `window.Data` |
 | `roomstore.settings` | `{ hotelNameAr, hotelNameEn, currencyAr, currencyEn, timeZone, roomFormat, roomFormatChangedAt, roomFormatChangedBy }` — `roomFormat` is `{ minLen, maxLen, allowLetters, separator, requireDigit }`, separator `''` or `'-'` only | admin |
 | `roomstore.fakeserver` | the hotel's order table `{ byKey, byNo, nextNo }` — shape defined by `app/js/store.js` | guest (create), staff (status), admin (read) |
-| `roomstore.staff` | `{ members:[{id,name,pin}], session:{memberId, since} }` | staff, admin |
+| `roomstore.staff` | `{ members:[{id,name,pin,role:'supervisor'\|'worker'}], session:{memberId, since} (desk), workerSession:{memberId, since} (worker phone), shift:{memberId: sinceMs} }` | staff, worker, admin |
 | `roomstore.admin` | `{ email, passwordHash, session }` | admin |
 
 ### The order record (one entry of `byKey`)
@@ -57,7 +58,13 @@ status fields HotelDB adds as the order moves (see the header of `shared/hotel-d
   manager changes it in A-07 through AM-04.
 - `HotelDB.orders()` → every order the hotel holds, newest first.
 - `HotelDB.getOrder(orderNo)`.
-- `HotelDB.setStatus(orderNo, status, meta)` — `meta` carries `{ staffId, at }`.
+- `HotelDB.setStatus(orderNo, status, meta)` — `meta` carries `{ staffId, at }`. Used for
+  OnTheWay and Delivered (by the worker, or by the desk on the worker's behalf).
+- `HotelDB.acceptAndAssign(orderNo, workerId, meta)` — the desk's ONE accept action:
+  New → Accepted with `assignedTo` set. There is no accepted order without a worker.
+- `HotelDB.assign(orderNo, workerId, meta)` — reassign while Accepted or OnTheWay.
+- `HotelDB.workers()`, `HotelDB.member(id)`, `HotelDB.startShift(id)`, `HotelDB.endShift(id)`
+  — the worker list the desk assigns from; a worker is on shift while signed in.
 - `HotelDB.cancel(orderNo, reasonAr, reasonEn, staffId)` — also returns the order's units to stock.
 - `HotelDB.sellable(product)` — true only when the product is not removed, its switch
   `inStock` is on **and** `qty > 0`. The guest app shows a product as orderable only
@@ -90,7 +97,8 @@ cancel button must disappear on their next poll — that is the loop to demonstr
 
 ## Demo credentials (a prototype has to be enterable)
 Seeded on first run and shown on each sign-in screen as a clearly marked demo hint:
-- Staff PINs: `1111` (سارة / Sara), `2222` (خالد / Khalid)
+- Room service desk (supervisor): `1111` (سارة / Sara)
+- Delivery workers: `2222` (خالد / Khalid), `3333` (أحمد / Ahmed)
 - Admin: `manager@alwaha.example` / `alwaha2026`
 
 Stored as plain demo values. This is not security and the README says so.

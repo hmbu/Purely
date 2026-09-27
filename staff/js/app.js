@@ -14,9 +14,9 @@
   var S = window.Staff;
 
   I18N.register({
-    'st.title.S-01': { ar: 'لوحة الطلبات', en: 'Orders board' },
-    'st.title.S-02': { ar: 'تفاصيل الطلب', en: 'Order detail' },
-    'st.title.S-03': { ar: 'دخول الموظف', en: 'Staff sign-in' },
+    'st.title.S-01': { ar: 'لوحة الطلبات — مكتب الروم سيرفس', en: 'Orders board — Room service desk' },
+    'st.title.S-02': { ar: 'تفاصيل الطلب — مكتب الروم سيرفس', en: 'Order detail — Room service desk' },
+    'st.title.S-03': { ar: 'دخول المشرف — مكتب الروم سيرفس', en: 'Supervisor sign-in — Room service desk' },
 
     /* Demo strip — not product copy (see index.html). */
     'st.demo.device':   { ar: 'الجهاز مربوط بالفندق', en: 'Device linked to the hotel' },
@@ -256,6 +256,9 @@
       /* A session past its 12 hours is discarded on load (S-03 §3.1). */
       var sess = S.Session.current();
       if (sess && S.Session.expired(sess)) S.Session.end();
+      /* Only a supervisor holds the desk session (split design); one left
+         by an older build under a worker's PIN is ended. */
+      else if (sess && S.memberRole(sess.memberId) !== 'supervisor') S.Session.end();
       drawDemo();
       window.addEventListener('hashchange', App.render);
       App.render();

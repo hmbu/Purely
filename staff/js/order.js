@@ -1,8 +1,14 @@
 /* staff/js/order.js — S-02 Order detail (تفاصيل الطلب).
-   Spec: /spec/staff/screens/S-02.md. The only screen that changes an order:
-   accept, on the way, delivered (through SM-02) and cancel (through SM-01).
-   Every status change is one step forward through HotelDB.setStatus, which
-   refuses a stale step — the cancellation race is decided there (§5.7). */
+   Spec: /spec/staff/screens/S-02.md, amended by the desk/worker split
+   (docs/operations.html "التوزيع على العمّال"). This is the room service
+   desk: the only screen that changes an order from the desk —
+     accept & assign (one action, through SM-03), assign an Accepted order
+     that has no worker, reassign (SM-03), cancel (SM-01), and — only on
+     behalf of the worker, as secondary actions — on the way and delivered
+     (through SM-02). When the desk took the order itself ("Me"), those two
+     are its own primary action again.
+   Every status change is refused by HotelDB when stale — the cancellation
+   race is decided there (§5.7). */
 (function () {
   'use strict';
 
@@ -35,7 +41,18 @@
     's02.b03':          { ar: 'إلغاء الطلب', en: 'Cancel order' },
     's02.c15':          { ar: 'لم يصل التحديث إلى النظام — حاول مرة أخرى', en: 'The update did not reach the system — try again' },
     's02.c16':          { ar: 'بقبولك لن يستطيع الضيف إلغاء الطلب', en: 'Once you accept, the guest can no longer cancel it' },
-    's02.b02.New':      { ar: 'قبول الطلب', en: 'Accept order' },
+    /* B02 in New: accept and assign are ONE action; it opens SM-03. */
+    's02.b02.New':      { ar: 'قبول وتحويل', en: 'Accept & assign' },
+    's02.b02.assign':   { ar: 'تحويل لعامل', en: 'Assign' },
+    's02.b02.pick':     { ar: 'يفتح قائمة العمّال', en: 'Opens the worker list' },
+    /* C20 — who has the order; B06 moves it to someone else. */
+    's02.c20':          { ar: 'المندوب المسؤول', en: 'Assigned worker' },
+    's02.b06':          { ar: 'تحويل لعامل آخر', en: 'Reassign' },
+    /* B07 / B08 — the worker's two steps, done by the desk on their behalf. */
+    's02.b07':          { ar: 'خرج بالطلب نيابةً عن {name}', en: 'Mark on the way for {name}' },
+    's02.b08':          { ar: 'تأكيد التوصيل نيابةً عن {name}', en: 'Confirm delivery for {name}' },
+    's02.c21':          { ar: 'يحدّث المندوب الحالة من جواله — استخدم هذا فقط إن تعذّر عليه', en: 'The worker updates this from their phone — use this only if they cannot' },
+    's02.sr.assigned':  { ar: 'تم التحويل — المندوب: {name}', en: 'Assigned — worker: {name}' },
     's02.b02.Accepted': { ar: 'خرجت بالطلب', en: 'Heading out with the order' },
     's02.b02.OnTheWay': { ar: 'تم التوصيل والدفع', en: 'Delivered and paid' },
     'st.after':         { ar: 'الحالة بعد الضغط: {label}', en: 'Status after tapping: {label}' },
@@ -130,9 +147,34 @@
   /* ------------------------------------------------------------------ *
    * The primary action (§5.4, §5.7)
    * ------------------------------------------------------------------ */
+  /* What the action bar offers for an active order (split design):
+       'accept' New → B02 "Accept & assign" opens SM-03
+       'assign' Accepted / On the way with no worker → B02 "Assign" opens SM-03
+       'self'   the desk holds the order itself → B02, the old forward step
+       'behalf' a worker holds it → B07 / B08, secondary, on their behalf */
+  function barMode(o, sess) {
+    if (o.status === 'New') return 'accept';
+    if (!o.assignedTo) return 'assign';
+    if (sess && o.assignedTo === sess.memberId) return 'self';
+    return 'behalf';
+  }
+
   function primary() {
-    if (!tapOk() || D.busy || !D.order) return;
+    if (!D.order) return;
+    var mode = barMode(D.order, Session.current());
+    if (mode === 'accept' || mode === 'assign') {
+      if (!tapOk() || D.busy || D.modal) return;
+      openSheet('SM-03');                                    /* sends nothing */
+      return;
+    }
+    forward();
+  }
+
+  /* One forward step: Accepted → On the way here, On the way → SM-02. */
+  function forward() {
+    if (!tapOk() || D.busy || D.modal || !D.order) return;
     var st = D.order.status;
+    if (st === 'New') return;                                /* only through SM-03 */
     if (st === 'OnTheWay') { openSheet('SM-02'); return; }   /* sends nothing */
     var target = HotelDB.nextStatus(st);
     if (!target || target === 'Delivered') return;
@@ -253,6 +295,39 @@
              '<span class="s-phone__label">' + t('s02.c19') + '</span>' + value + '</div>';
   }
 
+  /* S-02-C20 — who has the order, with B06 "Reassign" while it is still
+     Accepted or On the way. Not shown while New (nobody has it yet). On an
+     Accepted / On the way order with no worker (the guest demo strip can
+     make one) it reads "Not assigned" and B02 becomes "Assign". Shown
+     read-only on a finished order that had a worker. */
+  function assigneeBlock(o, expired) {
+    var active = o.status === 'Accepted' || o.status === 'OnTheWay';
+    if (!active && !o.assignedTo) return '';
+    if (o.status === 'New') return '';
+    var name = S.assigneeName(o.assignedTo);
+    var h = '<div class="s-assignee' + (name ? '' : ' s-assignee--none') + '" data-el="S-02-C20" style="margin-top:12px">' +
+              '<span class="s-assignee__label">' + t('s02.c20') + '</span>' +
+              '<span class="s-assignee__name">' + (name ? esc(name) : t('st.asg.none')) + '</span>';
+    if (active && name && !expired) {
+      h += '<button type="button" class="btn btn--ghost s-assignee__btn" data-el="S-02-B06"' +
+             (D.busy ? ' disabled aria-disabled="true"' : '') + '>' + t('s02.b06') + '</button>';
+    }
+    return h + '</div>';
+  }
+
+  /* The two-line action button of the bar. Primary (dark) for the desk's
+     own action; outlined for an on-behalf step. */
+  function actionButton(el, ghost, l1, l2) {
+    var cls = 'btn ' + (ghost ? 'btn--ghost s-behalf' : 'btn--primary') + ' s-primary';
+    if (D.busy) {
+      return '<button type="button" class="' + cls + '" data-el="' + el + '" disabled aria-disabled="true">' +
+               '<span class="s-primary__l1">' + t('st.sending') + '</span></button>';
+    }
+    return '<button type="button" class="' + cls + '" data-el="' + el + '">' +
+             '<span class="s-primary__l1">' + l1 + '</span>' +
+             '<span class="s-primary__l2">' + l2 + '</span></button>';
+  }
+
   /* The stored reason, never translated: of the two strings HotelDB keeps,
      the one in the interface language, else the other. Cut at 120 (§7.1). */
   function storedReason(o) {
@@ -319,6 +394,7 @@
       if (D.stale && !S.isFinalStatus(st)) {
         h += '<p class="s-line" data-el="S-02-C06" role="status" style="margin-top:8px">' + t('s02.c06') + '</p>';
       }
+      h += assigneeBlock(o, expired);
       h += '<div class="s-roomblock" data-el="S-02-C07" style="margin-top:16px" ' +
              'aria-label="' + esc(t('st.room') + ' ' + S.spaced(o.roomNumber)) + '">' +
              '<span class="s-roomblock__word" aria-hidden="true">' + t('st.room') + '</span>' +
@@ -361,16 +437,22 @@
                 '<div>' + t('s02.c17') + '</div>' +
                 '<button type="button" class="btn" data-el="S-02-B05">' + t('st.signin.continue') + '</button></div>';
       } else if (S.isActiveStatus(st)) {
+        var mode = barMode(o, sess);
+        var l2 = st === 'OnTheWay' ? t('s02.b02.opens') : t('st.after', { label: t('st.status.' + HotelDB.nextStatus(st)) });
         if (D.actionErr) bar += '<p class="error" data-el="S-02-C15" role="alert">' + t('s02.c15') + '</p>';
         if (st === 'New') bar += '<p class="s-bar__consequence" data-el="S-02-C16">' + t('s02.c16') + '</p>';
-        if (D.busy) {
-          bar += '<button type="button" class="btn btn--primary s-primary" data-el="S-02-B02" disabled aria-disabled="true">' +
-                   '<span class="s-primary__l1">' + t('st.sending') + '</span></button>';
+        if (mode === 'accept') {
+          bar += actionButton('S-02-B02', false, t('s02.b02.New'), t('s02.b02.pick'));
+        } else if (mode === 'assign') {
+          bar += actionButton('S-02-B02', false, t('s02.b02.assign'), t('s02.b02.pick'));
+        } else if (mode === 'self') {
+          bar += actionButton('S-02-B02', false, t('s02.b02.' + st), l2);
         } else {
-          var l2 = st === 'OnTheWay' ? t('s02.b02.opens') : t('st.after', { label: t('st.status.' + HotelDB.nextStatus(st)) });
-          bar += '<button type="button" class="btn btn--primary s-primary" data-el="S-02-B02">' +
-                   '<span class="s-primary__l1">' + t('s02.b02.' + st) + '</span>' +
-                   '<span class="s-primary__l2">' + l2 + '</span></button>';
+          var wn = esc(S.assigneeName(o.assignedTo));
+          bar += '<p class="s-bar__consequence" data-el="S-02-C21">' + t('s02.c21') + '</p>';
+          bar += st === 'Accepted'
+            ? actionButton('S-02-B07', true, t('s02.b07', { name: wn }), l2)
+            : actionButton('S-02-B08', true, t('s02.b08', { name: wn }), l2);
         }
       } else {
         bar = backButton();
@@ -391,6 +473,15 @@
     if (b04) b04.addEventListener('click', goBoard);
     var b02 = root.querySelector('[data-el="S-02-B02"]');
     if (b02) b02.addEventListener('click', primary);
+    var b07 = root.querySelector('[data-el="S-02-B07"]');
+    if (b07) b07.addEventListener('click', forward);
+    var b08 = root.querySelector('[data-el="S-02-B08"]');
+    if (b08) b08.addEventListener('click', forward);
+    var b06 = root.querySelector('[data-el="S-02-B06"]');
+    if (b06) b06.addEventListener('click', function () {
+      if (!tapOk() || D.modal || D.busy) return;
+      openSheet('SM-03');
+    });
     var b03 = root.querySelector('[data-el="S-02-B03"]');
     if (b03) b03.addEventListener('click', function () {
       if (!tapOk() || D.modal || D.busy) return;
@@ -439,7 +530,7 @@
       if (visible) request();
     },
 
-    /* SM-01 / SM-02 hand back exactly one of their outcomes (§5.8, §5.9). */
+    /* SM-01 / SM-02 / SM-03 hand back exactly one of their outcomes (§5.8, §5.9). */
     onModalOutcome: function (id, outcome, order, variant) {
       D.modal = false;
       if (outcome === 'cancelled' || outcome === 'delivered') {
@@ -449,10 +540,16 @@
         D.banner = variant === 'G' ? 'G' : 'H';
         D.order = order;
         announceStatus(order);
-      } else if (outcome === 'refusedDelivered') {
+      } else if (outcome === 'refusedDelivered' || outcome === 'refusedChanged') {
         D.external = true;
         D.order = order;
         announceStatus(order);
+      } else if (outcome === 'assigned') {
+        /* SM-03: accepted and assigned, assigned, or reassigned. */
+        var was = D.order && D.order.status;
+        D.order = order;
+        if (was !== order.status) announceStatus(order);
+        else App.announce(t('s02.sr.assigned', { name: S.assigneeName(order.assignedTo) }));
       }
       draw();
       request();                           /* resumes with one immediate request */

@@ -55,13 +55,20 @@
     'st.signin.continue': { ar: 'تسجيل الدخول للمتابعة', en: 'Sign in to continue' },
     'st.lang.other': { ar: 'English', en: 'العربية' },
 
+    /* Assignment (docs/operations.html "التوزيع على العمّال"; split design). */
+    'st.brand':          { ar: 'مكتب الروم سيرفس', en: 'Room service desk' },
+    'st.asg.worker':     { ar: 'المندوب: {name}', en: 'Worker: {name}' },
+    'st.asg.none':       { ar: 'غير محوّل', en: 'Not assigned' },
+    'st.asg.supervisor': { ar: '{name} (المشرف)', en: '{name} (supervisor)' },
+
     /* Demo strip and demo PIN hint — NOT product copy. Required by
        shared/CONTRACT.md "Demo credentials"; kept visibly apart. */
     'st.demo.tag':    { ar: 'وضع العرض · Demo', en: 'Demo · وضع العرض' },
     'st.demo.server': { ar: 'حالة النظام', en: 'System' },
     'st.demo.ok':     { ar: 'يعمل', en: 'working' },
     'st.demo.down':   { ar: 'لا اتصال', en: 'no connection' },
-    'st.demo.pins':   { ar: 'رموز تجريبية للعرض فقط:', en: 'Demo PINs, for the prototype only:' }
+    'st.demo.pins':   { ar: 'رموز تجريبية للعرض فقط:', en: 'Demo PINs, for the prototype only:' },
+    'st.demo.workers':{ ar: 'المندوبون يدخلون من تطبيق المندوب على جوالهم، لا من هذا الجهاز.', en: 'Workers sign in on the worker app on their own phone, not on this device.' }
   });
 
   /* ------------------------------------------------------------------ *
@@ -173,6 +180,27 @@
     var s = HotelDB.staff(), list = (s && s.members) || [];
     for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i].name;
     return String(id);
+  }
+
+  /* A member's name in the interface language. Seeded names hold both
+     ("خالد / Khalid"); a name without " / " is shown as it is. */
+  function localName(full) {
+    var s = String(full == null ? '' : full), parts = s.split(' / ');
+    if (parts.length < 2) return s;
+    return I18N.lang === 'en' ? (parts[1] || parts[0]) : parts[0];
+  }
+
+  function memberRole(id) {
+    var m = id && window.HotelDB ? HotelDB.member(id) : null;
+    return m ? m.role || '' : '';
+  }
+
+  /* Who an order is assigned to, as the desk reads it: "خالد", or
+     "سارة (المشرف)" when the desk took the order itself; '' when none. */
+  function assigneeName(id) {
+    if (!id) return '';
+    var n = localName(memberName(id));
+    return memberRole(id) === 'supervisor' ? t('st.asg.supervisor', { name: n }) : n;
   }
 
   /* ------------------------------------------------------------------ *
@@ -380,6 +408,20 @@
       });
     },
 
+    /* SM-03: accept and assign in one step (New → Accepted), or move an
+       Accepted / On the way order to another worker. { ok, error, order }. */
+    acceptAndAssign: function (orderNo, workerId, staffId) {
+      return Server.call('action', function (ok) {
+        ok(HotelDB.acceptAndAssign(orderNo, workerId, { staffId: staffId, at: Date.now() }));
+      });
+    },
+
+    assign: function (orderNo, workerId, staffId) {
+      return Server.call('action', function (ok) {
+        ok(HotelDB.assign(orderNo, workerId, { staffId: staffId, at: Date.now() }));
+      });
+    },
+
     /* S-03 §5.5 rule 1: counts, and each New order's number and time. */
     queue: function () {
       return Server.call('queue', function (ok, fail) {
@@ -393,7 +435,10 @@
       });
     },
 
-    /* S-03 §5.2 — five outcomes. The wrong-PIN count is the "server's",
+    /* S-03 §5.2 — five outcomes, plus 'worker': a correct worker PIN typed
+       on the desk. The desk is the supervisor's device; a worker signs in on
+       the worker app on their own phone. Not counted as a wrong attempt.
+       The wrong-PIN count is the "server's",
        kept apart from anything the screen shows (S-03 §5.2 step 6). */
     signIn: function (pin) {
       return Server.call('signin', function (ok) {
@@ -404,6 +449,7 @@
         if (auth.lockedUntil && now < auth.lockedUntil) { ok({ kind: 'locked' }); return; }
         var members = (HotelDB.staff().members) || [], hit = null;
         for (var i = 0; i < members.length; i++) if (String(members[i].pin) === pin) hit = members[i];
+        if (hit && hit.role !== 'supervisor') { ok({ kind: 'worker' }); return; }
         if (hit) {
           lsSet(LS.auth, JSON.stringify({ wrong: 0, lockedUntil: 0 }));
           ok({ kind: 'ok', member: { id: hit.id, name: hit.name } });
@@ -461,6 +507,7 @@
     hasNotes: hasNotes, lineName: lineName, orderLang: orderLang, spaced: spaced,
     isActiveStatus: isActiveStatus, isFinalStatus: isFinalStatus,
     hotelDayStart: hotelDayStart, finalAt: finalAt, memberName: memberName,
+    localName: localName, memberRole: memberRole, assigneeName: assigneeName,
     Lang: Lang, Chime: Chime, Alert: Alert, Server: Server, Session: Session,
     Device: Device, SESSION_MS: SESSION_MS,
     MIN: MIN

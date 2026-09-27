@@ -40,6 +40,8 @@
     'am03.c05': { ar: 'الغرفة', en: 'Room' },
     /* C19 — the guest's mobile number (owner decision, 2026-09-27). */
     'am03.c19': { ar: 'جوال النزيل', en: 'Guest mobile' },
+    /* C20 — the worker the room service desk assigned the order to. */
+    'am03.c20': { ar: 'المندوب', en: 'Worker' },
     'am03.c06': { ar: 'المنتجات — {count}', en: 'Items — {count}' },
     'am03.each': { ar: '{price} للقطعة', en: '{price} each' },
     'am03.c08': { ar: 'الإجمالي', en: 'Total' },
@@ -279,6 +281,15 @@
         if (phone) {
           h += '<div class="adm-am03-phone"' + A.el('AM-03-C19') + '><div class="small muted">' + esc(t('am03.c19')) + '</div>' +
                '<div class="adm-am03-phone__n"><span class="num" dir="ltr">' + esc(phone) + '</span></div></div>';
+        }
+        /* C20 — the assigned worker (desk/worker split), in the interface
+           language ("خالد / Khalid" → "خالد"). Hidden when none. */
+        var worker = o.assignedTo ? rosterName(o.assignedTo) : null;
+        if (worker) {
+          var wp = String(worker).split(' / ');
+          if (wp.length > 1) worker = I18N.lang === 'en' ? (wp[1] || wp[0]) : wp[0];
+          h += '<div class="adm-am03-phone"' + A.el('AM-03-C20') + '><div class="small muted">' + esc(t('am03.c20')) + '</div>' +
+               '<div class="adm-am03-phone__n">' + esc(worker) + '</div></div>';
         }
 
         h += '<section class="adm-am03-sec"' + A.el('AM-03-S03') + '><h3 class="adm-am03-h"' + A.el('AM-03-C06') + '>' + esc(t('am03.c06', { count: A.itemsLabel(A.units(o)) })) + '</h3>';
