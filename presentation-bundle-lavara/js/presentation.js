@@ -984,7 +984,7 @@ async function toSpecial(kind) {
   unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
   [L.section, L.hub, L.universe].forEach(l => show(l, false));
   S.level = kind; S.pid = null; S.sid = null; S.focus = -1;
-  const dp = kind === 'decision' ? sharedOf(S.content) : null; // the decisions close the shared area, in its identity
+  const dp = sharedOf(S.content); // decisions and closing end the show in the shared area's light identity
   applyBrand(dp);
   kind === 'decision' ? renderDecision() : renderClosing();
   show(L.special, true);
@@ -1203,7 +1203,7 @@ function previewShow(target = {}, animate = false) {
   logosEl.classList.remove('is-hidden');
   if (target.level === 'universe' || (!target.projectId && !target.level)) { toUniverseInstant(); if (animate) universeEntrance(); return; }
   if (target.level === 'decision' || target.level === 'closing') {
-    const dp = target.level === 'decision' ? sharedOf(S.content) : null;
+    const dp = sharedOf(S.content);
     S.level = target.level; S.pid = null; applyBrand(dp, false); target.level === 'decision' ? renderDecision() : renderClosing();
     show(L.special, true); dp ? logosColor(hubFg(dp), hubDark(dp)) : logosColor(universeColors().fg, true); placeLogos('corner', false); logosEl.classList.toggle('is-hidden', target.level === 'closing'); updateHUD(); return;
   }

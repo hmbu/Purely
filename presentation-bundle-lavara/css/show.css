@@ -40,7 +40,7 @@ button { font: inherit; color: inherit; }
 #logos[data-mode="corner"][data-corner="top-right"] { left: auto; right: 3.8rem; }
 #logos[data-mode="corner"][data-corner="bottom-left"] { top: auto; bottom: 3.2rem; }
 #logos[data-mode="corner"][data-corner="bottom-right"] { top: auto; bottom: 3.2rem; left: auto; right: 3.8rem; }
-#logos.is-hidden { opacity: 0; }
+#logos.is-hidden { opacity: 0 !important; } /* beats the inline opacity left by the opening animation */
 #logos .hl { height: 100%; aspect-ratio: var(--ar, 4); transform: scale(var(--sc, 1)); display: block; }
 #logos .hl-tint { background-color: currentColor; -webkit-mask: var(--src) center / contain no-repeat; mask: var(--src) center / contain no-repeat; }
 #logos .hl-img img { height: 100%; width: auto; display: block; }
