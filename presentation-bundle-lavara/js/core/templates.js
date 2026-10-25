@@ -318,7 +318,38 @@ TEMPLATES.diagram = {
   },
 };
 
-export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram'];
+/* ---------------------------------------------------------------- product sheet (a package / gift) */
+// Copy on the right (title, description, attributes as chips), the photos on the left: one main image and
+// a column of detail shots. Attribute "alt" lists the other options, shown muted next to the chosen one.
+TEMPLATES.product = {
+  name: 'بطاقة منتج / باقة', en: 'Product sheet', group: 'extra', defaultBg: 'background', suggested: 'المفاهيم',
+  fields: [F.eyebrow, F.title, F.body, F.image('image', 'الصورة الرئيسية'),
+    { key: 'gallery', type: 'list', label: 'صور التفاصيل (عمود بجانب الرئيسية)', item: [{ key: 'image', type: 'image', label: 'الصورة' }], newItem: { image: { src: '' } } },
+    { key: 'attrs', type: 'list', label: 'الخصائص', item: [{ key: 'label', type: 'text', label: 'الخاصية' }, { key: 'value', type: 'text', label: 'القيمة' },
+      { key: 'chip', type: 'toggle', label: 'تظهر كشارة' }, { key: 'alt', type: 'text', label: 'خيارات أخرى تظهر باهتة (مفصولة بفاصلة)' }],
+      newItem: { label: 'خاصية', value: '', chip: false, alt: '' } },
+    { key: 'codes', type: 'text', label: 'أرقام المنتجات' }],
+  defaults: { eyebrow: 'Package', title: 'اسم الباقة', body: 'وصف مختصر للباقة.', image: { src: '', fit: 'cover', focal: { x: 50, y: 50 } }, gallery: [], attrs: [{ label: 'نوع الهدية', value: 'باكج', chip: true, alt: 'منتج فردي' }], codes: '' },
+  render: (d, ctx) => {
+    const g = (d.gallery || []).filter(x => x?.image?.src || typeof x?.image === 'string');
+    const chips = a => `<span class="pr-chip is-on">${esc(a.value || '')}</span>${String(a.alt || '').split(/[,،]/).map(x => x.trim()).filter(Boolean).map(x => `<span class="pr-chip">${esc(x)}</span>`).join('')}`;
+    return `
+    <div class="t t-product ${g.length ? 'has-gallery' : ''}">
+      <div class="pr-copy">${eyebrow(d.eyebrow)}${title(d.title)}${body(d.body)}
+        <div class="pr-attrs" data-a="extra" data-seq="0">
+          ${(d.attrs || []).map(a => `<div class="pr-row"><span class="pr-k">${esc(a.label || '')}</span><span class="pr-v">${a.chip ? chips(a) : escBr(a.value || '')}</span></div>`).join('')}
+          ${d.codes ? `<div class="pr-row"><span class="pr-k">أرقام المنتجات</span><span class="pr-v latin pr-codes">${esc(d.codes)}</span></div>` : ''}
+        </div>
+      </div>
+      <div class="pr-media" data-a="media">
+        ${g.length ? `<div class="pr-thumbs">${g.map(x => `<div class="pr-thumb">${mediaHTML(x.image, ctx)}</div>`).join('')}</div>` : ''}
+        <div class="pr-main">${mediaHTML(d.image, ctx, { label: d.title || 'صورة', eager: true })}</div>
+      </div>
+    </div>`;
+  },
+};
+
+export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product'];
 
 export function newSlide(templateId, uidFn) {
   const t = TEMPLATES[templateId];
