@@ -300,8 +300,10 @@ TEMPLATES.diagram = {
       }
       const st = stepOf(e), g = (groups[st] ||= []);
       const dx = Math.sign(x2 - x1), dy = Math.sign(y2 - y1);
-      const tip = horiz ? `M${x2} ${y2} L${x2 - dx * ah} ${y2 - ah * 0.6} L${x2 - dx * ah} ${y2 + ah * 0.6} Z` : `M${x2} ${y2} L${x2 - ah * 0.6} ${y2 - dy * ah} L${x2 + ah * 0.6} ${y2 - dy * ah} Z`;
-      g.push(`<g class="tone-${esc(e.tone || 'neutral')}"><path class="dg-line ${e.style === 'dashed' ? 'is-dashed' : ''}" d="M${x1} ${y1} L${horiz ? x2 - dx * ah : x2} ${horiz ? y2 : y2 - dy * ah}"/><path class="dg-tip" d="${tip}"/></g>`);
+      // open chevron head; solid lines get pathLength=1 so they can draw themselves in
+      const tip = horiz ? `M${x2 - dx * ah} ${y2 - ah * 0.55} L${x2} ${y2} L${x2 - dx * ah} ${y2 + ah * 0.55}` : `M${x2 - ah * 0.55} ${y2 - dy * ah} L${x2} ${y2} L${x2 + ah * 0.55} ${y2 - dy * ah}`;
+      const dashed = e.style === 'dashed';
+      g.push(`<g class="tone-${esc(e.tone || 'neutral')}"><path class="dg-line ${dashed ? 'is-dashed' : ''}" ${dashed ? '' : 'pathLength="1"'} d="M${x1} ${y1} L${x2} ${y2}"/><path class="dg-tip" d="${tip}"/></g>`);
       if (e.label) {
         const lb = document.createElement('div');
         lb.className = `dg-label tone-${e.tone || 'neutral'} ${e.style === 'dashed' ? 'is-dashed' : ''}`;
@@ -311,6 +313,8 @@ TEMPLATES.diagram = {
       }
     });
     svg.innerHTML = Object.entries(groups).map(([st, g]) => `<g ${+st ? `data-step="${st}"` : ''}>${g.join('')}</g>`).join('');
+    el.classList.remove('dg-drawn');
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('dg-drawn'))); // lines draw in once on screen
   },
   applyStep(el, step, instant) {
     el.classList.toggle('dg-instant', !!instant);

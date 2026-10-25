@@ -813,14 +813,14 @@ async function enterSection(sid, slideIndex = 0) {
 
 // Moving between sections: either a strong camera pull-back to the project page and into the next
 // section (default), or the brand cover card. Setting: flow.sectionTransition = 'hub' | 'cover'.
-async function flowSection(sec, slideIndex = 0, dir = 1) {
+async function flowSection(sec, slideIndex = 0, dir = 1, jump = false) { // jump: chosen explicitly (remote, number, section keys) → never waits
   if ((settings().flow?.sectionTransition || 'hub') !== 'hub' || reduced()) return sectionCover(sec, slideIndex, dir);
   await zoomOut({ strong: true });
   const i = sectionsOf(project()).indexOf(sec);
   S.hubTarget = i; hubLight(i, false);
   $$('.h2-station', L.hub).forEach((x, k) => x.classList.toggle('is-next', k === i));
-  if ((settings().flow?.afterSection || 'wait') !== 'auto') { S.hubPending = { sid: sec.id, slideIndex }; broadcastState(); return; } // the presenter presses Next
-  await new Promise(r => setTimeout(r, 1100 / (gsap.globalTimeline.timeScale() || 1)));
+  if (!jump && (settings().flow?.afterSection || 'wait') !== 'auto') { S.hubPending = { sid: sec.id, slideIndex }; broadcastState(); return; } // the presenter presses Next
+  await new Promise(r => setTimeout(r, (jump ? 600 : 1100) / (gsap.globalTimeline.timeScale() || 1)));
   return enterSection(sec.id, slideIndex);
 }
 
@@ -1052,7 +1052,7 @@ async function jumpSection(delta) {
   if (S.level === 'hub') { const p = project(); const secs = sectionsOf(p); const i = clamp(S.hubTarget + (delta > 0 ? 0 : -1), 0, secs.length - 1); return enterSection(secs[i].id); }
   if (S.level !== 'section') return;
   const secs = sectionsOf(project()); const si = secs.findIndex(s => s.id === S.sid);
-  const t = secs[si + delta]; if (t) return flowSection(t, 0, delta);
+  const t = secs[si + delta]; if (t) return flowSection(t, 0, delta, true);
   if (delta > 0) { S.visitedProjects.add(S.pid); return toUniverse(); }
 }
 async function jumpNumber(n) {
@@ -1060,7 +1060,7 @@ async function jumpNumber(n) {
   const p = project(); if (!p) return;
   const sec = sectionsOf(p)[n - 1]; if (!sec) return;
   if (S.level === 'hub') return enterSection(sec.id);
-  if (S.level === 'section' && sec.id !== S.sid) return flowSection(sec, 0, n - 1 > sectionsOf(p).findIndex(s => s.id === S.sid) ? 1 : -1);
+  if (S.level === 'section' && sec.id !== S.sid) return flowSection(sec, 0, n - 1 > sectionsOf(p).findIndex(s => s.id === S.sid) ? 1 : -1, true);
 }
 async function gotoTarget({ projectId, sectionId, slideIndex = 0, slideId }) {
   if (slideId) { const loc = locate(S.content, slideId); if (loc?.kind === 'slide') { projectId = loc.project.id; sectionId = loc.section.id; slideIndex = slidesOf(loc.section).indexOf(loc.slide); } }
@@ -1072,7 +1072,7 @@ async function gotoTarget({ projectId, sectionId, slideIndex = 0, slideId }) {
   if (S.level === 'section') {
     if (sectionId === S.sid) { if (slideIndex !== S.li) { S.step = 0; return showSlide(slideIndex, { dir: slideIndex > S.li ? 1 : -1 }); } return; }
     const sec = findSection(p, sectionId); const secs = sectionsOf(p);
-    return flowSection(sec, slideIndex, secs.indexOf(sec) > secs.findIndex(s => s.id === S.sid) ? 1 : -1);
+    return flowSection(sec, slideIndex, secs.indexOf(sec) > secs.findIndex(s => s.id === S.sid) ? 1 : -1, true);
   }
 }
 
