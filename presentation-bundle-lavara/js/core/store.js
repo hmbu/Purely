@@ -4,6 +4,8 @@
 //            through the GitHub API with a personal access token kept only in this browser. History = git commits.
 //   local  — no launcher and no GitHub connection: content.json is read-only, edits are kept in this browser.
 
+import { withDefaults } from './model.js';
+
 const LS_KEY = 'bxl-content-cache';
 const GH_KEY = 'bxl-github';
 
@@ -53,7 +55,8 @@ export async function testGithub() {
 }
 
 /* ---------------------------------------------------------------- content */
-export async function loadContent({ fresh = false } = {}) {
+export async function loadContent(opts) { return withDefaults(await loadRaw(opts)); }
+async function loadRaw({ fresh = false } = {}) {
   if (window.__BXL_CONTENT__) return JSON.parse(JSON.stringify(window.__BXL_CONTENT__)); // single-file build
   isServer = await serverAvailable();
   if (fresh && !isServer && hasGithub()) { // control panel on the published site: always edit the latest commit

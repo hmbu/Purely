@@ -25,6 +25,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build the single-file version from the latest content
+        run: |
+          pip install --quiet pillow
+          python3 presentation-bundle-lavara/tools/build_single.py --esbuild "npx --yes esbuild@0.24.0"
       - name: Prepare site
         run: |
           mkdir -p _site
