@@ -37,6 +37,11 @@ jobs:
           mkdir -p _site
           rsync -a --exclude '.github' --exclude 'data' --exclude 'brand-source' --exclude 'tools' presentation-bundle-lavara/ _site/
           touch _site/.nojekyll
+      - name: Cache-bust (every deploy gets fresh CSS/JS, no stale browser copies)
+        run: |
+          V="${GITHUB_SHA::8}"
+          find _site -maxdepth 1 -name '*.html' -exec sed -i -E "s#(href=\"css/[^\"?]+\.css)\"#\1?v=$V\"#g; s#(src=\"(js|assets/vendor)/[^\"?]+\.js)\"#\1?v=$V\"#g" {} +
+          find _site/js -name '*.js' -exec sed -i -E "s#(from ['\"]\.{1,2}/[^'\"?]+\.js)(['\"])#\1?v=$V\2#g; s#(import\(['\"]\.{1,2}/[^'\"?]+\.js)(['\"])#\1?v=$V\2#g" {} +
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
