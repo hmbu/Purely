@@ -1,0 +1,37 @@
+# Publishes ONLY the presentation-bundle-lavara/ folder to GitHub Pages
+# (the hotel project in the rest of this repository is not published).
+# Runs on every push that touches the folder — including "Publish" from the control panel.
+# One-time setup: Settings → Pages → Source: GitHub Actions;
+# Settings → Environments → github-pages → allow the branch below (or merge it into the default branch).
+name: Publish presentation
+on:
+  push:
+    branches: [ccr-87aacda0-76dx1f, claude/session-start-n2vioi, main]
+    paths: ['presentation-bundle-lavara/**', '.github/workflows/presentation-pages.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Prepare site
+        run: |
+          mkdir -p _site
+          rsync -a --exclude '.github' --exclude 'data' --exclude 'brand-source' --exclude 'tools' presentation-bundle-lavara/ _site/
+          touch _site/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

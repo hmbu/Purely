@@ -2,6 +2,7 @@
 // Primary transport: WebSocket relay of the local launcher (works across devices).
 // Fallback: BroadcastChannel (same machine, same browser) — always on, de-duplicated.
 import { uid } from './util.js';
+import { serverAvailable } from './store.js';
 
 export function createSync(role, onMessage) {
   const id = uid(role);
@@ -37,7 +38,7 @@ export function createSync(role, onMessage) {
     if (ws && wsOpen) { try { ws.send(JSON.stringify(msg)); } catch {} }
   }
 
-  connect();
+  serverAvailable().then(ok => { if (ok) connect(); }); // WebSocket only with the local launcher
   if (bc) setTimeout(() => send('hello', {}), 50);
   return { id, send, status, onStatus: f => { listeners.add(f); f(status()); } };
 }

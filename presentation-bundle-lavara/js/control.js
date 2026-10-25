@@ -2,7 +2,7 @@
 // live show remote, backups. Every edit is pushed live to the show and auto-saved to content.json.
 import { $, $$, esc, uid, clone, debounce, fmtClock } from './core/util.js';
 import { projectsOf, sectionsOf, slidesOf, locate } from './core/model.js';
-import { loadContent, saveContent, hasServer, listBackups, getBackup, makeBackup, uploadFile, listFiles, serverInfo, getDecisionLog } from './core/store.js';
+import { loadContent, saveContent, hasServer, hasGithub, backendMode, githubConfig, setGithubConfig, testGithub, listBackups, getBackup, makeBackup, uploadFile, listFiles, serverInfo, getDecisionLog } from './core/store.js';
 import { createSync } from './core/sync.js';
 import { TEMPLATES, TEMPLATE_ORDER, TRANSITIONS, BG_OPTIONS, newSlide, slideLabel } from './core/templates.js';
 
@@ -47,15 +47,19 @@ sync.onStatus(st => {
 });
 
 const pushLive = debounce(() => sync.send('content', { content: C }), 250);
-const scheduleSave = debounce(() => doSave(false), 1200);
+const scheduleSave = debounce(() => doSave(false, 'auto', true), 1200);
 function setSaveState(text, cls = '') { const s = $('#saveState'); s.textContent = text; s.className = 'save-state ' + cls; }
-async function doSave(backup, reason = 'manual') {
-  setSaveState('جارٍ الحفظ…');
+// auto = background save after an edit; in GitHub mode that only caches locally, "Publish" commits.
+async function doSave(backup, reason = 'manual', auto = false) {
+  const mode = backendMode();
+  if (mode === 'github' && auto) { await saveContent(C, { publish: false }); setSaveState('تغييرات غير منشورة — اضغط «نشر»', 'dirty'); return; }
+  setSaveState(mode === 'github' ? 'جارٍ النشر على GitHub…' : 'جارٍ الحفظ…');
   try {
-    if (hasServer()) await saveContent(C, { backup, reason });
+    if (mode === 'server' || mode === 'github') await saveContent(C, { backup, reason });
     else if (fsaHandle) { const w = await fsaHandle.createWritable(); await w.write(JSON.stringify(C, null, 2)); await w.close(); }
-    else { await saveContent(C); setSaveState('محفوظ محلياً فقط (بدون المشغّل)', 'dirty'); return; }
-    setSaveState('محفوظ ✓ ' + new Date().toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' }));
+    else { await saveContent(C); setSaveState('محفوظ في هذا المتصفح فقط — اربط GitHub من تبويب «النشر»', 'dirty'); return; }
+    const t = new Date().toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' });
+    setSaveState(mode === 'github' ? `نُشر ✓ ${t} — يظهر في الموقع خلال دقيقة` : 'محفوظ ✓ ' + t);
   } catch (e) { setSaveState('خطأ في الحفظ: ' + e.message, 'err'); }
 }
 function pushHistory(key) {
@@ -319,7 +323,7 @@ function mediaWidget(obj, key, { kind = 'image', simple = false, focal = false }
   const input = h('input', { type: 'text', value: src(), dir: 'ltr', placeholder: 'assets/…', onchange: e => setSrc(e.target.value.trim()) });
   const file = h('input', { type: 'file', hidden: true, accept: kind === 'video' ? 'video/*' : kind === 'image' ? 'image/*' : 'image/*,video/*', onchange: async e => {
     const f = e.target.files[0]; if (!f) return;
-    if (!hasServer()) return toast('الرفع يتطلب تشغيل المشغّل المحلي');
+    if (backendMode() === 'local') return toast('الرفع يتطلب المشغّل المحلي أو ربط GitHub (تبويب النشر)');
     toast('جارٍ الرفع…');
     try { setSrc(await uploadFile(f, ctx.uploadDir || 'assets/uploads')); toast('تم الرفع ✓'); } catch (err) { toast('فشل الرفع'); }
   } });
@@ -350,7 +354,7 @@ async function pickAsset(kind, cb) {
         h('div', { class: 'th', style: IMG_RE.test(f.path) ? `background-image:url("${url}")` : '' }, VID_RE.test(f.path) ? '▶ فيديو' : ''),
         h('span', { dir: 'ltr' }, f.path.replace(/^assets\//, ''))));
     }
-    if (!grid.children.length) grid.append(h('div', { class: 'muted' }, hasServer() ? 'لا توجد ملفات مطابقة.' : 'قائمة الملفات تتطلب المشغّل المحلي.'));
+    if (!grid.children.length) grid.append(h('div', { class: 'muted' }, backendMode() !== 'local' ? 'لا توجد ملفات مطابقة.' : 'قائمة الملفات تتطلب المشغّل المحلي أو ربط GitHub.'));
   };
   draw('');
   openModal('اختيار ملف', h('div', {}, filter, grid));
@@ -485,7 +489,7 @@ function renderGlobal() {
   const st = C.settings ||= {};
   const ctx = { path: 'settings', uploadDir: 'assets/logos' };
   f.append(group('واجهة البداية (Universe)', ...renderFields([
-    { key: 'universe.layout', type: 'select', label: 'تصميم الشاشة الرئيسية', options: [['cinema', '١ — سينمائي (صورتان كاملتان)'], ['portals', '٢ — بوابتان (نوافذ مقوّسة)'], ['monolith', '٣ — متحفي (طباعي هادئ)'], ['index', '٤ — فهرس تحريري'], ['halves', 'نصفان بملمس حي (السابق)'], ['circles', 'دائرتان بملمس حي (السابق)']] },
+    { key: 'universe.layout', type: 'select', label: 'تصميم الشاشة الرئيسية', options: [['fusion', 'الأفق الحي — دمج ٨ و١٠ (المعتمد)'], ['cinema', '١ — سينمائي (صورتان كاملتان)'], ['portals', '٢ — بوابتان (نوافذ مقوّسة)'], ['monolith', '٣ — متحفي (طباعي هادئ)'], ['index', '٤ — فهرس تحريري'], ['title', '٥ — بطاقة افتتاحية'], ['monogram', '٦ — رمزان بلون الهوية'], ['cards', '٧ — بطاقتا دعوة'], ['horizon', '٨ — خط الأفق'], ['typestack', '٩ — طباعة ضخمة'], ['halves', 'نصفان بملمس حي (السابق)'], ['circles', 'دائرتان بملمس حي (السابق)']] },
     { key: 'universe.chooser', type: 'toggle', label: 'إظهار مبدّل الخيارات على الشاشة', note: 'للمراجعة فقط — أطفئه قبل العرض الفعلي' },
     { key: 'universe.eyebrow', type: 'text', label: 'عنوان صغير (فهرس تحريري)' },
     { key: 'universe.background', type: 'color', label: 'الخلفية' },
@@ -551,7 +555,7 @@ function fontUploader() {
   const btn = h('button', { onclick: async () => {
     const f = file.files[0]; const name = fam.value.trim();
     if (!f || !name) return toast('اختر ملف خط واكتب اسم العائلة');
-    if (!hasServer()) return toast('الرفع يتطلب المشغّل المحلي');
+    if (backendMode() === 'local') return toast('الرفع يتطلب المشغّل المحلي أو ربط GitHub');
     const url = await uploadFile(f, 'assets/fonts/uploads');
     const id = name.toLowerCase().replace(/[^\w؀-ۿ]+/g, '-');
     let ent = C.fonts.find(x => x.id === id); if (!ent) { ent = { id, name, files: {} }; C.fonts.push(ent); }
@@ -639,13 +643,13 @@ async function renderQR() {
 
 /* ---------- backups */
 async function renderBackups() {
-  $('#fsaBox').hidden = hasServer();
+  $('#fsaBox').hidden = backendMode() !== 'local';
   const box = $('#backups'); box.innerHTML = '';
-  if (!hasServer()) { box.append(h('div', { class: 'muted' }, 'سجل النسخ يتطلب المشغّل المحلي.')); return; }
+  if (backendMode() === 'local') { box.append(h('div', { class: 'muted' }, 'سجل النسخ يتطلب المشغّل المحلي أو ربط GitHub.')); return; }
   const list = await listBackups().catch(() => []);
   if (!list.length) box.append(h('div', { class: 'muted' }, 'لا توجد نسخ بعد.'));
   for (const b of list) box.append(h('div', { class: 'backup-row' },
-    h('span', {}, new Date(b.mtime).toLocaleString('ar'), ' ', h('small', { class: 'muted latin' }, b.name)),
+    h('span', {}, new Date(b.mtime).toLocaleString('ar'), ' ', h('small', { class: 'muted latin' }, b.label || b.name)),
     h('span', { class: 'inline' }, h('button', { class: 'sm', onclick: async () => download(b.name, JSON.stringify(await getBackup(b.name), null, 2), 'application/json') }, 'تنزيل'),
       h('button', { class: 'sm', onclick: () => restore(b.name) }, 'استعادة'))));
 }
@@ -662,7 +666,7 @@ $('#refreshBackups').onclick = renderBackups;
 $('#exportJson').onclick = () => download(`content-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')}.json`, JSON.stringify(C, null, 2), 'application/json');
 $('#importJson').onchange = async e => {
   const f = e.target.files[0]; if (!f) return;
-  try { const c = JSON.parse(await f.text()); if (!confirm('استبدال كل المحتوى بالملف المستورد؟')) return; if (hasServer()) await makeBackup('before-import'); replaceContent(c); await doSave(true, 'imported'); toast('تم الاستيراد ✓'); }
+  try { const c = JSON.parse(await f.text()); if (!confirm('استبدال كل المحتوى بالملف المستورد؟')) return; await makeBackup('before-import'); replaceContent(c); await doSave(true, 'imported'); toast('تم الاستيراد ✓'); }
   catch { toast('تعذّر قراءة الملف'); }
   e.target.value = '';
 };
@@ -674,12 +678,43 @@ $('#fsaLink').onclick = async () => {
   } catch { $('#fsaState').textContent = 'لم يتم الربط'; }
 };
 
+/* ---------- publish (GitHub) */
+function renderPublish() {
+  const box = $('#publishBox'); box.innerHTML = '';
+  const g = githubConfig() || { owner: 'hmbu', repo: 'Purely', branch: 'ccr-87aacda0-76dx1f', prefix: 'presentation-bundle-lavara', token: '' };
+  const inp = (k, ph, type = 'text') => h('input', { type, value: g[k] || '', placeholder: ph, dir: 'ltr', oninput: e => { g[k] = e.target.value.trim(); } });
+  const status = h('div', { class: 'muted' }, { server: 'الوضع الحالي: المشغّل المحلي (حفظ مباشر في content.json).', github: 'الوضع الحالي: متصل بـ GitHub — زر «نشر» يرسل التعديلات للموقع.', local: 'الوضع الحالي: غير متصل.' }[backendMode()]);
+  box.append(
+    h('div', { class: 'card' }, h('h3', {}, 'ربط GitHub'), status,
+      fieldRow('اسم الحساب (owner)', inp('owner', 'hmbu')),
+      fieldRow('اسم المستودع (repo)', inp('repo', 'bundle-lavara-presentation')),
+      fieldRow('الفرع (branch)', inp('branch', 'main')),
+      fieldRow('مجلد العرض داخل المستودع', inp('prefix', 'فارغ إذا كان العرض في جذر المستودع'), 'مثال: presentation-bundle-lavara'),
+      fieldRow('رمز الوصول (Token)', inp('token', 'github_pat_…', 'password'), 'يُحفظ في هذا المتصفح فقط ولا يُرفع إلى أي مكان.'),
+      h('div', { class: 'btn-row' },
+        h('button', { class: 'primary', onclick: async () => {
+          setGithubConfig({ ...g, branch: g.branch || 'main' });
+          try { const r = await testGithub(); toast('تم الاتصال ✓'); renderPublish(); $('#ghResult').innerHTML = `<b>${esc(r.repo)}</b> — ${r.canPush ? 'صلاحية الكتابة متاحة' : '⚠️ لا توجد صلاحية كتابة'} — الموقع: <a href="${esc(r.pagesUrl)}" target="_blank">${esc(r.pagesUrl)}</a>`; }
+          catch (e) { $('#ghResult').textContent = 'تعذّر الاتصال: ' + e.message; }
+        } }, 'حفظ واختبار الاتصال'),
+        h('button', { onclick: () => { if (confirm('إلغاء الربط ومسح الرمز من هذا المتصفح؟')) { setGithubConfig(null); renderPublish(); } } }, 'إلغاء الربط'),
+        h('button', { onclick: () => location.reload() }, 'إعادة التحميل من GitHub')),
+      h('div', { id: 'ghResult', class: 'small' })),
+    h('div', { class: 'card' }, h('h3', {}, 'الخطوات (مرة واحدة)'),
+      h('ol', { class: 'steps' },
+        h('li', {}, 'افتح GitHub ← Settings ← Developer settings ← Personal access tokens ← Fine-grained tokens ← Generate new token.'),
+        h('li', {}, 'اختر المستودع فقط، وفي Permissions اختر Contents: Read and write. انسخ الرمز والصقه هنا.'),
+        h('li', {}, 'في المستودع: Settings ← Pages ← Source: GitHub Actions (مرة واحدة). كل نشر بعدها يحدّث الموقع تلقائياً خلال دقيقة تقريباً.'),
+        h('li', {}, 'افتح لوحة التحكم من رابط الموقع (…/control.html) على أي جهاز، وعدّل ثم اضغط «نشر».')),
+      h('p', { class: 'muted small' }, 'الموقع بدون أي علامة مائية. الريموت عبر الجوال والمزامنة الحية بين الأجهزة تعمل مع المشغّل المحلي أثناء العرض الفعلي؛ على الموقع يعمل التحكم من نفس المتصفح.')));
+}
+
 /* ======================================================================= tabs + global UI */
 function switchTab(t) {
   tab = t; previewOverride = null;
   $$('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
   $$('.pane').forEach(p => p.classList.toggle('on', p.id === 'pane-' + t));
-  document.body.classList.toggle('no-preview', t === 'live' || t === 'backup');
+  document.body.classList.toggle('no-preview', t === 'live' || t === 'backup' || t === 'publish');
   renderTabs(); pushPreview(true);
 }
 function renderTabs() {
@@ -689,6 +724,7 @@ function renderTabs() {
   if (tab === 'decision') renderDecisionTab();
   if (tab === 'live') { renderLiveTree(); renderQR(); }
   if (tab === 'backup') renderBackups();
+  if (tab === 'publish') renderPublish();
 }
 function renderAll() { renderTree(); renderTabs(); }
 $$('#tabs button').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
@@ -716,13 +752,14 @@ addEventListener('beforeunload', e => { if ($('#saveState').classList.contains('
 
 /* ======================================================================= boot */
 (async () => {
-  try { C = await loadContent(); } catch (e) { $('#editor').innerHTML = `<h2>تعذّر تحميل المحتوى</h2><p>${esc(e.message)}</p>`; return; }
+  try { C = await loadContent({ fresh: true }); } catch (e) { $('#editor').innerHTML = `<h2>تعذّر تحميل المحتوى</h2><p>${esc(e.message)}</p>`; return; }
   ensureIds(C);
   pushHistory(null);
   const first = projectsOf(C)[0], s = first && sectionsOf(first)[0];
   sel = s?.slides?.[0] ? { kind: 'slide', id: s.slides[0].id } : first ? { kind: 'project', id: first.id } : null;
   renderAll();
-  setSaveState(hasServer() ? 'محفوظ ✓' : 'بدون مشغّل — الحفظ محلي', hasServer() ? '' : 'dirty');
+  setSaveState({ server: 'محفوظ ✓', github: 'متصل بـ GitHub ✓', local: 'غير متصل — اربط GitHub من تبويب «النشر»' }[backendMode()], backendMode() === 'local' ? 'dirty' : '');
+  $('#saveBtn').textContent = backendMode() === 'github' ? 'نشر' : 'حفظ';
   pushPreview(true);
   sync.send('hello', {});
 })();

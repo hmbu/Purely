@@ -84,7 +84,7 @@ main { overflow: hidden; position: relative; }
 .form-grid { padding: 18px 22px 80px; max-width: 1100px; }
 .field { display: grid; grid-template-columns: 170px 1fr; gap: 10px; align-items: start; padding: 6px 0; }
 .field > label { padding-top: 6px; color: #4b443b; }
-.field input[type=text], .field input[type=number], .field textarea, .field select { width: 100%; padding: 7px 9px; border: 1px solid var(--line2); border-radius: 8px; background: #fff; }
+.field input[type=text], .field input[type=password], .field input[type=number], .field textarea, .field select { width: 100%; padding: 7px 9px; border: 1px solid var(--line2); border-radius: 8px; background: #fff; }
 .field textarea { resize: vertical; min-height: 40px; line-height: 1.6; }
 .field input:focus, .field textarea:focus, .field select:focus { outline: 2px solid #bcd3c7; border-color: var(--accent); }
 .inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
@@ -149,3 +149,7 @@ main { overflow: hidden; position: relative; }
 .asset .th { aspect-ratio: 16 / 10; background: #eee8df center / contain no-repeat; border-radius: 6px; display: grid; place-items: center; color: var(--muted); }
 .toast { position: fixed; bottom: 18px; left: 50%; translate: -50% 0; background: #1d1a16; color: #fff; padding: 10px 18px; border-radius: 10px; opacity: 0; pointer-events: none; transition: opacity .3s; z-index: 60; }
 .toast.on { opacity: 1; }
+
+.steps { margin: 0; padding-inline-start: 20px; line-height: 1.9; }
+#publishBox .field { grid-template-columns: 150px 1fr; }
+#publishBox .card:first-child { grid-column: span 2; }

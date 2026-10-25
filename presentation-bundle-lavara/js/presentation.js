@@ -389,7 +389,7 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
 
 /* ======================================================================= universe (opening screen) */
 // Layouts: cinema · portals · monolith · index (executive set) + halves · circles (original, with live textures).
-const UNIVERSE_LAYOUTS = [['cinema', 'سينمائي'], ['portals', 'بوابتان'], ['monolith', 'متحفي'], ['index', 'فهرس تحريري'], ['title', 'بطاقة افتتاحية'], ['monogram', 'رمزان بلون الهوية'], ['cards', 'بطاقتا دعوة'], ['horizon', 'خط الأفق'], ['typestack', 'طباعة ضخمة'], ['halves', 'نصفان بملمس حي'], ['circles', 'دائرتان بملمس حي']];
+const UNIVERSE_LAYOUTS = [['cinema', 'سينمائي'], ['portals', 'بوابتان'], ['monolith', 'متحفي'], ['index', 'فهرس تحريري'], ['title', 'بطاقة افتتاحية'], ['monogram', 'رمزان بلون الهوية'], ['cards', 'بطاقتا دعوة'], ['horizon', 'خط الأفق'], ['typestack', 'طباعة ضخمة'], ['halves', 'نصفان بملمس حي'], ['circles', 'دائرتان بملمس حي'], ['fusion', 'الأفق الحي (٨ + ١٠)']];
 const coverOf = p => p.brand.cover || p.brand.universe?.image || '';
 function coverImg(p, cls = 'w-img') {
   const src = coverOf(p), c = p.brand.colors || {};
@@ -455,6 +455,14 @@ const UNIVERSE_HTML = {
       <button class="world us-world" data-project="${esc(p.id)}" style="--glow:${p.brand.colors?.secondary || '#fff'}">
         <span class="us-meta">${num(i)}${nameAr(p)}${tag(p)}</span>${logoTint(p, 'us-logo')}
       </button>`).join('')}</div>`,
+  fusion: ps => `<div class="uf-row">${ps.map((p, i) => {
+      const c = p.brand.colors || {};
+      return `<button class="world uf-world style-${p.brand.texture === 'mist' ? 'mist' : 'bubbles'}" data-project="${esc(p.id)}" style="--wbg:${c.primary || '#222'};--glow:${c.secondary || '#fff'}">
+        <div class="w-bg"><canvas class="w-tex"></canvas></div><div class="uf-shade"></div>
+        <div class="uf-content">${num(i)}${logoTint(p, 'uf-logo')}${tag(p)}</div>
+      </button>`;
+    }).join('')}</div>
+    <div class="uf-line"><i class="uf-pulse"></i><i class="uf-hover"></i></div>`,
   legacy: ps => `<div class="u-head"></div><div class="u-worlds">${ps.map((p, i) => {
       const b = p.brand, c = b.colors || {}, ub = b.universe || {};
       const bg = ub.background || c.background, dark = ub.visual === 'image' || isDarkHex(bg);
@@ -497,9 +505,14 @@ function renderUniverse() {
     w.addEventListener('focus', () => hoverWorld(i, true));
     w.addEventListener('blur', () => hoverWorld(i, false));
     const cv = $('.w-tex', w);
-    if (!legacy || !cv || p.brand.universe?.visual === 'color' || p.brand.universe?.visual === 'image' || reduced()) { worldTex.push({ stop() {}, start() {}, set() {} }); return; }
+    const fusion = layout === 'fusion';
+    if ((!legacy && !fusion) || !cv || (legacy && (p.brand.universe?.visual === 'color' || p.brand.universe?.visual === 'image')) || reduced()) { worldTex.push({ stop() {}, start() {}, set() {} }); return; }
     const tex = new BrandTexture(cv, { resScale: 0.4 });
-    tex.set({ mode: p.brand.texture, colors: ambientColors(p), progress: p.brand.texture === 'mist' ? 0.36 : 0.3, alpha: 0.9, speed: 0.6, sweep: 0, seed: i * 7 + 3 });
+    const mist = p.brand.texture === 'mist';
+    tex._base = fusion ? { progress: mist ? 0.36 : 0.05, speed: 0.4 } : { progress: mist ? 0.36 : 0.3, speed: 0.6 };
+    const tc = p.brand.textureColors || [];
+    const colors = fusion ? (mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]]) : ambientColors(p);
+    tex.set({ mode: p.brand.texture, colors, progress: tex._base.progress, alpha: fusion ? (mist ? 0.42 : 0.26) : 0.9, speed: tex._base.speed, sweep: 0, seed: i * 7 + 3 });
     worldTex.push(tex);
   });
   $$('.u-chooser button', L.universe).forEach(b => b.addEventListener('click', e => {
@@ -525,9 +538,10 @@ function hoverWorld(i, on) {
   const hz = $('.uh-line', L.universe);
   if (hz && ws[i]) { const r = ws[i].getBoundingClientRect(), s0 = hz.getBoundingClientRect(); hz.style.setProperty('--lx', on ? ((r.left + r.width / 2 - s0.left) / s0.width) * 100 + '%' : '50%'); hz.style.setProperty('--lc', on ? ws[i].style.getPropertyValue('--glow') : '#F5F1E8'); hz.classList.toggle('on', on); }
   if (!on) $$('.ud-world', L.universe).forEach(w => { w.style.setProperty('--tx', '0deg'); w.style.setProperty('--ty', '0deg'); });
-  const t = worldTex[i]; if (!t?.set) return;
-  const p = projectsOf(S.content)[i];
-  gsap.to(t, { progress: on ? (p.brand.texture === 'mist' ? 0.5 : 0.44) : (p.brand.texture === 'mist' ? 0.36 : 0.3), speed: on ? 1.8 : 0.6, duration: 1.4, ease: 'power2.out' });
+  const fl = $('.uf-line', L.universe);
+  if (fl && ws[i]) { const r = ws[i].getBoundingClientRect(), s0 = fl.getBoundingClientRect(); fl.style.setProperty('--lx', ((r.left + r.width / 2 - s0.left) / s0.width) * 100 + '%'); fl.style.setProperty('--lc', ws[i].style.getPropertyValue('--glow')); fl.classList.toggle('on', on); }
+  const t = worldTex[i]; if (!t?.set || !t._base) return;
+  gsap.to(t, { progress: t._base.progress + (on ? 0.07 : 0), speed: on ? t._base.speed * 3 : t._base.speed, duration: 1.6, ease: 'power2.out' });
 }
 function universeEntrance(quick = false) {
   const tl = gsap.timeline();
@@ -550,6 +564,10 @@ function universeEntrance(quick = false) {
   } else if (layout === 'index') {
     tl.fromTo(q('.ui-media'), { clipPath: 'inset(0% 0% 0% 100%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 2, ease: 'expo.inOut', clearProps: 'clipPath' }, d + 0.1);
     tl.fromTo(q('.ui-eyebrow, .ui-row'), { opacity: 0, x: -pxs(40) }, { opacity: 1, x: 0, duration: 1.5, ease: 'expo.out', stagger: 0.12 }, d + 0.5);
+  } else if (layout === 'fusion') {
+    tl.fromTo(q('.uf-world'), { opacity: 0 }, { opacity: 1, duration: 2.4, ease: 'sine.inOut', stagger: 0.2 }, d);
+    tl.fromTo(q('.uf-line'), { scaleX: 0 }, { scaleX: 1, duration: 2.6, ease: 'expo.inOut' }, d + 0.5);
+    tl.fromTo(q('.uf-content > *'), { opacity: 0, y: pxs(18), filter: 'blur(6px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.8, ease: 'expo.out', stagger: 0.07, clearProps: 'filter' }, d + 1.4);
   } else if (layout === 'title') {
     tl.fromTo(q('.ut-light'), { opacity: 0 }, { opacity: 1, duration: 3, ease: 'sine.inOut' }, d);
     tl.fromTo(q('.ut-rule'), { scaleX: 0 }, { scaleX: 1, duration: 1.8, ease: 'expo.inOut' }, d + 0.9);

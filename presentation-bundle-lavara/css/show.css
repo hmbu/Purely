@@ -536,3 +536,23 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 #logos[data-mode="hero"] .hl-tint { aspect-ratio: var(--slot-ar, var(--ar, 4)); }
 #logos[data-mode="hero"] .hl-tint:first-child { -webkit-mask-position: left center; mask-position: left center; transform-origin: left center; }
 #logos[data-mode="hero"] .hl-tint:last-child { -webkit-mask-position: right center; mask-position: right center; transform-origin: right center; }
+
+/* ---------- 12 · fusion (8 + 10) — live brand textures on both halves, crossed by a line of drifting light */
+.uf-row { position: absolute; inset: 0; display: flex; }
+.uf-world { appearance: none; border: 0; padding: 0; cursor: pointer; position: relative; overflow: hidden; flex: 1 1 0; min-width: 0; background: var(--wbg); color: #F5F1E8; }
+.uf-world .w-bg { position: absolute; inset: 0; }
+.uf-shade { position: absolute; inset: 0; background: linear-gradient(rgba(0, 0, 0, .38), transparent 30%, transparent 62%, rgba(0, 0, 0, .3)); pointer-events: none; }
+.uf-world::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .12; pointer-events: none; }
+.uf-content { position: absolute; left: 0; right: 0; top: 61%; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 1.8rem; transition: opacity 1.2s ease; }
+.uf-logo { height: 5.2rem; aspect-ratio: var(--ar, 4); }
+.uf-world.is-dim .uf-content { opacity: .5; }
+.uf-line { position: absolute; z-index: 2; top: 56%; left: 0; right: 0; height: var(--hair); background: rgba(245, 241, 232, .3); pointer-events: none; --lx: 50%; --lc: #F5F1E8; }
+.uf-line::after { content: ''; position: absolute; left: 0; right: 0; top: -6rem; height: 12rem; background: radial-gradient(40% 50% at 50% 50%, rgba(255, 238, 214, .07), transparent 70%); }
+.uf-line i { position: absolute; top: -.6rem; height: 1.3rem; width: 36rem; translate: -50% 0; border-radius: 50%; filter: blur(.35rem); }
+.uf-pulse { left: 15%; background: radial-gradient(50% 50% at 50% 50%, rgba(255, 244, 228, .95), transparent 70%); animation: ufDrift 12s ease-in-out infinite alternate; transition: opacity 1.2s; }
+.uf-pulse::after { content: ''; position: absolute; inset: -.2rem 30%; background: radial-gradient(50% 50% at 50% 50%, #fff, transparent 70%); }
+@keyframes ufDrift { 0% { left: 12%; opacity: .55; } 50% { opacity: 1; } 100% { left: 88%; opacity: .55; } }
+.uf-hover { left: var(--lx); opacity: 0; width: 40rem; background: radial-gradient(50% 50% at 50% 50%, var(--lc), transparent 70%); transition: left 1.6s cubic-bezier(.16, 1, .3, 1), opacity 1.2s, background 1.2s; }
+.uf-line.on .uf-hover { opacity: 1; }
+.uf-line.on .uf-pulse { opacity: .15; }
+@media (prefers-reduced-motion: reduce) { .uf-pulse { animation: none; left: 50%; } }
