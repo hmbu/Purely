@@ -928,6 +928,24 @@ function onKey(e) {
   else if (k === 'm' || k === 'M') INSTANT.mute({});
 }
 
+/* ======================================================================= touch (phones / tablets) */
+// Swipe right = next (RTL: the next slide enters from the left), swipe left = previous, swipe down = zoom out.
+// Tap the left third = next, the right third = previous. Taps on worlds, stations and options keep their own action.
+function setupTouch() {
+  let sx = null, sy = 0, st = 0;
+  addEventListener('touchstart', e => { const t = e.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); sound.unlock(); }, { passive: true });
+  addEventListener('touchend', e => {
+    if (sx == null || e.touches.length) return;
+    const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; sx = null;
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) { command(dx > 0 ? 'next' : 'prev'); return; }
+    if (dy > 70 && Math.abs(dy) > Math.abs(dx) * 1.2) { command('zoomOut'); return; }
+    if (Date.now() - st > 600 || Math.abs(dx) > 12 || Math.abs(dy) > 12) return;
+    if (e.target.closest && e.target.closest('button')) return;
+    const x = t.clientX / innerWidth;
+    if (x < 0.34) command('next'); else if (x > 0.66) command('prev');
+  }, { passive: true });
+}
+
 /* ======================================================================= boot */
 async function boot() {
   fit(); grainTexture();
@@ -959,6 +977,7 @@ async function boot() {
   });
   addEventListener('keydown', onKey);
   addEventListener('pointerdown', () => sound.unlock());
+  setupTouch();
 
   // start position
   const start = c.settings?.startAt;

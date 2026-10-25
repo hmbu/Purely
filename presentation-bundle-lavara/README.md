@@ -54,3 +54,8 @@ docs/               phase reports
 | `M` | Mute |
 
 Presentation clickers (PageUp / PageDown) work out of the box.
+
+## Single-file version (phone / tablet / quick share)
+`dist/presentation-standalone.html` is one self-contained file (about 5 MB). Content, fonts, logos and images are embedded, so it opens directly on any device with no launcher. Rotate the phone to landscape. Controls: swipe right or tap the left third to go next; swipe left or tap the right third to go back; swipe down to zoom out.
+Videos are not embedded. Editing, live sync and the remote need the full version.
+Rebuild it after editing content: `python3 tools/build_single.py` (requires Python + Pillow and `npx esbuild`).

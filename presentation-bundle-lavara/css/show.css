@@ -349,3 +349,11 @@ button { font: inherit; color: inherit; }
   .d-breath { animation: none; }
   .concept, .c-body, .bcell, .station, .world { transition-duration: .2s; }
 }
+
+/* phones: ask for landscape */
+#rotate { display: none; }
+@media (orientation: portrait) and (pointer: coarse) {
+  #rotate { display: flex; position: fixed; inset: 0; z-index: 100; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: #15120F; color: #F3EFE6; font: 18px system-ui, sans-serif; text-align: center; }
+  #rotate span { font-size: 48px; }
+}
+html, body { touch-action: manipulation; overscroll-behavior: none; }

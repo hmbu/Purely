@@ -6,6 +6,7 @@ const LS_KEY = 'bxl-content-cache';
 export const hasServer = () => /^https?:$/.test(location.protocol);
 
 export async function loadContent() {
+  if (window.__BXL_CONTENT__) return JSON.parse(JSON.stringify(window.__BXL_CONTENT__)); // single-file build
   const tries = hasServer() ? ['/api/content', 'content.json'] : ['content.json'];
   for (const url of tries) {
     try {

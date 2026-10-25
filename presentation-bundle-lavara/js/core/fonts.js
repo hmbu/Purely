@@ -10,7 +10,7 @@ export function registerFonts(content, doc = document) {
       const key = `${f.id}:${weight}:${url}`;
       if (injected.has(key)) continue;
       injected.add(key);
-      const fmt = /\.woff2$/i.test(url) ? 'woff2' : /\.woff$/i.test(url) ? 'woff' : /\.otf$/i.test(url) ? 'opentype' : 'truetype';
+      const fmt = /\.woff2$|^data:font\/woff2/i.test(url) ? 'woff2' : /\.woff$|^data:font\/woff[;,]/i.test(url) ? 'woff' : /\.otf$|^data:font\/otf/i.test(url) ? 'opentype' : 'truetype';
       css += `@font-face{font-family:"${f.id}";src:url("${url}") format("${fmt}");font-weight:${weight};font-style:normal;font-display:block;}\n`;
     }
   }
