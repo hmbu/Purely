@@ -387,6 +387,325 @@
                   }
                 ]
               }
+            },
+            {
+              "id": "sl-bp1",
+              "template": "product",
+              "transition": "drift",
+              "bg": "background",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Onboarding",
+                "title": "هدية الموظف الجديد #1",
+                "body": "باقة عملية وأنيقة تضم أساسيات المكتب اليومية للموظف الجديد، مع ستاند مميز يعرض رسالة الشركة وقيمها، ليكون جزءاً من مساحة عمله وتجربة انضمامه منذ اليوم الأول.",
+                "image": {
+                  "src": "assets/bundle/products/new-employee-1.jpg",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 50,
+                    "y": 50
+                  }
+                },
+                "gallery": [
+                  {
+                    "image": {
+                      "src": "assets/bundle/products/new-employee-1-a.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/products/new-employee-1-b.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/products/new-employee-1-c.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/products/new-employee-1-d.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  }
+                ],
+                "attrs": [
+                  {
+                    "label": "نوع الهدية",
+                    "value": "باكج",
+                    "chip": true,
+                    "alt": "منتج فردي"
+                  },
+                  {
+                    "label": "مستوى التخصيص",
+                    "value": "متوسط",
+                    "chip": true,
+                    "alt": ""
+                  },
+                  {
+                    "label": "مناسبات فرعية",
+                    "value": "مكتب جديد، انتقال لقسم آخر، العودة للمكتب.",
+                    "chip": false,
+                    "alt": ""
+                  },
+                  {
+                    "label": "الفئة السعرية",
+                    "value": "متوسطة",
+                    "chip": true,
+                    "alt": ""
+                  }
+                ],
+                "codes": "P21, P15, P8, P11, P37"
+              }
+            },
+            {
+              "id": "sl-bp2",
+              "template": "product",
+              "transition": "drift",
+              "bg": "background",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Onboarding",
+                "title": "هدية الموظف الجديد #2",
+                "body": "مجموعة متكاملة تجمع بين الأدوات العملية ومنتجات تساعد على جعل تجربة العمل اليومية أكثر راحة وتميزاً.",
+                "image": {
+                  "src": "assets/bundle/products/new-employee-2.jpg",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 50,
+                    "y": 50
+                  }
+                },
+                "gallery": [
+                  {
+                    "image": {
+                      "src": "assets/bundle/products/new-employee-2-a.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/products/new-employee-2-b.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/products/new-employee-2-c.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/products/new-employee-2-d.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  }
+                ],
+                "attrs": [
+                  {
+                    "label": "نوع الهدية",
+                    "value": "باكج",
+                    "chip": true,
+                    "alt": "منتج فردي"
+                  },
+                  {
+                    "label": "مستوى التخصيص",
+                    "value": "متوسط",
+                    "chip": true,
+                    "alt": ""
+                  },
+                  {
+                    "label": "مناسبات فرعية",
+                    "value": "مكتب جديد، انتقال لقسم آخر، العودة للمكتب، تقدير موظف.",
+                    "chip": false,
+                    "alt": ""
+                  },
+                  {
+                    "label": "الفئة السعرية",
+                    "value": "عالية",
+                    "chip": true,
+                    "alt": ""
+                  }
+                ],
+                "codes": "P1, P38, P46, P15, P47"
+              }
+            },
+            {
+              "id": "sl-bp3",
+              "template": "product",
+              "transition": "drift",
+              "bg": "background",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Onboarding",
+                "title": "هدية الموظف الجديد #3",
+                "body": "مجموعة بسيطة وعملية لتجهيز مساحة العمل، تجمع بين أساسيات المكتب ومنتجات بسيطة تضيف طابعاً شخصياً للمكان.",
+                "image": {
+                  "src": "assets/bundle/products/new-employee-3.jpg",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 50,
+                    "y": 50
+                  }
+                },
+                "gallery": [
+                  {
+                    "image": {
+                      "src": "assets/bundle/products/new-employee-3-a.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/products/new-employee-3-b.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/products/new-employee-3-c.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/products/new-employee-3-d.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  }
+                ],
+                "attrs": [
+                  {
+                    "label": "نوع الهدية",
+                    "value": "باكج",
+                    "chip": true,
+                    "alt": "منتج فردي"
+                  },
+                  {
+                    "label": "مستوى التخصيص",
+                    "value": "بسيط - متوسط",
+                    "chip": true,
+                    "alt": ""
+                  },
+                  {
+                    "label": "مناسبات فرعية",
+                    "value": "مكتب جديد، انتقال لقسم آخر، العودة للمكتب، تقدير موظف.",
+                    "chip": false,
+                    "alt": ""
+                  },
+                  {
+                    "label": "الفئة السعرية",
+                    "value": "منخفضة",
+                    "chip": true,
+                    "alt": ""
+                  }
+                ],
+                "codes": "P44, P45, P34, P15, P8"
+              }
+            },
+            {
+              "id": "sl-bp4",
+              "template": "product",
+              "transition": "drift",
+              "bg": "background",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Farewell",
+                "title": "وداعية الموظف #1",
+                "body": "باقة وداع تذكارية صُممت لتوثيق اللحظات الأخيرة للموظف مع فريقه، وتضم كاميرا فورية مخصصة وبطاقة لكتابة رسائل الوداع وأطيب التمنيات، لتكون ذكرى شخصية ومعنوية من الفريق.",
+                "image": {
+                  "src": "assets/bundle/products/farewell-1.jpg",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 50,
+                    "y": 50
+                  }
+                },
+                "gallery": [],
+                "attrs": [
+                  {
+                    "label": "نوع الهدية",
+                    "value": "باكج",
+                    "chip": true,
+                    "alt": ""
+                  },
+                  {
+                    "label": "مستوى التخصيص",
+                    "value": "بسيط - متوسط",
+                    "chip": true,
+                    "alt": ""
+                  },
+                  {
+                    "label": "مناسبات فرعية",
+                    "value": "حفل داخلي، ختام دورات تدريبية.",
+                    "chip": false,
+                    "alt": ""
+                  },
+                  {
+                    "label": "الفئة السعرية",
+                    "value": "منخفض - متوسط",
+                    "chip": true,
+                    "alt": ""
+                  }
+                ],
+                "codes": "P41"
+              }
             }
           ]
         },
