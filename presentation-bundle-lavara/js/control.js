@@ -451,7 +451,13 @@ function renderBrands() {
     ...[0, 1, 2, 3].map(i => ({ key: 'textureColors.' + i, type: 'color', label: i === 0 ? 'لون الملمس ١ (لون الغطاء)' : `لون الملمس ${i + 1}` })),
     { key: 'textureIntensity', type: 'range', label: 'الشدة', min: 0, max: 1.5, step: 0.05 },
   ], b, ctx)));
-  f.append(group('واجهة البداية (Universe)', ...renderFields([
+  f.append(group('صورة الغلاف في الشاشة الرئيسية', ...renderFields([
+    { key: 'cover', type: 'image', simple: true, label: 'الصورة' },
+    { key: 'coverTint', type: 'range', label: 'صبغة بلون الهوية', min: 0, max: 1, step: 0.02 },
+    { key: 'coverFocal.x', type: 'range', label: 'نقطة التركيز أفقياً %', min: 0, max: 100, step: 1 },
+    { key: 'coverFocal.y', type: 'range', label: 'نقطة التركيز عمودياً %', min: 0, max: 100, step: 1 },
+  ], b, ctx)));
+  f.append(group('الملمس الحي (للتصميمين السابقين)', ...renderFields([
     { key: 'universe.visual', type: 'select', label: 'الشكل', options: [['texture', 'ملمس الهوية الحي'], ['color', 'لون فقط'], ['image', 'صورة']] },
     { key: 'universe.background', type: 'color', label: 'لون الخلفية' },
     { key: 'universe.image', type: 'image', simple: true, label: 'الصورة (عند اختيار صورة)' },
@@ -479,12 +485,17 @@ function renderGlobal() {
   const st = C.settings ||= {};
   const ctx = { path: 'settings', uploadDir: 'assets/logos' };
   f.append(group('واجهة البداية (Universe)', ...renderFields([
-    { key: 'universe.layout', type: 'select', label: 'التخطيط', options: [['halves', 'نصفان'], ['circles', 'دائرتان']] },
+    { key: 'universe.layout', type: 'select', label: 'تصميم الشاشة الرئيسية', options: [['cinema', '١ — سينمائي (صورتان كاملتان)'], ['portals', '٢ — بوابتان (نوافذ مقوّسة)'], ['monolith', '٣ — متحفي (طباعي هادئ)'], ['index', '٤ — فهرس تحريري'], ['halves', 'نصفان بملمس حي (السابق)'], ['circles', 'دائرتان بملمس حي (السابق)']] },
+    { key: 'universe.chooser', type: 'toggle', label: 'إظهار مبدّل الخيارات على الشاشة', note: 'للمراجعة فقط — أطفئه قبل العرض الفعلي' },
+    { key: 'universe.eyebrow', type: 'text', label: 'عنوان صغير (فهرس تحريري)' },
     { key: 'universe.background', type: 'color', label: 'الخلفية' },
     { key: 'universe.text', type: 'color', label: 'لون النص والشعارات' },
     { key: 'universe.hint', type: 'text', label: 'تلميح سفلي' },
     { key: 'universe.showLogos', type: 'toggle', label: 'إظهار الشعارات أعلى الشاشة' },
     { key: 'universe.logosSize', type: 'range', label: 'حجم الشعارات في البداية', min: 0.5, max: 2, step: 0.05 },
+  ], st, ctx)));
+  f.append(group('الطابع العام', ...renderFields([
+    { key: 'tone', type: 'select', label: 'الطابع', options: [['quiet', 'هادئ تنفيذي (موصى به)'], ['expressive', 'حيوي بملمس الهوية']], note: 'الهادئ: أغطية أقسام بلون الهوية وضوء ناعم، بدون فقاعات/ضباب بين الشرائح، وصفحة مشروع بأعمدة مرقمة.' },
   ], st, ctx)));
   f.append(group('الحركة', ...renderFields([
     { key: 'motion.speed', type: 'range', label: 'سرعة الحركة العامة', min: 0.5, max: 1.6, step: 0.05, note: '1 = الافتراضي. أقل = أبطأ وأهدأ.' },

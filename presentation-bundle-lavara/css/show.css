@@ -357,3 +357,115 @@ button { font: inherit; color: inherit; }
   #rotate span { font-size: 48px; }
 }
 html, body { touch-action: manipulation; overscroll-behavior: none; }
+
+/* =====================================================================
+   EXECUTIVE OPENING SCREENS (cinema · portals · monolith · index)
+   ===================================================================== */
+.u-wrap.is-exec { color: var(--b-fg); }
+.u-wrap.is-exec::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .06; pointer-events: none; z-index: 3; }
+.world { -webkit-tap-highlight-color: transparent; }
+.w-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.w-tint { position: absolute; inset: 0; background: var(--tc); mix-blend-mode: multiply; opacity: var(--tint, .4); pointer-events: none; }
+.w-rule { display: block; width: 5rem; height: var(--hair); background: currentColor; opacity: .55; transition: width 1.2s cubic-bezier(.16, 1, .3, 1), opacity 1.2s; }
+.world.is-hover .w-rule { width: 10rem; opacity: .9; }
+.is-exec .w-num { position: static; font-size: .95rem; letter-spacing: .34em; opacity: .55; }
+.is-exec .w-tag { font-size: 1.45rem; opacity: .72; font-weight: 300; }
+.is-exec .w-fallback { font-family: var(--f-title); font-size: 5rem; }
+.u-hint { z-index: 4; }
+
+/* 1 · cinema — full-bleed split, hovered side widens */
+.uc-row { position: absolute; inset: 0; display: flex; }
+.uc-world { appearance: none; border: 0; padding: 0; cursor: pointer; position: relative; overflow: hidden; flex: 1 1 0; min-width: 0; color: #F5F1E8; background: #0b0a09; transition: flex-grow 1.6s cubic-bezier(.16, 1, .3, 1); }
+.uc-world + .uc-world { box-shadow: inset calc(-1 * var(--hair)) 0 0 rgba(245, 241, 232, .22); }
+.uc-media { position: absolute; inset: 0; }
+.uc-media .w-img { transform: scale(1.04); transition: transform 6s cubic-bezier(.16, 1, .3, 1), filter 1.4s ease; }
+.uc-world.is-hover .uc-media .w-img { transform: scale(1.1); }
+.uc-world.is-dim .uc-media .w-img { filter: saturate(.35) brightness(.55); }
+.uc-shade { position: absolute; inset: 0; background: linear-gradient(to top, rgba(8, 7, 6, .88) 0%, rgba(8, 7, 6, .25) 46%, rgba(8, 7, 6, .15) 62%, rgba(8, 7, 6, .7) 100%); }
+.uc-content { position: absolute; left: 0; right: 0; bottom: 10rem; display: flex; flex-direction: column; align-items: center; gap: 2.2rem; }
+.uc-logo { height: 6.4rem; aspect-ratio: var(--ar, 4); }
+.has-hover .uc-world.is-hover { flex-grow: 1.32; }
+.has-hover .uc-world.is-dim { flex-grow: .68; }
+.layout-cinema .u-hint { color: #F5F1E8; }
+
+/* 2 · portals — two arched windows, architectural, hotel-like */
+.layout-portals { background: radial-gradient(120% 70% at 50% 110%, rgba(255, 240, 220, .07), transparent 60%); }
+.up-floor { position: absolute; left: 12rem; right: 12rem; bottom: 22.6rem; height: var(--hair); background: currentColor; opacity: .14; }
+.up-row { position: absolute; top: 20rem; bottom: 8rem; left: 0; right: 0; display: flex; justify-content: center; align-items: flex-end; gap: 18rem; }
+.up-world { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; color: inherit; display: flex; flex-direction: column; align-items: center; gap: 3.4rem; width: 31rem; transition: opacity 1.2s ease; }
+.up-arch { position: relative; width: 100%; height: 44rem; }
+.up-media { position: absolute; inset: 0; border-radius: 15.5rem 15.5rem 0 0; overflow: hidden; background: #000; }
+.up-media .w-img { transition: transform 6s cubic-bezier(.16, 1, .3, 1); }
+.up-world.is-hover .up-media .w-img { transform: scale(1.08); }
+.up-frame { position: absolute; inset: -1.6rem -1.6rem 0; border: var(--hair) solid currentColor; border-bottom: 0; border-radius: 17.1rem 17.1rem 0 0; opacity: .45; transition: inset 1.4s cubic-bezier(.16, 1, .3, 1), opacity 1.2s; }
+.up-world.is-hover .up-frame { inset: -2.6rem -2.6rem 0; border-radius: 18.1rem 18.1rem 0 0; opacity: .7; }
+.up-meta { display: flex; flex-direction: column; align-items: center; gap: 1.6rem; }
+.up-logo { height: 3.6rem; aspect-ratio: var(--ar, 4); }
+.up-world.is-dim { opacity: .4; }
+
+/* 3 · monolith — gallery-quiet typography on deep black */
+.um-glow { position: absolute; inset: 0; background: radial-gradient(38% 55% at var(--gx, 50%) 58%, color-mix(in srgb, var(--gc, #fff) 22%, transparent), transparent 72%); opacity: 0; transition: opacity 1.6s ease; }
+.um-glow.on { opacity: 1; }
+.um-row { position: absolute; top: 22rem; bottom: 10rem; left: 0; right: 0; display: flex; align-items: center; justify-content: center; }
+.um-world { appearance: none; border: 0; background: none; padding: 4rem 0; cursor: pointer; color: inherit; flex: 0 0 54rem; display: flex; flex-direction: column; align-items: center; gap: 2.4rem; transition: opacity 1.2s ease; }
+.um-logo { height: 7.4rem; aspect-ratio: var(--ar, 4); }
+.um-world .w-name { font-family: var(--f-title); font-weight: var(--w-title); font-size: 2.4rem; opacity: .85; }
+.um-sep { width: var(--hair); height: 30rem; background: currentColor; opacity: .18; transform-origin: 50% 50%; }
+.um-world.is-dim { opacity: .3; }
+
+/* 4 · index — editorial list with a framed image preview */
+.ui-media { position: absolute; left: 7rem; top: 19rem; bottom: 8rem; width: 52rem; overflow: hidden; }
+.ui-img { position: absolute; inset: 0; opacity: 0; transition: opacity 1.4s ease; }
+.ui-img.on { opacity: 1; }
+.ui-img .w-img { transform: scale(1.06); transition: transform 7s ease-out; }
+.ui-img.on .w-img { transform: scale(1); }
+.ui-frame { position: absolute; inset: 1.6rem; border: var(--hair) solid rgba(245, 241, 232, .5); pointer-events: none; }
+.ui-list { position: absolute; right: 8rem; left: 68rem; top: 22rem; }
+.ui-eyebrow { font-size: 1rem; letter-spacing: .34em; text-transform: uppercase; opacity: .5; margin-bottom: 3rem; text-align: right; }
+.ui-row { appearance: none; border: 0; background: none; color: inherit; cursor: pointer; width: 100%; display: grid; grid-template-columns: 6rem 1fr auto; grid-template-areas: "num name logo" "num tag arrow"; align-items: center; column-gap: 2rem; row-gap: 1rem; padding: 3.6rem 0; border-top: var(--hair) solid rgba(245, 241, 232, .18); text-align: right; transition: opacity 1s ease; }
+.ui-row:last-child { border-bottom: var(--hair) solid rgba(245, 241, 232, .18); }
+.ui-row .w-num { grid-area: num; align-self: start; padding-top: 1.6rem; }
+.ui-row .w-name { grid-area: name; font-family: var(--f-title); font-weight: var(--w-title); font-size: 6.4rem; line-height: 1.1; transition: transform 1.2s cubic-bezier(.16, 1, .3, 1); }
+.ui-row .w-tag { grid-area: tag; }
+.ui-logo { grid-area: logo; height: 2.6rem; aspect-ratio: var(--ar, 4); opacity: .65; }
+.ui-arrow { grid-area: arrow; justify-self: end; font-size: 2rem; opacity: 0; transform: translateX(1.5rem); transition: opacity 1s, transform 1.2s cubic-bezier(.16, 1, .3, 1); }
+.ui-row.is-hover .w-name { transform: translateX(-1.6rem); }
+.ui-row.is-hover .ui-arrow { opacity: .8; transform: none; }
+.ui-row.is-dim { opacity: .38; }
+
+/* option switcher (review mode) */
+.u-chooser { position: absolute; left: 3rem; bottom: 2.6rem; z-index: 6; display: flex; align-items: center; gap: .5rem; opacity: .4; transition: opacity .6s; }
+.u-chooser:hover { opacity: 1; }
+.u-chooser button { appearance: none; border: var(--hair) solid rgba(245, 241, 232, .35); background: transparent; color: #F5F1E8; border-radius: 99rem; min-width: 2.6rem; height: 2.6rem; padding: 0 1rem; font-size: .95rem; cursor: pointer; }
+.u-chooser button.on { background: #F5F1E8; color: #111; border-color: transparent; }
+.u-chooser i { width: var(--hair); height: 1.6rem; background: rgba(245, 241, 232, .3); margin: 0 .6rem; }
+
+/* =====================================================================
+   QUIET (executive) TONE — restrained eyebrows, hub, covers
+   ===================================================================== */
+#stage.tone-quiet .slide .tx-eyebrow { display: inline-flex; align-items: center; gap: 1.4rem; padding: 0; background: none; border-radius: 0; color: var(--saccent); font-size: 1.05rem; }
+#stage.tone-quiet .slide .tx-eyebrow::before { content: ''; width: 4.5rem; height: var(--hair); background: currentColor; opacity: .6; }
+#stage.tone-quiet .slide .tx-eyebrow.latin { flex-direction: row-reverse; letter-spacing: .3em; }
+#stage.tone-quiet .tx-title { letter-spacing: 0; }
+/* hub: numbered columns with hairlines instead of orbs */
+#stage.tone-quiet .stations { margin-top: 10rem; gap: 3rem; }
+#stage.tone-quiet .st-line { display: none; }
+#stage.tone-quiet .station { align-items: flex-start; text-align: right; padding-top: 2.6rem; border-top: var(--hair) solid color-mix(in srgb, var(--b-text) 22%, transparent); gap: 1.4rem; transition: transform 1s cubic-bezier(.16, 1, .3, 1), border-color 1s; }
+#stage.tone-quiet .station:hover { border-top-color: var(--b-title); }
+#stage.tone-quiet .st-orb { width: auto; height: auto; border: 0; background: none; box-shadow: none; filter: none; display: block; }
+#stage.tone-quiet .st-orb::before, #stage.tone-quiet .st-orb::after { display: none; }
+#stage.tone-quiet .st-num { font-family: var(--f-title); font-weight: 300; font-size: 4.6rem; letter-spacing: 0; color: var(--b-title); opacity: .9; }
+#stage.tone-quiet .st-title { text-align: right; font-size: 2.1rem; }
+#stage.tone-quiet .station.is-visited .st-num { opacity: .35; }
+#stage.tone-quiet .hub-tag { font-weight: 300; }
+/* panel cover with soft moving light */
+#cover.is-panel { background: var(--cv-bg); }
+#cover.is-panel::before { content: ''; position: absolute; inset: 0; background: radial-gradient(55% 75% at var(--lx, 40%) 35%, rgba(255, 255, 255, .1), transparent 65%); }
+#cover.is-panel::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .12; }
+#cover.is-panel .cover-card { position: relative; z-index: 1; }
+#stage.tone-quiet #cover .cv-num { border: 0; width: auto; height: auto; font-family: var(--f-title); font-weight: 300; font-size: 2.4rem; letter-spacing: .06em; }
+#stage.tone-quiet #cover .cv-rule { width: 22rem; height: var(--hair); border-radius: 0; opacity: .5; }
+#stage.tone-quiet #cover .cv-title { font-weight: 300; }
+/* closing logos may be scaled per item */
+.closing .c-logo { transform: scale(var(--sc, 1)); }
+.closing .c-x { width: var(--hair); height: 70%; background: currentColor; opacity: .35; }

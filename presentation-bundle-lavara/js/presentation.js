@@ -272,7 +272,7 @@ function outroTL(el, dir = 1) {
   return gsap.to(t, { x: dir * pxs(50), opacity: 0, filter: 'blur(6px)', duration: 0.5, ease: 'power2.in' });
 }
 function lightVeil(p, dir) {
-  if (!veil?.ok || reduced()) return;
+  if (!veil?.ok || reduced() || quiet()) return;
   veil.set({ mode: p.brand.texture, colors: p.brand.textureColors, sweep: dir, progress: 0, alpha: 0.14 * (p.brand.textureIntensity ?? 1), seed: Math.random() * 99 });
   veil.start();
   gsap.timeline({ onComplete: () => veil.stop() }).to(veil, { progress: 0.32, duration: 0.5, ease: 'sine.out' }).to(veil, { progress: 0, duration: 0.6, ease: 'sine.in' });
@@ -347,8 +347,10 @@ function coverCard(p, number, title, titleEn) {
 }
 async function coverTransition({ p, dir = 1, card = null, light = false, swap, after }) {
   const tex = p.brand.texture === 'mist' ? 'mist' : 'bubbles';
-  const useVeil = veil?.ok && !reduced();
+  const panel = quiet() || !veil?.ok || reduced();
+  const useVeil = !panel;
   coverEl.dataset.style = tex;
+  coverEl.classList.toggle('is-panel', panel);
   coverEl.style.setProperty('--cv-fg', p.brand.colors?.textLight || '#fff');
   coverEl.style.setProperty('--cv-bg', (p.brand.textureColors || [])[0] || p.brand.colors.primary);
   coverEl.innerHTML = card ? coverCard(p, card.number, card.title, card.titleEn) : '';
@@ -360,7 +362,9 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
     veil.start();
     tl.to(veil, { progress: 1, duration: inT, ease: 'power2.inOut' }, 0);
   } else {
-    tl.fromTo(coverEl, { backgroundColor: 'rgba(0,0,0,0)' }, { backgroundColor: 'var(--cv-bg)', duration: inT * 0.8 }, 0);
+    coverEl.style.setProperty('--cv-bg', p.brand.colors.primary);
+    tl.fromTo(coverEl, { clipPath: dir > 0 ? 'inset(0% 100% 0% 0%)' : 'inset(0% 0% 0% 100%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: inT, ease: 'expo.inOut' }, 0);
+    tl.fromTo(coverEl, { '--lx': dir > 0 ? '20%' : '80%' }, { '--lx': dir > 0 ? '70%' : '30%', duration: inT + 1.8, ease: 'sine.inOut' }, 0);
   }
   coverEl.classList.add('on');
   const cardEls = card ? $$('.cover-card > *', coverEl) : [];
@@ -372,50 +376,102 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
   const outAt = inT + hold + (card ? 0.4 : 0);
   if (card) tl.to(cardEls, { opacity: 0, y: -pxs(16), duration: 0.5, ease: 'power2.in', stagger: 0.04 }, outAt - 0.25);
   if (useVeil) tl.to(veil, { progress: 0, duration: outT, ease: 'power2.inOut' }, outAt);
-  else tl.to(coverEl, { backgroundColor: 'rgba(0,0,0,0)', duration: outT }, outAt);
+  else tl.to(coverEl, { clipPath: dir > 0 ? 'inset(0% 0% 0% 100%)' : 'inset(0% 100% 0% 0%)', duration: outT, ease: 'expo.inOut' }, outAt);
   if (after) tl.add(() => { after(); }, outAt + outT * 0.25);
   await tl;
-  coverEl.classList.remove('on'); coverEl.innerHTML = ''; gsap.set(coverEl, { clearProps: 'backgroundColor' });
+  coverEl.classList.remove('on', 'is-panel'); coverEl.innerHTML = ''; gsap.set(coverEl, { clearProps: 'backgroundColor,clipPath' });
   if (useVeil) veil.stop(), veil.set({ progress: 0 });
 }
 
-/* ======================================================================= universe */
+/* ======================================================================= universe (opening screen) */
+// Layouts: cinema · portals · monolith · index (executive set) + halves · circles (original, with live textures).
+const UNIVERSE_LAYOUTS = [['cinema', 'سينمائي'], ['portals', 'بوابتان'], ['monolith', 'متحفي'], ['index', 'فهرس تحريري'], ['halves', 'نصفان بملمس حي'], ['circles', 'دائرتان بملمس حي']];
+const coverOf = p => p.brand.cover || p.brand.universe?.image || '';
+function coverImg(p, cls = 'w-img') {
+  const src = coverOf(p), c = p.brand.colors || {};
+  const fp = p.brand.coverFocal || { x: 50, y: 50 };
+  return `${src ? `<img class="${cls}" src="${esc(asset(src))}" alt="" style="object-position:${fp.x}% ${fp.y}%">` : `<span class="${cls} w-img-ph" style="background:${c.primary}"></span>`}<span class="w-tint" style="--tc:${c.primary};--tint:${p.brand.coverTint ?? 0.4}"></span>`;
+}
+function logoTint(p, cls) {
+  const src = p.brand.logo; if (!src) return `<span class="${cls} w-fallback">${esc(p.name)}</span>`;
+  const u = esc(asset(src));
+  return `<span class="logo-mask ${cls}" data-ar-src="${u}" style="--src:url('${u}')"></span>`;
+}
+const num = i => `<span class="w-num latin">${String(i + 1).padStart(2, '0')}</span>`;
+const tag = p => (p.tagline ? `<span class="w-tag">${esc(p.tagline)}</span>` : '');
+const nameAr = p => `<span class="w-name">${esc(p.nameAr || p.name)}</span>`;
+
+const UNIVERSE_HTML = {
+  cinema: ps => `<div class="uc-row">${ps.map((p, i) => `
+      <button class="world uc-world" data-project="${esc(p.id)}">
+        <div class="uc-media">${coverImg(p)}</div><div class="uc-shade"></div>
+        <div class="uc-content">${num(i)}${logoTint(p, 'uc-logo')}<span class="w-rule"></span>${tag(p)}</div>
+      </button>`).join('')}</div>`,
+  portals: ps => `<div class="up-floor"></div><div class="up-row">${ps.map((p, i) => `
+      <button class="world up-world" data-project="${esc(p.id)}">
+        <div class="up-arch"><div class="up-media">${coverImg(p)}</div><span class="up-frame"></span></div>
+        <div class="up-meta">${num(i)}${logoTint(p, 'up-logo')}${tag(p)}</div>
+      </button>`).join('')}</div>`,
+  monolith: ps => `<div class="um-glow"></div><div class="um-row">${ps.map((p, i) => `
+      <button class="world um-world" data-project="${esc(p.id)}" style="--glow:${p.brand.colors?.secondary || '#888'}">
+        ${num(i)}${logoTint(p, 'um-logo')}<span class="w-rule"></span>${nameAr(p)}${tag(p)}
+      </button>`).join('<span class="um-sep"></span>')}</div>`,
+  index: (ps, u) => `
+      <div class="ui-media">${ps.map((p, i) => `<div class="ui-img ${i === 0 ? 'on' : ''}">${coverImg(p)}</div>`).join('')}<span class="ui-frame"></span></div>
+      <div class="ui-list"><div class="ui-eyebrow latin">${esc(u.eyebrow || 'Projects')}</div>
+        ${ps.map((p, i) => `
+        <button class="world ui-row" data-project="${esc(p.id)}">
+          ${num(i)}${nameAr(p)}${logoTint(p, 'ui-logo')}${tag(p)}<span class="ui-arrow">←</span>
+        </button>`).join('')}
+      </div>`,
+  legacy: ps => `<div class="u-head"></div><div class="u-worlds">${ps.map((p, i) => {
+      const b = p.brand, c = b.colors || {}, ub = b.universe || {};
+      const bg = ub.background || c.background, dark = ub.visual === 'image' || isDarkHex(bg);
+      return `<button class="world ${dark ? 'is-dark' : 'is-light'} style-${b.texture === 'mist' ? 'mist' : 'bubbles'}" data-project="${esc(p.id)}" style="--wbg:${bg};--wfg:${dark ? c.textLight : (c.title || c.text)}">
+        <div class="w-bg">${ub.visual === 'image' && ub.image ? `<img src="${esc(asset(ub.image))}" alt="">` : ''}<canvas class="w-tex"></canvas></div>
+        <div class="w-content">${num(i)}${b.mark ? `<span class="logo-mask w-mark" style="--src:url('${esc(asset(b.mark))}')"></span>` : ''}${nameAr(p)}${tag(p)}</div>
+      </button>`;
+    }).join('')}</div>`,
+};
+const layoutOf = () => { const l = settings().universe?.layout || 'cinema'; return UNIVERSE_HTML[l] || l === 'halves' || l === 'circles' ? l : 'cinema'; };
+function chooserHTML(u, layout) {
+  if (!u.chooser || PREVIEW) return '';
+  const tone = settings().tone || 'quiet';
+  return `<div class="u-chooser" title="خيارات الشاشة الرئيسية">
+    ${UNIVERSE_LAYOUTS.map(([k, n], i) => `<button data-layout="${k}" class="${k === layout ? 'on' : ''}" title="${esc(n)}">${i + 1}</button>`).join('')}
+    <i></i><button data-tone="quiet" class="${tone === 'quiet' ? 'on' : ''}">هادئ</button><button data-tone="expressive" class="${tone !== 'quiet' ? 'on' : ''}">حيوي</button>
+  </div>`;
+}
 function renderUniverse() {
   const u = settings().universe || {};
+  const layout = layoutOf();
   const ps = projectsOf(S.content);
-  L.universe.innerHTML = `
-    <div class="u-wrap layout-${esc(u.layout || 'halves')}" style="--n:${ps.length}">
-      <div class="u-head"></div>
-      <div class="u-worlds">
-        ${ps.map((p, i) => {
-          const b = p.brand, c = b.colors || {}, ub = b.universe || {};
-          const bg = ub.background || c.background, dark = ub.visual === 'image' || isDarkHex(bg);
-          return `<button class="world ${dark ? 'is-dark' : 'is-light'} style-${b.texture === 'mist' ? 'mist' : 'bubbles'}" data-project="${esc(p.id)}"
-             style="--wbg:${bg};--wfg:${dark ? c.textLight : (c.title || c.text)}">
-            <div class="w-bg">${ub.visual === 'image' && ub.image ? `<img src="${esc(asset(ub.image))}" alt="">` : ''}<canvas class="w-tex"></canvas></div>
-            <div class="w-content">
-              <span class="w-num latin">${String(i + 1).padStart(2, '0')}</span>
-              ${b.mark ? `<span class="logo-mask w-mark" style="--src:url('${esc(asset(b.mark))}')"></span>` : ''}
-              <span class="w-name">${esc(p.nameAr || p.name)}</span>
-              ${p.tagline ? `<span class="w-tag">${esc(p.tagline)}</span>` : ''}
-            </div>
-          </button>`;
-        }).join('')}
-      </div>
-      ${u.hint ? `<div class="u-hint">${esc(u.hint)}</div>` : ''}
+  const legacy = layout === 'halves' || layout === 'circles';
+  L.universe.innerHTML = `<div class="u-wrap layout-${layout} ${legacy ? 'is-legacy' : 'is-exec'}" style="--n:${ps.length}">
+      ${(legacy ? UNIVERSE_HTML.legacy : UNIVERSE_HTML[layout])(ps, u)}
+      ${u.hint ? `<div class="u-hint">${esc(u.hint)}</div>` : ''}${chooserHTML(u, layout)}
     </div>`;
+  fixAspects(L.universe);
   worldTex.forEach(t => t.stop()); worldTex.length = 0;
   $$('.world', L.universe).forEach((w, i) => {
     const p = ps[i];
     w.addEventListener('click', () => command('enterProject', { projectId: p.id }));
     w.addEventListener('mouseenter', () => hoverWorld(i, true));
     w.addEventListener('mouseleave', () => hoverWorld(i, false));
+    w.addEventListener('focus', () => hoverWorld(i, true));
+    w.addEventListener('blur', () => hoverWorld(i, false));
     const cv = $('.w-tex', w);
-    if (p.brand.universe?.visual === 'color' || p.brand.universe?.visual === 'image' || reduced()) { worldTex.push({ stop() {}, start() {}, set() {} }); return; }
+    if (!legacy || !cv || p.brand.universe?.visual === 'color' || p.brand.universe?.visual === 'image' || reduced()) { worldTex.push({ stop() {}, start() {}, set() {} }); return; }
     const tex = new BrandTexture(cv, { resScale: 0.4 });
     tex.set({ mode: p.brand.texture, colors: ambientColors(p), progress: p.brand.texture === 'mist' ? 0.36 : 0.3, alpha: 0.9, speed: 0.6, sweep: 0, seed: i * 7 + 3 });
     worldTex.push(tex);
   });
+  $$('.u-chooser button', L.universe).forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation();
+    if (b.dataset.layout) S.content.settings.universe.layout = b.dataset.layout;
+    if (b.dataset.tone) { S.content.settings.tone = b.dataset.tone; applyTone(); }
+    renderUniverse(); startWorlds(true); universeEntrance(true);
+  }));
 }
 const isDarkHex = h => { const n = parseInt(String(h).replace('#', ''), 16); const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255; return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.45; };
 function ambientColors(p) {
@@ -426,19 +482,45 @@ function hoverWorld(i, on) {
   const ws = $$('.world', L.universe);
   ws.forEach((w, k) => w.classList.toggle('is-dim', on && k !== i));
   ws[i]?.classList.toggle('is-hover', on);
+  const wrap = $('.u-wrap', L.universe); wrap?.classList.toggle('has-hover', on);
+  const glow = $('.um-glow', L.universe);
+  if (glow && ws[i]) { const r = ws[i].getBoundingClientRect(), s = L.universe.getBoundingClientRect(); glow.style.setProperty('--gx', ((r.left + r.width / 2 - s.left) / s.width) * 100 + '%'); glow.style.setProperty('--gc', ws[i].style.getPropertyValue('--glow')); glow.classList.toggle('on', on); }
+  if (on) $$('.ui-img', L.universe).forEach((im, k) => im.classList.toggle('on', k === i));
   const t = worldTex[i]; if (!t?.set) return;
   const p = projectsOf(S.content)[i];
   gsap.to(t, { progress: on ? (p.brand.texture === 'mist' ? 0.5 : 0.44) : (p.brand.texture === 'mist' ? 0.36 : 0.3), speed: on ? 1.8 : 0.6, duration: 1.4, ease: 'power2.out' });
 }
-function universeEntrance() {
+function universeEntrance(quick = false) {
   const tl = gsap.timeline();
-  tl.fromTo(logosEl, { opacity: 0, y: pxs(30) }, { opacity: 1, y: 0, duration: 1.6, ease: 'expo.out', clearProps: 'transform' }, 0.2);
-  tl.fromTo($$('.world', L.universe), { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 1.8, ease: 'expo.out', stagger: 0.18 }, 0.45);
-  tl.fromTo($$('.w-content > *', L.universe), { opacity: 0, y: pxs(20) }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.06 }, 0.9);
-  tl.fromTo($$('.u-hint', L.universe), { opacity: 0 }, { opacity: 0.6, duration: 1.4 }, 1.6);
+  const q = s => $$(s, L.universe);
+  const d = quick ? 0 : 0.2;
+  if (!quick) tl.fromTo(logosEl, { opacity: 0, y: pxs(24) }, { opacity: 1, y: 0, duration: 1.8, ease: 'expo.out', clearProps: 'transform' }, d);
+  const layout = layoutOf();
+  if (layout === 'cinema') {
+    tl.fromTo(q('.uc-world'), { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 2, ease: 'expo.inOut', stagger: 0.16, clearProps: 'clipPath' }, d + 0.1);
+    tl.fromTo(q('.uc-media .w-img'), { scale: 1.18 }, { scale: 1.04, duration: 3.2, ease: 'expo.out', clearProps: 'transform' }, d + 0.1);
+    tl.fromTo(q('.uc-content > *'), { opacity: 0, y: pxs(26) }, { opacity: 1, y: 0, duration: 1.6, ease: 'expo.out', stagger: 0.07 }, d + 1.0);
+  } else if (layout === 'portals') {
+    tl.fromTo(q('.up-media'), { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 2.2, ease: 'expo.inOut', stagger: 0.18, clearProps: 'clipPath' }, d + 0.15);
+    tl.fromTo(q('.up-frame'), { opacity: 0, scale: 0.96 }, { opacity: 0.45, scale: 1, duration: 2, ease: 'expo.out', stagger: 0.18, clearProps: 'transform,opacity' }, d + 1.0);
+    tl.fromTo(q('.up-media .w-img'), { scale: 1.2 }, { scale: 1, duration: 3, ease: 'expo.out' }, d + 0.15);
+    tl.fromTo(q('.up-meta > *'), { opacity: 0, y: pxs(20) }, { opacity: 1, y: 0, duration: 1.4, ease: 'expo.out', stagger: 0.06 }, d + 1.1);
+  } else if (layout === 'monolith') {
+    tl.fromTo(q('.um-sep'), { scaleY: 0 }, { scaleY: 1, duration: 1.8, ease: 'expo.inOut' }, d + 0.2);
+    tl.fromTo(q('.um-world > *'), { opacity: 0, y: pxs(18), filter: 'blur(8px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.8, ease: 'expo.out', stagger: 0.07, clearProps: 'filter' }, d + 0.6);
+  } else if (layout === 'index') {
+    tl.fromTo(q('.ui-media'), { clipPath: 'inset(0% 0% 0% 100%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 2, ease: 'expo.inOut', clearProps: 'clipPath' }, d + 0.1);
+    tl.fromTo(q('.ui-eyebrow, .ui-row'), { opacity: 0, x: -pxs(40) }, { opacity: 1, x: 0, duration: 1.5, ease: 'expo.out', stagger: 0.12 }, d + 0.5);
+  } else {
+    tl.fromTo(q('.world'), { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 1.8, ease: 'expo.out', stagger: 0.18 }, d + 0.25);
+    tl.fromTo(q('.w-content > *'), { opacity: 0, y: pxs(20) }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.06 }, d + 0.7);
+  }
+  tl.fromTo(q('.u-hint'), { opacity: 0 }, { opacity: 0.55, duration: 1.4 }, d + 1.6);
   return tl;
 }
 function startWorlds(on) { worldTex.forEach(t => (on ? t.start() : t.stop())); }
+function applyTone() { stage.classList.toggle('tone-quiet', (settings().tone || 'quiet') === 'quiet'); }
+const quiet = () => (settings().tone || 'quiet') === 'quiet';
 
 /* ======================================================================= hub */
 function renderHub(p) {
@@ -654,7 +736,9 @@ function renderClosing() {
   const ps = projectsOf(S.content);
   const sum = c.showDecisions !== false ? decisionSummary() : [];
   const sumHTML = sum.length ? `<div class="c-sum"><div class="c-sum-title">${esc(c.decisionsTitle || '')}</div><div class="c-sum-list">${sum.map(s => `<div class="c-sum-item"><span class="c-g">${esc(s.group)}</span><span class="c-o">${esc(s.option)}</span></div>`).join('')}</div></div>` : '';
-  const logos = ps.map(p => p.brand.logo ? `<span class="logo-mask c-logo" data-ar-src="${esc(asset(p.brand.logo))}" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : '').join('<span class="c-x latin">×</span>');
+  const hl = (settings().headerLogos?.items || []).filter(x => x.show !== false && x.src);
+  const logoList = hl.length ? hl.map(x => ({ src: x.src, sc: x.scale || 1 })) : ps.filter(p => p.brand.logo).map(p => ({ src: p.brand.logo, sc: 1 }));
+  const logos = logoList.map(l => `<span class="logo-mask c-logo" data-ar-src="${esc(asset(l.src))}" style="--src:url('${esc(asset(l.src))}');--sc:${l.sc}"></span>`).join('<span class="c-x"></span>');
   const marks = ps.map(p => `<div class="c-markbox"><span class="logo-mask c-mark" style="--src:url('${esc(asset(p.brand.mark || p.brand.logo))}')"></span><span class="c-mname latin">${esc(p.name)}</span></div>`).join('');
   const layout = c.layout || 'logos';
   L.special.innerHTML = `
@@ -860,7 +944,7 @@ function applyContent(c, { keep = true } = {}) {
   registerFonts(c);
   sound.configure(c.settings?.sound, c.projects || []);
   gsap.globalTimeline.timeScale(clamp(c.settings?.motion?.speed || 1, 0.25, 3));
-  renderLogos();
+  renderLogos(); applyTone();
   if (!keep) return;
   const p = project();
   if (S.level === 'universe') { renderUniverse(); startWorlds(true); gsap.set($$('.world, .w-content > *, .u-hint', L.universe), { opacity: 1, y: 0, scale: 1 }); applyBrand(null, false); }

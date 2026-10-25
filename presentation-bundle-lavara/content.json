@@ -41,12 +41,14 @@
   ],
   "settings": {
     "universe": {
-      "layout": "halves",
-      "background": "#15120F",
+      "layout": "cinema",
+      "background": "#0E0C0A",
       "text": "#F3EFE6",
-      "hint": "اختر مشروعاً للبدء",
+      "hint": "",
       "showLogos": true,
-      "logosSize": 1
+      "logosSize": 1,
+      "chooser": true,
+      "eyebrow": "Projects"
     },
     "motion": {
       "speed": 1,
@@ -76,24 +78,24 @@
     "headerLogos": {
       "show": true,
       "corner": "top-left",
-      "size": 1,
-      "gap": 2,
+      "size": 1.35,
+      "gap": 1.6,
       "autoContrast": true,
       "color": "#F3EFE6",
       "items": [
         {
-          "id": "logo-bundle",
-          "label": "Bundle",
-          "src": "assets/bundle/bundle-wordmark.svg",
+          "id": "logo-rimthan",
+          "label": "Rimthan",
+          "src": "assets/logos/rimthan.png",
           "srcDark": "",
           "tint": true,
           "show": true,
-          "scale": 1
+          "scale": 0.86
         },
         {
-          "id": "logo-lavara",
-          "label": "Lavara",
-          "src": "assets/lavara/lavara-wordmark.svg",
+          "id": "logo-almajed",
+          "label": "Al Majed Oud",
+          "src": "assets/logos/almajed-oud.png",
           "srcDark": "",
           "tint": true,
           "show": true,
@@ -111,7 +113,8 @@
     },
     "flow": {
       "afterAllProjects": "decision"
-    }
+    },
+    "tone": "quiet"
   },
   "projects": [
     {
@@ -185,7 +188,13 @@
           "muted": false,
           "volume": 1
         },
-        "typography": {}
+        "typography": {},
+        "cover": "assets/bundle/sample/shapes.jpg",
+        "coverTint": 0.18,
+        "coverFocal": {
+          "x": 50,
+          "y": 50
+        }
       },
       "sections": [
         {
@@ -618,7 +627,13 @@
           "muted": false,
           "volume": 1
         },
-        "typography": {}
+        "typography": {},
+        "cover": "assets/lavara/sample/room.jpg",
+        "coverTint": 0.12,
+        "coverFocal": {
+          "x": 40,
+          "y": 50
+        }
       },
       "sections": [
         {
