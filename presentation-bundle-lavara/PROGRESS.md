@@ -28,4 +28,4 @@
 ## Waiting for the user's decision
 0. Which opening screen (1–4) and which tone (quiet or expressive).
 1. Closing layout: (a) both logos + a closing line [current default], (b) both project marks + a line + contact, (c) a calm discussion screen.
-2. Company and partner logos: postponed by the user. They can be added in the panel when ready.
+2. Higher-resolution brand imagery for the opening screen (current covers are cropped from the PDFs; Bundle's art is 1080px).
