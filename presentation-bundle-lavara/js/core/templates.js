@@ -83,7 +83,7 @@ export const TEMPLATES = {
   video: {
     name: 'فيديو', en: 'Video', group: 'core', defaultBg: 'dark',
     fields: [F.video(), { key: 'mode', type: 'select', label: 'العرض', options: [['full', 'ممتد بكامل الشاشة'], ['framed', 'داخل إطار']] }, F.eyebrow, F.title],
-    defaults: { video: { src: '', poster: '', autoplay: true, muted: true, loop: true }, mode: 'full', eyebrow: '', title: '' },
+    defaults: { video: { src: '', poster: '', autoplay: true, muted: false, loop: true }, mode: 'full', eyebrow: '', title: '' },
     render: (d, ctx) => `
       <div class="t t-video mode-${esc(d.mode || 'full')}">
         <div class="s-media" data-a="media">${mediaHTML(d.video, ctx, { label: 'فيديو', eager: true })}</div>

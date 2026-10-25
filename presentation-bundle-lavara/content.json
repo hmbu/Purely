@@ -249,7 +249,7 @@
                   "src": "assets/lavara/uploads/mvnv1d4a-Bundle teaser E - Blueprint to Unwrap _20s_.MP4",
                   "poster": "",
                   "autoplay": true,
-                  "muted": true,
+                  "muted": false,
                   "loop": true
                 },
                 "mode": "full",
@@ -1011,7 +1011,7 @@
                   "src": "assets/lavara/uploads/mvnv1d4a-Bundle teaser E - Blueprint to Unwrap _20s_.MP4",
                   "poster": "",
                   "autoplay": true,
-                  "muted": true,
+                  "muted": false,
                   "loop": true
                 },
                 "mode": "full",

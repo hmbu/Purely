@@ -24,7 +24,8 @@ const morphEl = Object.assign(document.createElement('div'), { id: 'morph' }); L
 const hud = { root: $('#hud'), crumb: $('#hud .crumb'), bar: $('#hud .bar i'), clock: $('#hud .clock') };
 
 // Transition sounds are removed (user decision): only video audio remains. This stub keeps the call sites inert.
-const sound = { cfg: { muted: false }, ready: false, play() {}, unlock() {}, configure() {}, setMuted(m) { this.cfg.muted = m; $$('video').forEach(v => { v.muted = m || v.dataset.muted === 'true'; }); } };
+const sound = { cfg: { muted: false }, ready: false, play() {}, configure() {},
+  unlock() { if (!this.cfg.muted) $$('video.m').forEach(v => { if (v.dataset.muted === 'false' && v.muted) { v.muted = false; if (v.paused && v.dataset.autoplay !== 'false') v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }); } }); }, setMuted(m) { this.cfg.muted = m; $$('video').forEach(v => { v.muted = m || v.dataset.muted === 'true'; }); } };
 let veil = null;
 const worldTex = [];
 

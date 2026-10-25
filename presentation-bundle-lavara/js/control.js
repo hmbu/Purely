@@ -275,13 +275,13 @@ function renderField(f, obj, ctx) {
     case 'image': return fieldRow(f.label, mediaWidget(obj, key, { kind: 'image', simple: f.simple, focal: !f.simple }, ctx), f.note);
     case 'media': return fieldRow(f.label, mediaWidget(obj, key, { kind: 'any', simple: true }, ctx), f.note);
     case 'video': {
-      if (!v || typeof v !== 'object') setPath(obj, key, { src: typeof v === 'string' ? v : '', poster: '', autoplay: true, muted: true, loop: true });
+      if (!v || typeof v !== 'object') setPath(obj, key, { src: typeof v === 'string' ? v : '', poster: '', autoplay: true, muted: false, loop: true });
       const vo = get();
       const box = h('div', {},
         mediaWidget(vo, 'src', { kind: 'video', simple: true }, ctx),
         h('div', { style: 'margin-top:8px' }, h('div', { class: 'muted small' }, 'صورة الغلاف (Poster)'), mediaWidget(vo, 'poster', { kind: 'image', simple: true }, ctx)),
         h('div', { class: 'inline', style: 'margin-top:8px' },
-          ...[['autoplay', 'تشغيل تلقائي عند الوصول'], ['muted', 'بدون صوت'], ['loop', 'تكرار']].map(([k, l]) => h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: vo[k] !== false, onchange: e => { vo[k] = e.target.checked; commit({}); } }), l))));
+          ...[['autoplay', 'تشغيل تلقائي عند الوصول'], ['muted', 'كتم صوت هذا الفيديو'], ['loop', 'تكرار']].map(([k, l]) => h('label', { class: 'switch' }, h('input', { type: 'checkbox', checked: k === 'muted' ? vo[k] === true : vo[k] !== false, onchange: e => { vo[k] = e.target.checked; commit({}); } }), l))));
       return fieldRow(f.label, box, 'MP4 (4K مفضّل، 1080p مقبول). يتوقف عند المغادرة حسب الإعداد العام.');
     }
     case 'list': return listWidget(f, obj, ctx);
