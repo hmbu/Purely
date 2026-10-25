@@ -518,7 +518,7 @@ function renderUniverse() {
     const cv = $('.w-tex', w);
     const fusion = layout === 'fusion';
     if ((!legacy && !fusion) || !cv || (legacy && (p.brand.universe?.visual === 'color' || p.brand.universe?.visual === 'image')) || reduced()) { worldTex.push({ stop() {}, start() {}, set() {} }); return; }
-    const { tex, fresh } = pooledTexture(`world-${layout === 'fusion' ? 'f' : 'l'}-${p.id}`, cv);
+    const { tex, fresh } = pooledTexture(`world-${layout === 'fusion' ? 'f' : 'l'}-${p.id}`, cv, p.brand.texture === 'mist' ? 0.3 : 0.4);
     const mist = p.brand.texture === 'mist';
     tex._base = fusion ? { progress: mist ? 0.36 : 0.05, speed: 0.4 } : { progress: mist ? 0.36 : 0.3, speed: 0.6 };
     const tc = p.brand.textureColors || [];
@@ -547,10 +547,10 @@ function hoverWorld(i, on) {
   if (glow && ws[i]) { const r = ws[i].getBoundingClientRect(), s = L.universe.getBoundingClientRect(); glow.style.setProperty('--gx', ((r.left + r.width / 2 - s.left) / s.width) * 100 + '%'); glow.style.setProperty('--gc', ws[i].style.getPropertyValue('--glow')); glow.classList.toggle('on', on); }
   if (on) $$('.ui-img', L.universe).forEach((im, k) => im.classList.toggle('on', k === i));
   const hz = $('.uh-line', L.universe);
-  if (hz && ws[i]) { const r = ws[i].getBoundingClientRect(), s0 = hz.getBoundingClientRect(); hz.style.setProperty('--lx', on ? ((r.left + r.width / 2 - s0.left) / s0.width) * 100 + '%' : '50%'); hz.style.setProperty('--lc', on ? ws[i].style.getPropertyValue('--glow') : '#F5F1E8'); hz.classList.toggle('on', on); }
+  if (hz && ws[i]) { const r = ws[i].getBoundingClientRect(), s0 = hz.getBoundingClientRect(); hz.style.setProperty('--lx', on ? ((r.left + r.width / 2 - s0.left) / s0.width) * 100 + 'cqw' : '50cqw'); hz.style.setProperty('--lc', on ? ws[i].style.getPropertyValue('--glow') : '#F5F1E8'); hz.classList.toggle('on', on); }
   if (!on) $$('.ud-world', L.universe).forEach(w => { w.style.setProperty('--tx', '0deg'); w.style.setProperty('--ty', '0deg'); });
   const fl = $('.uf-line', L.universe);
-  if (fl && ws[i]) { const r = ws[i].getBoundingClientRect(), s0 = fl.getBoundingClientRect(); fl.style.setProperty('--lx', ((r.left + r.width / 2 - s0.left) / s0.width) * 100 + '%'); fl.style.setProperty('--lc', ws[i].style.getPropertyValue('--glow')); fl.classList.toggle('on', on); }
+  if (fl && ws[i]) { const r = ws[i].getBoundingClientRect(), s0 = fl.getBoundingClientRect(); fl.style.setProperty('--lx', ((r.left + r.width / 2 - s0.left) / s0.width) * 100 + 'cqw'); fl.style.setProperty('--lc', ws[i].style.getPropertyValue('--glow')); fl.classList.toggle('on', on); }
   const t = worldTex[i]; if (!t?.set || !t._base) return;
   gsap.to(t, { progress: t._base.progress + (on ? 0.07 : 0), speed: on ? t._base.speed * 3 : t._base.speed, duration: 1.6, ease: 'power2.out' });
 }
@@ -578,7 +578,7 @@ function universeEntrance(quick = false) {
   } else if (layout === 'fusion') {
     tl.fromTo(q('.uf-world'), { opacity: 0 }, { opacity: 1, duration: 2.4, ease: 'sine.inOut', stagger: 0.2 }, d);
     tl.fromTo(q('.uf-line'), { scaleX: 0 }, { scaleX: 1, duration: 2.6, ease: 'expo.inOut' }, d + 0.5);
-    tl.fromTo(q('.uf-content > *'), { opacity: 0, y: pxs(18), filter: 'blur(6px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.8, ease: 'expo.out', stagger: 0.07, clearProps: 'filter' }, d + 1.4);
+    tl.fromTo(q('.uf-content > *'), { opacity: 0, y: pxs(18) }, { opacity: 1, y: 0, duration: 1.8, ease: 'power3.out', stagger: 0.07 }, d + 1.4);
   } else if (layout === 'title') {
     tl.fromTo(q('.ut-light'), { opacity: 0 }, { opacity: 1, duration: 3, ease: 'sine.inOut' }, d);
     tl.fromTo(q('.ut-rule'), { scaleX: 0 }, { scaleX: 1, duration: 1.8, ease: 'expo.inOut' }, d + 0.9);
@@ -612,9 +612,9 @@ const quiet = () => (settings().tone || 'quiet') === 'quiet';
 // stations on a line of light. The light rests on the next section; hovering slides it to another station.
 let hubTex = null;
 const texPool = new Map(); // key → { cv, tex } — canvases & WebGL contexts are created once and reused
-function pooledTexture(key, slot) {
+function pooledTexture(key, slot, resScale = 0.4) { // mist (soft fog) renders lighter: 0.3
   let e = texPool.get(key);
-  if (!e) { const cv = document.createElement('canvas'); e = { cv, tex: new BrandTexture(cv, { resScale: 0.4 }), fresh: true }; texPool.set(key, e); }
+  if (!e) { const cv = document.createElement('canvas'); e = { cv, tex: new BrandTexture(cv, { resScale }), fresh: true }; texPool.set(key, e); }
   e.cv.className = slot.className; slot.replaceWith(e.cv);
   const fresh = e.fresh; e.fresh = false;
   return { tex: e.tex, fresh };
@@ -658,7 +658,7 @@ function renderHub(p) {
   const cv = $('.h2-tex', L.hub);
   if (cv && !reduced()) {
     const tc = p.brand.textureColors || []; const mist = p.brand.texture === 'mist';
-    const { tex, fresh } = pooledTexture('hub-' + p.id, cv);
+    const { tex, fresh } = pooledTexture('hub-' + p.id, cv, mist ? 0.3 : 0.4);
     hubTex = tex;
     hubTex.set({ mode: p.brand.texture, colors: mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]], progress: mist ? 0.34 : 0.05, alpha: mist ? 0.4 : 0.24, speed: 0.4, sweep: 0, ...(fresh ? { seed: 11 } : {}) });
     hubTex.start();
@@ -671,7 +671,7 @@ function hubLight(i, hover, instant) {
   const line = $('.h2-line', L.hub), st = $$('.h2-station', L.hub)[i]; if (!line || !st || !line.offsetWidth) return;
   const dot = $('.h2-dot', st);
   const x = layoutLeft(dot) + dot.offsetWidth / 2 - layoutLeft(line);
-  line.style.setProperty('--lx', clamp(x / line.offsetWidth, 0, 1) * 100 + '%');
+  line.style.setProperty('--lx', clamp(x / line.offsetWidth, 0, 1) * 100 + 'cqw');
   line.classList.toggle('is-hover', !!hover);
   if (instant) { line.classList.add('instant'); void line.offsetWidth; requestAnimationFrame(() => line.classList.remove('instant')); }
   $$('.h2-station', L.hub).forEach((x, k) => x.classList.toggle('is-lit', k === i));
@@ -724,7 +724,7 @@ async function enterProject(pid, { sectionId = null, slideIndex = 0, fromLevel =
     tl.to(worldContent(world), { opacity: 0, duration: 0.45 * k, ease: 'power2.in' }, 0);
     tl.to($$('.world', L.universe).filter(w => w !== world), { opacity: 0.35, duration: 0.7 * k, ease: 'power2.inOut' }, 0);
     tl.to(morphEl, { opacity: 1, duration: 0.4 * k, ease: 'power1.inOut' }, 0.05 * k);
-    tl.to(morphEl, { x: 0, y: 0, scaleX: 1, scaleY: 1, duration: 1.3 * k, ease: 'expo.inOut' }, 0.15 * k);
+    tl.to(morphEl, { x: 0, y: 0, scaleX: 1, scaleY: 1, duration: 1.5 * k, ease: 'power3.inOut' }, 0.15 * k);
   } else tl.to(L.universe, { opacity: 0, duration: 0.8 * k, ease: 'power2.inOut' }, 0);
   tl.add(() => placeLogos('corner'), 0.2 * k);
   tl.to(L.hub, { opacity: 1, duration: 0.8 * k, ease: 'power1.inOut' }, 1.15 * k);
@@ -774,7 +774,7 @@ async function enterSection(sid, slideIndex = 0) {
   const tl = gsap.timeline();
   
   tl.to(L.hub, { scale: 1.18, opacity: 0, transformOrigin: origin, duration: D * 0.75, ease: 'power2.in' }, 0);
-  tl.fromTo(L.section, { scale: 0.12, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.95, ease: 'expo.out' }, D * 0.25);
+  tl.fromTo(L.section, { scale: 0.35, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 1.0, ease: 'power3.out' }, D * 0.25);
   tl.add(introTL(S.slideEl, 1), D * 0.55);
   await tl;
   show(L.hub, false); gsap.set(L.hub, { clearProps: 'all' }); stopHubTex();
@@ -816,7 +816,7 @@ async function zoomOut({ strong = false } = {}) {
     const origin = station ? originOf(station, L.hub) : '50% 50%';
     sound.play('zoom', p.id);
     const D = ZOOM() * (strong ? 1.3 : 1); const tl = gsap.timeline();
-    tl.to(L.section, { scale: strong ? 0.06 : 0.3, opacity: 0, transformOrigin: origin, duration: D * 0.9, ease: 'expo.inOut' }, 0);
+    tl.to(L.section, { scale: strong ? 0.2 : 0.4, opacity: 0, transformOrigin: origin, duration: D * 0.9, ease: 'power3.inOut' }, 0);
     tl.fromTo(L.hub, { scale: 1.12, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.9, ease: 'power2.out' }, D * 0.3);
     tl.add(hubIntro(), D * 0.5);
     S.level = 'hub'; logosColor(p.brand.colors.textLight || '#fff', true); updateHUD();
@@ -847,7 +847,7 @@ async function toUniverse() {
     gsap.set(morphEl, { x: 0, y: 0, scaleX: 1, scaleY: 1, opacity: 1, transformOrigin: '0 0' });
     morphEl.classList.add('on');
     tl.to(fromLayer, { opacity: 0, duration: 0.6 * k, ease: 'power1.inOut' }, 0);
-    tl.to(morphEl, { ...morphTo(stageRect(world)), duration: 1.3 * k, ease: 'expo.inOut' }, 0.4 * k);
+    tl.to(morphEl, { ...morphTo(stageRect(world)), duration: 1.5 * k, ease: 'power3.inOut' }, 0.4 * k);
     tl.to(morphEl, { opacity: 0, duration: 0.5 * k, ease: 'power1.inOut' }, 1.5 * k);
     tl.to(content, { opacity: 1, duration: 0.8 * k, ease: 'power2.out' }, 1.45 * k);
   } else {
@@ -1061,10 +1061,10 @@ function command(name, args = {}) {
   run(fn, args);
 }
 async function run(fn, args) {
-  S.busy = true; stage.classList.add('is-moving'); // no hover or click reaches the pages while the camera moves
+  S.busy = true; stage.classList.add('is-moving'); BrandTexture.moving = true; // no hover or click reaches the pages while the camera moves
   if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur?.();
   try { await fn(args); } catch (e) { console.error(e); }
-  S.busy = false; stage.classList.remove('is-moving');
+  S.busy = false; stage.classList.remove('is-moving'); BrandTexture.moving = false;
   broadcastState();
   const n = S.queue.shift(); S.queue = [];
   if (n && Date.now() - n[2] < 900) command(n[0], n[1]); // stale presses made during a long transition are ignored

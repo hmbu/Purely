@@ -67,6 +67,7 @@ void main(){
 const BALLS = 14;
 
 export class BrandTexture {
+  static moving = false;
   constructor(canvas, { resScale = 0.5 } = {}) {
     this.canvas = canvas; this.resScale = resScale;
     this.mode = null; this.colors = ['#000000', '#333333', '#666666', '#999999'];
@@ -125,7 +126,10 @@ export class BrandTexture {
     if (!this.running) return;
     const dt = Math.min(0.05, (now - this.last) / 1000); this.last = now;
     this.t += dt * this.speed;
-    this.draw();
+    // While the camera moves, slow-drifting textures redraw every other frame: invisible on soft shapes,
+    // and it leaves the GPU free so the camera move itself keeps the screen's full frame rate.
+    this.frame = (this.frame || 0) + 1;
+    if (!BrandTexture.moving || this.frame % 2 === 0) this.draw();
     requestAnimationFrame(this.loop);
   }
   draw() {

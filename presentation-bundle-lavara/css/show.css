@@ -362,6 +362,7 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
    EXECUTIVE OPENING SCREENS (cinema · portals · monolith · index)
    ===================================================================== */
 .u-wrap.is-exec { color: var(--b-fg); }
+.u-wrap.layout-fusion::after { display: none; }
 .u-wrap.is-exec::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .06; pointer-events: none; z-index: 3; }
 .world { -webkit-tap-highlight-color: transparent; }
 .w-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -511,8 +512,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 
 /* ---------- 8 · horizon — one line of light, the projects on either side */
 .uh-glow { position: absolute; left: 0; right: 0; bottom: 0; height: 55%; background: radial-gradient(70% 90% at 50% 100%, rgba(255, 226, 190, .09), transparent 70%); }
-.uh-line { position: absolute; top: 56%; left: 10rem; right: 10rem; height: var(--hair); background: rgba(245, 241, 232, .22); --lx: 50%; --lc: #F5F1E8; }
-.uh-line i { position: absolute; top: -.4rem; height: .9rem; width: 34rem; left: var(--lx); translate: -50% 0; background: radial-gradient(50% 50% at 50% 50%, color-mix(in srgb, var(--lc) 90%, transparent), transparent 70%); filter: blur(.3rem); transition: left 1.6s cubic-bezier(.16, 1, .3, 1), background 1.2s; opacity: .7; }
+.uh-line { position: absolute; top: 56%; left: 10rem; right: 10rem; height: var(--hair); background: rgba(245, 241, 232, .22); --lx: 50cqw; --lc: #F5F1E8; container-type: inline-size; }
+.uh-line i { position: absolute; top: -.4rem; height: .9rem; width: 34rem; left: 0; translate: calc(var(--lx) - 50%) 0; background: radial-gradient(50% 50% at 50% 50%, color-mix(in srgb, var(--lc) 90%, transparent), transparent 70%); filter: blur(.3rem); transition: translate 1.6s cubic-bezier(.16, 1, .3, 1), background 1.2s; opacity: .7; }
 .uh-line.on i { opacity: 1; }
 .uh-row { position: absolute; top: 61%; left: 10rem; right: 10rem; display: grid; grid-template-columns: repeat(var(--n), 1fr); }
 .uh-world { appearance: none; border: 0; background: none; color: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 1.6rem; padding-top: 2rem; transition: opacity 1.2s; }
@@ -546,16 +547,16 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .uf-content { position: absolute; left: 0; right: 0; top: 61%; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 1.8rem; transition: opacity 1.2s ease; }
 .uf-logo { height: 5.2rem; aspect-ratio: var(--ar, 4); }
 .uf-world.is-dim .uf-content { opacity: .5; }
-.uf-line { position: absolute; z-index: 2; top: 56%; left: 0; right: 0; height: var(--hair); background: rgba(245, 241, 232, .3); pointer-events: none; --lx: 50%; --lc: #F5F1E8; }
+.uf-line { position: absolute; z-index: 2; top: 56%; left: 0; right: 0; height: var(--hair); background: rgba(245, 241, 232, .3); pointer-events: none; --lx: 50cqw; --lc: #F5F1E8; container-type: inline-size; }
 .uf-line::after { content: ''; position: absolute; left: 0; right: 0; top: -6rem; height: 12rem; background: radial-gradient(40% 50% at 50% 50%, rgba(255, 238, 214, .07), transparent 70%); }
-.uf-line i { position: absolute; top: -.6rem; height: 1.3rem; width: 36rem; translate: -50% 0; border-radius: 50%; filter: blur(.35rem); }
-.uf-pulse { left: 15%; background: radial-gradient(50% 50% at 50% 50%, rgba(255, 244, 228, .95), transparent 70%); animation: ufDrift 12s ease-in-out infinite alternate; transition: opacity 1.2s; }
+.uf-line i { position: absolute; top: -.6rem; left: 0; height: 1.3rem; width: 36rem; translate: calc(var(--lx) - 50%) 0; border-radius: 50%; filter: blur(.35rem); }
+.uf-pulse { translate: calc(15cqw - 50%) 0; background: radial-gradient(50% 50% at 50% 50%, rgba(255, 244, 228, .95), transparent 70%); animation: ufDrift 12s ease-in-out infinite alternate; transition: opacity 1.2s; }
 .uf-pulse::after { content: ''; position: absolute; inset: -.2rem 30%; background: radial-gradient(50% 50% at 50% 50%, #fff, transparent 70%); }
-@keyframes ufDrift { 0% { left: 12%; opacity: .55; } 50% { opacity: 1; } 100% { left: 88%; opacity: .55; } }
-.uf-hover { left: var(--lx); opacity: 0; width: 40rem; background: radial-gradient(50% 50% at 50% 50%, var(--lc), transparent 70%); transition: left 1.6s cubic-bezier(.16, 1, .3, 1), opacity 1.2s, background 1.2s; }
+@keyframes ufDrift { 0% { translate: calc(12cqw - 50%) 0; opacity: .55; } 50% { opacity: 1; } 100% { translate: calc(88cqw - 50%) 0; opacity: .55; } }
+.uf-hover { opacity: 0; width: 40rem; background: radial-gradient(50% 50% at 50% 50%, var(--lc), transparent 70%); transition: translate 1.6s cubic-bezier(.16, 1, .3, 1), opacity 1.2s, background 1.2s; }
 .uf-line.on .uf-hover { opacity: 1; }
 .uf-line.on .uf-pulse { opacity: .15; }
-@media (prefers-reduced-motion: reduce) { .uf-pulse { animation: none; left: 50%; } }
+@media (prefers-reduced-motion: reduce) { .uf-pulse { animation: none; translate: calc(50cqw - 50%) 0; } }
 
 /* =====================================================================
    PROJECT PAGE (hub) — brand colour, calm live texture, sections on a line of light
@@ -568,8 +569,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .h2-logo { height: 9rem; aspect-ratio: var(--ar, 4); }
 .h2-name { font-family: var(--f-title); font-size: 8rem; margin: 0; }
 .h2-tag { margin: 0; font-size: 1.9rem; font-weight: 300; opacity: .75; }
-.h2-line { position: absolute; z-index: 1; top: 60%; left: 8rem; right: 8rem; height: var(--hair); background: rgba(245, 241, 232, .28); --lx: 50%; }
-.h2-light { position: absolute; top: -.65rem; left: var(--lx); width: 34rem; height: 1.4rem; translate: -50% 0; border-radius: 50%; filter: blur(.35rem); background: radial-gradient(50% 50% at 50% 50%, rgba(255, 244, 228, .95), transparent 70%); transition: left 1.6s cubic-bezier(.16, 1, .3, 1), background 1.2s; animation: h2Breath 4.5s ease-in-out infinite; }
+.h2-line { position: absolute; z-index: 1; top: 60%; left: 8rem; right: 8rem; height: var(--hair); background: rgba(245, 241, 232, .28); --lx: 50cqw; container-type: inline-size; }
+.h2-light { position: absolute; top: -.65rem; left: 0; width: 34rem; height: 1.4rem; translate: calc(var(--lx) - 50%) 0; border-radius: 50%; filter: blur(.35rem); background: radial-gradient(50% 50% at 50% 50%, rgba(255, 244, 228, .95), transparent 70%); transition: translate 1.6s cubic-bezier(.16, 1, .3, 1), background 1.2s; animation: h2Breath 4.5s ease-in-out infinite; }
 .h2-line.is-hover .h2-light { background: radial-gradient(50% 50% at 50% 50%, var(--glow), transparent 70%); animation: none; }
 .h2-line.instant .h2-light { transition: none; }
 @keyframes h2Breath { 0%, 100% { opacity: .65; transform: scaleX(.9); } 50% { opacity: 1; transform: scaleX(1.08); } }
