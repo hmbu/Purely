@@ -1,29 +1,56 @@
 # Bundle × Lavara — Cinematic Presentation
 
-Standalone project. It is **separate from the hotel in-room store project** in the rest of this repository and shares no code, rules, or agents with it.
+A standalone project, separate from the hotel in-room store project in the rest of this repository.
 
-## Planned structure
+## Running the show (offline, one folder)
+1. Install **Node.js LTS** once (https://nodejs.org).
+2. Start the launcher:
+   - macOS: double-click `start.command`
+   - Windows: double-click `start.bat`
+   - Terminal: `node server/server.js` (add `--port 8090` to change the port, or `--open-chrome` to open Chrome)
+3. The launcher prints three links and a QR code:
+   - **Presentation**: `http://localhost:8080/presentation.html` (full-screen with `F`)
+   - **Control panel**: `http://localhost:8080/control.html`
+   - **Remote**: `http://<local-ip>:8080/remote` (scan the QR from the presenter's phone on the same Wi-Fi)
+
+`start.command` and `start.bat` open Chrome with a dedicated profile and `--autoplay-policy=no-user-gesture-required`, so transition sounds and videos work without a click on the show screen.
+
+### Why a launcher (and not `file://`)
+Chrome blocks `fetch()` of `content.json` and ES modules over `file://`. The launcher is a small Node server with no dependencies (`server/server.js`) that:
+- serves every file, with HTTP Range support so 4K videos can seek without stuttering;
+- reads and writes `content.json` through `/api/content`, keeping automatic backups in `data/backups/` (at most one per minute, up to 200 files);
+- relays live sync between the show, the control panel and the remote over WebSocket;
+- logs decisions to `data/decisions-log.json`;
+- accepts media and font uploads from the control panel into `assets/`.
+
+If no second device can connect, the remote also works on the same machine (`BroadcastChannel` fallback).
+
+## Files
 ```
-presentation-bundle-lavara/
-├── presentation.html      # the show only (no editing UI)
-├── control.html           # full control panel
-├── remote.html            # mobile remote (served by the launcher)
-├── content.json           # single source of truth: content + settings
-├── server/                # tiny local launcher (HTTP + WebSocket + QR)
-├── assets/
-│   ├── fonts/thmanyah/    # Thmanyah Sans / Serif Text / Serif Display (woff2)
-│   ├── logos/             # header logos (ours + partner)
-│   ├── bundle/            # Bundle media + brand marks
-│   ├── lavara/            # Lavara media + brand marks
-│   └── vendor/            # GSAP (local, no CDN)
-├── brand-source/          # original brand PDFs (reference only)
-└── docs/                  # phase reports
+presentation.html   the show only (no editing UI)
+control.html        full control panel
+remote.html         mobile remote
+content.json        single source of truth: all content + settings
+server/             launcher (server.js + qrcode.js, MIT)
+js/core/            shared modules: model, sync, store, fonts, templates, texture (WebGL), sound (Web Audio)
+css/                show.css, control.css, remote.css
+assets/fonts/thmanyah/   Thmanyah Sans / Serif Text / Serif Display (woff2, 5 weights each)
+assets/bundle/  assets/lavara/   logos (vector SVG extracted from the brand PDFs) + sample media
+assets/vendor/      GSAP 3.12.5 (local, no CDN)
+brand-source/       original brand PDFs (reference)
+docs/               phase reports
 ```
 
-## Phases
-1. Brand extraction summary → **waiting for approval** (`docs/01-brand-extraction.md`)
-2. Canvas, 3 zoom levels, motion system
-3. 10 templates
-4. Both brand identities applied
-5. Control panel + live sync + remote
-6. Content + final 4K test
+## In-show keyboard
+| Key | Action |
+|---|---|
+| `←` / `Space` / `PageDown` / `Enter` | Next |
+| `→` / `PageUp` | Previous |
+| `Shift` + arrow | Next / previous section |
+| `Esc` | Zoom out one level (closes a focused concept first) |
+| `1`–`9` | Jump to section (or to project on the Universe screen) |
+| `F` | Full screen |
+| `B` | Black screen |
+| `M` | Mute |
+
+Presentation clickers (PageUp / PageDown) work out of the box.

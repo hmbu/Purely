@@ -1,6 +1,6 @@
 # Phase 1 — Brand Extraction Summary (Bundle × Lavara)
 
-Status: **waiting for approval** — no presentation code is written until this is confirmed.
+Status: **approved by the user (2026-10-25)** — decisions recorded in `docs/02-build-notes.md`.
 
 Sources (copied into `brand-source/`):
 - `bundle-brand.pdf` — "MUSED X Bundle — Color Palette, Typography Presentation" (17 pages)
