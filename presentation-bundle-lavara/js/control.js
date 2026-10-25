@@ -60,7 +60,16 @@ async function doSave(backup, reason = 'manual', auto = false) {
     else { await saveContent(C); setSaveState('محفوظ في هذا المتصفح فقط — اربط GitHub من تبويب «النشر»', 'dirty'); return; }
     const t = new Date().toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' });
     setSaveState(mode === 'github' ? `نُشر ✓ ${t} — يظهر في الموقع خلال دقيقة` : 'محفوظ ✓ ' + t);
-  } catch (e) { setSaveState('خطأ في الحفظ: ' + e.message, 'err'); }
+  } catch (e) {
+    if (e.conflict) {
+      setSaveState('لم يُنشر: المحتوى تغيّر على GitHub بعد فتح اللوحة', 'err');
+      if (confirm('المحتوى المنشور تغيّر بعد فتحك لهذه اللوحة (من جهاز آخر أو تحديث جديد).\n\nإلغاء (موصى به): لا شيء يُستبدل. حدّث الصفحة لجلب آخر نسخة ثم أعد تعديلك.\nموافق: انشر نسختك واستبدل التغييرات الأحدث.')) {
+        try { await saveContent(C, { backup, reason, force: true }); setSaveState('نُشر ✓ (استُبدلت النسخة الأحدث)'); } catch (e2) { setSaveState('خطأ في الحفظ: ' + e2.message, 'err'); }
+      }
+      return;
+    }
+    setSaveState('خطأ في الحفظ: ' + e.message, 'err');
+  }
 }
 function pushHistory(key) {
   const snap = JSON.stringify(C), now = Date.now();

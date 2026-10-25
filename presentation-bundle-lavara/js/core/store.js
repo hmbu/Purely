@@ -42,9 +42,11 @@ const branchQ = () => `ref=${encodeURIComponent(githubConfig().branch || 'main')
 async function ghGetFile(path, ref) {
   return gh('GET', `/contents/${encodeURI(ghPath(path))}?${ref ? 'ref=' + ref : branchQ()}`);
 }
-async function ghPutFile(path, base64, message) {
+async function ghPutFile(path, base64, message, expectSha) {
   let sha;
   try { sha = (await ghGetFile(path)).sha; } catch (e) { if (e.status !== 404) throw e; }
+  // Someone (another device, or a session update) committed after this panel loaded: never overwrite silently.
+  if (expectSha && sha && sha !== expectSha) { const err = new Error('changed on GitHub since this panel was opened'); err.status = 409; err.conflict = true; throw err; }
   return gh('PUT', `/contents/${encodeURI(ghPath(path))}`, { message, content: base64, branch: githubConfig().branch || 'main', ...(sha ? { sha } : {}) });
 }
 export async function testGithub() {
@@ -61,7 +63,7 @@ async function loadRaw({ fresh = false } = {}) {
   if (window.__BXL_CONTENT__) return JSON.parse(JSON.stringify(window.__BXL_CONTENT__)); // single-file build
   isServer = await serverAvailable();
   if (fresh && !isServer && hasGithub()) { // control panel on the published site: always edit the latest commit
-    try { const f = await ghGetFile('content.json'); const c = JSON.parse(utf8b64(f.content)); cacheLocal(c); return c; } catch (e) { console.warn('GitHub load failed', e); }
+    try { const f = await ghGetFile('content.json'); const c = JSON.parse(utf8b64(f.content)); loadedSha = f.sha; cacheLocal(c); return c; } catch (e) { console.warn('GitHub load failed', e); }
   }
   const tries = isServer ? ['/api/content', 'content.json'] : ['content.json'];
   for (const url of tries) {
@@ -74,7 +76,8 @@ async function loadRaw({ fresh = false } = {}) {
 export function cacheLocal(c) { try { localStorage.setItem(LS_KEY, JSON.stringify(c)); } catch {} }
 
 // publish=false in GitHub mode only caches locally (commits happen on "Save / Publish").
-export async function saveContent(c, { backup = false, reason = 'auto', publish = true } = {}) {
+let loadedSha = null; // content.json version this panel is editing (GitHub mode)
+export async function saveContent(c, { backup = false, reason = 'auto', publish = true, force = false } = {}) {
   cacheLocal(c);
   if (isServer) {
     const r = await fetch(`/api/content?backup=${backup ? 1 : 0}&reason=${encodeURIComponent(reason)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(c, null, 2) });
@@ -83,7 +86,8 @@ export async function saveContent(c, { backup = false, reason = 'auto', publish 
   }
   if (hasGithub()) {
     if (!publish) return { ok: true, mode: 'github', pending: true };
-    await ghPutFile('content.json', b64utf8(JSON.stringify(c, null, 2)), `Update presentation content (${reason})`);
+    const r = await ghPutFile('content.json', b64utf8(JSON.stringify(c, null, 2)), `Update presentation content (${reason})`, force ? null : loadedSha);
+    loadedSha = r?.content?.sha || null;
     return { ok: true, mode: 'github', savedAt: new Date().toISOString() };
   }
   return { ok: false, mode: 'local' };
