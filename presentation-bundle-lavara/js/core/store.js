@@ -12,7 +12,8 @@ const GH_KEY = 'bxl-github';
 /* ---------------------------------------------------------------- back-end detection */
 let serverProbe = null;
 export function serverAvailable() {
-  if (!/^https?:$/.test(location.protocol)) return Promise.resolve(false);
+  // the local launcher is always plain http — on https (GitHub Pages) skip the probe (no 404 in the console)
+  if (location.protocol !== 'http:') return Promise.resolve(false);
   if (!serverProbe) serverProbe = fetch('/api/info', { cache: 'no-store' }).then(r => r.ok && (r.headers.get('content-type') || '').includes('json')).catch(() => false);
   return serverProbe;
 }

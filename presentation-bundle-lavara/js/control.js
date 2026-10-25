@@ -466,10 +466,7 @@ function renderBrands() {
     { key: 'universe.background', type: 'color', label: 'لون الخلفية' },
     { key: 'universe.image', type: 'image', simple: true, label: 'الصورة (عند اختيار صورة)' },
   ], b, ctx)));
-  f.append(group('الصوت', ...renderFields([
-    { key: 'sound.muted', type: 'toggle', label: 'كتم صوت هذه الهوية' },
-    { key: 'sound.volume', type: 'range', label: 'مستوى الصوت', min: 0, max: 1.5, step: 0.05 },
-  ], b, ctx)));
+
   f.append(group('الخطوط (تجاوز خاص — اتركه فارغاً لاستخدام نفس خطوط المشروعين)', ...renderFields([
     { key: 'typography.title.font', type: 'select', label: 'خط العناوين', options: () => fontOptions(true) },
     { key: 'typography.title.weight', type: 'select', label: 'وزن العناوين', options: [['', '— عام —'], ...WEIGHTS] },
@@ -538,10 +535,7 @@ function renderGlobal() {
       { key: 'scale', type: 'range', label: 'تكبير', min: 0.5, max: 2, step: 0.05 }],
       newItem: () => ({ id: uid('logo'), label: 'شعار', src: '', srcDark: '', tint: true, show: true, scale: 1 }) },
   ], st, ctx)));
-  f.append(group('الصوت', ...renderFields([
-    { key: 'sound.muted', type: 'toggle', label: 'كتم كل الأصوات' },
-    { key: 'sound.master', type: 'range', label: 'الصوت الرئيسي', min: 0, max: 1, step: 0.01 },
-  ], st, ctx)));
+
   f.append(group('الفيديو والتسلسل', ...renderFields([
     { key: 'video.autoplay', type: 'toggle', label: 'تشغيل الفيديو تلقائياً عند الوصول' },
     { key: 'video.pauseOnLeave', type: 'toggle', label: 'إيقاف الفيديو عند المغادرة' },

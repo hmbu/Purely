@@ -6,7 +6,6 @@ import { projectsOf, sectionsOf, slidesOf, findProject, findSection, slideTheme,
 import { loadContent, logDecision } from './core/store.js';
 import { createSync } from './core/sync.js';
 import { registerFonts, applyTypography, fontsReady } from './core/fonts.js';
-import { SoundEngine } from './core/sound.js';
 import { BrandTexture } from './core/texture.js';
 import { TEMPLATES, slideLabel, slideMedia, mediaHTML } from './core/templates.js';
 
@@ -21,7 +20,8 @@ const slidesHost = $('#L-section .slides');
 const coverEl = $('#cover'), logosEl = $('#logos'), blackEl = $('#black');
 const hud = { root: $('#hud'), crumb: $('#hud .crumb'), bar: $('#hud .bar i'), clock: $('#hud .clock') };
 
-const sound = new SoundEngine();
+// Transition sounds are removed (user decision): only video audio remains. This stub keeps the call sites inert.
+const sound = { cfg: { muted: false }, ready: false, play() {}, unlock() {}, configure() {}, setMuted(m) { this.cfg.muted = m; $$('video').forEach(v => { v.muted = m || v.dataset.muted === 'true'; }); } };
 let veil = null;
 const worldTex = [];
 
@@ -77,7 +77,7 @@ function applyBrand(p, animate = true) {
   tc.forEach((v, i) => st.setProperty(`--b-t${i}`, v));
   st.setProperty('--b-fg', c.text);
   applyTypography(stage, S.content, p);
-  gsap.to(stage, { backgroundColor: c.background, duration: animate ? 1.2 : 0, ease: 'power2.inOut' });
+  gsap.to(stage, { backgroundColor: c.primary || c.background, duration: animate ? 0.6 : 0, ease: 'power2.inOut' });
 }
 
 /* ======================================================================= header logos */
@@ -253,6 +253,12 @@ function applyStep(el, step, instant = false) {
   });
 }
 
+// Wait (briefly) until the slide's images are decoded so the first frames of a transition don't stutter.
+function decodeIn(el, ms = 700) {
+  const imgs = $$('img', el).map(i => (i.decode ? i.decode().catch(() => {}) : Promise.resolve()));
+  return Promise.race([Promise.all(imgs), new Promise(r => setTimeout(r, ms))]);
+}
+
 /* ---------- Layered Drift building blocks */
 function introTL(el, dir = 1, kind = 'drift') {
   const tl = gsap.timeline();
@@ -273,7 +279,7 @@ function introTL(el, dir = 1, kind = 'drift') {
 }
 function outroTL(el, dir = 1) {
   const t = $$('.t, .slide-bg ~ *', el);
-  return gsap.to(t, { x: dir * pxs(50), opacity: 0, filter: 'blur(6px)', duration: 0.5, ease: 'power2.in' });
+  return gsap.to(t, { x: dir * pxs(50), opacity: 0, duration: 0.5, ease: 'power2.in', force3D: true });
 }
 function lightVeil(p, dir) {
   if (!veil?.ok || reduced() || quiet()) return;
@@ -293,6 +299,7 @@ async function showSlide(li, { dir = 1, kind, instant = false } = {}) {
   if (S.step == null || S.step < 0) S.step = 0;
   kind = reduced() ? 'fade' : (kind || slide.transition || 'drift');
   slidesHost.appendChild(el);
+  if (!instant && old) await decodeIn(el);
   logosColor(theme.fg, theme.dark);
   updateHUD(); preloadAround(); broadcastState();
   if (instant || !old) {
@@ -507,12 +514,12 @@ function renderUniverse() {
     const cv = $('.w-tex', w);
     const fusion = layout === 'fusion';
     if ((!legacy && !fusion) || !cv || (legacy && (p.brand.universe?.visual === 'color' || p.brand.universe?.visual === 'image')) || reduced()) { worldTex.push({ stop() {}, start() {}, set() {} }); return; }
-    const tex = new BrandTexture(cv, { resScale: 0.4 });
+    const { tex, fresh } = pooledTexture(`world-${layout === 'fusion' ? 'f' : 'l'}-${p.id}`, cv);
     const mist = p.brand.texture === 'mist';
     tex._base = fusion ? { progress: mist ? 0.36 : 0.05, speed: 0.4 } : { progress: mist ? 0.36 : 0.3, speed: 0.6 };
     const tc = p.brand.textureColors || [];
     const colors = fusion ? (mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]]) : ambientColors(p);
-    tex.set({ mode: p.brand.texture, colors, progress: tex._base.progress, alpha: fusion ? (mist ? 0.42 : 0.26) : 0.9, speed: tex._base.speed, sweep: 0, seed: i * 7 + 3 });
+    tex.set({ mode: p.brand.texture, colors, progress: tex._base.progress, alpha: fusion ? (mist ? 0.42 : 0.26) : 0.9, speed: tex._base.speed, sweep: 0, ...(fresh ? { seed: i * 7 + 3 } : {}) });
     worldTex.push(tex);
   });
   $$('.u-chooser button', L.universe).forEach(b => b.addEventListener('click', e => {
@@ -600,6 +607,14 @@ const quiet = () => (settings().tone || 'quiet') === 'quiet';
 // The project page continues the opening screen: brand colour + calm live texture, and the sections as
 // stations on a line of light. The light rests on the next section; hovering slides it to another station.
 let hubTex = null;
+const texPool = new Map(); // key → { cv, tex } — canvases & WebGL contexts are created once and reused
+function pooledTexture(key, slot) {
+  let e = texPool.get(key);
+  if (!e) { const cv = document.createElement('canvas'); e = { cv, tex: new BrandTexture(cv, { resScale: 0.4 }), fresh: true }; texPool.set(key, e); }
+  e.cv.className = slot.className; slot.replaceWith(e.cv);
+  const fresh = e.fresh; e.fresh = false;
+  return { tex: e.tex, fresh };
+}
 function stopHubTex() { if (hubTex) { hubTex.stop(); hubTex = null; } }
 function renderHub(p) {
   const secs = sectionsOf(p);
@@ -636,8 +651,9 @@ function renderHub(p) {
   const cv = $('.h2-tex', L.hub);
   if (cv && !reduced()) {
     const tc = p.brand.textureColors || []; const mist = p.brand.texture === 'mist';
-    hubTex = new BrandTexture(cv, { resScale: 0.4 });
-    hubTex.set({ mode: p.brand.texture, colors: mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]], progress: mist ? 0.34 : 0.05, alpha: mist ? 0.4 : 0.24, speed: 0.4, sweep: 0, seed: 11 });
+    const { tex, fresh } = pooledTexture('hub-' + p.id, cv);
+    hubTex = tex;
+    hubTex.set({ mode: p.brand.texture, colors: mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]], progress: mist ? 0.34 : 0.05, alpha: mist ? 0.4 : 0.24, speed: 0.4, sweep: 0, ...(fresh ? { seed: 11 } : {}) });
     hubTex.start();
   }
 }
@@ -684,8 +700,9 @@ async function enterProject(pid, { sectionId = null, slideIndex = 0, fromLevel =
   const D = ZOOM();
   const tl = gsap.timeline();
   if (world) world.classList.add('is-chosen');
-  tl.to(L.universe, { scale: 3.4, opacity: 0, filter: 'blur(10px)', transformOrigin: origin, duration: D, ease: 'power3.inOut' }, 0);
-  tl.fromTo(L.hub, { scale: 0.42, opacity: 0, filter: 'blur(8px)', transformOrigin: origin }, { scale: 1, opacity: 1, filter: 'blur(0px)', duration: D * 0.8, ease: 'power3.out' }, D * 0.32);
+  startWorlds(false);
+  tl.to(L.universe, { scale: 3.4, opacity: 0, transformOrigin: origin, duration: D, ease: 'power3.inOut' }, 0);
+  tl.fromTo(L.hub, { scale: 0.42, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.8, ease: 'power3.out' }, D * 0.32);
   tl.add(() => placeLogos('corner'), D * 0.12);
   tl.add(hubIntro(true), D * 0.55);
   await tl;
@@ -726,11 +743,12 @@ async function enterSection(sid, slideIndex = 0) {
   await showSlide(li, { instant: true });
   if (slideIndex < 0) { S.step = stepsOf(S.slideTpl, S.slide); if (S.slideTpl.steps) applyStep(S.slideEl, S.step, true); }
   gsap.set($$('[data-a]', S.slideEl), { opacity: 0 });
+  await decodeIn(S.slideEl);
   sound.play('zoom', p.id);
   const D = ZOOM();
   const tl = gsap.timeline();
   
-  tl.to(L.hub, { scale: 2.8, opacity: 0, filter: 'blur(8px)', transformOrigin: origin, duration: D, ease: 'power3.inOut' }, 0);
+  tl.to(L.hub, { scale: 2.8, opacity: 0, transformOrigin: origin, duration: D, ease: 'power3.inOut' }, 0);
   tl.fromTo(L.section, { scale: 0.5, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.8, ease: 'power3.out' }, D * 0.3);
   tl.add(introTL(S.slideEl, 1), D * 0.55);
   await tl;
@@ -771,8 +789,8 @@ async function zoomOut({ strong = false } = {}) {
     const origin = station ? originOf(station, L.hub) : '50% 50%';
     sound.play('zoom', p.id);
     const D = ZOOM() * (strong ? 1.3 : 1); const tl = gsap.timeline();
-    tl.to(L.section, { scale: strong ? 0.18 : 0.5, opacity: 0, filter: `blur(${strong ? 14 : 6}px)`, transformOrigin: origin, duration: D * 0.9, ease: 'power3.inOut' }, 0);
-    tl.fromTo(L.hub, { scale: strong ? 4.2 : 2.8, opacity: 0, filter: 'blur(10px)', transformOrigin: origin }, { scale: 1, opacity: 1, filter: 'blur(0px)', duration: D, ease: 'power3.inOut' }, D * 0.08);
+    tl.to(L.section, { scale: strong ? 0.18 : 0.5, opacity: 0, transformOrigin: origin, duration: D * 0.9, ease: 'power3.inOut' }, 0);
+    tl.fromTo(L.hub, { scale: strong ? 4.2 : 2.8, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D, ease: 'power3.inOut' }, D * 0.08);
     tl.add(hubIntro(), D * 0.5);
     S.level = 'hub'; logosColor(p.brand.colors.textLight || '#fff', true); updateHUD();
     await tl;
@@ -794,8 +812,8 @@ async function toUniverse() {
   applyBrand(null);
   sound.play('zoom', null, 'neutral');
   const D = ZOOM() * 1.1; const tl = gsap.timeline();
-  tl.to(fromLayer, { scale: 0.35, opacity: 0, filter: 'blur(10px)', transformOrigin: origin, duration: D * 0.85, ease: 'power3.inOut' }, 0);
-  tl.fromTo(L.universe, { scale: 3.4, opacity: 0, filter: 'blur(10px)', transformOrigin: origin }, { scale: 1, opacity: 1, filter: 'blur(0px)', duration: D, ease: 'power3.inOut' }, D * 0.1);
+  tl.to(fromLayer, { scale: 0.35, opacity: 0, transformOrigin: origin, duration: D * 0.85, ease: 'power3.inOut' }, 0);
+  tl.fromTo(L.universe, { scale: 3.4, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D, ease: 'power3.inOut' }, D * 0.1);
   tl.add(() => { logosEl.hidden = settings().headerLogos?.show === false || settings().universe?.showLogos === false; placeLogos('hero'); }, D * 0.2);
   S.level = 'universe'; S.focus = -1;
   logosColor(universeColors().fg, true);
@@ -878,7 +896,7 @@ async function toSpecial(kind) {
   const p = project(); if (p) S.visitedProjects.add(p.id);
   sound.play('zoom', null, 'neutral');
   const tl = gsap.timeline();
-  tl.to(from, { opacity: 0, scale: 0.96, filter: 'blur(8px)', duration: 0.9, ease: 'power2.inOut' }, 0);
+  tl.to(from, { opacity: 0, scale: 0.96, duration: 0.9, ease: 'power2.inOut' }, 0);
   await tl;
   if (!wasSpecial) show(from, false);
   gsap.set(from, { clearProps: 'all' });
@@ -997,7 +1015,7 @@ function command(name, args = {}) {
   sound.unlock();
   if (INSTANT[name]) return INSTANT[name](args);
   const fn = ACTIONS[name]; if (!fn) return;
-  if (S.busy) { if (S.queue.length < 2) S.queue.push([name, args]); return; }
+  if (S.busy) { S.queue = [[name, args, Date.now()]]; return; }
   run(fn, args);
 }
 async function run(fn, args) {
@@ -1005,7 +1023,8 @@ async function run(fn, args) {
   try { await fn(args); } catch (e) { console.error(e); }
   S.busy = false;
   broadcastState();
-  const n = S.queue.shift(); if (n) command(n[0], n[1]);
+  const n = S.queue.shift(); S.queue = [];
+  if (n && Date.now() - n[2] < 900) command(n[0], n[1]); // stale presses made during a long transition are ignored
 }
 function setBlack(on) {
   S.black = on; gsap.to(blackEl, { opacity: on ? 1 : 0, duration: 0.6, ease: 'power2.inOut' }); blackEl.classList.toggle('on', on); broadcastState();

@@ -15,8 +15,8 @@ button { font: inherit; color: inherit; }
 }
 .latin { direction: ltr; unicode-bidi: isolate; }
 
-.layer { position: absolute; inset: 0; visibility: hidden; will-change: transform, opacity; }
-.layer.on { visibility: visible; }
+.layer { position: absolute; inset: 0; visibility: hidden; }
+.layer.on { visibility: visible; will-change: transform, opacity; backface-visibility: hidden; }
 .slides { position: absolute; inset: 0; }
 
 #veil { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 30; }
@@ -590,3 +590,24 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .h2-station.is-next .h2-dot::before { animation: h2Ring 3s ease-out infinite; }
 @keyframes h2Ring { 0% { opacity: .9; transform: scale(.8); } 100% { opacity: 0; transform: scale(2.4); } }
 @media (prefers-reduced-motion: reduce) { .h2-light, .h2-station.is-next .h2-dot::before { animation: none; } }
+
+/* =====================================================================
+   JOURNEY timeline — refined: hairline, small dots, numbers, light on the current stage
+   ===================================================================== */
+#stage .t-journey .j-track { top: 22rem; counter-reset: jstage; }
+#stage .t-journey .j-line { top: 4.6rem; height: var(--hair); background: color-mix(in srgb, var(--sfg) 20%, transparent); }
+#stage .t-journey .j-fill { top: 0; height: var(--hair); background: var(--saccent); opacity: .9; }
+#stage .t-journey .j-node { gap: 0; counter-increment: jstage; }
+#stage .t-journey .j-node::before { content: counter(jstage, decimal-leading-zero); font-family: var(--f-title); font-weight: 300; font-size: 1.7rem; letter-spacing: .06em; height: 3.6rem; opacity: .4; transition: opacity 1s, transform 1.2s cubic-bezier(.16, 1, .3, 1); direction: ltr; }
+#stage .t-journey .j-dot, #stage[data-style] .t-journey .j-dot { width: 2rem; height: 2rem; border: 0; border-radius: 50%; background: none; transform: none; position: relative; display: grid; place-items: center; }
+#stage .t-journey .j-dot::after { content: ''; width: .75rem; height: .75rem; border-radius: 50%; background: color-mix(in srgb, var(--sfg) 35%, transparent); transition: transform 1.2s cubic-bezier(.16, 1, .3, 1), background 1s, box-shadow 1.2s; }
+#stage .t-journey .j-dot::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: var(--hair) solid var(--saccent); opacity: 0; transform: scale(.5); transition: opacity 1s, transform 1.2s cubic-bezier(.16, 1, .3, 1); }
+#stage .t-journey .j-label { margin-top: 1.8rem; font-size: 1.45rem; opacity: .45; }
+#stage .t-journey .j-node.done .j-dot, #stage .t-journey .j-node.on .j-dot { background: none; transform: none; }
+#stage .t-journey .j-node.done .j-dot::after { background: var(--saccent); }
+#stage .t-journey .j-node.done::before { opacity: .55; }
+#stage .t-journey .j-node.on::before { opacity: 1; transform: translateY(-.3rem); }
+#stage .t-journey .j-node.on .j-dot::after { background: var(--saccent); transform: scale(1.3); box-shadow: 0 0 2.4rem .6rem color-mix(in srgb, var(--saccent) 30%, transparent); }
+#stage .t-journey .j-node.on .j-dot::before { opacity: .7; transform: scale(1.5); }
+#stage .t-journey .j-node.on .j-label { opacity: 1; font-family: var(--f-title); font-weight: var(--w-title); font-size: 1.7rem; color: var(--stitle); }
+#stage .t-journey .j-stages { top: 34rem; }
