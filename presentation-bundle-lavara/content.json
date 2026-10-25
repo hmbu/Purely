@@ -41,7 +41,7 @@
   ],
   "settings": {
     "universe": {
-      "layout": "cinema",
+      "layout": "monogram",
       "background": "#0E0C0A",
       "text": "#F3EFE6",
       "hint": "",

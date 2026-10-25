@@ -94,7 +94,11 @@ function renderLogos() {
   logosEl.style.setProperty('--hl-hero', settings().universe?.logosSize || 1);
   logosEl.dataset.corner = h.corner || 'top-left';
   logosEl.hidden = h.show === false || !items.length;
-  fixAspects(logosEl);
+  // Equal slots on both sides of the separator so the divider sits exactly on the centre line.
+  fixAspects(logosEl).then(() => {
+    const ars = $$('.hl', logosEl).map(el => (parseFloat(el.style.getPropertyValue('--ar')) || 4) * (parseFloat(el.style.getPropertyValue('--sc')) || 1));
+    if (ars.length) logosEl.style.setProperty('--slot-ar', Math.max(...ars));
+  });
 }
 function placeLogos(mode, animate = true) {
   if (logosEl.dataset.mode === mode && !animate) return;

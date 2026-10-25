@@ -492,8 +492,6 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .uo-content { position: absolute; left: 0; right: 0; bottom: 9rem; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 2rem; }
 .uo-logo { height: 6rem; aspect-ratio: var(--ar, 4); }
 .uo-top { position: absolute; left: 0; right: 0; top: 0; height: 26rem; background: linear-gradient(rgba(0, 0, 0, .35), transparent); pointer-events: none; }
-.has-hover .uo-world.is-hover { flex-grow: 1.22; }
-.has-hover .uo-world.is-dim { flex-grow: .78; }
 .uo-world.is-dim .uo-content { opacity: .55; transition: opacity 1.2s; }
 
 /* ---------- 7 · cards — two embossed invitation cards on a dark table */
@@ -533,3 +531,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .us-meta .w-name { font-family: var(--f-title); font-size: 3rem; opacity: .9; }
 .us-world .w-tag { opacity: .5; }
 .us-world.is-dim { opacity: .5; }
+
+/* hero lockup: both logos get equal-width slots, each hugging the central divider */
+#logos[data-mode="hero"] .hl-tint { aspect-ratio: var(--slot-ar, var(--ar, 4)); }
+#logos[data-mode="hero"] .hl-tint:first-child { -webkit-mask-position: left center; mask-position: left center; transform-origin: left center; }
+#logos[data-mode="hero"] .hl-tint:last-child { -webkit-mask-position: right center; mask-position: right center; transform-origin: right center; }
