@@ -2,7 +2,7 @@
   "version": 1,
   "meta": {
     "title": "Bundle × Lavara",
-    "updatedAt": "2026-10-25T13:25:38.520Z"
+    "updatedAt": "2026-10-25T13:28:11.136Z"
   },
   "fonts": [
     {
@@ -239,16 +239,22 @@
             },
             {
               "id": "sl-003",
-              "template": "statement",
+              "template": "video",
               "transition": "drift",
               "bg": "auto",
               "notes": "",
               "hidden": false,
               "data": {
+                "video": {
+                  "src": "assets/lavara/uploads/mvnv1d4a-Bundle teaser E - Blueprint to Unwrap _20s_.MP4",
+                  "poster": "",
+                  "autoplay": true,
+                  "muted": true,
+                  "loop": true
+                },
+                "mode": "full",
                 "eyebrow": "Purpose",
-                "statement": "الهدية الجيدة تقول:\n«فكّرنا فيك».",
-                "attribution": "مدروسة · سلسة · موثوقة",
-                "size": "xl"
+                "title": ""
               }
             },
             {
@@ -344,14 +350,14 @@
               "hidden": false,
               "data": {
                 "eyebrow": "Concepts",
-                "title": "باقات الهدايا",
+                "title": "ثلاثة مفاهيم",
                 "items": [
                   {
                     "label": "01",
-                    "title": "هدية الموظف الجديد #1",
-                    "body": "باقة عملية وأنيقة تضم أساسيات المكتب اليومية للموظف الجديد، مع ستاند مميز يعرض رسالة الشركة وقيمها، ليكون جزءاً من مساحة عمله وتجربة انضمامه منذ اليوم الأول.",
+                    "title": "المفهوم الأول",
+                    "body": "وصف مختصر للمفهوم.",
                     "image": {
-                      "src": "assets/bundle/products/new-employee-1.jpg",
+                      "src": "assets/bundle/sample/gift-card.jpg",
                       "fit": "cover",
                       "focal": {
                         "x": 50,
@@ -361,10 +367,10 @@
                   },
                   {
                     "label": "02",
-                    "title": "هدية الموظف الجديد #2",
-                    "body": "مجموعة متكاملة تجمع بين الأدوات العملية ومنتجات تساعد على جعل تجربة العمل اليومية أكثر راحة وتميزاً.",
+                    "title": "المفهوم الثاني",
+                    "body": "وصف مختصر للمفهوم.",
                     "image": {
-                      "src": "assets/bundle/products/new-employee-2.jpg",
+                      "src": "assets/bundle/sample/step-by-step.jpg",
                       "fit": "cover",
                       "focal": {
                         "x": 50,
@@ -374,23 +380,10 @@
                   },
                   {
                     "label": "03",
-                    "title": "هدية الموظف الجديد #3",
-                    "body": "مجموعة بسيطة وعملية لتجهيز مساحة العمل، تجمع بين أساسيات المكتب ومنتجات بسيطة تضيف طابعاً شخصياً للمكان.",
+                    "title": "المفهوم الثالث",
+                    "body": "وصف مختصر للمفهوم.",
                     "image": {
-                      "src": "assets/bundle/products/new-employee-3.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "label": "04",
-                    "title": "وداعية الموظف #1",
-                    "body": "باقة وداع تذكارية صُممت لتوثيق اللحظات الأخيرة للموظف مع فريقه، وتضم كاميرا فورية مخصصة وبطاقة لكتابة رسائل الوداع وأطيب التمنيات، لتكون ذكرى شخصية ومعنوية من الفريق.",
-                    "image": {
-                      "src": "assets/bundle/products/farewell-1.jpg",
+                      "src": "assets/bundle/sample/gift-tiles.jpg",
                       "fit": "cover",
                       "focal": {
                         "x": 50,
@@ -399,325 +392,6 @@
                     }
                   }
                 ]
-              }
-            },
-            {
-              "id": "sl-bp1",
-              "template": "product",
-              "transition": "drift",
-              "bg": "background",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "Onboarding",
-                "title": "هدية الموظف الجديد #1",
-                "body": "باقة عملية وأنيقة تضم أساسيات المكتب اليومية للموظف الجديد، مع ستاند مميز يعرض رسالة الشركة وقيمها، ليكون جزءاً من مساحة عمله وتجربة انضمامه منذ اليوم الأول.",
-                "image": {
-                  "src": "assets/bundle/products/new-employee-1.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 50,
-                    "y": 50
-                  }
-                },
-                "gallery": [
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-1-a.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-1-b.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-1-c.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-1-d.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  }
-                ],
-                "attrs": [
-                  {
-                    "label": "نوع الهدية",
-                    "value": "باكج",
-                    "chip": true,
-                    "alt": "منتج فردي"
-                  },
-                  {
-                    "label": "مستوى التخصيص",
-                    "value": "متوسط",
-                    "chip": true,
-                    "alt": ""
-                  },
-                  {
-                    "label": "مناسبات فرعية",
-                    "value": "مكتب جديد، انتقال لقسم آخر، العودة للمكتب.",
-                    "chip": false,
-                    "alt": ""
-                  },
-                  {
-                    "label": "الفئة السعرية",
-                    "value": "متوسطة",
-                    "chip": true,
-                    "alt": ""
-                  }
-                ],
-                "codes": "P21, P15, P8, P11, P37"
-              }
-            },
-            {
-              "id": "sl-bp2",
-              "template": "product",
-              "transition": "drift",
-              "bg": "background",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "Onboarding",
-                "title": "هدية الموظف الجديد #2",
-                "body": "مجموعة متكاملة تجمع بين الأدوات العملية ومنتجات تساعد على جعل تجربة العمل اليومية أكثر راحة وتميزاً.",
-                "image": {
-                  "src": "assets/bundle/products/new-employee-2.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 50,
-                    "y": 50
-                  }
-                },
-                "gallery": [
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-2-a.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-2-b.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-2-c.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-2-d.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  }
-                ],
-                "attrs": [
-                  {
-                    "label": "نوع الهدية",
-                    "value": "باكج",
-                    "chip": true,
-                    "alt": "منتج فردي"
-                  },
-                  {
-                    "label": "مستوى التخصيص",
-                    "value": "متوسط",
-                    "chip": true,
-                    "alt": ""
-                  },
-                  {
-                    "label": "مناسبات فرعية",
-                    "value": "مكتب جديد، انتقال لقسم آخر، العودة للمكتب، تقدير موظف.",
-                    "chip": false,
-                    "alt": ""
-                  },
-                  {
-                    "label": "الفئة السعرية",
-                    "value": "عالية",
-                    "chip": true,
-                    "alt": ""
-                  }
-                ],
-                "codes": "P1, P38, P46, P15, P47"
-              }
-            },
-            {
-              "id": "sl-bp3",
-              "template": "product",
-              "transition": "drift",
-              "bg": "background",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "Onboarding",
-                "title": "هدية الموظف الجديد #3",
-                "body": "مجموعة بسيطة وعملية لتجهيز مساحة العمل، تجمع بين أساسيات المكتب ومنتجات بسيطة تضيف طابعاً شخصياً للمكان.",
-                "image": {
-                  "src": "assets/bundle/products/new-employee-3.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 50,
-                    "y": 50
-                  }
-                },
-                "gallery": [
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-3-a.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-3-b.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-3-c.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-3-d.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  }
-                ],
-                "attrs": [
-                  {
-                    "label": "نوع الهدية",
-                    "value": "باكج",
-                    "chip": true,
-                    "alt": "منتج فردي"
-                  },
-                  {
-                    "label": "مستوى التخصيص",
-                    "value": "بسيط - متوسط",
-                    "chip": true,
-                    "alt": ""
-                  },
-                  {
-                    "label": "مناسبات فرعية",
-                    "value": "مكتب جديد، انتقال لقسم آخر، العودة للمكتب، تقدير موظف.",
-                    "chip": false,
-                    "alt": ""
-                  },
-                  {
-                    "label": "الفئة السعرية",
-                    "value": "منخفضة",
-                    "chip": true,
-                    "alt": ""
-                  }
-                ],
-                "codes": "P44, P45, P34, P15, P8"
-              }
-            },
-            {
-              "id": "sl-bp4",
-              "template": "product",
-              "transition": "drift",
-              "bg": "background",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "Farewell",
-                "title": "وداعية الموظف #1",
-                "body": "باقة وداع تذكارية صُممت لتوثيق اللحظات الأخيرة للموظف مع فريقه، وتضم كاميرا فورية مخصصة وبطاقة لكتابة رسائل الوداع وأطيب التمنيات، لتكون ذكرى شخصية ومعنوية من الفريق.",
-                "image": {
-                  "src": "assets/bundle/products/farewell-1.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 50,
-                    "y": 50
-                  }
-                },
-                "gallery": [],
-                "attrs": [
-                  {
-                    "label": "نوع الهدية",
-                    "value": "باكج",
-                    "chip": true,
-                    "alt": ""
-                  },
-                  {
-                    "label": "مستوى التخصيص",
-                    "value": "بسيط - متوسط",
-                    "chip": true,
-                    "alt": ""
-                  },
-                  {
-                    "label": "مناسبات فرعية",
-                    "value": "حفل داخلي، ختام دورات تدريبية.",
-                    "chip": false,
-                    "alt": ""
-                  },
-                  {
-                    "label": "الفئة السعرية",
-                    "value": "منخفض - متوسط",
-                    "chip": true,
-                    "alt": ""
-                  }
-                ],
-                "codes": "P41"
               }
             }
           ]
@@ -1303,6 +977,492 @@
                 "subtitle": "by Al Majed Oud",
                 "align": "center",
                 "showMark": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared",
+      "kind": "shared",
+      "name": "Shared",
+      "nameAr": "الإطار المشترك",
+      "tagline": "ما يجمع المشروعين، وينتهي بالقرارات",
+      "hidden": false,
+      "brand": {
+        "logo": "",
+        "mark": "",
+        "colors": {
+          "primary": "#EEE8DC",
+          "secondary": "#B08A4E",
+          "accent": "#7C6A52",
+          "background": "#F7F3EC",
+          "surface": "#FFFFFF",
+          "dark": "#1E1B17",
+          "text": "#1E1B17",
+          "title": "#1E1B17",
+          "textLight": "#F7F3EC"
+        },
+        "palette": [
+          {
+            "hex": "#F7F3EC",
+            "name": "ورقي"
+          },
+          {
+            "hex": "#EEE8DC",
+            "name": "عاجي دافئ"
+          },
+          {
+            "hex": "#B08A4E",
+            "name": "نحاسي"
+          },
+          {
+            "hex": "#7C6A52",
+            "name": "بني رمادي"
+          },
+          {
+            "hex": "#1E1B17",
+            "name": "فحمي"
+          }
+        ],
+        "texture": "mist",
+        "textureColors": [
+          "#EEE8DC",
+          "#E1D6C1",
+          "#D2C09E",
+          "#FBF8F2"
+        ],
+        "textureIntensity": 1,
+        "universe": {
+          "visual": "texture",
+          "image": "",
+          "background": "#EEE8DC"
+        },
+        "typography": {}
+      },
+      "sections": [
+        {
+          "id": "sec-sh-legal",
+          "title": "الإطار القانوني",
+          "titleEn": "Legal",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-sh-contract",
+              "template": "diagram",
+              "transition": "drift",
+              "bg": "background",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Contract",
+                "title": "ما الذي يتغير في العقد",
+                "body": "",
+                "cols": 2,
+                "gap": 22,
+                "rowGap": 10,
+                "frames": [
+                  {
+                    "label": "الوضع الحالي",
+                    "tone": "neutral",
+                    "col": 1,
+                    "colSpan": 2,
+                    "row": 1,
+                    "rowSpan": 1,
+                    "step": 0
+                  },
+                  {
+                    "label": "الوضع المقترح",
+                    "tone": "teal",
+                    "col": 1,
+                    "colSpan": 2,
+                    "row": 2,
+                    "rowSpan": 2,
+                    "step": 1
+                  }
+                ],
+                "nodes": [
+                  {
+                    "id": "c-majed",
+                    "title": "الماجد للعود",
+                    "sub": "العميل والملتزم بالسداد",
+                    "tone": "gold",
+                    "shape": "box",
+                    "col": 1,
+                    "colSpan": 1,
+                    "row": 1,
+                    "rowSpan": 1,
+                    "step": 0
+                  },
+                  {
+                    "id": "c-rim",
+                    "title": "رمثان",
+                    "sub": "",
+                    "tone": "indigo",
+                    "shape": "box",
+                    "col": 2,
+                    "colSpan": 1,
+                    "row": 1,
+                    "rowSpan": 1,
+                    "step": 0
+                  },
+                  {
+                    "id": "p-majed",
+                    "title": "الماجد للعود",
+                    "sub": "تضمن سداد مستحقات رمثان",
+                    "tone": "gold",
+                    "shape": "box",
+                    "col": 1,
+                    "colSpan": 2,
+                    "row": 2,
+                    "rowSpan": 1,
+                    "step": 1
+                  },
+                  {
+                    "id": "p-ent",
+                    "title": "الكيان الجديد",
+                    "sub": "العميل والملتزم بالسداد",
+                    "tone": "teal",
+                    "shape": "box",
+                    "col": 1,
+                    "colSpan": 1,
+                    "row": 3,
+                    "rowSpan": 1,
+                    "step": 1
+                  },
+                  {
+                    "id": "p-rim",
+                    "title": "رمثان",
+                    "sub": "",
+                    "tone": "indigo",
+                    "shape": "box",
+                    "col": 2,
+                    "colSpan": 1,
+                    "row": 3,
+                    "rowSpan": 1,
+                    "step": 1
+                  }
+                ],
+                "edges": [
+                  {
+                    "from": "c-rim",
+                    "to": "c-majed",
+                    "label": "الخدمات",
+                    "tone": "indigo",
+                    "style": "solid",
+                    "lane": "-1",
+                    "step": 0
+                  },
+                  {
+                    "from": "c-majed",
+                    "to": "c-rim",
+                    "label": "الأتعاب",
+                    "tone": "gold",
+                    "style": "solid",
+                    "lane": "1",
+                    "step": 0
+                  },
+                  {
+                    "from": "p-majed",
+                    "to": "p-rim",
+                    "label": "ضمان السداد",
+                    "tone": "gold",
+                    "style": "dashed",
+                    "lane": "0",
+                    "step": 1
+                  },
+                  {
+                    "from": "p-rim",
+                    "to": "p-ent",
+                    "label": "الخدمات",
+                    "tone": "indigo",
+                    "style": "solid",
+                    "lane": "-1",
+                    "step": 1
+                  },
+                  {
+                    "from": "p-ent",
+                    "to": "p-rim",
+                    "label": "الأتعاب",
+                    "tone": "teal",
+                    "style": "solid",
+                    "lane": "1",
+                    "step": 1
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sl-sh-structure",
+              "template": "diagram",
+              "transition": "drift",
+              "bg": "background",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Structure",
+                "title": "الهيكل المقترح",
+                "cols": 2,
+                "gap": 22,
+                "rowGap": 11,
+                "body": "تملك الماجد للعود الكيان وتموله، وتضمن سداد مستحقات رمثان عليه. ويتعاقد الكيان مع رمثان على خدمات البناء والتشغيل ويسدد فواتيرها، ويتعامل مع الموردين والعملاء باسمه.",
+                "frames": [],
+                "nodes": [
+                  {
+                    "id": "majed",
+                    "title": "الماجد للعود",
+                    "sub": "تملك الكيان وتموله",
+                    "tone": "gold",
+                    "shape": "box",
+                    "col": 1,
+                    "colSpan": 2,
+                    "row": 1,
+                    "rowSpan": 1,
+                    "step": 0
+                  },
+                  {
+                    "id": "ent",
+                    "title": "الكيان الجديد",
+                    "sub": "يستورد ويبيع ويتعاقد باسمه",
+                    "tone": "teal",
+                    "shape": "box",
+                    "col": 1,
+                    "colSpan": 1,
+                    "row": 2,
+                    "rowSpan": 1,
+                    "step": 0
+                  },
+                  {
+                    "id": "rim",
+                    "title": "رمثان",
+                    "sub": "البناء والتشغيل حتى الشهر 17",
+                    "tone": "indigo",
+                    "shape": "box",
+                    "col": 2,
+                    "colSpan": 1,
+                    "row": 2,
+                    "rowSpan": 1,
+                    "step": 0
+                  }
+                ],
+                "edges": [
+                  {
+                    "from": "majed",
+                    "to": "ent",
+                    "label": "ملكية 100% وتمويل",
+                    "tone": "gold",
+                    "style": "solid",
+                    "lane": "0",
+                    "step": 0
+                  },
+                  {
+                    "from": "majed",
+                    "to": "rim",
+                    "label": "ضمان السداد",
+                    "tone": "gold",
+                    "style": "dashed",
+                    "lane": "0",
+                    "step": 0
+                  },
+                  {
+                    "from": "rim",
+                    "to": "ent",
+                    "label": "خدمات البناء والتشغيل",
+                    "tone": "indigo",
+                    "style": "solid",
+                    "lane": "-1",
+                    "step": 0
+                  },
+                  {
+                    "from": "ent",
+                    "to": "rim",
+                    "label": "سداد الفواتير",
+                    "tone": "teal",
+                    "style": "solid",
+                    "lane": "1",
+                    "step": 0
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "sec-sh-finance",
+          "title": "الإطار المالي",
+          "titleEn": "Financial",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-sh-money",
+              "template": "diagram",
+              "transition": "drift",
+              "bg": "background",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Money Flow",
+                "title": "مسار الأموال",
+                "cols": 3,
+                "gap": 9,
+                "rowGap": 2.4,
+                "body": "بعد جاهزية الكيان، تدخل الأموال إلى حسابه من مصدرين، ومنه تخرج إلى جميع الاستخدامات.",
+                "frames": [],
+                "nodes": [
+                  {
+                    "id": "majed",
+                    "title": "الماجد للعود",
+                    "sub": "رأس المال والتمويل",
+                    "tone": "gold",
+                    "shape": "box",
+                    "col": 1,
+                    "colSpan": 1,
+                    "row": 1,
+                    "rowSpan": 2,
+                    "step": 0
+                  },
+                  {
+                    "id": "cust",
+                    "title": "العملاء",
+                    "sub": "متحصلات المبيعات",
+                    "tone": "neutral",
+                    "shape": "box",
+                    "col": 1,
+                    "colSpan": 1,
+                    "row": 3,
+                    "rowSpan": 2,
+                    "step": 0
+                  },
+                  {
+                    "id": "acc",
+                    "title": "حساب الكيان",
+                    "sub": "رأس المال العامل",
+                    "tone": "teal",
+                    "shape": "box",
+                    "col": 2,
+                    "colSpan": 1,
+                    "row": 1,
+                    "rowSpan": 4,
+                    "step": 0
+                  },
+                  {
+                    "id": "u1",
+                    "title": "الموردون والمخزون",
+                    "sub": "",
+                    "tone": "neutral",
+                    "shape": "box",
+                    "col": 3,
+                    "colSpan": 1,
+                    "row": 1,
+                    "rowSpan": 1,
+                    "step": 0
+                  },
+                  {
+                    "id": "u2",
+                    "title": "فواتير رمثان",
+                    "sub": "",
+                    "tone": "indigo",
+                    "shape": "box",
+                    "col": 3,
+                    "colSpan": 1,
+                    "row": 2,
+                    "rowSpan": 1,
+                    "step": 0
+                  },
+                  {
+                    "id": "u3",
+                    "title": "الرواتب والتشغيل",
+                    "sub": "",
+                    "tone": "neutral",
+                    "shape": "box",
+                    "col": 3,
+                    "colSpan": 1,
+                    "row": 3,
+                    "rowSpan": 1,
+                    "step": 0
+                  },
+                  {
+                    "id": "u4",
+                    "title": "التسويق",
+                    "sub": "",
+                    "tone": "neutral",
+                    "shape": "box",
+                    "col": 3,
+                    "colSpan": 1,
+                    "row": 4,
+                    "rowSpan": 1,
+                    "step": 0
+                  },
+                  {
+                    "id": "note",
+                    "title": "لا تمر أموال نشاط Bundle عبر رمثان، عدا أتعابها.",
+                    "sub": "",
+                    "tone": "indigo",
+                    "shape": "note",
+                    "col": 2,
+                    "colSpan": 1,
+                    "row": 5,
+                    "rowSpan": 1,
+                    "step": 0
+                  }
+                ],
+                "edges": [
+                  {
+                    "from": "majed",
+                    "to": "acc",
+                    "label": "",
+                    "tone": "gold",
+                    "style": "solid",
+                    "lane": "0",
+                    "step": 0
+                  },
+                  {
+                    "from": "cust",
+                    "to": "acc",
+                    "label": "",
+                    "tone": "neutral",
+                    "style": "solid",
+                    "lane": "0",
+                    "step": 0
+                  },
+                  {
+                    "from": "acc",
+                    "to": "u1",
+                    "label": "",
+                    "tone": "teal",
+                    "style": "solid",
+                    "lane": "0",
+                    "step": 0
+                  },
+                  {
+                    "from": "acc",
+                    "to": "u2",
+                    "label": "",
+                    "tone": "teal",
+                    "style": "solid",
+                    "lane": "0",
+                    "step": 0
+                  },
+                  {
+                    "from": "acc",
+                    "to": "u3",
+                    "label": "",
+                    "tone": "teal",
+                    "style": "solid",
+                    "lane": "0",
+                    "step": 0
+                  },
+                  {
+                    "from": "acc",
+                    "to": "u4",
+                    "label": "",
+                    "tone": "teal",
+                    "style": "solid",
+                    "lane": "0",
+                    "step": 0
+                  }
+                ]
               }
             }
           ]
