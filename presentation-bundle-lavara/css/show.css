@@ -556,3 +556,37 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .uf-line.on .uf-hover { opacity: 1; }
 .uf-line.on .uf-pulse { opacity: .15; }
 @media (prefers-reduced-motion: reduce) { .uf-pulse { animation: none; left: 50%; } }
+
+/* =====================================================================
+   PROJECT PAGE (hub) — brand colour, calm live texture, sections on a line of light
+   ===================================================================== */
+.hub2 { position: absolute; inset: 0; background: var(--hbg); color: #F5F1E8; overflow: hidden; }
+.h2-bg, .h2-tex { position: absolute; inset: 0; width: 100%; height: 100%; }
+.h2-shade { position: absolute; inset: 0; background: radial-gradient(70% 60% at 50% 40%, transparent, rgba(0, 0, 0, .28)), linear-gradient(rgba(0, 0, 0, .25), transparent 30%, transparent 70%, rgba(0, 0, 0, .25)); pointer-events: none; }
+.hub2::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .12; pointer-events: none; }
+.h2-head { position: absolute; top: 20%; left: 0; right: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 2.6rem; }
+.h2-logo { height: 9rem; aspect-ratio: var(--ar, 4); }
+.h2-name { font-family: var(--f-title); font-size: 8rem; margin: 0; }
+.h2-tag { margin: 0; font-size: 1.9rem; font-weight: 300; opacity: .75; }
+.h2-line { position: absolute; z-index: 1; top: 60%; left: 8rem; right: 8rem; height: var(--hair); background: rgba(245, 241, 232, .28); --lx: 50%; }
+.h2-light { position: absolute; top: -.65rem; left: var(--lx); width: 34rem; height: 1.4rem; translate: -50% 0; border-radius: 50%; filter: blur(.35rem); background: radial-gradient(50% 50% at 50% 50%, rgba(255, 244, 228, .95), transparent 70%); transition: left 1.6s cubic-bezier(.16, 1, .3, 1), background 1.2s; animation: h2Breath 4.5s ease-in-out infinite; }
+.h2-line.is-hover .h2-light { background: radial-gradient(50% 50% at 50% 50%, var(--glow), transparent 70%); animation: none; }
+.h2-line.instant .h2-light { transition: none; }
+@keyframes h2Breath { 0%, 100% { opacity: .65; transform: scaleX(.9); } 50% { opacity: 1; transform: scaleX(1.08); } }
+.h2-stations { position: absolute; z-index: 2; top: calc(60% - 6.2rem); left: 8rem; right: 8rem; display: grid; grid-template-columns: repeat(var(--n), 1fr); }
+.h2-station { appearance: none; border: 0; background: none; color: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0; padding: 0; transition: opacity 1s ease; }
+.h2-num { font-family: var(--f-title); font-weight: 300; font-size: 2.6rem; letter-spacing: .04em; opacity: .55; height: 5rem; transition: opacity 1s, transform 1.2s cubic-bezier(.16, 1, .3, 1); }
+.h2-dot { position: relative; width: 2.4rem; height: 2.4rem; margin: -.1rem 0 2.4rem; display: grid; place-items: center; }
+.h2-dot i { width: .9rem; height: .9rem; border-radius: 50%; background: #F5F1E8; opacity: .55; transition: transform 1.2s cubic-bezier(.16, 1, .3, 1), opacity 1s, background 1s; }
+.h2-dot::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: var(--hair) solid rgba(245, 241, 232, .5); opacity: 0; transform: scale(.6); transition: opacity 1s, transform 1.2s cubic-bezier(.16, 1, .3, 1); }
+.h2-title { font-family: var(--f-title); font-weight: var(--w-title); font-size: 2.3rem; line-height: 1.3; text-align: center; opacity: .78; transition: opacity 1s; }
+.h2-en { margin-top: 1rem; font-size: .9rem; letter-spacing: .3em; text-transform: uppercase; opacity: .45; }
+.h2-station.is-visited .h2-dot i { background: var(--glow); opacity: .9; }
+.h2-station.is-visited .h2-num { opacity: .35; }
+.h2-station.is-lit .h2-num { opacity: 1; transform: translateY(-.4rem); }
+.h2-station.is-lit .h2-title { opacity: 1; }
+.h2-station.is-lit .h2-dot i { opacity: 1; transform: scale(1.35); }
+.h2-station.is-lit .h2-dot::before { opacity: 1; transform: scale(1.4); }
+.h2-station.is-next .h2-dot::before { animation: h2Ring 3s ease-out infinite; }
+@keyframes h2Ring { 0% { opacity: .9; transform: scale(.8); } 100% { opacity: 0; transform: scale(2.4); } }
+@media (prefers-reduced-motion: reduce) { .h2-light, .h2-station.is-next .h2-dot::before { animation: none; } }

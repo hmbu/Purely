@@ -33,6 +33,16 @@
 - The corporate logos sit with their divider exactly on the centre line.
 - Online editing and publishing through GitHub (`docs/03-publishing.md`). The control panel has a new **Publish** tab, and its history and uploads work through GitHub.
 
+## Round 4
+- New project page:
+  - brand colour with a calm live texture;
+  - the wordmark large;
+  - sections as stations on a line of light, with the light resting on the next section and a soft ring marking it;
+  - visited sections shown in the accent colour.
+- Between sections: a strong zoom out to the project page, the light glides to the next station, then a zoom into it. The setting is `flow.sectionTransition`: `hub` (default) or `cover`.
+- Lavara wordmark is now Alternative 1, including the "by Al Majed Oud" lockup. The isotype stays Alternative 2 (framed A monogram).
+- Lavara palette: mostly Alternative 2, plus Alt 1 gold ochre `#926A23` and Alt 3 sage `#929E7A`.
+
 ## Waiting for the user's decision
 0. One-time GitHub setup (see `docs/03-publishing.md`): enable Pages and create the token.
 1. Closing layout: (a) both logos + a closing line [current default], (b) both project marks + a line + contact, (c) a calm discussion screen.

@@ -137,7 +137,7 @@ function updateHUD() {
     hud.bar.style.transform = `scaleX(${total ? done / total : 0})`;
   }
   if (S.slideEl) hud.root.classList.toggle('is-dark', S.slideEl.classList.contains('is-dark'));
-  else hud.root.classList.toggle('is-dark', S.level !== 'hub');
+  else hud.root.classList.toggle('is-dark', true);
 }
 setInterval(() => {
   hud.clock.textContent = fmtClock(Date.now() - S.startedAt);
@@ -596,27 +596,57 @@ function startWorlds(on) { worldTex.forEach(t => (on ? t.start() : t.stop())); }
 function applyTone() { stage.classList.toggle('tone-quiet', (settings().tone || 'quiet') === 'quiet'); }
 const quiet = () => (settings().tone || 'quiet') === 'quiet';
 
-/* ======================================================================= hub */
+/* ======================================================================= hub (project page) */
+// The project page continues the opening screen: brand colour + calm live texture, and the sections as
+// stations on a line of light. The light rests on the next section; hovering slides it to another station.
+let hubTex = null;
+function stopHubTex() { if (hubTex) { hubTex.stop(); hubTex = null; } }
 function renderHub(p) {
   const secs = sectionsOf(p);
-  const visited = S.lastSection[p.id];
+  const visited = S.lastSection[p.id] ?? -1;
+  const nextI = Math.min(visited + 1, secs.length - 1);
+  const c = p.brand.colors || {};
   L.hub.innerHTML = `
-    <div class="hub style-${p.brand.texture === 'mist' ? 'mist' : 'bubbles'}" style="--n:${secs.length}">
-      <div class="hub-head">
-        ${p.brand.logo ? `<span class="logo-mask hub-logo" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : `<h1 class="tx-title">${esc(p.name)}</h1>`}
-        ${p.tagline ? `<p class="hub-tag">${esc(p.tagline)}</p>` : ''}
+    <div class="hub2 style-${p.brand.texture === 'mist' ? 'mist' : 'bubbles'}" style="--n:${secs.length};--hbg:${c.primary || '#222'};--glow:${c.secondary || '#fff'}">
+      <div class="h2-bg"><canvas class="h2-tex"></canvas></div><div class="h2-shade"></div>
+      <div class="h2-head">
+        ${p.brand.logo ? `<span class="logo-mask h2-logo" data-ar-src="${esc(asset(p.brand.logo))}" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : `<h1 class="h2-name">${esc(p.name)}</h1>`}
+        ${p.tagline ? `<p class="h2-tag">${esc(p.tagline)}</p>` : ''}
       </div>
-      <div class="stations">
-        <span class="st-line"></span>
+      <div class="h2-line"><i class="h2-light"></i></div>
+      <div class="h2-stations">
         ${secs.map((s, i) => `
-          <button class="station ${visited != null && i <= visited ? 'is-visited' : ''}" data-section="${esc(s.id)}" style="--i:${i}">
-            <span class="st-orb"><span class="st-num latin">${String(i + 1).padStart(2, '0')}</span></span>
-            <span class="st-title">${escBr(s.title)}</span>
-            ${s.titleEn ? `<span class="st-en latin">${esc(s.titleEn)}</span>` : ''}
+          <button class="h2-station ${i <= visited ? 'is-visited' : ''} ${i === nextI ? 'is-next' : ''}" data-section="${esc(s.id)}" data-i="${i}">
+            <span class="h2-num latin">${String(i + 1).padStart(2, '0')}</span>
+            <span class="h2-dot"><i></i></span>
+            <span class="h2-title">${escBr(s.title)}</span>
+            ${s.titleEn ? `<span class="h2-en latin">${esc(s.titleEn)}</span>` : ''}
           </button>`).join('')}
       </div>
     </div>`;
-  $$('.station', L.hub).forEach(b => b.addEventListener('click', () => command('enterSection', { sectionId: b.dataset.section })));
+  fixAspects(L.hub);
+  const st = $$('.h2-station', L.hub);
+  st.forEach(b => {
+    b.addEventListener('click', () => command('enterSection', { sectionId: b.dataset.section }));
+    b.addEventListener('mouseenter', () => hubLight(+b.dataset.i, true));
+    b.addEventListener('mouseleave', () => hubLight(nextI, false));
+  });
+  requestAnimationFrame(() => hubLight(nextI, false, true));
+  stopHubTex();
+  const cv = $('.h2-tex', L.hub);
+  if (cv && !reduced()) {
+    const tc = p.brand.textureColors || []; const mist = p.brand.texture === 'mist';
+    hubTex = new BrandTexture(cv, { resScale: 0.4 });
+    hubTex.set({ mode: p.brand.texture, colors: mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]], progress: mist ? 0.34 : 0.05, alpha: mist ? 0.4 : 0.24, speed: 0.4, sweep: 0, seed: 11 });
+    hubTex.start();
+  }
+}
+function hubLight(i, hover, instant) {
+  const line = $('.h2-line', L.hub), st = $$('.h2-station', L.hub)[i]; if (!line || !st) return;
+  const r = $('.h2-dot', st).getBoundingClientRect(), s0 = line.getBoundingClientRect();
+  line.style.setProperty('--lx', ((r.left + r.width / 2 - s0.left) / s0.width) * 100 + '%');
+  line.classList.toggle('is-hover', !!hover); line.classList.toggle('instant', !!instant);
+  $$('.h2-station', L.hub).forEach((x, k) => x.classList.toggle('is-lit', k === i));
 }
 
 /* ======================================================================= level changes (camera) */
@@ -638,7 +668,7 @@ async function enterProject(pid, { sectionId = null, slideIndex = 0, fromLevel =
       leaveSpecial(true);
       S.pid = pid; applyBrand(p, false); placeLogos('corner', false);
       if (sec) { S.sid = sec.id; S.li = Math.max(0, slideIndex); S.step = 0; enterSectionInstant(); S.lastSection[pid] = secs.indexOf(sec); }
-      else { renderHub(p); show(L.hub, true); gsap.set(L.hub, { opacity: 1, scale: 1, filter: 'none' }); show(L.section, false); unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null; S.level = 'hub'; logosColor(p.brand.colors.text, false); }
+      else { renderHub(p); show(L.hub, true); gsap.set(L.hub, { opacity: 1, scale: 1, filter: 'none' }); show(L.section, false); unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null; S.level = 'hub'; logosColor(p.brand.colors.textLight || '#fff', true); }
     }, after: () => { if (sec && S.slideEl) introTL(S.slideEl, 1); else hubIntro(); } });
     updateHUD(); broadcastState(); return;
   }
@@ -648,7 +678,7 @@ async function enterProject(pid, { sectionId = null, slideIndex = 0, fromLevel =
   S.pid = pid; S.sid = null; S.level = 'hub';
   applyBrand(p);
   renderHub(p);
-  logosColor(p.brand.colors.text, false);
+  logosColor(p.brand.colors.textLight || '#fff', true);
   sound.play('zoom', p.id);
   show(L.hub, true);
   const D = ZOOM();
@@ -664,12 +694,12 @@ async function enterProject(pid, { sectionId = null, slideIndex = 0, fromLevel =
   updateHUD(); broadcastState();
   if (sectionId) await enterSection(sectionId, slideIndex);
 }
-function hubIntro(ret) {
+function hubIntro() {
   const tl = gsap.timeline();
-  tl.fromTo($$('.hub-head > *', L.hub), { opacity: 0, y: pxs(24) }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.08 }, 0);
-  tl.fromTo($$('.st-line', L.hub), { scaleX: 0 }, { scaleX: 1, duration: 1.6, ease: 'expo.inOut' }, 0.05);
-  tl.fromTo($$('.station', L.hub), { opacity: 0, y: pxs(40) }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.08 }, 0.15);
-  return ret ? tl : tl;
+  tl.fromTo($$('.h2-head > *', L.hub), { opacity: 0, y: pxs(24) }, { opacity: 1, y: 0, duration: 1.4, ease: 'expo.out', stagger: 0.1 }, 0);
+  tl.fromTo($$('.h2-line', L.hub), { scaleX: 0 }, { scaleX: 1, duration: 1.8, ease: 'expo.inOut' }, 0.05);
+  tl.fromTo($$('.h2-station', L.hub), { opacity: 0, y: pxs(30) }, { opacity: 1, y: 0, duration: 1.3, ease: 'expo.out', stagger: 0.08 }, 0.3);
+  return tl;
 }
 function enterSectionInstant() {
   show(L.hub, false); show(L.section, true); gsap.set(L.section, { opacity: 1, scale: 1, filter: 'none' });
@@ -682,11 +712,11 @@ async function enterSection(sid, slideIndex = 0) {
   const p = project(); if (!p) return;
   const sec = findSection(p, sid); if (!sec || !slidesOf(sec).length) return;
   const secs = sectionsOf(p);
-  if (S.level === 'section') { // section → section inside the project: brand cover + title card
+  if (S.level === 'section') { // section → section inside the project
     const dir = secs.indexOf(sec) >= secs.findIndex(s => s.id === S.sid) ? 1 : -1;
-    return sectionCover(sec, slideIndex, dir);
+    return flowSection(sec, slideIndex, dir);
   }
-  const station = $(`.station[data-section="${CSS.escape(sid)}"]`, L.hub);
+  const station = $(`.h2-station[data-section="${CSS.escape(sid)}"] .h2-dot`, L.hub);
   const origin = station ? originOf(station, L.hub) : '50% 50%';
   S.sid = sid; S.li = slideIndex; S.step = slideIndex < 0 ? 0 : 0; S.level = 'section';
   S.lastSection[p.id] = secs.indexOf(sec);
@@ -699,13 +729,24 @@ async function enterSection(sid, slideIndex = 0) {
   sound.play('zoom', p.id);
   const D = ZOOM();
   const tl = gsap.timeline();
-  if (station) station.classList.add('is-chosen');
+  
   tl.to(L.hub, { scale: 2.8, opacity: 0, filter: 'blur(8px)', transformOrigin: origin, duration: D, ease: 'power3.inOut' }, 0);
   tl.fromTo(L.section, { scale: 0.5, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.8, ease: 'power3.out' }, D * 0.3);
   tl.add(introTL(S.slideEl, 1), D * 0.55);
   await tl;
-  show(L.hub, false); gsap.set(L.hub, { clearProps: 'all' });
+  show(L.hub, false); gsap.set(L.hub, { clearProps: 'all' }); stopHubTex();
   updateHUD(); broadcastState();
+}
+
+// Moving between sections: either a strong camera pull-back to the project page and into the next
+// section (default), or the brand cover card. Setting: flow.sectionTransition = 'hub' | 'cover'.
+async function flowSection(sec, slideIndex = 0, dir = 1) {
+  if ((settings().flow?.sectionTransition || 'hub') !== 'hub' || reduced()) return sectionCover(sec, slideIndex, dir);
+  await zoomOut({ strong: true });
+  const st = $(`.h2-station[data-section="${CSS.escape(sec.id)}"]`, L.hub);
+  if (st) hubLight(+st.dataset.i, true);
+  await new Promise(r => setTimeout(r, 1100 / (gsap.globalTimeline.timeScale() || 1)));
+  return enterSection(sec.id, slideIndex);
 }
 
 async function sectionCover(sec, slideIndex = 0, dir = 1) {
@@ -721,17 +762,19 @@ async function sectionCover(sec, slideIndex = 0, dir = 1) {
   updateHUD(); broadcastState();
 }
 
-async function zoomOut() {
+async function zoomOut({ strong = false } = {}) {
   if (S.level === 'section') {
-    if (S.focus >= 0) { focusConcept(-1); return; }
-    const p = project(); renderHub(p); show(L.hub, true);
-    const station = $(`.station[data-section="${CSS.escape(S.sid)}"]`, L.hub);
+    if (S.focus >= 0 && !strong) { focusConcept(-1); return; }
+    const p = project(); S.lastSection[p.id] = Math.max(S.lastSection[p.id] ?? -1, sectionsOf(p).findIndex(x => x.id === S.sid));
+    renderHub(p); show(L.hub, true);
+    const station = $(`.h2-station[data-section="${CSS.escape(S.sid)}"] .h2-dot`, L.hub);
     const origin = station ? originOf(station, L.hub) : '50% 50%';
     sound.play('zoom', p.id);
-    const D = ZOOM(); const tl = gsap.timeline();
-    tl.to(L.section, { scale: 0.5, opacity: 0, filter: 'blur(6px)', transformOrigin: origin, duration: D * 0.85, ease: 'power3.inOut' }, 0);
-    tl.fromTo(L.hub, { scale: 2.8, opacity: 0, filter: 'blur(8px)', transformOrigin: origin }, { scale: 1, opacity: 1, filter: 'blur(0px)', duration: D, ease: 'power3.inOut' }, D * 0.1);
-    S.level = 'hub'; logosColor(p.brand.colors.text, false); updateHUD();
+    const D = ZOOM() * (strong ? 1.3 : 1); const tl = gsap.timeline();
+    tl.to(L.section, { scale: strong ? 0.18 : 0.5, opacity: 0, filter: `blur(${strong ? 14 : 6}px)`, transformOrigin: origin, duration: D * 0.9, ease: 'power3.inOut' }, 0);
+    tl.fromTo(L.hub, { scale: strong ? 4.2 : 2.8, opacity: 0, filter: 'blur(10px)', transformOrigin: origin }, { scale: 1, opacity: 1, filter: 'blur(0px)', duration: D, ease: 'power3.inOut' }, D * 0.08);
+    tl.add(hubIntro(), D * 0.5);
+    S.level = 'hub'; logosColor(p.brand.colors.textLight || '#fff', true); updateHUD();
     await tl;
     unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
     show(L.section, false); gsap.set(L.section, { clearProps: 'all' }); gsap.set(L.hub, { clearProps: 'filter' });
@@ -761,7 +804,7 @@ async function toUniverse() {
   unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
   [L.section, L.hub, L.special].forEach(l => { show(l, false); gsap.set(l, { clearProps: 'all' }); });
   gsap.set(L.universe, { clearProps: 'filter' });
-  S.pid = null; S.sid = null;
+  S.pid = null; S.sid = null; stopHubTex();
   updateHUD(); broadcastState();
 }
 
@@ -878,7 +921,7 @@ async function next() {
     const list = slidesOf(section());
     if (S.li < list.length - 1) { S.step = 0; return showSlide(S.li + 1, { dir: 1 }); }
     const secs = sectionsOf(project()); const si = secs.findIndex(s => s.id === S.sid);
-    if (secs[si + 1]) return sectionCover(secs[si + 1], 0, 1);
+    if (secs[si + 1]) return flowSection(secs[si + 1], 0, 1);
     S.visitedProjects.add(S.pid); return toUniverse();
   }
   if (S.level === 'decision') return toSpecial('closing');
@@ -892,7 +935,7 @@ async function prev() {
       return showSlide(S.li - 1, { dir: -1 });
     }
     const secs = sectionsOf(project()); const si = secs.findIndex(s => s.id === S.sid);
-    if (secs[si - 1]) return sectionCover(secs[si - 1], -1, -1);
+    if (secs[si - 1]) return flowSection(secs[si - 1], -1, -1);
     return zoomOut();
   }
   if (S.level === 'hub') return toUniverse();
@@ -903,7 +946,7 @@ async function jumpSection(delta) {
   if (S.level === 'hub') { const p = project(); const secs = sectionsOf(p); const i = clamp((S.lastSection[p.id] ?? -1) + (delta > 0 ? 1 : 0), 0, secs.length - 1); return enterSection(secs[i].id); }
   if (S.level !== 'section') return;
   const secs = sectionsOf(project()); const si = secs.findIndex(s => s.id === S.sid);
-  const t = secs[si + delta]; if (t) return sectionCover(t, 0, delta);
+  const t = secs[si + delta]; if (t) return flowSection(t, 0, delta);
   if (delta > 0) { S.visitedProjects.add(S.pid); return toUniverse(); }
 }
 async function jumpNumber(n) {
@@ -911,7 +954,7 @@ async function jumpNumber(n) {
   const p = project(); if (!p) return;
   const sec = sectionsOf(p)[n - 1]; if (!sec) return;
   if (S.level === 'hub') return enterSection(sec.id);
-  if (S.level === 'section' && sec.id !== S.sid) return sectionCover(sec, 0, n - 1 > sectionsOf(p).findIndex(s => s.id === S.sid) ? 1 : -1);
+  if (S.level === 'section' && sec.id !== S.sid) return flowSection(sec, 0, n - 1 > sectionsOf(p).findIndex(s => s.id === S.sid) ? 1 : -1);
 }
 async function gotoTarget({ projectId, sectionId, slideIndex = 0, slideId }) {
   if (slideId) { const loc = locate(S.content, slideId); if (loc?.kind === 'slide') { projectId = loc.project.id; sectionId = loc.section.id; slideIndex = slidesOf(loc.section).indexOf(loc.slide); } }
@@ -923,7 +966,7 @@ async function gotoTarget({ projectId, sectionId, slideIndex = 0, slideId }) {
   if (S.level === 'section') {
     if (sectionId === S.sid) { if (slideIndex !== S.li) { S.step = 0; return showSlide(slideIndex, { dir: slideIndex > S.li ? 1 : -1 }); } return; }
     const sec = findSection(p, sectionId); const secs = sectionsOf(p);
-    return sectionCover(sec, slideIndex, secs.indexOf(sec) > secs.findIndex(s => s.id === S.sid) ? 1 : -1);
+    return flowSection(sec, slideIndex, secs.indexOf(sec) > secs.findIndex(s => s.id === S.sid) ? 1 : -1);
   }
 }
 
@@ -1057,7 +1100,7 @@ function previewShow(target = {}, animate = false) {
   }
   const p = findProject(S.content, target.projectId); if (!p) return toUniverseInstant();
   S.pid = p.id; applyBrand(p, false); placeLogos('corner', false);
-  if (!target.sectionId) { S.level = 'hub'; renderHub(p); show(L.hub, true); logosColor(p.brand.colors.text, false); updateHUD(); if (animate) hubIntro(); return; }
+  if (!target.sectionId) { S.level = 'hub'; renderHub(p); show(L.hub, true); logosColor(p.brand.colors.textLight || '#fff', true); updateHUD(); if (animate) hubIntro(); return; }
   const sec = findSection(p, target.sectionId); if (!sec) return;
   S.sid = sec.id; S.level = 'section'; show(L.section, true);
   const list = slidesOf(sec);
