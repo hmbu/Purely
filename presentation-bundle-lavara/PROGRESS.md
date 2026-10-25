@@ -49,3 +49,12 @@
 0. One-time GitHub setup (see `docs/03-publishing.md`): enable Pages and create the token.
 1. Closing layout: (a) both logos + a closing line [current default], (b) both project marks + a line + contact, (c) a calm discussion screen.
 2. Higher-resolution brand imagery for the opening screen (current covers are cropped from the PDFs; Bundle's art is 1080px).
+
+## Shared area (legal · financial · decisions)
+- Entry: scroll down from the opening screen (wheel, ↓, swipe up, or the faint arrow, no text). Scroll up or ↑ returns.
+- It is a project with `kind: "shared"` and a light identity (ivory / brass / charcoal). Its page lists its sections like Bundle and Lavara, and ends with a "Decisions" station that opens the Decision Point in the same identity.
+- Default content (added only when missing; deleting it in the panel sets `sharedRemoved`):
+  - Legal: "What changes in the contract" (current, then proposed on Next) and "Proposed structure".
+  - Financial: "Money flow".
+- New slide template `diagram`: boxes on a grid with arrows, labels, frames, and step-by-step reveal. Fully editable in the control panel.
+- Show order: Bundle → Lavara → shared area → decisions → closing.

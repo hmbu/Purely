@@ -322,7 +322,7 @@ button { font: inherit; color: inherit; }
 .d-options { display: flex; flex-direction: column; gap: 1.5rem; }
 .d-opt { position: relative; appearance: none; cursor: pointer; background: transparent; color: inherit; border: var(--hair) solid color-mix(in srgb, var(--b-fg) 26%, transparent); border-radius: 99rem; padding: 1.9rem 2.6rem; font-size: 2rem; transition: background 1s ease, color 1s ease, border-color 1s ease, opacity 1s ease, box-shadow 1.2s ease; }
 .d-ring { position: absolute; inset: -.7rem; border-radius: inherit; border: var(--hair) solid color-mix(in srgb, var(--b-fg) 45%, transparent); opacity: 0; pointer-events: none; }
-.d-opt.is-on { background: var(--b-fg); color: #15120F; border-color: transparent; box-shadow: 0 0 7rem color-mix(in srgb, var(--b-fg) 18%, transparent); }
+.d-opt.is-on { background: var(--b-fg); color: var(--b-on, #15120F); border-color: transparent; box-shadow: 0 0 7rem color-mix(in srgb, var(--b-fg) 18%, transparent); }
 .d-opt.is-on .d-ring { opacity: 1; }
 .d-group:has(.is-on) .d-opt:not(.is-on) { opacity: .38; }
 .d-timer { position: absolute; bottom: 3rem; left: 50%; translate: -50% 0; font-size: 1.3rem; letter-spacing: .2em; opacity: 0; transition: opacity 1.2s ease; }
@@ -619,3 +619,47 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 #morph.on { visibility: visible; will-change: transform, opacity; }
 /* while the camera moves, pages ignore the pointer (no stray hover or click) */
 #stage.is-moving .layer { pointer-events: none; }
+
+/* =====================================================================
+   DIAGRAM template — boxes on a grid + arrows (drawn after layout)
+   ===================================================================== */
+.t-diagram .dg { position: absolute; top: 22rem; right: 12rem; left: 12rem; display: grid; grid-template-columns: repeat(var(--cols), 1fr); grid-auto-rows: auto; column-gap: var(--cgap); row-gap: var(--rgap, 7.5rem); align-items: stretch; }
+.t-diagram:has(.dg-frame) .dg { top: 25rem; }
+.dg .tone-gold { --tc: #D9A04A; } .dg .tone-indigo { --tc: #8E9CF5; } .dg .tone-teal { --tc: #3CC4A0; }
+.dg .tone-neutral { --tc: color-mix(in srgb, var(--sfg) 42%, transparent); } .dg .tone-accent { --tc: var(--saccent); }
+.is-light .dg .tone-gold { --tc: #B07A26; } .is-light .dg .tone-indigo { --tc: #5464CF; } .is-light .dg .tone-teal { --tc: #18977A; }
+.dg-node { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .9rem; text-align: center; padding: 2.4rem 3rem; border: .16rem solid var(--tc); border-radius: 1.6rem; background: color-mix(in srgb, var(--tc) 13%, var(--sbg)); color: var(--sfg); }
+.dg-node b { font-family: var(--f-title); font-weight: var(--w-title); font-size: 2.5rem; line-height: 1.3; color: var(--stitle); }
+.dg-node span { font-size: 1.45rem; opacity: .72; line-height: 1.5; }
+.dg-node.shape-note { padding: 1.3rem 2.6rem; border-width: var(--hair); align-self: center; }
+.dg-node.shape-note b { font-family: var(--f-body); font-weight: 500; font-size: 1.6rem; color: var(--sfg); }
+.dg-frame { position: relative; z-index: 0; margin: -5rem -3.4rem -2.6rem; border: var(--hair) solid color-mix(in srgb, var(--tc) 55%, transparent); border-radius: 2.2rem; background: color-mix(in srgb, var(--sfg) 2.5%, transparent); }
+.dg-flabel { position: absolute; top: 1.5rem; right: 2.6rem; font-size: 1.45rem; opacity: .8; }
+.dg-wires { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; z-index: 0; }
+.dg-line { fill: none; stroke: var(--tc); stroke-width: .17rem; }
+.dg-line.is-dashed { stroke-dasharray: .55rem .45rem; }
+.dg-tip { fill: var(--tc); }
+.dg-label { position: absolute; z-index: 2; translate: -50% -50%; padding: .65rem 2rem; border-radius: 99rem; border: .16rem solid var(--tc); background: var(--sbg); color: var(--sfg); font-size: 1.45rem; white-space: nowrap; }
+.dg-label.is-dashed { border-style: dashed; }
+.dg-caption { position: absolute; right: 12rem; left: 12rem; bottom: 6.5rem; margin: 0; font-size: 1.6rem; line-height: 1.8; opacity: .78; }
+.t-diagram [data-step] { opacity: 0; transition: opacity .9s ease, transform 1.1s cubic-bezier(.16, 1, .3, 1); transform: translateY(1.2rem); }
+.t-diagram [data-step].is-shown { opacity: 1; transform: none; }
+.t-diagram g[data-step] { transform: none; }
+.dg-instant [data-step] { transition: none !important; }
+
+/* the way down to the shared area: a faint arrow, no text */
+.u-down { position: absolute; z-index: 6; bottom: 2.6rem; left: 0; right: 0; margin-inline: auto; width: 4rem; height: 4rem; display: grid; place-items: center; appearance: none; border: 0; background: none; padding: 0; cursor: pointer; color: #F5F1E8; opacity: .32; transition: opacity .8s; }
+.u-down:hover { opacity: .9; }
+.u-down svg { width: 1.6rem; height: 1.6rem; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; animation: uDown 2.6s ease-in-out infinite; }
+@keyframes uDown { 0%, 100% { transform: translateY(0); opacity: .6; } 50% { transform: translateY(.5rem); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .u-down svg { animation: none; } }
+
+/* light project page (the shared area) */
+.hub2.is-light { color: var(--hfg); }
+.hub2.is-light .h2-shade { background: radial-gradient(70% 60% at 50% 40%, rgba(255, 255, 255, .35), transparent 70%); }
+.hub2.is-light::after { opacity: .07; mix-blend-mode: multiply; }
+.hub2.is-light .h2-line { background: color-mix(in srgb, var(--hfg) 22%, transparent); }
+.hub2.is-light .h2-light { background: radial-gradient(50% 50% at 50% 50%, color-mix(in srgb, var(--glow) 85%, transparent), transparent 70%); }
+.hub2.is-light .h2-dot i { background: var(--hfg); }
+.hub2.is-light .h2-dot::before { border-color: color-mix(in srgb, var(--hfg) 45%, transparent); }
+.h2-station.is-final .h2-dot i { border-radius: 0; rotate: 45deg; background: var(--glow); opacity: .9; width: 1.05rem; height: 1.05rem; }

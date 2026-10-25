@@ -228,7 +228,97 @@ export const TEMPLATES = {
   },
 };
 
-export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey'];
+
+/* ---------------------------------------------------------------- diagram (boxes + arrows) */
+// Boxes sit on a grid (column 1 = the right edge, RTL). Arrows are drawn after layout (layoutDiagram):
+// boxes that share rows get a horizontal arrow, boxes that share columns a vertical one; lane −1/+1 puts
+// two arrows between the same pair one above the other. Items with step N appear on the Nth "Next".
+const TONES = [['gold', 'ذهبي — الماجد للعود'], ['indigo', 'نيلي — رمثان'], ['teal', 'أخضر مزرق — الكيان'], ['neutral', 'محايد'], ['accent', 'لون الهوية']];
+const stepOf = x => Math.max(0, Number(x?.step) || 0);
+const area = n => `grid-column:${Number(n.col) || 1} / span ${Number(n.colSpan) || 1};grid-row:${Number(n.row) || 1} / span ${Number(n.rowSpan) || 1}`;
+const stepAttr = (x, a) => (stepOf(x) ? `data-step="${stepOf(x)}"` : `data-a="${a}"`);
+TEMPLATES.diagram = {
+  name: 'مخطط (صناديق وأسهم)', en: 'Diagram', group: 'extra', defaultBg: 'background', suggested: 'الهيكل',
+  fields: [F.eyebrow, F.title, { key: 'body', type: 'textarea', rows: 3, label: 'سطر توضيحي أسفل المخطط' },
+    { key: 'cols', type: 'range', label: 'عدد الأعمدة', min: 1, max: 6, step: 1 },
+    { key: 'gap', type: 'range', label: 'المسافة بين الأعمدة (لمساحة الأسهم)', min: 4, max: 30, step: 1 },
+    { key: 'rowGap', type: 'range', label: 'المسافة بين الصفوف', min: 1, max: 16, step: 0.5 },
+    { key: 'nodes', type: 'list', label: 'الصناديق (العمود 1 = اليمين)', item: [
+      { key: 'id', type: 'text', label: 'المعرّف (يُستخدم في الأسهم)' }, { key: 'title', type: 'text', label: 'العنوان' }, { key: 'sub', type: 'text', label: 'السطر الثاني' },
+      { key: 'tone', type: 'select', label: 'اللون', options: TONES }, { key: 'shape', type: 'select', label: 'الشكل', options: [['box', 'صندوق'], ['note', 'ملاحظة مضغوطة']] },
+      { key: 'col', type: 'number', label: 'العمود' }, { key: 'colSpan', type: 'number', label: 'عرض (أعمدة)' }, { key: 'row', type: 'number', label: 'الصف' }, { key: 'rowSpan', type: 'number', label: 'ارتفاع (صفوف)' },
+      { key: 'step', type: 'number', label: 'يظهر عند الضغطة رقم (0 = مباشرة)' }],
+      newItem: () => ({ id: 'n' + Math.random().toString(36).slice(2, 6), title: 'صندوق', sub: '', tone: 'neutral', shape: 'box', col: 1, colSpan: 1, row: 1, rowSpan: 1, step: 0 }) },
+    { key: 'edges', type: 'list', label: 'الأسهم', item: [
+      { key: 'from', type: 'text', label: 'من (معرّف)' }, { key: 'to', type: 'text', label: 'إلى (معرّف)' }, { key: 'label', type: 'text', label: 'التسمية' },
+      { key: 'tone', type: 'select', label: 'اللون', options: TONES }, { key: 'style', type: 'select', label: 'النمط', options: [['solid', 'متصل'], ['dashed', 'متقطع']] },
+      { key: 'lane', type: 'select', label: 'المسار', options: [['0', 'الوسط'], ['-1', 'أعلى / يمين'], ['1', 'أسفل / يسار']] },
+      { key: 'step', type: 'number', label: 'يظهر عند الضغطة رقم' }],
+      newItem: { from: '', to: '', label: '', tone: 'neutral', style: 'solid', lane: '0', step: 0 } },
+    { key: 'frames', type: 'list', label: 'إطارات المجموعات (اختياري)', item: [
+      { key: 'label', type: 'text', label: 'عنوان الإطار' }, { key: 'tone', type: 'select', label: 'اللون', options: TONES },
+      { key: 'col', type: 'number', label: 'العمود' }, { key: 'colSpan', type: 'number', label: 'عرض' }, { key: 'row', type: 'number', label: 'الصف' }, { key: 'rowSpan', type: 'number', label: 'ارتفاع' },
+      { key: 'step', type: 'number', label: 'يظهر عند الضغطة رقم' }],
+      newItem: { label: 'مجموعة', tone: 'neutral', col: 1, colSpan: 2, row: 1, rowSpan: 1, step: 0 } }],
+  defaults: { eyebrow: '', title: 'المخطط', body: '', cols: 2, gap: 20,
+    nodes: [{ id: 'a', title: 'الطرف الأول', sub: '', tone: 'gold', shape: 'box', col: 1, colSpan: 1, row: 1, rowSpan: 1, step: 0 }, { id: 'b', title: 'الطرف الثاني', sub: '', tone: 'indigo', shape: 'box', col: 2, colSpan: 1, row: 1, rowSpan: 1, step: 0 }],
+    edges: [{ from: 'a', to: 'b', label: 'العلاقة', tone: 'gold', style: 'solid', lane: '0', step: 0 }], frames: [] },
+  steps: d => Math.max(0, ...[...(d.nodes || []), ...(d.edges || []), ...(d.frames || [])].map(stepOf)),
+  render: d => {
+    const nodes = d.nodes || [], frames = d.frames || [];
+    return `
+    <div class="t t-diagram">
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
+      <div class="dg" style="--cols:${Number(d.cols) || 2};--cgap:${Number(d.gap) || 20}rem;--rgap:${Number(d.rowGap) || 7.5}rem">
+        ${frames.map(f => `<div class="dg-frame tone-${esc(f.tone || 'neutral')}" ${stepAttr(f, 'media')} style="${area(f)}"><span class="dg-flabel">${esc(f.label || '')}</span></div>`).join('')}
+        ${nodes.map((n, i) => `<div class="dg-node shape-${esc(n.shape || 'box')} tone-${esc(n.tone || 'neutral')}" data-node="${esc(n.id || '')}" ${stepAttr(n, 'extra')} data-seq="${i}" style="${area(n)}">
+          <b>${escBr(n.title || '')}</b>${n.sub ? `<span>${escBr(n.sub)}</span>` : ''}</div>`).join('')}
+        <svg class="dg-wires" data-a="body"></svg>
+      </div>
+      ${d.body ? `<p class="dg-caption" data-a="body">${escBr(d.body)}</p>` : ''}
+    </div>`;
+  },
+  // Arrows need real box positions: measured in layout pixels (immune to camera scaling).
+  layout(el, d) {
+    const grid = el.querySelector('.dg'), svg = el.querySelector('.dg-wires'); if (!grid || !svg) return;
+    el.querySelectorAll('.dg-label').forEach(x => x.remove());
+    const W = grid.offsetWidth, H = grid.offsetHeight; if (!W) return;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('width', W); svg.setAttribute('height', H);
+    const box = id => { const n = grid.querySelector(`[data-node="${CSS.escape(id || '')}"]`); return n && { x: n.offsetLeft, y: n.offsetTop, w: n.offsetWidth, h: n.offsetHeight }; };
+    const px = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16, pad = px * 0.9, ah = px * 0.75;
+    const groups = {};
+    (d.edges || []).forEach((e, i) => {
+      const a = box(e.from), b = box(e.to); if (!a || !b) return;
+      const lane = Number(e.lane) || 0; let x1, y1, x2, y2, horiz;
+      const oy0 = Math.max(a.y, b.y), oy1 = Math.min(a.y + a.h, b.y + b.h), ox0 = Math.max(a.x, b.x), ox1 = Math.min(a.x + a.w, b.x + b.w);
+      if (oy1 - oy0 > px) { // side by side → horizontal
+        horiz = true; const y = (oy0 + oy1) / 2 + lane * (oy1 - oy0) * 0.22;
+        const ab = a.x < b.x; x1 = ab ? a.x + a.w + pad : a.x - pad; x2 = ab ? b.x - pad : b.x + b.w + pad; y1 = y2 = y;
+      } else { // stacked → vertical, under the narrower box
+        horiz = false; const nar = a.w <= b.w ? a : b; const x = (ox1 - ox0 > px ? (Math.max(ox0, nar.x) + Math.min(ox1, nar.x + nar.w)) / 2 : nar.x + nar.w / 2) + lane * nar.w * 0.2;
+        const ab = a.y < b.y; y1 = ab ? a.y + a.h + pad * 0.6 : a.y - pad * 0.6; y2 = ab ? b.y - pad * 0.6 : b.y + b.h + pad * 0.6; x1 = x2 = x;
+      }
+      const st = stepOf(e), g = (groups[st] ||= []);
+      const dx = Math.sign(x2 - x1), dy = Math.sign(y2 - y1);
+      const tip = horiz ? `M${x2} ${y2} L${x2 - dx * ah} ${y2 - ah * 0.6} L${x2 - dx * ah} ${y2 + ah * 0.6} Z` : `M${x2} ${y2} L${x2 - ah * 0.6} ${y2 - dy * ah} L${x2 + ah * 0.6} ${y2 - dy * ah} Z`;
+      g.push(`<g class="tone-${esc(e.tone || 'neutral')}"><path class="dg-line ${e.style === 'dashed' ? 'is-dashed' : ''}" d="M${x1} ${y1} L${horiz ? x2 - dx * ah : x2} ${horiz ? y2 : y2 - dy * ah}"/><path class="dg-tip" d="${tip}"/></g>`);
+      if (e.label) {
+        const lb = document.createElement('div');
+        lb.className = `dg-label tone-${e.tone || 'neutral'} ${e.style === 'dashed' ? 'is-dashed' : ''}`;
+        lb.textContent = e.label; lb.style.left = (x1 + x2) / 2 + 'px'; lb.style.top = (y1 + y2) / 2 + 'px';
+        if (st) lb.dataset.step = st; else lb.dataset.a = 'body';
+        grid.appendChild(lb);
+      }
+    });
+    svg.innerHTML = Object.entries(groups).map(([st, g]) => `<g ${+st ? `data-step="${st}"` : ''}>${g.join('')}</g>`).join('');
+  },
+  applyStep(el, step, instant) {
+    el.classList.toggle('dg-instant', !!instant);
+    el.querySelectorAll('[data-step]').forEach(x => x.classList.toggle('is-shown', +x.dataset.step <= step));
+  },
+};
+
+export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram'];
 
 export function newSlide(templateId, uidFn) {
   const t = TEMPLATES[templateId];

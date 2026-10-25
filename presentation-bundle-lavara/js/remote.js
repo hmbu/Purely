@@ -1,6 +1,6 @@
 // Mobile remote: big touch controls, jump tree, presenter notes, next-slide preview, timer, Decision Point.
 import { $, $$, esc, fmtClock } from './core/util.js';
-import { projectsOf, sectionsOf, slidesOf } from './core/model.js';
+import { allProjectsOf, sectionsOf, slidesOf } from './core/model.js';
 import { loadContent } from './core/store.js';
 import { createSync } from './core/sync.js';
 import { slideLabel } from './core/templates.js';
@@ -84,7 +84,7 @@ function findSlide(id) {
 /* ---------- jump tree */
 function renderTree() {
   if (!content) return;
-  $('#tree').innerHTML = projectsOf(content).map(p => `
+  $('#tree').innerHTML = allProjectsOf(content).map(p => `
     <div class="p-block">
       <div class="p-head"><button data-goto-project="${esc(p.id)}">${esc(p.nameAr || p.name)} <small class="latin">${esc(p.name)}</small></button></div>
       ${sectionsOf(p).map((s, si) => `

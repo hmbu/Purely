@@ -2,7 +2,7 @@
 // One giant canvas navigated by a camera: Universe (L0) → Project hub (L1) → Section (L2, slides advance horizontally).
 // Everything is driven by content.json; nothing about projects/sections/slides is hard-coded.
 import { $, $$, esc, escBr, clamp, fmtClock, prefersReducedMotion, grainTexture, rgba, fixAspects } from './core/util.js';
-import { projectsOf, sectionsOf, slidesOf, findProject, findSection, slideTheme, locate } from './core/model.js';
+import { projectsOf, sectionsOf, slidesOf, findProject, findSection, slideTheme, locate, isShared, sharedOf } from './core/model.js';
 import { loadContent, logDecision } from './core/store.js';
 import { createSync } from './core/sync.js';
 import { registerFonts, applyTypography, fontsReady } from './core/fonts.js';
@@ -56,7 +56,7 @@ function fit() {
   stage.style.width = w + 'px'; stage.style.height = h + 'px';
   document.documentElement.style.fontSize = (w / 160) + 'px';
 }
-addEventListener('resize', () => { fit(); placeLogos(S.level === 'universe' ? 'hero' : 'corner', false); });
+addEventListener('resize', () => { fit(); placeLogos(S.level === 'universe' ? 'hero' : 'corner', false); if (S.slideEl && S.slideTpl?.layout) { S.slideTpl.layout(S.slideEl, S.slide?.data || {}); S.slideTpl.applyStep?.(S.slideEl, S.step || 0, true); } });
 
 /* ======================================================================= brand / theme */
 function universeColors() {
@@ -68,7 +68,7 @@ function applyBrand(p, animate = true) {
   if (!p) {
     const u = universeColors();
     stage.dataset.brand = 'universe'; stage.dataset.style = 'neutral';
-    st.setProperty('--b-fg', u.fg);
+    st.setProperty('--b-fg', u.fg); st.setProperty('--b-on', u.bg);
     applyTypography(stage, S.content, null);
     gsap.to(stage, { backgroundColor: u.bg, duration: animate ? 1.2 : 0, ease: 'power2.inOut' });
     return;
@@ -79,7 +79,7 @@ function applyBrand(p, animate = true) {
   for (const [k, v] of Object.entries(vars)) if (v) st.setProperty(`--b-${k}`, v);
   const tc = p.brand.textureColors || [];
   tc.forEach((v, i) => st.setProperty(`--b-t${i}`, v));
-  st.setProperty('--b-fg', c.text);
+  st.setProperty('--b-fg', isDarkHex(c.primary || '#222') ? (c.textLight || '#fff') : (c.text || '#111')); st.setProperty('--b-on', c.primary || '#111');
   applyTypography(stage, S.content, p);
   gsap.to(stage, { backgroundColor: c.primary || c.background, duration: animate ? 0.6 : 0, ease: 'power2.inOut' });
 }
@@ -115,6 +115,8 @@ function placeLogos(mode, animate = true) {
     x: first.left - last.left, y: first.top - last.top, scale: first.width / last.width, transformOrigin: '0 0',
   }, { x: 0, y: 0, scale: 1, duration: 1.4, ease: 'power3.inOut', clearProps: 'transform' });
 }
+const hubFg = p => { const c = p?.brand?.colors || {}; return isDarkHex(c.primary || '#222') ? (c.textLight || '#fff') : (c.text || '#111'); };
+const hubDark = p => isDarkHex(p?.brand?.colors?.primary || '#222');
 function logosColor(fg, dark) {
   const h = settings().headerLogos || {};
   logosEl.style.color = h.autoContrast === false ? (h.color || fg) : fg;
@@ -244,6 +246,7 @@ function focusConcept(i) {
 }
 function stepsOf(tpl, slide) { return tpl?.steps ? tpl.steps(slide?.data || {}) : 0; }
 function applyStep(el, step, instant = false) {
+  if (S.slideTpl?.applyStep) return S.slideTpl.applyStep(el, step, instant);
   const nodes = $$('.j-node', el), stages = $$('.j-stage', el);
   nodes.forEach((n, i) => { n.classList.toggle('done', i < step); n.classList.toggle('on', i === step); });
   const fill = $('.j-fill', el);
@@ -303,6 +306,8 @@ async function showSlide(li, { dir = 1, kind, instant = false } = {}) {
   if (S.step == null || S.step < 0) S.step = 0;
   kind = reduced() ? 'fade' : (kind || slide.transition || 'drift');
   slidesHost.appendChild(el);
+  tpl.layout?.(el, slide.data || {}); // templates that measure themselves (diagram arrows)
+  if (tpl.applyStep) tpl.applyStep(el, S.step || 0, true);
   if (!instant && old) await decodeIn(el);
   logosColor(theme.fg, theme.dark);
   updateHUD(); preloadAround(); broadcastState();
@@ -500,6 +505,7 @@ function renderUniverse() {
   L.universe.innerHTML = `<div class="u-wrap layout-${layout} ${legacy ? 'is-legacy' : 'is-exec'}" style="--n:${ps.length}">
       ${(legacy ? UNIVERSE_HTML.legacy : UNIVERSE_HTML[layout])(ps, u)}
       ${u.hint ? `<div class="u-hint">${esc(u.hint)}</div>` : ''}${chooserHTML(u, layout)}
+      ${sharedOf(S.content) ? `<button class="u-down" aria-label="${esc(sharedOf(S.content).nameAr || 'Shared')}"><svg viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></svg></button>` : ''}
     </div>`;
   fixAspects(L.universe);
   stage.dataset.ulayout = layout;
@@ -526,6 +532,7 @@ function renderUniverse() {
     tex.set({ mode: p.brand.texture, colors, progress: tex._base.progress, alpha: fusion ? (mist ? 0.42 : 0.26) : 0.9, speed: tex._base.speed, sweep: 0, ...(fresh ? { seed: i * 7 + 3 } : {}) });
     worldTex.push(tex);
   });
+  $('.u-down', L.universe)?.addEventListener('click', e => { e.stopPropagation(); command('shared'); });
   $$('.u-chooser button', L.universe).forEach(b => b.addEventListener('click', e => {
     e.stopPropagation();
     if (b.dataset.layout) S.content.settings.universe.layout = b.dataset.layout;
@@ -619,19 +626,21 @@ function pooledTexture(key, slot, resScale = 0.4) { // mist (soft fog) renders l
   const fresh = e.fresh; e.fresh = false;
   return { tex: e.tex, fresh };
 }
+const hasDecisionStation = p => isShared(p) && !!(S.content.decision?.groups || []).length;
 function stopHubTex() { if (hubTex) { hubTex.stop(); hubTex = null; } }
 function renderHub(p) {
   const secs = sectionsOf(p);
   const seen = S.seenSections[p.id] ?? -1;
-  const pend = S.hubPending ? secs.findIndex(x => x.id === S.hubPending.sid) : -1;
-  const nextI = pend >= 0 ? pend : clamp((S.lastSection[p.id] ?? -1) + 1, 0, secs.length - 1);
+  const decI = hasDecisionStation(p) ? secs.length : -1; // the shared area ends with the decisions
+  const pend = S.hubPending ? (S.hubPending.special ? decI : secs.findIndex(x => x.id === S.hubPending.sid)) : -1;
+  const nextI = pend >= 0 ? pend : clamp((S.lastSection[p.id] ?? -1) + 1, 0, secs.length - (decI >= 0 ? 0 : 1));
   S.hubTarget = nextI;
   const c = p.brand.colors || {};
   L.hub.innerHTML = `
-    <div class="hub2 style-${p.brand.texture === 'mist' ? 'mist' : 'bubbles'}" style="--n:${secs.length};--hbg:${c.primary || '#222'};--glow:${c.secondary || '#fff'}">
+    <div class="hub2 style-${p.brand.texture === 'mist' ? 'mist' : 'bubbles'} ${hubDark(p) ? '' : 'is-light'}" style="--n:${secs.length + (decI >= 0 ? 1 : 0)};--hbg:${c.primary || '#222'};--hfg:${hubFg(p)};--glow:${c.secondary || '#fff'}">
       <div class="h2-bg"><canvas class="h2-tex"></canvas></div><div class="h2-shade"></div>
       <div class="h2-head">
-        ${p.brand.logo ? `<span class="logo-mask h2-logo" data-ar-src="${esc(asset(p.brand.logo))}" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : `<h1 class="h2-name">${esc(p.name)}</h1>`}
+        ${p.brand.logo ? `<span class="logo-mask h2-logo" data-ar-src="${esc(asset(p.brand.logo))}" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : `<h1 class="h2-name">${esc(isShared(p) ? (p.nameAr || p.name) : p.name)}</h1>`}
         ${p.tagline ? `<p class="h2-tag">${esc(p.tagline)}</p>` : ''}
       </div>
       <div class="h2-line"><i class="h2-light"></i></div>
@@ -643,12 +652,15 @@ function renderHub(p) {
             <span class="h2-title">${escBr(s.title)}</span>
             ${s.titleEn ? `<span class="h2-en latin">${esc(s.titleEn)}</span>` : ''}
           </button>`).join('')}
+        ${decI >= 0 ? `<button class="h2-station is-final ${decI === nextI ? 'is-next' : ''}" data-special="decision" data-i="${decI}">
+            <span class="h2-num latin">${String(decI + 1).padStart(2, '0')}</span><span class="h2-dot"><i></i></span>
+            <span class="h2-title">${esc(S.content.decision?.title || 'القرارات')}</span><span class="h2-en latin">Decisions</span></button>` : ''}
       </div>
     </div>`;
   fixAspects(L.hub);
   const st = $$('.h2-station', L.hub);
   st.forEach(b => {
-    b.addEventListener('click', () => command('enterSection', { sectionId: b.dataset.section }));
+    b.addEventListener('click', () => (b.dataset.special ? command('decision') : command('enterSection', { sectionId: b.dataset.section })));
     // hover only moves the light while the page is at rest; leaving always returns it to the current target
     b.addEventListener('mouseenter', () => { if (!S.busy) hubLight(+b.dataset.i, true); });
     b.addEventListener('mouseleave', () => { if (!S.busy) hubLight(S.hubTarget, false); });
@@ -702,16 +714,17 @@ async function enterProject(pid, { sectionId = null, slideIndex = 0, fromLevel =
       leaveSpecial(true);
       S.pid = pid; applyBrand(p, false); placeLogos('corner', false);
       if (sec) { S.sid = sec.id; S.li = Math.max(0, slideIndex); S.step = 0; enterSectionInstant(); S.lastSection[pid] = secs.indexOf(sec); S.seenSections[pid] = Math.max(S.seenSections[pid] ?? -1, secs.indexOf(sec)); }
-      else { renderHub(p); show(L.hub, true); gsap.set(L.hub, { opacity: 1, scale: 1, filter: 'none' }); show(L.section, false); unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null; S.level = 'hub'; logosColor(p.brand.colors.textLight || '#fff', true); }
+      else { renderHub(p); show(L.hub, true); gsap.set(L.hub, { opacity: 1, scale: 1, filter: 'none' }); show(L.section, false); unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null; S.level = 'hub'; logosColor(hubFg(p), hubDark(p)); }
     }, after: () => { if (sec && S.slideEl) introTL(S.slideEl, 1); else hubIntro(); } });
     updateHUD(); broadcastState(); return;
   }
+  if (isShared(p)) return slideToShared(p, { sectionId, slideIndex });
   // Universe → Project: the chosen world grows into the project page (brand plate morph), then the page settles in.
   const world = $(`.world[data-project="${CSS.escape(pid)}"]`, L.universe);
   S.pid = pid; S.sid = null; S.level = 'hub'; S.hubPending = null;
   applyBrand(p);
   renderHub(p);
-  logosColor(p.brand.colors.textLight || '#fff', true);
+  logosColor(hubFg(p), hubDark(p));
   startWorlds(false);
   gsap.set(L.hub, { opacity: 0 }); show(L.hub, true);
   const k = reduced() ? 0.5 : 1;
@@ -733,6 +746,22 @@ async function enterProject(pid, { sectionId = null, slideIndex = 0, fromLevel =
   show(L.universe, false); gsap.set(L.universe, { clearProps: 'all' });
   morphEl.classList.remove('on'); gsap.set(morphEl, { clearProps: 'all' });
   gsap.set(L.hub, { clearProps: 'all' });
+  updateHUD(); broadcastState();
+  if (sectionId) await enterSection(sectionId, slideIndex);
+}
+async function slideToShared(p, { sectionId = null, slideIndex = 0 } = {}) {
+  S.pid = p.id; S.sid = null; S.level = 'hub'; S.hubPending = null;
+  applyBrand(p); renderHub(p);
+  logosColor(hubFg(p), hubDark(p));
+  show(L.hub, true);
+  const k = reduced() ? 0.5 : 1;
+  const tl = gsap.timeline();
+  tl.to(L.universe, { yPercent: -100, duration: 1.5 * k, ease: 'power3.inOut' }, 0);
+  tl.fromTo(L.hub, { yPercent: 100 }, { yPercent: 0, duration: 1.5 * k, ease: 'power3.inOut' }, 0);
+  tl.add(() => placeLogos('corner'), 0.25 * k);
+  tl.add(hubIntro(), 0.95 * k);
+  await tl;
+  startWorlds(false); show(L.universe, false); gsap.set(L.universe, { clearProps: 'all' }); gsap.set(L.hub, { clearProps: 'all' });
   updateHUD(); broadcastState();
   if (sectionId) await enterSection(sectionId, slideIndex);
 }
@@ -794,6 +823,13 @@ async function flowSection(sec, slideIndex = 0, dir = 1) {
   return enterSection(sec.id, slideIndex);
 }
 
+async function flowToDecision() {
+  await zoomOut({ strong: true });
+  const i = sectionsOf(project()).length;
+  S.hubTarget = i; hubLight(i, false);
+  $$('.h2-station', L.hub).forEach((x, k) => x.classList.toggle('is-next', k === i));
+  S.hubPending = { special: 'decision' }; broadcastState();
+}
 async function sectionCover(sec, slideIndex = 0, dir = 1) {
   const p = project(); const secs = sectionsOf(p);
   const list = slidesOf(sec); const li = slideIndex < 0 ? list.length - 1 : slideIndex;
@@ -819,7 +855,7 @@ async function zoomOut({ strong = false } = {}) {
     tl.to(L.section, { scale: strong ? 0.2 : 0.4, opacity: 0, transformOrigin: origin, duration: D * 0.9, ease: 'power3.inOut' }, 0);
     tl.fromTo(L.hub, { scale: 1.12, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.9, ease: 'power2.out' }, D * 0.3);
     tl.add(hubIntro(), D * 0.5);
-    S.level = 'hub'; logosColor(p.brand.colors.textLight || '#fff', true); updateHUD();
+    S.level = 'hub'; logosColor(hubFg(p), hubDark(p)); updateHUD();
     await tl;
     unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
     show(L.section, false); gsap.set(L.section, { clearProps: 'all' }); gsap.set(L.hub, { clearProps: 'filter' });
@@ -839,7 +875,10 @@ async function toUniverse() {
   applyBrand(null);
   const k = reduced() ? 0.5 : 1;
   const tl = gsap.timeline();
-  if (world) {
+  if (fromP && isShared(fromP)) {
+    tl.to(fromLayer, { yPercent: 100, duration: 1.5 * k, ease: 'power3.inOut' }, 0);
+    tl.fromTo(L.universe, { yPercent: -100 }, { yPercent: 0, duration: 1.5 * k, ease: 'power3.inOut' }, 0);
+  } else if (world) {
     // reverse morph: the page dissolves into its brand plate, which shrinks back into its world
     const content = worldContent(world);
     gsap.set(content, { opacity: 0 });
@@ -945,10 +984,11 @@ async function toSpecial(kind) {
   unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
   [L.section, L.hub, L.universe].forEach(l => show(l, false));
   S.level = kind; S.pid = null; S.sid = null; S.focus = -1;
-  applyBrand(null);
+  const dp = kind === 'decision' ? sharedOf(S.content) : null; // the decisions close the shared area, in its identity
+  applyBrand(dp);
   kind === 'decision' ? renderDecision() : renderClosing();
   show(L.special, true);
-  logosColor(universeColors().fg, true);
+  dp ? logosColor(hubFg(dp), hubDark(dp)) : logosColor(universeColors().fg, true);
   logosEl.classList.toggle('is-hidden', kind === 'closing');
   placeLogos('corner', false);
   updateHUD();
@@ -965,14 +1005,18 @@ async function next() {
     const ps = projectsOf(S.content);
     const target = ps.find(p => !S.visitedProjects.has(p.id));
     if (target) return enterProject(target.id);
+    const sh = sharedOf(S.content);
+    if (sh && !S.visitedProjects.has(sh.id)) return enterProject(sh.id);
     if (S.content.decision && settings().flow?.afterAllProjects !== 'none') return toSpecial('decision');
     return ps[0] && enterProject(ps[0].id);
   }
   if (S.level === 'hub') {
+    if (S.hubPending?.special) return toSpecial(S.hubPending.special);
     if (S.hubPending) return enterSection(S.hubPending.sid, S.hubPending.slideIndex);
     const p = project(); const secs = sectionsOf(p);
     const nxt = (S.lastSection[p.id] ?? -1) + 1;
     if (secs[nxt]) return enterSection(secs[nxt].id);
+    if (hasDecisionStation(p)) return toSpecial('decision');
     return toUniverse();
   }
   if (S.level === 'section') {
@@ -982,6 +1026,7 @@ async function next() {
     if (S.li < list.length - 1) { S.step = 0; return showSlide(S.li + 1, { dir: 1 }); }
     const secs = sectionsOf(project()); const si = secs.findIndex(s => s.id === S.sid);
     if (secs[si + 1]) return flowSection(secs[si + 1], 0, 1);
+    if (hasDecisionStation(project())) return flowToDecision();
     S.visitedProjects.add(S.pid); return toUniverse();
   }
   if (S.level === 'decision') return toSpecial('closing');
@@ -1000,7 +1045,7 @@ async function prev() {
   }
   if (S.level === 'hub') return S.hubPending?.slideIndex < 0 ? enterSection(S.hubPending.sid, -1) : toUniverse();
   if (S.level === 'closing') return toSpecial('decision');
-  if (S.level === 'decision') return toUniverse();
+  if (S.level === 'decision') { const sh = sharedOf(S.content); return sh ? enterProject(sh.id, { fromLevel: 'decision' }) : toUniverse(); }
 }
 async function jumpSection(delta) {
   if (S.level === 'hub') { const p = project(); const secs = sectionsOf(p); const i = clamp(S.hubTarget + (delta > 0 ? 0 : -1), 0, secs.length - 1); return enterSection(secs[i].id); }
@@ -1039,6 +1084,7 @@ const ACTIONS = {
   enterSection: a => enterSection(a.sectionId),
   goto: a => gotoTarget(a),
   universe: () => (S.level === 'universe' ? null : toUniverse()),
+  shared: () => { const sh = sharedOf(S.content); if (!sh) return; if (S.level === 'universe') return enterProject(sh.id); if (S.pid !== sh.id) return gotoTarget({ projectId: sh.id }); },
   decision: () => toSpecial('decision'),
   closing: () => toSpecial('closing'),
 };
@@ -1157,12 +1203,13 @@ function previewShow(target = {}, animate = false) {
   logosEl.classList.remove('is-hidden');
   if (target.level === 'universe' || (!target.projectId && !target.level)) { toUniverseInstant(); if (animate) universeEntrance(); return; }
   if (target.level === 'decision' || target.level === 'closing') {
-    S.level = target.level; S.pid = null; applyBrand(null, false); target.level === 'decision' ? renderDecision() : renderClosing();
-    show(L.special, true); logosColor(universeColors().fg, true); placeLogos('corner', false); logosEl.classList.toggle('is-hidden', target.level === 'closing'); updateHUD(); return;
+    const dp = target.level === 'decision' ? sharedOf(S.content) : null;
+    S.level = target.level; S.pid = null; applyBrand(dp, false); target.level === 'decision' ? renderDecision() : renderClosing();
+    show(L.special, true); dp ? logosColor(hubFg(dp), hubDark(dp)) : logosColor(universeColors().fg, true); placeLogos('corner', false); logosEl.classList.toggle('is-hidden', target.level === 'closing'); updateHUD(); return;
   }
   const p = findProject(S.content, target.projectId); if (!p) return toUniverseInstant();
   S.pid = p.id; applyBrand(p, false); placeLogos('corner', false);
-  if (!target.sectionId) { S.level = 'hub'; renderHub(p); show(L.hub, true); logosColor(p.brand.colors.textLight || '#fff', true); updateHUD(); if (animate) hubIntro(); return; }
+  if (!target.sectionId) { S.level = 'hub'; renderHub(p); show(L.hub, true); logosColor(hubFg(p), hubDark(p)); updateHUD(); if (animate) hubIntro(); return; }
   const sec = findSection(p, target.sectionId); if (!sec) return;
   S.sid = sec.id; S.level = 'section'; show(L.section, true);
   const list = slidesOf(sec);
@@ -1185,6 +1232,8 @@ function onKey(e) {
   if (k === 'ArrowLeft' || k === ' ' || k === 'PageDown' || k === 'Enter') { e.preventDefault(); command(e.shiftKey ? 'nextSection' : 'next'); }
   else if (k === 'ArrowRight' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); command(e.shiftKey ? 'prevSection' : 'prev'); }
   else if (k === 'Escape') { e.preventDefault(); if (S.black) setBlack(false); else command('zoomOut'); }
+  else if (k === 'ArrowDown' && S.level === 'universe') { e.preventDefault(); command('shared'); }
+  else if (k === 'ArrowUp' && S.level === 'hub' && isShared(project())) { e.preventDefault(); command('universe'); }
   else if (/^[1-9]$/.test(k)) command('number', { n: +k });
   else if (k === 'f' || k === 'F') toggleFullscreen();
   else if (k === 'b' || k === 'B' || k === '.') setBlack(!S.black);
@@ -1202,6 +1251,7 @@ function setupTouch() {
     const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; sx = null;
     if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) { command(dx > 0 ? 'next' : 'prev'); return; }
     if (dy > 70 && Math.abs(dy) > Math.abs(dx) * 1.2) { command('zoomOut'); return; }
+    if (dy < -70 && Math.abs(dy) > Math.abs(dx) * 1.2 && S.level === 'universe') { command('shared'); return; }
     if (Date.now() - st > 600 || Math.abs(dx) > 12 || Math.abs(dy) > 12) return;
     if (e.target.closest && e.target.closest('button')) return;
     const x = t.clientX / innerWidth;
@@ -1239,6 +1289,13 @@ async function boot() {
     else if (msg.type === 'cmd') command(msg.cmd, msg.args || {});
   });
   addEventListener('keydown', onKey);
+  // Scrolling: down from the opening screen opens the shared area, up from its page returns. One gesture = one move.
+  let wheelAt = 0;
+  addEventListener('wheel', e => {
+    if (Math.abs(e.deltaY) < 18 || S.busy || Date.now() - wheelAt < 1400) return;
+    if (e.deltaY > 0 && S.level === 'universe') { wheelAt = Date.now(); command('shared'); }
+    else if (e.deltaY < 0 && S.level === 'hub' && isShared(project())) { wheelAt = Date.now(); command('universe'); }
+  }, { passive: true });
   addEventListener('pointerdown', () => sound.unlock());
   setupTouch();
 

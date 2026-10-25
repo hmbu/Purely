@@ -1,7 +1,7 @@
 // Control panel: structure tree, schema-driven slide editor, brands, global settings, Decision Point + Closing,
 // live show remote, backups. Every edit is pushed live to the show and auto-saved to content.json.
 import { $, $$, esc, uid, clone, debounce, fmtClock } from './core/util.js';
-import { projectsOf, sectionsOf, slidesOf, locate } from './core/model.js';
+import { projectsOf, allProjectsOf, sectionsOf, slidesOf, locate } from './core/model.js';
 import { loadContent, saveContent, hasServer, hasGithub, backendMode, githubConfig, setGithubConfig, testGithub, listBackups, getBackup, makeBackup, uploadFile, listFiles, serverInfo, getDecisionLog } from './core/store.js';
 import { createSync } from './core/sync.js';
 import { TEMPLATES, TEMPLATE_ORDER, TRANSITIONS, BG_OPTIONS, newSlide, slideLabel } from './core/templates.js';
@@ -139,6 +139,7 @@ function deleteNode(kind, id) {
   const c = containerOf(kind, id); if (!c) return;
   const name = kind === 'slide' ? slideLabel(c.arr[c.i]) : (c.arr[c.i].title || c.arr[c.i].name);
   if (!confirm(`حذف «${name}»؟ يمكنك التراجع بـ Ctrl+Z.`)) return;
+  if (kind === 'project' && c.arr[c.i].kind === 'shared') C.sharedRemoved = true; // otherwise the default shared area returns on load
   c.arr.splice(c.i, 1);
   const nb = c.arr[Math.min(c.i, c.arr.length - 1)];
   sel = nb ? { kind, id: nb.id } : c.parent ? { kind: kind === 'slide' ? 'section' : 'project', id: c.parent.id } : null;
@@ -616,7 +617,7 @@ function renderLive() {
 setInterval(() => { if (liveState?.startedAt) $('#liveClock').textContent = fmtClock(Date.now() - liveState.startedAt); }, 500);
 function renderLiveTree() {
   const t = $('#liveTree'); t.innerHTML = '';
-  for (const p of projectsOf(C)) {
+  for (const p of allProjectsOf(C)) {
     t.append(h('div', { class: 'lp' }, h('button', { onclick: () => cmd('enterProject', { projectId: p.id }) }, p.nameAr || p.name)));
     sectionsOf(p).forEach((s, si) => {
       t.append(h('div', { class: 'ls' }, h('button', { onclick: () => cmd('goto', { projectId: p.id, sectionId: s.id, slideIndex: 0 }) }, `${si + 1}. ${s.title}`)));
