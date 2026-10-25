@@ -469,3 +469,67 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 /* closing logos may be scaled per item */
 .closing .c-logo { transform: scale(var(--sc, 1)); }
 .closing .c-x { width: var(--hair); height: 70%; background: currentColor; opacity: .35; }
+
+/* ---------- 5 · title — a film-like title card: corporate lockup centre stage */
+#stage[data-ulayout="title"] #logos[data-mode="hero"] { top: 36%; height: calc(6.6rem * var(--hl-hero, 1)); }
+.ut-light { position: absolute; inset: 0; background: radial-gradient(50% 45% at 50% 46%, rgba(255, 236, 210, .085), transparent 70%); animation: utBreath 14s ease-in-out infinite; }
+@keyframes utBreath { 0%, 100% { transform: scale(1); opacity: .8; } 50% { transform: scale(1.08); opacity: 1; } }
+.ut-rule { position: absolute; top: 55.5%; left: 50%; width: 16rem; margin-left: -8rem; height: var(--hair); background: currentColor; opacity: .35; }
+.ut-row { position: absolute; top: 62%; left: 0; right: 0; display: flex; justify-content: center; align-items: flex-start; gap: 6rem; }
+.ut-world { appearance: none; border: 0; background: none; color: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 1.4rem; width: 30rem; transition: opacity 1.2s ease; }
+.ut-logo { height: 4rem; aspect-ratio: var(--ar, 4); opacity: .9; }
+.ut-world .w-tag { opacity: 0; transform: translateY(-.6rem); transition: opacity 1s, transform 1.2s cubic-bezier(.16, 1, .3, 1); }
+.ut-world.is-hover .w-tag { opacity: .7; transform: none; }
+.ut-world.is-dim { opacity: .35; }
+.ut-dot { width: .5rem; height: .5rem; border-radius: 50%; background: currentColor; opacity: .4; margin-top: 3.4rem; }
+
+/* ---------- 6 · monogram — tone-on-tone halves with oversized brand marks */
+.uo-row { position: absolute; inset: 0; display: flex; }
+.uo-world { appearance: none; border: 0; padding: 0; cursor: pointer; position: relative; overflow: hidden; flex: 1 1 0; min-width: 0; background: var(--wbg); color: #F5F1E8; transition: flex-grow 1.6s cubic-bezier(.16, 1, .3, 1); }
+.uo-mark { position: absolute; height: 118%; aspect-ratio: var(--ar, 1); bottom: -22%; left: 50%; translate: -50% 0; color: color-mix(in srgb, var(--wbg) 86%, #fff); transition: transform 3s cubic-bezier(.16, 1, .3, 1), color 1.4s; }
+.uo-world.is-hover .uo-mark { transform: scale(1.04) translateY(-1.5rem); color: color-mix(in srgb, var(--wbg) 80%, #fff); }
+.uo-world::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .14; pointer-events: none; }
+.uo-content { position: absolute; left: 0; right: 0; bottom: 9rem; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 2rem; }
+.uo-logo { height: 6rem; aspect-ratio: var(--ar, 4); }
+.uo-top { position: absolute; left: 0; right: 0; top: 0; height: 26rem; background: linear-gradient(rgba(0, 0, 0, .35), transparent); pointer-events: none; }
+.has-hover .uo-world.is-hover { flex-grow: 1.22; }
+.has-hover .uo-world.is-dim { flex-grow: .78; }
+.uo-world.is-dim .uo-content { opacity: .55; transition: opacity 1.2s; }
+
+/* ---------- 7 · cards — two embossed invitation cards on a dark table */
+.ud-spot { position: absolute; inset: 0; background: radial-gradient(48% 60% at 50% 62%, rgba(255, 232, 200, .11), transparent 70%); }
+.ud-row { position: absolute; top: 20rem; bottom: 6rem; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 9rem; perspective: 140rem; }
+.ud-world { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; transition: opacity 1.2s ease; }
+.ud-card { position: relative; width: 33rem; height: 48rem; background: var(--paper); color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3.2rem; transform: rotate(var(--r)) rotateX(var(--ty, 0deg)) rotateY(var(--tx, 0deg)); transition: transform 1.4s cubic-bezier(.16, 1, .3, 1), box-shadow 1.4s; box-shadow: 0 3rem 6rem -2rem rgba(0, 0, 0, .7), 0 .4rem 1rem rgba(0, 0, 0, .3); }
+.ud-card::before { content: ''; position: absolute; inset: 1.8rem; border: var(--hair) solid currentColor; opacity: .22; }
+.ud-card::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: multiply; opacity: .1; pointer-events: none; }
+.ud-world.is-hover .ud-card { transform: rotate(0deg) translateY(-2.4rem) rotateX(var(--ty, 0deg)) rotateY(var(--tx, 0deg)); box-shadow: 0 5rem 9rem -2rem rgba(0, 0, 0, .8), 0 .6rem 1.4rem rgba(0, 0, 0, .3); }
+.ud-world.is-dim { opacity: .45; }
+.ud-emb { display: block; filter: drop-shadow(0 .12rem 0 rgba(255, 255, 255, .7)) drop-shadow(0 -.08rem 0 rgba(0, 0, 0, .18)); }
+.ud-mark { height: 10rem; aspect-ratio: var(--ar, 1); display: block; opacity: .92; }
+.ud-logo { height: 3.4rem; aspect-ratio: var(--ar, 4); display: block; }
+.ud-card .w-tag { color: var(--ink); opacity: .7; font-size: 1.3rem; }
+.ud-num { position: absolute; top: 3.4rem; font-size: .9rem; letter-spacing: .34em; opacity: .5; }
+
+/* ---------- 8 · horizon — one line of light, the projects on either side */
+.uh-glow { position: absolute; left: 0; right: 0; bottom: 0; height: 55%; background: radial-gradient(70% 90% at 50% 100%, rgba(255, 226, 190, .09), transparent 70%); }
+.uh-line { position: absolute; top: 56%; left: 10rem; right: 10rem; height: var(--hair); background: rgba(245, 241, 232, .22); --lx: 50%; --lc: #F5F1E8; }
+.uh-line i { position: absolute; top: -.4rem; height: .9rem; width: 34rem; left: var(--lx); translate: -50% 0; background: radial-gradient(50% 50% at 50% 50%, color-mix(in srgb, var(--lc) 90%, transparent), transparent 70%); filter: blur(.3rem); transition: left 1.6s cubic-bezier(.16, 1, .3, 1), background 1.2s; opacity: .7; }
+.uh-line.on i { opacity: 1; }
+.uh-row { position: absolute; top: 61%; left: 10rem; right: 10rem; display: grid; grid-template-columns: repeat(var(--n), 1fr); }
+.uh-world { appearance: none; border: 0; background: none; color: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 1.6rem; padding-top: 2rem; transition: opacity 1.2s; }
+.uh-logo { height: 4.6rem; aspect-ratio: var(--ar, 4); }
+.uh-world.is-dim { opacity: .38; }
+#stage[data-ulayout="horizon"] #logos[data-mode="hero"] { top: 30%; }
+
+/* ---------- 9 · typestack — giant wordmarks, filled with brand colour on hover */
+#stage[data-ulayout="typestack"] #logos[data-mode="hero"] { top: 6%; height: calc(3.6rem * var(--hl-hero, 1)); }
+.us-list { position: absolute; top: 19rem; bottom: 6rem; left: 8rem; right: 8rem; display: flex; flex-direction: column; }
+.us-world { appearance: none; border: 0; background: none; color: inherit; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 4rem; border-top: var(--hair) solid rgba(245, 241, 232, .16); }
+.us-world:last-child { border-bottom: var(--hair) solid rgba(245, 241, 232, .16); }
+.us-logo { height: 70%; max-height: 22rem; aspect-ratio: var(--ar, 4); max-width: 100rem; color: rgba(245, 241, 232, .14); transition: color 1.2s ease, transform 1.6s cubic-bezier(.16, 1, .3, 1); }
+.us-world.is-hover .us-logo { color: var(--glow); transform: translateX(-1.5rem); }
+.us-meta { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; text-align: right; min-width: 24rem; }
+.us-meta .w-name { font-family: var(--f-title); font-size: 3rem; opacity: .9; }
+.us-world .w-tag { opacity: .5; }
+.us-world.is-dim { opacity: .5; }

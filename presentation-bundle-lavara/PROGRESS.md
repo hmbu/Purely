@@ -17,7 +17,7 @@
 
 ## Round 2 (user feedback: not premium enough for executives)
 - Header logos are now Rimthan (company) and Al Majed Oud (partner); the closing screen uses them too.
-- Four new opening screens: 1 Cinematic, 2 Portals, 3 Monolith (gallery), 4 Editorial Index. The original two are kept. Compare them in `docs/opening-screen-options.png`, or switch live with the small 1–6 chooser at the bottom-left of the opening screen.
+- Nine opening screens: 1 Cinematic, 2 Portals, 3 Monolith, 4 Editorial Index, 5 Title card, 6 Monograms, 7 Invitation cards, 8 Horizon, 9 Giant type. The original two are kept as 10–11. Compare them in `docs/opening-screen-options.png`, or switch live with the small 1–11 chooser at the bottom-left of the opening screen.
 - New "quiet" executive tone, now the default:
   - section covers in solid brand colour with soft moving light;
   - no bubbles or mist between slides;
@@ -26,6 +26,6 @@
 - "Expressive" brings back the brand textures.
 
 ## Waiting for the user's decision
-0. Which opening screen (1–4) and which tone (quiet or expressive).
+0. Which opening screen (1–9) and which tone (quiet or expressive).
 1. Closing layout: (a) both logos + a closing line [current default], (b) both project marks + a line + contact, (c) a calm discussion screen.
 2. Higher-resolution brand imagery for the opening screen (current covers are cropped from the PDFs; Bundle's art is 1080px).

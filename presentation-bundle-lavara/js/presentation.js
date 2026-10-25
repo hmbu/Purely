@@ -385,7 +385,7 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
 
 /* ======================================================================= universe (opening screen) */
 // Layouts: cinema · portals · monolith · index (executive set) + halves · circles (original, with live textures).
-const UNIVERSE_LAYOUTS = [['cinema', 'سينمائي'], ['portals', 'بوابتان'], ['monolith', 'متحفي'], ['index', 'فهرس تحريري'], ['halves', 'نصفان بملمس حي'], ['circles', 'دائرتان بملمس حي']];
+const UNIVERSE_LAYOUTS = [['cinema', 'سينمائي'], ['portals', 'بوابتان'], ['monolith', 'متحفي'], ['index', 'فهرس تحريري'], ['title', 'بطاقة افتتاحية'], ['monogram', 'رمزان بلون الهوية'], ['cards', 'بطاقتا دعوة'], ['horizon', 'خط الأفق'], ['typestack', 'طباعة ضخمة'], ['halves', 'نصفان بملمس حي'], ['circles', 'دائرتان بملمس حي']];
 const coverOf = p => p.brand.cover || p.brand.universe?.image || '';
 function coverImg(p, cls = 'w-img') {
   const src = coverOf(p), c = p.brand.colors || {};
@@ -394,6 +394,11 @@ function coverImg(p, cls = 'w-img') {
 }
 function logoTint(p, cls) {
   const src = p.brand.logo; if (!src) return `<span class="${cls} w-fallback">${esc(p.name)}</span>`;
+  const u = esc(asset(src));
+  return `<span class="logo-mask ${cls}" data-ar-src="${u}" style="--src:url('${u}')"></span>`;
+}
+function markTint(p, cls) {
+  const src = p.brand.mark || p.brand.logo; if (!src) return '';
   const u = esc(asset(src));
   return `<span class="logo-mask ${cls}" data-ar-src="${u}" style="--src:url('${u}')"></span>`;
 }
@@ -424,6 +429,28 @@ const UNIVERSE_HTML = {
           ${num(i)}${nameAr(p)}${logoTint(p, 'ui-logo')}${tag(p)}<span class="ui-arrow">←</span>
         </button>`).join('')}
       </div>`,
+  title: ps => `<div class="ut-light"></div><div class="ut-rule"></div><div class="ut-row">${ps.map((p, i) => `
+      <button class="world ut-world" data-project="${esc(p.id)}">${num(i)}${logoTint(p, 'ut-logo')}${tag(p)}</button>`).join('<span class="ut-dot"></span>')}</div>`,
+  monogram: ps => `<div class="uo-row">${ps.map((p, i) => `
+      <button class="world uo-world" data-project="${esc(p.id)}" style="--wbg:${p.brand.colors?.primary || '#222'}">
+        ${markTint(p, 'uo-mark')}
+        <div class="uo-content">${num(i)}${logoTint(p, 'uo-logo')}<span class="w-rule"></span>${tag(p)}</div>
+      </button>`).join('')}</div><div class="uo-top"></div>`,
+  cards: ps => `<div class="ud-spot"></div><div class="ud-row">${ps.map((p, i) => {
+      const c = p.brand.colors || {};
+      return `<button class="world ud-world" data-project="${esc(p.id)}" style="--paper:${c.background || '#eee'};--ink:${c.primary || '#222'};--r:${i % 2 ? 3 : -3}deg">
+        <div class="ud-card"><span class="ud-num latin">${String(i + 1).padStart(2, '0')}</span>
+          <span class="ud-emb">${markTint(p, 'ud-mark')}</span>
+          <span class="ud-emb">${logoTint(p, 'ud-logo')}</span>
+          ${tag(p)}<span class="ud-edge"></span></div>
+      </button>`;
+    }).join('')}</div>`,
+  horizon: ps => `<div class="uh-glow"></div><div class="uh-line"><i></i></div><div class="uh-row">${ps.map((p, i) => `
+      <button class="world uh-world" data-project="${esc(p.id)}" style="--glow:${p.brand.colors?.secondary || '#fff'}">${num(i)}${logoTint(p, 'uh-logo')}${tag(p)}</button>`).join('')}</div>`,
+  typestack: ps => `<div class="us-list">${ps.map((p, i) => `
+      <button class="world us-world" data-project="${esc(p.id)}" style="--glow:${p.brand.colors?.secondary || '#fff'}">
+        <span class="us-meta">${num(i)}${nameAr(p)}${tag(p)}</span>${logoTint(p, 'us-logo')}
+      </button>`).join('')}</div>`,
   legacy: ps => `<div class="u-head"></div><div class="u-worlds">${ps.map((p, i) => {
       const b = p.brand, c = b.colors || {}, ub = b.universe || {};
       const bg = ub.background || c.background, dark = ub.visual === 'image' || isDarkHex(bg);
@@ -452,6 +479,11 @@ function renderUniverse() {
       ${u.hint ? `<div class="u-hint">${esc(u.hint)}</div>` : ''}${chooserHTML(u, layout)}
     </div>`;
   fixAspects(L.universe);
+  stage.dataset.ulayout = layout;
+  $$('.ud-world', L.universe).forEach(w => w.addEventListener('mousemove', e => {
+    const r = w.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+    w.style.setProperty('--tx', (x * 10).toFixed(2) + 'deg'); w.style.setProperty('--ty', (-y * 8).toFixed(2) + 'deg');
+  }));
   worldTex.forEach(t => t.stop()); worldTex.length = 0;
   $$('.world', L.universe).forEach((w, i) => {
     const p = ps[i];
@@ -486,6 +518,9 @@ function hoverWorld(i, on) {
   const glow = $('.um-glow', L.universe);
   if (glow && ws[i]) { const r = ws[i].getBoundingClientRect(), s = L.universe.getBoundingClientRect(); glow.style.setProperty('--gx', ((r.left + r.width / 2 - s.left) / s.width) * 100 + '%'); glow.style.setProperty('--gc', ws[i].style.getPropertyValue('--glow')); glow.classList.toggle('on', on); }
   if (on) $$('.ui-img', L.universe).forEach((im, k) => im.classList.toggle('on', k === i));
+  const hz = $('.uh-line', L.universe);
+  if (hz && ws[i]) { const r = ws[i].getBoundingClientRect(), s0 = hz.getBoundingClientRect(); hz.style.setProperty('--lx', on ? ((r.left + r.width / 2 - s0.left) / s0.width) * 100 + '%' : '50%'); hz.style.setProperty('--lc', on ? ws[i].style.getPropertyValue('--glow') : '#F5F1E8'); hz.classList.toggle('on', on); }
+  if (!on) $$('.ud-world', L.universe).forEach(w => { w.style.setProperty('--tx', '0deg'); w.style.setProperty('--ty', '0deg'); });
   const t = worldTex[i]; if (!t?.set) return;
   const p = projectsOf(S.content)[i];
   gsap.to(t, { progress: on ? (p.brand.texture === 'mist' ? 0.5 : 0.44) : (p.brand.texture === 'mist' ? 0.36 : 0.3), speed: on ? 1.8 : 0.6, duration: 1.4, ease: 'power2.out' });
@@ -511,6 +546,23 @@ function universeEntrance(quick = false) {
   } else if (layout === 'index') {
     tl.fromTo(q('.ui-media'), { clipPath: 'inset(0% 0% 0% 100%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 2, ease: 'expo.inOut', clearProps: 'clipPath' }, d + 0.1);
     tl.fromTo(q('.ui-eyebrow, .ui-row'), { opacity: 0, x: -pxs(40) }, { opacity: 1, x: 0, duration: 1.5, ease: 'expo.out', stagger: 0.12 }, d + 0.5);
+  } else if (layout === 'title') {
+    tl.fromTo(q('.ut-light'), { opacity: 0 }, { opacity: 1, duration: 3, ease: 'sine.inOut' }, d);
+    tl.fromTo(q('.ut-rule'), { scaleX: 0 }, { scaleX: 1, duration: 1.8, ease: 'expo.inOut' }, d + 0.9);
+    tl.fromTo(q('.ut-world, .ut-dot'), { opacity: 0, y: pxs(16), filter: 'blur(6px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.8, ease: 'expo.out', stagger: 0.12, clearProps: 'filter' }, d + 1.3);
+  } else if (layout === 'monogram') {
+    tl.fromTo(q('.uo-world'), { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.9, ease: 'expo.inOut', stagger: 0.14, clearProps: 'clipPath' }, d);
+    tl.fromTo(q('.uo-mark'), { scale: 1.25, opacity: 0 }, { scale: 1, opacity: 1, duration: 3, ease: 'expo.out', stagger: 0.14 }, d + 0.4);
+    tl.fromTo(q('.uo-content > *'), { opacity: 0, y: pxs(20) }, { opacity: 1, y: 0, duration: 1.5, ease: 'expo.out', stagger: 0.06 }, d + 1.1);
+  } else if (layout === 'cards') {
+    tl.fromTo(q('.ud-spot'), { opacity: 0 }, { opacity: 1, duration: 2.4, ease: 'sine.inOut' }, d);
+    tl.fromTo(q('.ud-card'), { y: pxs(120), opacity: 0, rotate: 0 }, { y: 0, opacity: 1, duration: 2.2, ease: 'expo.out', stagger: 0.2, clearProps: 'transform' }, d + 0.3);
+  } else if (layout === 'horizon') {
+    tl.fromTo(q('.uh-line'), { scaleX: 0 }, { scaleX: 1, duration: 2.4, ease: 'expo.inOut' }, d + 0.2);
+    tl.fromTo(q('.uh-glow'), { opacity: 0 }, { opacity: 1, duration: 3, ease: 'sine.inOut' }, d + 0.6);
+    tl.fromTo(q('.uh-world > *'), { opacity: 0, y: pxs(18) }, { opacity: 1, y: 0, duration: 1.6, ease: 'expo.out', stagger: 0.06 }, d + 1.3);
+  } else if (layout === 'typestack') {
+    tl.fromTo(q('.us-world'), { opacity: 0, x: pxs(80) }, { opacity: 1, x: 0, duration: 2, ease: 'expo.out', stagger: 0.18 }, d + 0.3);
   } else {
     tl.fromTo(q('.world'), { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 1.8, ease: 'expo.out', stagger: 0.18 }, d + 0.25);
     tl.fromTo(q('.w-content > *'), { opacity: 0, y: pxs(20) }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.06 }, d + 0.7);

@@ -27,7 +27,12 @@ def data_uri(path):
         return 'data:image/svg+xml;base64,' + base64.b64encode(rd(path, 'rb')).decode()
     if ext == '.woff2':
         return 'data:font/woff2;base64,' + base64.b64encode(rd(path, 'rb')).decode()
-    if ext in ('.jpg', '.jpeg', '.png', '.webp'):
+    if ext == '.png':  # logos: keep transparency (CSS masks need the alpha channel)
+        im = Image.open(full).convert('RGBA')
+        if im.width > a.max_width: im = im.resize((a.max_width, round(im.height * a.max_width / im.width)), Image.LANCZOS)
+        b = io.BytesIO(); im.save(b, 'PNG', optimize=True)
+        return 'data:image/png;base64,' + base64.b64encode(b.getvalue()).decode()
+    if ext in ('.jpg', '.jpeg', '.webp'):
         im = Image.open(full).convert('RGB')
         if im.width > a.max_width: im = im.resize((a.max_width, round(im.height * a.max_width / im.width)), Image.LANCZOS)
         b = io.BytesIO(); im.save(b, 'JPEG', quality=a.quality, optimize=True, progressive=True)
