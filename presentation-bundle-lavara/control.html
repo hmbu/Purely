@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لوحة التحكم · Bundle × Lavara</title>
+<link rel="stylesheet" href="css/control.css">
+</head>
+<body>
+<header class="bar">
+  <div class="brand">لوحة التحكم <span class="latin">Bundle × Lavara</span></div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="content" class="on">المحتوى</button>
+    <button data-tab="brands">الهويات</button>
+    <button data-tab="global">الإعدادات العامة</button>
+    <button data-tab="decision">القرار والختام</button>
+    <button data-tab="live">العرض المباشر</button>
+    <button data-tab="backup">النسخ الاحتياطي</button>
+  </nav>
+  <div class="actions">
+    <span class="save-state" id="saveState">—</span>
+    <button id="undoBtn" title="تراجع (Ctrl+Z)">↶ تراجع</button>
+    <button id="redoBtn" title="إعادة (Ctrl+Shift+Z)">↷</button>
+    <button id="saveBtn" class="primary">حفظ</button>
+    <a class="btn" href="presentation.html" target="bxl-show">فتح العرض ↗</a>
+    <span class="conn" id="conn"><i></i><b>—</b></span>
+  </div>
+</header>
+
+<main id="main">
+  <!-- CONTENT -->
+  <section class="pane on" id="pane-content">
+    <aside class="tree-col">
+      <div class="col-head"><b>الهيكل</b><button id="addProject" class="sm">+ مشروع</button></div>
+      <div id="tree" class="tree"></div>
+      <p class="hint">اسحب لإعادة الترتيب. اسحب شريحة فوق قسم لنقلها إليه.</p>
+    </aside>
+    <div class="editor-col"><div id="editor" class="editor"></div></div>
+  </section>
+
+  <!-- BRANDS -->
+  <section class="pane" id="pane-brands">
+    <div class="wide">
+      <div class="col-head"><b>هوية المشروع</b><select id="brandProject"></select></div>
+      <div id="brandForm" class="form-grid"></div>
+    </div>
+  </section>
+
+  <!-- GLOBAL -->
+  <section class="pane" id="pane-global">
+    <div class="wide"><div id="globalForm" class="form-grid"></div></div>
+  </section>
+
+  <!-- DECISION + CLOSING -->
+  <section class="pane" id="pane-decision">
+    <div class="wide"><div id="decisionForm" class="form-grid"></div></div>
+  </section>
+
+  <!-- LIVE -->
+  <section class="pane" id="pane-live">
+    <div class="live-grid">
+      <div class="card">
+        <h3>الريموت من جهاز آخر</h3>
+        <div id="qr" class="qr"></div>
+        <div id="remoteLinks" class="links"></div>
+        <p class="muted small">افتح الرابط من جوال المقدّم على نفس شبكة الـ Wi‑Fi. إن تعذر الاتصال، يعمل الريموت أيضاً على نفس الجهاز.</p>
+      </div>
+      <div class="card">
+        <h3>التحكم المباشر</h3>
+        <div class="where" id="liveWhere">—</div>
+        <div class="btn-row big">
+          <button data-cmd="prev">→ السابق</button><button data-cmd="next" class="primary">التالي ←</button>
+        </div>
+        <div class="btn-row">
+          <button data-cmd="prevSection">القسم السابق</button><button data-cmd="nextSection">القسم التالي</button><button data-cmd="zoomOut">رجوع مستوى (Esc)</button>
+        </div>
+        <div class="btn-row">
+          <button data-cmd="universe">البداية</button><button data-cmd="decision">نقطة القرار</button><button data-cmd="closing">الختام</button>
+        </div>
+        <div class="btn-row">
+          <button data-live-toggle="black" id="liveBlack">شاشة سوداء</button><button data-live-toggle="mute" id="liveMute">كتم الصوت</button><button data-live-toggle="timer" id="liveTimer">مؤقت النقاش</button><button data-cmd="resetTimer">تصفير مؤقت العرض</button>
+        </div>
+        <div class="kv"><span>المؤقت</span><b id="liveClock" class="latin">00:00</b></div>
+        <div class="kv"><span>التالي</span><b id="liveNext">—</b></div>
+        <div class="notes-box"><div class="muted small">ملاحظات المقدّم</div><div id="liveNotes">—</div></div>
+      </div>
+      <div class="card">
+        <h3>القفز السريع</h3>
+        <div id="liveTree" class="live-tree"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BACKUP -->
+  <section class="pane" id="pane-backup">
+    <div class="live-grid">
+      <div class="card">
+        <h3>الحفظ</h3>
+        <p class="muted">كل تعديل يُحفظ تلقائياً في <code>content.json</code>، ويحتفظ المشغّل بنسخة احتياطية تلقائية كل دقيقة على الأكثر داخل <code>data/backups/</code>.</p>
+        <div class="btn-row"><button id="backupNow">نسخة احتياطية الآن</button><button id="exportJson">تصدير JSON</button><label class="btn">استيراد JSON<input type="file" id="importJson" accept=".json,application/json" hidden></label></div>
+        <div id="fsaBox" class="fsa" hidden>
+          <p class="muted small">لا يوجد مشغّل محلي (فتح الملف مباشرة). يمكنك ربط ملف <code>content.json</code> للحفظ المباشر عبر Chrome:</p>
+          <button id="fsaLink">ربط ملف content.json</button> <span id="fsaState" class="muted small"></span>
+        </div>
+      </div>
+      <div class="card span2">
+        <h3>سجل النسخ <button class="sm" id="refreshBackups">تحديث</button></h3>
+        <div id="backups" class="backups"></div>
+      </div>
+    </div>
+  </section>
+</main>
+<aside class="preview-col" id="previewCol">
+  <div class="col-head"><b>معاينة حية</b>
+    <span><button id="playPreview" class="sm">▶ الحركة</button><button id="pvUniverse" class="sm">البداية</button><button id="pvDecision" class="sm">القرار</button><button id="pvClosing" class="sm">الختام</button><button id="showOnScreen" class="sm primary">عرض على الشاشة</button></span>
+  </div>
+  <div class="preview-frame"><iframe id="preview" src="presentation.html?preview=1" title="preview"></iframe></div>
+  <div id="previewInfo" class="muted small"></div>
+</aside>
+
+<div id="modal" class="modal" hidden><div class="modal-box"><div class="modal-head"><b id="modalTitle"></b><button id="modalClose">✕</button></div><div id="modalBody" class="modal-body"></div></div></div>
+<div id="toast" class="toast"></div>
+<script type="module" src="js/control.js"></script>
+</body>
+</html>

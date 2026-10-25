@@ -1,0 +1,1035 @@
+{
+  "version": 1,
+  "meta": {
+    "title": "Bundle × Lavara",
+    "updatedAt": "2026-10-25T01:43:34.689Z"
+  },
+  "fonts": [
+    {
+      "id": "thmanyah-serif-display",
+      "name": "ثمانية — Serif Display",
+      "files": {
+        "300": "assets/fonts/thmanyah/thmanyahserifdisplay-Light.woff2",
+        "400": "assets/fonts/thmanyah/thmanyahserifdisplay-Regular.woff2",
+        "500": "assets/fonts/thmanyah/thmanyahserifdisplay-Medium.woff2",
+        "700": "assets/fonts/thmanyah/thmanyahserifdisplay-Bold.woff2",
+        "900": "assets/fonts/thmanyah/thmanyahserifdisplay-Black.woff2"
+      }
+    },
+    {
+      "id": "thmanyah-serif-text",
+      "name": "ثمانية — Serif Text",
+      "files": {
+        "300": "assets/fonts/thmanyah/thmanyahseriftext-Light.woff2",
+        "400": "assets/fonts/thmanyah/thmanyahseriftext-Regular.woff2",
+        "500": "assets/fonts/thmanyah/thmanyahseriftext-Medium.woff2",
+        "700": "assets/fonts/thmanyah/thmanyahseriftext-Bold.woff2",
+        "900": "assets/fonts/thmanyah/thmanyahseriftext-Black.woff2"
+      }
+    },
+    {
+      "id": "thmanyah-sans",
+      "name": "ثمانية — Sans",
+      "files": {
+        "300": "assets/fonts/thmanyah/thmanyahsans-Light.woff2",
+        "400": "assets/fonts/thmanyah/thmanyahsans-Regular.woff2",
+        "500": "assets/fonts/thmanyah/thmanyahsans-Medium.woff2",
+        "700": "assets/fonts/thmanyah/thmanyahsans-Bold.woff2",
+        "900": "assets/fonts/thmanyah/thmanyahsans-Black.woff2"
+      }
+    }
+  ],
+  "settings": {
+    "universe": {
+      "layout": "halves",
+      "background": "#15120F",
+      "text": "#F3EFE6",
+      "hint": "اختر مشروعاً للبدء",
+      "showLogos": true,
+      "logosSize": 1
+    },
+    "motion": {
+      "speed": 1,
+      "reduced": "auto",
+      "textureScale": 0.5
+    },
+    "hud": {
+      "breadcrumb": true,
+      "progress": true,
+      "timer": false
+    },
+    "startAt": "universe",
+    "typography": {
+      "title": {
+        "font": "thmanyah-serif-display",
+        "weight": 500,
+        "scale": 1,
+        "lineHeight": 1.25
+      },
+      "body": {
+        "font": "thmanyah-sans",
+        "weight": 400,
+        "scale": 1,
+        "lineHeight": 1.7
+      }
+    },
+    "headerLogos": {
+      "show": true,
+      "corner": "top-left",
+      "size": 1,
+      "gap": 2,
+      "autoContrast": true,
+      "color": "#F3EFE6",
+      "items": [
+        {
+          "id": "logo-bundle",
+          "label": "Bundle",
+          "src": "assets/bundle/bundle-wordmark.svg",
+          "srcDark": "",
+          "tint": true,
+          "show": true,
+          "scale": 1
+        },
+        {
+          "id": "logo-lavara",
+          "label": "Lavara",
+          "src": "assets/lavara/lavara-wordmark.svg",
+          "srcDark": "",
+          "tint": true,
+          "show": true,
+          "scale": 1
+        }
+      ]
+    },
+    "sound": {
+      "master": 0.35,
+      "muted": false
+    },
+    "video": {
+      "autoplay": true,
+      "pauseOnLeave": true
+    },
+    "flow": {
+      "afterAllProjects": "decision"
+    }
+  },
+  "projects": [
+    {
+      "id": "bundle",
+      "name": "Bundle",
+      "nameAr": "باندل",
+      "tagline": "هدايا الشركات، بإحساس إنساني",
+      "hidden": false,
+      "brand": {
+        "logo": "assets/bundle/bundle-wordmark.svg",
+        "mark": "assets/bundle/bundle-isotype.svg",
+        "colors": {
+          "primary": "#245845",
+          "secondary": "#F2A9C2",
+          "accent": "#9F3517",
+          "background": "#F1EBE1",
+          "surface": "#F9FAFC",
+          "dark": "#0A1215",
+          "text": "#0A1215",
+          "title": "#245845",
+          "textLight": "#F9FAFC"
+        },
+        "palette": [
+          {
+            "hex": "#245845",
+            "name": "أخضر"
+          },
+          {
+            "hex": "#F2A9C2",
+            "name": "وردي"
+          },
+          {
+            "hex": "#9F3517",
+            "name": "طوبي"
+          },
+          {
+            "hex": "#AEE67F",
+            "name": "ليموني"
+          },
+          {
+            "hex": "#ECC39F",
+            "name": "خوخي"
+          },
+          {
+            "hex": "#CCE2F2",
+            "name": "سماوي"
+          },
+          {
+            "hex": "#F1EBE1",
+            "name": "كريمي"
+          },
+          {
+            "hex": "#0A1215",
+            "name": "حبر"
+          }
+        ],
+        "texture": "bubbles",
+        "textureColors": [
+          "#245845",
+          "#F2A9C2",
+          "#AEE67F",
+          "#CCE2F2"
+        ],
+        "textureIntensity": 1,
+        "universe": {
+          "visual": "texture",
+          "image": "",
+          "background": "#F1EBE1"
+        },
+        "sound": {
+          "muted": false,
+          "volume": 1
+        },
+        "typography": {}
+      },
+      "sections": [
+        {
+          "id": "sec-005",
+          "title": "الهوية",
+          "titleEn": "Brand",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-001",
+              "template": "title",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Bundle",
+                "title": "باندل",
+                "subtitle": "هدايا الشركات، بإحساس إنساني",
+                "align": "center",
+                "showMark": true
+              }
+            },
+            {
+              "id": "sl-002",
+              "template": "brand-board",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Brand Identity",
+                "title": "الهوية البصرية",
+                "logo": "",
+                "mark": "",
+                "palette": [],
+                "typeTitle": "هدايا الشركات، بإحساس إنساني",
+                "typeBody": "نتولى اختيار الهدايا وفحص جودتها وتغليفها وشحنها، لتصل في وقتها وبشكل يرغب الناس في الاحتفاظ به."
+              }
+            },
+            {
+              "id": "sl-003",
+              "template": "statement",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Purpose",
+                "statement": "الهدية الجيدة تقول:\n«فكّرنا فيك».",
+                "attribution": "مدروسة · سلسة · موثوقة",
+                "size": "xl"
+              }
+            },
+            {
+              "id": "sl-004",
+              "template": "image-text",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "image": {
+                  "src": "assets/bundle/sample/office.jpg",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 45,
+                    "y": 40
+                  }
+                },
+                "eyebrow": "Audience",
+                "title": "لمن يدير الهدايا\nفي الشركة",
+                "body": "مسؤولو الموارد البشرية ومديرو المكاتب، والمؤسس أو مسؤول العمليات في الشركات الصغيرة. يهتمون بتقدير الموظفين، لكن الهدايا ليست كل عملهم.",
+                "imageSide": "left",
+                "imageWidth": 50,
+                "framed": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "sec-008",
+          "title": "المنتج الرقمي",
+          "titleEn": "Digital Product",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-006",
+              "template": "device",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "device": "laptop",
+                "screens": [
+                  {
+                    "src": ""
+                  }
+                ],
+                "laptop": "assets/bundle/sample/product-page.jpg",
+                "interval": 3.5,
+                "eyebrow": "Digital Product",
+                "title": "تجربة طلب\nبلا عناء",
+                "body": "من اختيار الهدية إلى استلامها، في مكان واحد."
+              }
+            },
+            {
+              "id": "sl-007",
+              "template": "full-image",
+              "transition": "mask",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "image": {
+                  "src": "assets/bundle/sample/product-page.jpg",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 50,
+                    "y": 50
+                  }
+                },
+                "eyebrow": "",
+                "title": "",
+                "body": "",
+                "textPosition": "none",
+                "shade": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "sec-00a",
+          "title": "المفاهيم",
+          "titleEn": "Concepts",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-009",
+              "template": "concepts",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Concepts",
+                "title": "ثلاثة مفاهيم",
+                "items": [
+                  {
+                    "label": "01",
+                    "title": "المفهوم الأول",
+                    "body": "وصف مختصر للمفهوم.",
+                    "image": {
+                      "src": "assets/bundle/sample/gift-card.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "label": "02",
+                    "title": "المفهوم الثاني",
+                    "body": "وصف مختصر للمفهوم.",
+                    "image": {
+                      "src": "assets/bundle/sample/step-by-step.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "label": "03",
+                    "title": "المفهوم الثالث",
+                    "body": "وصف مختصر للمفهوم.",
+                    "image": {
+                      "src": "assets/bundle/sample/gift-tiles.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "sec-00c",
+          "title": "اختيار العلامات",
+          "titleEn": "Brands Selection",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-00b",
+              "template": "brand-grid",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Brands Selection",
+                "title": "العلامات المختارة",
+                "columns": 4,
+                "items": [
+                  {
+                    "logo": "",
+                    "name": "علامة 1",
+                    "note": ""
+                  },
+                  {
+                    "logo": "",
+                    "name": "علامة 2",
+                    "note": ""
+                  },
+                  {
+                    "logo": "",
+                    "name": "علامة 3",
+                    "note": ""
+                  },
+                  {
+                    "logo": "",
+                    "name": "علامة 4",
+                    "note": ""
+                  },
+                  {
+                    "logo": "",
+                    "name": "علامة 5",
+                    "note": ""
+                  },
+                  {
+                    "logo": "",
+                    "name": "علامة 6",
+                    "note": ""
+                  },
+                  {
+                    "logo": "",
+                    "name": "علامة 7",
+                    "note": ""
+                  },
+                  {
+                    "logo": "",
+                    "name": "علامة 8",
+                    "note": ""
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "sec-00f",
+          "title": "قصة التجربة الكاملة",
+          "titleEn": "Complete Experience Story",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-00d",
+              "template": "journey",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "How it works",
+                "title": "رحلة الهدية",
+                "stepped": true,
+                "stages": [
+                  {
+                    "label": "خطّط",
+                    "title": "خطّط",
+                    "body": "أخبرنا لمن تهدي ولماذا.",
+                    "image": {
+                      "src": "assets/bundle/sample/process-list.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "label": "صمّم",
+                    "title": "صمّم",
+                    "body": "ننسّق هدية مدروسة تشبه علامتك ويرغب الناس في الاحتفاظ بها.",
+                    "image": {
+                      "src": "assets/bundle/sample/step-by-step.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "label": "اطلب",
+                    "title": "اطلب",
+                    "body": "اعتمد اختيارك وشارك قائمة المستلمين.",
+                    "image": {
+                      "src": "assets/bundle/sample/product-page.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "label": "استلم",
+                    "title": "استلم",
+                    "body": "نتولى الاختيار وفحص الجودة والتغليف.",
+                    "image": {
+                      "src": "assets/bundle/sample/gift-tiles.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "label": "احتفل",
+                    "title": "احتفل",
+                    "body": "تصل كل هدية في وقتها وبأجمل تقديم. لك الفضل، دون عناء إضافي.",
+                    "image": {
+                      "src": "assets/bundle/sample/gift-card.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sl-00e",
+              "template": "statement",
+              "transition": "veil",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "",
+                "statement": "لك الفضل،\nدون عناء إضافي.",
+                "attribution": "",
+                "size": "xl"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lavara",
+      "name": "Lavara",
+      "nameAr": "لافارا",
+      "tagline": "إقامة لا تُنسى، وعطر صُنع لك",
+      "hidden": false,
+      "brand": {
+        "logo": "assets/lavara/lavara-wordmark.svg",
+        "mark": "assets/lavara/lavara-monogram.svg",
+        "endorsed": "assets/lavara/lavara-almajed.svg",
+        "colors": {
+          "primary": "#3C2E25",
+          "secondary": "#AD6243",
+          "accent": "#926A28",
+          "background": "#F8F2E8",
+          "surface": "#F3F2E0",
+          "dark": "#3C2E25",
+          "text": "#3C2E25",
+          "title": "#3C2E25",
+          "textLight": "#F3F2E0"
+        },
+        "palette": [
+          {
+            "hex": "#3C2E25",
+            "name": "بني داكن"
+          },
+          {
+            "hex": "#F3F2E0",
+            "name": "عاجي"
+          },
+          {
+            "hex": "#F8F2E8",
+            "name": "ورقي"
+          },
+          {
+            "hex": "#AD6243",
+            "name": "تيراكوتا"
+          },
+          {
+            "hex": "#8F2E02",
+            "name": "صدئي"
+          },
+          {
+            "hex": "#926A28",
+            "name": "أوكر"
+          },
+          {
+            "hex": "#959163",
+            "name": "ساج"
+          },
+          {
+            "hex": "#5B634A",
+            "name": "زيتوني"
+          }
+        ],
+        "texture": "mist",
+        "textureColors": [
+          "#3C2E25",
+          "#6B4A36",
+          "#AD6243",
+          "#F3F2E0"
+        ],
+        "textureIntensity": 1,
+        "universe": {
+          "visual": "texture",
+          "image": "",
+          "background": "#3C2E25"
+        },
+        "sound": {
+          "muted": false,
+          "volume": 1
+        },
+        "typography": {}
+      },
+      "sections": [
+        {
+          "id": "sec-00k",
+          "title": "الهوية",
+          "titleEn": "Brand",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-00g",
+              "template": "title",
+              "transition": "drift",
+              "bg": "primary",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Lavara",
+                "title": "لافارا",
+                "subtitle": "عطور وعناية · by Al Majed Oud",
+                "align": "center",
+                "showMark": true
+              }
+            },
+            {
+              "id": "sl-00h",
+              "template": "brand-board",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Brand Identity",
+                "title": "الهوية البصرية",
+                "logo": "",
+                "mark": "",
+                "palette": [],
+                "typeTitle": "إقامة لا تُنسى، وعطر صُنع لك",
+                "typeBody": "أول دار عطور سعودية صُممت حصرياً للفنادق الفاخرة."
+              }
+            },
+            {
+              "id": "sl-00i",
+              "template": "full-image",
+              "transition": "veil",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "image": {
+                  "src": "assets/lavara/sample/room.jpg",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 50,
+                    "y": 55
+                  }
+                },
+                "eyebrow": "A stay to remember",
+                "title": "إقامة لا تُنسى،\nوعطر صُنع لك",
+                "body": "",
+                "textPosition": "bottom-start",
+                "shade": true
+              }
+            },
+            {
+              "id": "sl-00j",
+              "template": "image-text",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "image": {
+                  "src": "assets/lavara/sample/towels.jpg",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 50,
+                    "y": 40
+                  }
+                },
+                "eyebrow": "Purpose",
+                "title": "لا نبيع منتجات فقط،\nنقدّم تجربة",
+                "body": "يزور خبراء العطور لدينا فنادق الخمس نجوم بأطقم عطور خاصة، ويعرضون فن العطر حضورياً. يشعر بها الضيف في غرفته، وفي السبا، وفي كل تفصيل صغير من إقامته.",
+                "imageSide": "left",
+                "imageWidth": 46,
+                "framed": true
+              }
+            }
+          ]
+        },
+        {
+          "id": "sec-00o",
+          "title": "العطور — تجربة فاخرة",
+          "titleEn": "Fragrances — Luxury Experience",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-00l",
+              "template": "statement",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Luxury · Experimental · Made for 5-Stars",
+                "statement": "فخامة تُشمّ\nفي كل تفصيل.",
+                "attribution": "",
+                "size": "xl"
+              }
+            },
+            {
+              "id": "sl-00m",
+              "template": "image-text",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "image": {
+                  "src": "assets/lavara/sample/soap.jpg",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 60,
+                    "y": 45
+                  }
+                },
+                "eyebrow": "Fragrance & Care",
+                "title": "عطور وعناية",
+                "body": "أصول نباتية · خلاصات زهرية · أزهار نادرة · طقوس حسّية · فن صناعة العطر",
+                "imageSide": "left",
+                "imageWidth": 50,
+                "framed": true
+              }
+            },
+            {
+              "id": "sl-00n",
+              "template": "video",
+              "transition": "fade",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "video": {
+                  "src": "",
+                  "poster": "",
+                  "autoplay": true,
+                  "muted": true,
+                  "loop": true
+                },
+                "mode": "full",
+                "eyebrow": "",
+                "title": ""
+              }
+            }
+          ]
+        },
+        {
+          "id": "sec-00q",
+          "title": "المنتج الرقمي",
+          "titleEn": "Digital Product",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-00p",
+              "template": "device",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "device": "phone",
+                "screens": [
+                  {
+                    "src": ""
+                  },
+                  {
+                    "src": ""
+                  }
+                ],
+                "laptop": "",
+                "interval": 3.5,
+                "eyebrow": "Digital Product",
+                "title": "المنتج الرقمي",
+                "body": "مساحة لعرض شاشات المنتج أو فيديو النموذج التفاعلي."
+              }
+            }
+          ]
+        },
+        {
+          "id": "sec-00s",
+          "title": "المفاهيم",
+          "titleEn": "Concepts",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-00r",
+              "template": "concepts",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Concepts",
+                "title": "ثلاثة مفاهيم",
+                "items": [
+                  {
+                    "label": "I",
+                    "title": "المفهوم الأول",
+                    "body": "وصف مختصر للمفهوم.",
+                    "image": {
+                      "src": "assets/lavara/sample/emboss.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "label": "II",
+                    "title": "المفهوم الثاني",
+                    "body": "وصف مختصر للمفهوم.",
+                    "image": {
+                      "src": "assets/lavara/sample/card.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "label": "III",
+                    "title": "المفهوم الثالث",
+                    "body": "وصف مختصر للمفهوم.",
+                    "image": {
+                      "src": "assets/lavara/sample/tray.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "sec-00v",
+          "title": "قصة التجربة الكاملة",
+          "titleEn": "Complete Experience Story",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-00t",
+              "template": "journey",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Experience Story",
+                "title": "رحلة الضيف",
+                "stepped": true,
+                "stages": [
+                  {
+                    "label": "الوصول",
+                    "title": "الوصول",
+                    "body": "أول انطباع يبدأ بالعطر.",
+                    "image": {
+                      "src": "assets/lavara/sample/room.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "label": "الغرفة",
+                    "title": "في الغرفة",
+                    "body": "تفاصيل العناية حاضرة في كل زاوية.",
+                    "image": {
+                      "src": "assets/lavara/sample/tray.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "label": "السبا",
+                    "title": "في السبا",
+                    "body": "طقوس حسّية تكمل الإقامة.",
+                    "image": {
+                      "src": "assets/lavara/sample/towels.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "label": "الذكرى",
+                    "title": "ذكرى تبقى",
+                    "body": "عطر يذكّر الضيف بإقامته.",
+                    "image": {
+                      "src": "assets/lavara/sample/emboss.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sl-00u",
+              "template": "title",
+              "transition": "veil",
+              "bg": "primary",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Lavara",
+                "title": "إقامة لا تُنسى",
+                "subtitle": "by Al Majed Oud",
+                "align": "center",
+                "showMark": true
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "decision": {
+    "eyebrow": "Decision Point",
+    "question": "ما القرار اليوم؟",
+    "showTimer": false,
+    "groups": [
+      {
+        "id": "dg-bundle",
+        "title": "Bundle",
+        "projectId": "bundle",
+        "options": [
+          {
+            "id": "b1",
+            "label": "المفهوم الأول"
+          },
+          {
+            "id": "b2",
+            "label": "المفهوم الثاني"
+          },
+          {
+            "id": "b3",
+            "label": "المفهوم الثالث"
+          }
+        ]
+      },
+      {
+        "id": "dg-lavara",
+        "title": "Lavara",
+        "projectId": "lavara",
+        "options": [
+          {
+            "id": "l1",
+            "label": "المفهوم الأول"
+          },
+          {
+            "id": "l2",
+            "label": "المفهوم الثاني"
+          },
+          {
+            "id": "l3",
+            "label": "المفهوم الثالث"
+          }
+        ]
+      },
+      {
+        "id": "dg-next",
+        "title": "الخطوة التالية",
+        "projectId": "",
+        "options": [
+          {
+            "id": "n1",
+            "label": "اعتماد"
+          },
+          {
+            "id": "n2",
+            "label": "تعديل"
+          },
+          {
+            "id": "n3",
+            "label": "تأجيل"
+          }
+        ]
+      }
+    ]
+  },
+  "closing": {
+    "layout": "logos",
+    "line": "شكراً",
+    "subline": "",
+    "contact": "",
+    "showDecisions": true,
+    "decisionsTitle": "ما تم اعتماده"
+  }
+}

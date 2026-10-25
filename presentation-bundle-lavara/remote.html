@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#15120F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Remote · Bundle × Lavara</title>
+<link rel="stylesheet" href="css/remote.css">
+</head>
+<body>
+<header class="top">
+  <div class="conn"><i id="dot"></i><span id="connText">جارٍ الاتصال…</span></div>
+  <div class="clock"><span id="clock" class="latin">00:00</span><button id="resetClock" title="تصفير المؤقت">↺</button></div>
+</header>
+
+<main>
+  <section class="tab on" id="tab-show">
+    <div class="where">
+      <div class="where-crumb" id="crumb">—</div>
+      <div class="where-title" id="title">—</div>
+    </div>
+
+    <div class="nav">
+      <button class="big next" data-cmd="next"><span>التالي</span><small>Next</small></button>
+      <button class="big prev" data-cmd="prev"><span>السابق</span><small>Prev</small></button>
+    </div>
+    <div class="row">
+      <button data-cmd="prevSection">القسم السابق</button>
+      <button data-cmd="nextSection">القسم التالي</button>
+      <button data-cmd="zoomOut">رجوع مستوى</button>
+    </div>
+
+    <div class="concepts-ctl" id="conceptsCtl" hidden>
+      <div class="label">تركيز المفهوم</div>
+      <div class="row" id="conceptBtns"></div>
+    </div>
+
+    <div class="card next-card">
+      <div class="label">التالي</div>
+      <div class="next-body"><div class="thumb" id="nextThumb"></div><div><div id="nextLabel">—</div><div class="muted" id="nextMeta"></div></div></div>
+    </div>
+
+    <div class="card">
+      <div class="label">ملاحظات المقدّم</div>
+      <div class="notes" id="notes">—</div>
+    </div>
+
+    <div class="grid">
+      <button data-cmd="universe">البداية<br><small>Universe</small></button>
+      <button data-cmd="decision">نقطة القرار</button>
+      <button data-cmd="closing">الختام</button>
+      <button id="blackBtn" data-toggle="black">شاشة سوداء</button>
+      <button id="muteBtn" data-toggle="mute">كتم الصوت</button>
+      <button data-cmd="reloadShow" class="danger">إعادة تحميل العرض</button>
+    </div>
+  </section>
+
+  <section class="tab" id="tab-jump">
+    <div id="tree"></div>
+  </section>
+
+  <section class="tab" id="tab-decision">
+    <div class="card">
+      <div class="label">نقطة القرار</div>
+      <p class="muted">اختر الخيار المعتمد لكل بند — يظهر فوراً على الشاشة ويُحفظ مع الوقت والتاريخ.</p>
+      <div class="row"><button data-cmd="decision">اذهب لنقطة القرار</button><button id="timerBtn" data-toggle="discussionTimer">مؤقت النقاش</button></div>
+    </div>
+    <div id="decisionGroups"></div>
+    <div class="row"><button id="clearDecisions" class="danger">مسح كل الاختيارات</button></div>
+  </section>
+</main>
+
+<nav class="tabs">
+  <button class="on" data-tab="show">التحكم</button>
+  <button data-tab="jump">القفز</button>
+  <button data-tab="decision">القرار</button>
+</nav>
+<script type="module" src="js/remote.js"></script>
+</body>
+</html>

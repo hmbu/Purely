@@ -1,0 +1,5 @@
+data/chrome-profile/
+data/backups/
+data/decisions-log.json
+*.tmp
+.DS_Store

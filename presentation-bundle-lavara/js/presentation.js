@@ -1,0 +1,973 @@
+// Bundle × Lavara — the show.
+// One giant canvas navigated by a camera: Universe (L0) → Project hub (L1) → Section (L2, slides advance horizontally).
+// Everything is driven by content.json; nothing about projects/sections/slides is hard-coded.
+import { $, $$, esc, escBr, clamp, fmtClock, prefersReducedMotion, grainTexture, rgba, fixAspects } from './core/util.js';
+import { projectsOf, sectionsOf, slidesOf, findProject, findSection, slideTheme, locate } from './core/model.js';
+import { loadContent, logDecision } from './core/store.js';
+import { createSync } from './core/sync.js';
+import { registerFonts, applyTypography, fontsReady } from './core/fonts.js';
+import { SoundEngine } from './core/sound.js';
+import { BrandTexture } from './core/texture.js';
+import { TEMPLATES, slideLabel, slideMedia, mediaHTML } from './core/templates.js';
+
+const gsap = window.gsap;
+gsap.config({ nullTargetWarn: false });
+const QS = new URLSearchParams(location.search);
+const PREVIEW = QS.has('preview');
+
+const stage = $('#stage');
+const L = { universe: $('#L-universe'), hub: $('#L-hub'), section: $('#L-section'), special: $('#L-special') };
+const slidesHost = $('#L-section .slides');
+const coverEl = $('#cover'), logosEl = $('#logos'), blackEl = $('#black');
+const hud = { root: $('#hud'), crumb: $('#hud .crumb'), bar: $('#hud .bar i'), clock: $('#hud .clock') };
+
+const sound = new SoundEngine();
+let veil = null;
+const worldTex = [];
+
+const S = {
+  content: null,
+  level: 'boot', pid: null, sid: null, li: 0, step: 0,
+  slideEl: null, slideTpl: null, slide: null,
+  visitedProjects: new Set(), lastSection: {},
+  busy: false, queue: [],
+  black: false, startedAt: Date.now(),
+  decision: { selections: {}, timerOn: false, timerStart: 0 },
+  focus: -1,
+};
+try { const d = JSON.parse(localStorage.getItem('bxl-decisions') || 'null'); if (d) S.decision.selections = d; } catch {}
+
+const project = () => findProject(S.content, S.pid);
+const section = () => findSection(project(), S.sid);
+const settings = () => S.content.settings || {};
+const reduced = () => { const r = settings().motion?.reduced; return r === 'on' || (r !== 'off' && prefersReducedMotion()); };
+const asset = p => (p ? new URL(p, location.href).href : ''); // absolute: url() inside CSS variables resolves against the stylesheet otherwise
+const ctxFor = p => ({ brand: p?.brand || {}, project: p, asset });
+const pxs = n => (stage.clientWidth / 3840) * n; // design px at 4K → current px
+
+/* ======================================================================= layout */
+function fit() {
+  const vw = innerWidth, vh = innerHeight;
+  let w = vw, h = vw * 9 / 16; if (h > vh) { h = vh; w = vh * 16 / 9; }
+  stage.style.width = w + 'px'; stage.style.height = h + 'px';
+  document.documentElement.style.fontSize = (w / 160) + 'px';
+}
+addEventListener('resize', () => { fit(); placeLogos(S.level === 'universe' ? 'hero' : 'corner', false); });
+
+/* ======================================================================= brand / theme */
+function universeColors() {
+  const u = settings().universe || {};
+  return { bg: u.background || '#15120F', fg: u.text || '#F3EFE6' };
+}
+function applyBrand(p, animate = true) {
+  const st = stage.style;
+  if (!p) {
+    const u = universeColors();
+    stage.dataset.brand = 'universe'; stage.dataset.style = 'neutral';
+    st.setProperty('--b-fg', u.fg);
+    applyTypography(stage, S.content, null);
+    gsap.to(stage, { backgroundColor: u.bg, duration: animate ? 1.2 : 0, ease: 'power2.inOut' });
+    return;
+  }
+  const c = p.brand.colors || {};
+  stage.dataset.brand = p.id; stage.dataset.style = p.brand.texture === 'mist' ? 'mist' : 'bubbles';
+  const vars = { primary: c.primary, secondary: c.secondary, accent: c.accent, bg: c.background, surface: c.surface, dark: c.dark, text: c.text, title: c.title || c.text, light: c.textLight };
+  for (const [k, v] of Object.entries(vars)) if (v) st.setProperty(`--b-${k}`, v);
+  const tc = p.brand.textureColors || [];
+  tc.forEach((v, i) => st.setProperty(`--b-t${i}`, v));
+  st.setProperty('--b-fg', c.text);
+  applyTypography(stage, S.content, p);
+  gsap.to(stage, { backgroundColor: c.background, duration: animate ? 1.2 : 0, ease: 'power2.inOut' });
+}
+
+/* ======================================================================= header logos */
+function renderLogos() {
+  const h = settings().headerLogos || {};
+  const items = (h.items || []).filter(i => i.show !== false && i.src);
+  logosEl.innerHTML = items.map(i => {
+    const sc = i.scale || 1;
+    if (i.tint !== false) return `<span class="hl hl-tint" data-ar-src="${esc(asset(i.src))}" style="--src:url('${esc(asset(i.src))}');--sc:${sc}" title="${esc(i.label || '')}"></span>`;
+    return `<span class="hl hl-img" style="--sc:${sc}"><img class="on-light" src="${esc(asset(i.src))}" alt=""><img class="on-dark" src="${esc(asset(i.srcDark || i.src))}" alt=""></span>`;
+  }).join('<span class="hl-sep"></span>');
+  logosEl.style.setProperty('--hl-size', h.size || 1);
+  logosEl.style.setProperty('--hl-gap', (h.gap ?? 2) + 'rem');
+  logosEl.style.setProperty('--hl-hero', settings().universe?.logosSize || 1);
+  logosEl.dataset.corner = h.corner || 'top-left';
+  logosEl.hidden = h.show === false || !items.length;
+  fixAspects(logosEl);
+}
+function placeLogos(mode, animate = true) {
+  if (logosEl.dataset.mode === mode && !animate) return;
+  const first = logosEl.getBoundingClientRect();
+  logosEl.dataset.mode = mode;
+  if (!animate || first.width === 0) return;
+  const last = logosEl.getBoundingClientRect();
+  if (!last.width) return;
+  gsap.fromTo(logosEl, {
+    x: first.left - last.left, y: first.top - last.top, scale: first.width / last.width, transformOrigin: '0 0',
+  }, { x: 0, y: 0, scale: 1, duration: 1.4, ease: 'power3.inOut', clearProps: 'transform' });
+}
+function logosColor(fg, dark) {
+  const h = settings().headerLogos || {};
+  logosEl.style.color = h.autoContrast === false ? (h.color || fg) : fg;
+  logosEl.classList.toggle('is-dark', !!dark);
+}
+
+/* ======================================================================= HUD */
+function updateHUD() {
+  const h = settings().hud || {};
+  const p = project(), s = section();
+  const inProject = ['hub', 'section'].includes(S.level) && p;
+  hud.root.classList.toggle('show-crumb', !!h.breadcrumb && !!inProject);
+  hud.root.classList.toggle('show-bar', !!h.progress && !!inProject);
+  hud.root.classList.toggle('show-clock', !!h.timer);
+  if (inProject) {
+    const secs = sectionsOf(p);
+    if (S.level === 'section' && s) {
+      const n = slidesOf(s).length;
+      hud.crumb.innerHTML = `<b class="latin">${esc(p.name)}</b><i>›</i>${esc(s.title)}<i>›</i><span class="latin">${S.li + 1}/${n}</span>`;
+    } else hud.crumb.innerHTML = `<b class="latin">${esc(p.name)}</b>`;
+    // progress across this project's slides
+    let total = 0, done = 0;
+    secs.forEach(sec => { const n = slidesOf(sec).length; if (sec.id === S.sid && S.level === 'section') done = total + S.li + 1; total += n; });
+    hud.bar.style.transform = `scaleX(${total ? done / total : 0})`;
+  }
+  if (S.slideEl) hud.root.classList.toggle('is-dark', S.slideEl.classList.contains('is-dark'));
+  else hud.root.classList.toggle('is-dark', S.level !== 'hub');
+}
+setInterval(() => {
+  hud.clock.textContent = fmtClock(Date.now() - S.startedAt);
+  const dt = $('.d-timer', L.special);
+  if (dt && S.decision.timerOn) dt.textContent = fmtClock(Date.now() - S.decision.timerStart);
+}, 500);
+
+/* ======================================================================= media preload */
+const imgCache = new Map(), vidPool = new Map();
+function preloadMedia(list) {
+  for (const src of list) {
+    const url = asset(src);
+    if (/\.(mp4|webm|mov|m4v)(\?|$)/i.test(url)) {
+      if (vidPool.has(url)) continue;
+      const v = document.createElement('video'); v.preload = 'auto'; v.muted = true; v.playsInline = true; v.src = url; v.load();
+      vidPool.set(url, v);
+      if (vidPool.size > 8) { for (const [k, el] of vidPool) { if (!el.isConnected) { vidPool.delete(k); el.removeAttribute('src'); el.load(); break; } } }
+    } else if (!imgCache.has(url)) {
+      const i = new Image(); i.decoding = 'async'; i.src = url; i.decode?.().catch(() => {}); imgCache.set(url, i);
+      if (imgCache.size > 60) imgCache.delete(imgCache.keys().next().value);
+    }
+  }
+}
+function preloadAround() {
+  const p = project(); if (!p) return;
+  const secs = sectionsOf(p); const si = secs.findIndex(s => s.id === S.sid);
+  const list = [];
+  const s = secs[si]; if (s) slidesOf(s).slice(S.li + 1, S.li + 3).forEach(sl => list.push(...slideMedia(sl)));
+  const nx = secs[si + 1]; if (nx) slidesOf(nx).slice(0, 1).forEach(sl => list.push(...slideMedia(sl)));
+  preloadMedia(list);
+}
+function adoptVideos(el) {
+  $$('video.m', el).forEach(v => {
+    const pooled = vidPool.get(v.getAttribute('src'));
+    if (pooled && !pooled.isConnected) {
+      pooled.className = v.className; pooled.setAttribute('style', v.getAttribute('style') || '');
+      pooled.loop = v.hasAttribute('loop'); pooled.muted = v.hasAttribute('muted');
+      for (const k of ['autoplay', 'muted']) pooled.dataset[k] = v.dataset[k];
+      if (v.poster) pooled.poster = v.poster;
+      pooled.currentTime = 0; v.replaceWith(pooled);
+    }
+  });
+}
+
+/* ======================================================================= slides */
+function buildSlide(p, slide) {
+  const tpl = TEMPLATES[slide.template] || TEMPLATES.title;
+  const theme = slideTheme(p, slide, tpl);
+  const c = p.brand.colors || {};
+  const el = document.createElement('div');
+  el.className = `slide tpl-${slide.template} ${theme.dark ? 'is-dark' : 'is-light'} bg-${theme.key}`;
+  el.dataset.slideId = slide.id;
+  el.style.setProperty('--sbg', theme.bg);
+  el.style.setProperty('--sfg', theme.fg);
+  el.style.setProperty('--stitle', theme.dark ? (c.textLight || '#fff') : (c.title || c.text));
+  el.style.setProperty('--saccent', theme.dark ? (c.secondary || c.textLight) : (c.primary || c.text));
+  el.style.setProperty('--sline', rgba(theme.fg, 0.28));
+  let inner = '';
+  try { inner = tpl.render(slide.data || {}, ctxFor(p)); } catch (e) { inner = `<div class="t"><p class="tx-body">Template error: ${esc(e.message)}</p></div>`; }
+  el.innerHTML = `<div class="slide-bg" data-a="bg"></div>${inner}`;
+  return { el, tpl, theme };
+}
+function mountSlide(el, tpl, slide) {
+  el._cleanup = [];
+  adoptVideos(el);
+  const vs = settings().video || {};
+  $$('video.m', el).forEach(v => {
+    if (vs.autoplay !== false && v.dataset.autoplay !== 'false') {
+      const tryPlay = () => v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
+      v.readyState >= 2 ? tryPlay() : v.addEventListener('canplay', tryPlay, { once: true });
+    }
+  });
+  $$('[data-cycle]', el).forEach(box => {
+    const items = $$('.cyc', box); if (items.length < 2) return;
+    let i = 0; const ms = (parseFloat(box.dataset.cycle) || 3.5) * 1000;
+    const t = setInterval(() => {
+      const a = items[i]; i = (i + 1) % items.length; const b = items[i];
+      gsap.to(a, { opacity: 0, duration: 0.8, ease: 'power2.inOut', onComplete: () => a.classList.remove('on') });
+      b.classList.add('on'); gsap.fromTo(b, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.inOut' });
+    }, ms);
+    el._cleanup.push(() => clearInterval(t));
+  });
+  $$('.concept', el).forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); focusConcept(+btn.dataset.focus); }));
+  if (tpl.steps) applyStep(el, S.step, true);
+  S.focus = -1;
+}
+function unmountSlide(el) {
+  if (!el) return;
+  (el._cleanup || []).forEach(f => f());
+  if (settings().video?.pauseOnLeave !== false) $$('video', el).forEach(v => v.pause());
+}
+function focusConcept(i) {
+  const box = S.slideEl && $('.concepts', S.slideEl); if (!box) return false;
+  const items = $$('.concept', box);
+  if (i < 0 || i >= items.length || S.focus === i) { S.focus = -1; box.classList.remove('has-focus'); items.forEach(x => x.classList.remove('is-focus')); }
+  else { S.focus = i; box.classList.add('has-focus'); items.forEach((x, k) => x.classList.toggle('is-focus', k === i)); }
+  sound.play('ui', S.pid);
+  broadcastState();
+  return true;
+}
+function stepsOf(tpl, slide) { return tpl?.steps ? tpl.steps(slide?.data || {}) : 0; }
+function applyStep(el, step, instant = false) {
+  const nodes = $$('.j-node', el), stages = $$('.j-stage', el);
+  nodes.forEach((n, i) => { n.classList.toggle('done', i < step); n.classList.toggle('on', i === step); });
+  const fill = $('.j-fill', el);
+  if (fill) gsap.to(fill, { scaleX: nodes.length > 1 ? step / (nodes.length - 1) : 1, duration: instant ? 0 : 1.1, ease: 'expo.out' });
+  stages.forEach((s, i) => {
+    const on = i === step;
+    s.classList.toggle('on', on);
+    if (instant) gsap.set(s, { opacity: on ? 1 : 0, x: 0 });
+    else if (on) gsap.fromTo(s, { opacity: 0, x: -pxs(60) }, { opacity: 1, x: 0, duration: 1.1, ease: 'expo.out', delay: 0.15 });
+    else gsap.to(s, { opacity: 0, x: pxs(40), duration: 0.45, ease: 'power2.in' });
+  });
+}
+
+/* ---------- Layered Drift building blocks */
+function introTL(el, dir = 1, kind = 'drift') {
+  const tl = gsap.timeline();
+  const q = s => $$(s, el);
+  const X = -dir * pxs(56); // next enters from the LEFT (RTL)
+  const sx = kind === 'drift' ? X : 0;
+  const bg = q('.slide-bg'), bgx = q('[data-a="bg"]:not(.slide-bg)'), media = q('[data-a="media"]');
+  const extra = q('[data-a="extra"]').sort((a, b) => (+a.dataset.seq || 0) - (+b.dataset.seq || 0));
+  tl.fromTo(bg, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power2.out' }, 0);
+  tl.fromTo(bgx, { opacity: 0 }, { opacity: 1, duration: 1.2, ease: 'power2.out' }, 0.05);
+  tl.fromTo(media, { opacity: 0, x: sx }, { opacity: 1, x: 0, duration: 1.3, ease: 'expo.out' }, 0.1);
+  tl.fromTo(q('[data-a="media"] .m, [data-a="media"] .ph'), { scale: 1.04 }, { scale: 1, duration: 2.2, ease: 'power2.out' }, 0.1);
+  tl.fromTo(q('[data-a="eyebrow"]'), { opacity: 0, x: sx }, { opacity: 1, x: 0, duration: 1.1, ease: 'expo.out' }, 0.2);
+  tl.fromTo(q('[data-a="title"]'), { opacity: 0, x: sx }, { opacity: 1, x: 0, duration: 1.1, ease: 'expo.out' }, 0.3);
+  tl.fromTo(q('[data-a="body"]'), { opacity: 0, x: sx }, { opacity: 1, x: 0, duration: 1.1, ease: 'expo.out' }, 0.4);
+  if (extra.length) tl.fromTo(extra, { opacity: 0, x: sx * 0.6, y: pxs(14) }, { opacity: 1, x: 0, y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.09 }, 0.45);
+  return tl;
+}
+function outroTL(el, dir = 1) {
+  const t = $$('.t, .slide-bg ~ *', el);
+  return gsap.to(t, { x: dir * pxs(50), opacity: 0, filter: 'blur(6px)', duration: 0.5, ease: 'power2.in' });
+}
+function lightVeil(p, dir) {
+  if (!veil?.ok || reduced()) return;
+  veil.set({ mode: p.brand.texture, colors: p.brand.textureColors, sweep: dir, progress: 0, alpha: 0.14 * (p.brand.textureIntensity ?? 1), seed: Math.random() * 99 });
+  veil.start();
+  gsap.timeline({ onComplete: () => veil.stop() }).to(veil, { progress: 0.32, duration: 0.5, ease: 'sine.out' }).to(veil, { progress: 0, duration: 0.6, ease: 'sine.in' });
+}
+
+/* ---------- swap the slide inside the current section */
+async function showSlide(li, { dir = 1, kind, instant = false } = {}) {
+  const p = project(), s = section(); if (!p || !s) return;
+  const list = slidesOf(s); li = clamp(li, 0, list.length - 1);
+  const slide = list[li]; if (!slide) return;
+  const old = S.slideEl;
+  const { el, tpl, theme } = buildSlide(p, slide);
+  S.li = li; S.slide = slide; S.slideTpl = tpl; S.slideEl = el;
+  if (S.step == null || S.step < 0) S.step = 0;
+  kind = reduced() ? 'fade' : (kind || slide.transition || 'drift');
+  slidesHost.appendChild(el);
+  logosColor(theme.fg, theme.dark);
+  updateHUD(); preloadAround(); broadcastState();
+  if (instant || !old) {
+    mountSlide(el, tpl, slide);
+    if (old) { unmountSlide(old); old.remove(); }
+    if (!instant) await introTL(el, dir, kind);
+    return;
+  }
+  sound.play('slide', p.id);
+  switch (kind) {
+    case 'cut':
+      unmountSlide(old); old.remove(); mountSlide(el, tpl, slide); break;
+    case 'fade': {
+      gsap.set(el, { opacity: 0 }); mountSlide(el, tpl, slide);
+      await gsap.timeline().to(el, { opacity: 1, duration: 0.8, ease: 'power2.inOut' }).to(old, { opacity: 0, duration: 0.5 }, 0.2);
+      unmountSlide(old); old.remove(); break;
+    }
+    case 'mask': {
+      const from = dir > 0 ? 'inset(0% 100% 0% 0%)' : 'inset(0% 0% 0% 100%)';
+      mountSlide(el, tpl, slide);
+      const tl = gsap.timeline();
+      tl.fromTo(el, { clipPath: from }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.2, ease: 'expo.inOut', clearProps: 'clipPath' }, 0);
+      tl.to($$('.t', old), { x: dir * pxs(120), duration: 1.2, ease: 'expo.inOut' }, 0);
+      tl.add(introTL(el, dir, 'fade'), 0.45);
+      await tl; unmountSlide(old); old.remove(); break;
+    }
+    case 'veil':
+    case 'brand': {
+      gsap.set(el, { opacity: 0 });
+      await coverTransition({ p, dir, card: kind === 'brand' ? null : false, light: kind === 'veil', swap: () => {
+        unmountSlide(old); old.remove(); gsap.set(el, { opacity: 1 }); mountSlide(el, tpl, slide);
+        $$('[data-a]', el).forEach(n => gsap.set(n, { opacity: 0 }));
+      }, after: () => introTL(el, dir, 'drift') });
+      break;
+    }
+    default: { // Layered Drift
+      gsap.set($$('[data-a]', el), { opacity: 0 });
+      mountSlide(el, tpl, slide);
+      lightVeil(p, dir);
+      const tl = gsap.timeline();
+      tl.add(outroTL(old, dir), 0);
+      tl.add(introTL(el, dir, 'drift'), 0.3);
+      await tl; unmountSlide(old); old.remove();
+    }
+  }
+}
+
+/* ======================================================================= section cover (brand transition) */
+function coverCard(p, number, title, titleEn) {
+  return `<div class="cover-card">
+    <span class="cv-num latin">${String(number).padStart(2, '0')}</span>
+    <span class="cv-rule"></span>
+    <h2 class="cv-title">${escBr(title || '')}</h2>
+    ${titleEn ? `<span class="cv-en latin">${esc(titleEn)}</span>` : ''}
+  </div>`;
+}
+async function coverTransition({ p, dir = 1, card = null, light = false, swap, after }) {
+  const tex = p.brand.texture === 'mist' ? 'mist' : 'bubbles';
+  const useVeil = veil?.ok && !reduced();
+  coverEl.dataset.style = tex;
+  coverEl.style.setProperty('--cv-fg', p.brand.colors?.textLight || '#fff');
+  coverEl.style.setProperty('--cv-bg', (p.brand.textureColors || [])[0] || p.brand.colors.primary);
+  coverEl.innerHTML = card ? coverCard(p, card.number, card.title, card.titleEn) : '';
+  sound.play(light ? 'slide' : 'section', p.id);
+  const inT = light ? 0.65 : 1.1, hold = card ? 0.75 : 0.1, outT = light ? 0.7 : 1.05;
+  const tl = gsap.timeline();
+  if (useVeil) {
+    veil.set({ mode: tex, colors: p.brand.textureColors, sweep: dir, progress: 0, alpha: p.brand.textureIntensity ?? 1, seed: Math.random() * 99 });
+    veil.start();
+    tl.to(veil, { progress: 1, duration: inT, ease: 'power2.inOut' }, 0);
+  } else {
+    tl.fromTo(coverEl, { backgroundColor: 'rgba(0,0,0,0)' }, { backgroundColor: 'var(--cv-bg)', duration: inT * 0.8 }, 0);
+  }
+  coverEl.classList.add('on');
+  const cardEls = card ? $$('.cover-card > *', coverEl) : [];
+  if (card) {
+    tl.fromTo(cardEls, { opacity: 0, y: pxs(24) }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.09 }, inT * 0.7);
+    tl.fromTo($('.cv-rule', coverEl), { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: 'expo.inOut' }, inT * 0.72);
+  }
+  tl.call(() => swap && swap(), null, inT + 0.02);
+  const outAt = inT + hold + (card ? 0.4 : 0);
+  if (card) tl.to(cardEls, { opacity: 0, y: -pxs(16), duration: 0.5, ease: 'power2.in', stagger: 0.04 }, outAt - 0.25);
+  if (useVeil) tl.to(veil, { progress: 0, duration: outT, ease: 'power2.inOut' }, outAt);
+  else tl.to(coverEl, { backgroundColor: 'rgba(0,0,0,0)', duration: outT }, outAt);
+  if (after) tl.add(() => { after(); }, outAt + outT * 0.25);
+  await tl;
+  coverEl.classList.remove('on'); coverEl.innerHTML = ''; gsap.set(coverEl, { clearProps: 'backgroundColor' });
+  if (useVeil) veil.stop(), veil.set({ progress: 0 });
+}
+
+/* ======================================================================= universe */
+function renderUniverse() {
+  const u = settings().universe || {};
+  const ps = projectsOf(S.content);
+  L.universe.innerHTML = `
+    <div class="u-wrap layout-${esc(u.layout || 'halves')}" style="--n:${ps.length}">
+      <div class="u-head"></div>
+      <div class="u-worlds">
+        ${ps.map((p, i) => {
+          const b = p.brand, c = b.colors || {}, ub = b.universe || {};
+          const bg = ub.background || c.background, dark = ub.visual === 'image' || isDarkHex(bg);
+          return `<button class="world ${dark ? 'is-dark' : 'is-light'} style-${b.texture === 'mist' ? 'mist' : 'bubbles'}" data-project="${esc(p.id)}"
+             style="--wbg:${bg};--wfg:${dark ? c.textLight : (c.title || c.text)}">
+            <div class="w-bg">${ub.visual === 'image' && ub.image ? `<img src="${esc(asset(ub.image))}" alt="">` : ''}<canvas class="w-tex"></canvas></div>
+            <div class="w-content">
+              <span class="w-num latin">${String(i + 1).padStart(2, '0')}</span>
+              ${b.mark ? `<span class="logo-mask w-mark" style="--src:url('${esc(asset(b.mark))}')"></span>` : ''}
+              <span class="w-name">${esc(p.nameAr || p.name)}</span>
+              ${p.tagline ? `<span class="w-tag">${esc(p.tagline)}</span>` : ''}
+            </div>
+          </button>`;
+        }).join('')}
+      </div>
+      ${u.hint ? `<div class="u-hint">${esc(u.hint)}</div>` : ''}
+    </div>`;
+  worldTex.forEach(t => t.stop()); worldTex.length = 0;
+  $$('.world', L.universe).forEach((w, i) => {
+    const p = ps[i];
+    w.addEventListener('click', () => command('enterProject', { projectId: p.id }));
+    w.addEventListener('mouseenter', () => hoverWorld(i, true));
+    w.addEventListener('mouseleave', () => hoverWorld(i, false));
+    const cv = $('.w-tex', w);
+    if (p.brand.universe?.visual === 'color' || p.brand.universe?.visual === 'image' || reduced()) { worldTex.push({ stop() {}, start() {}, set() {} }); return; }
+    const tex = new BrandTexture(cv, { resScale: 0.4 });
+    tex.set({ mode: p.brand.texture, colors: ambientColors(p), progress: p.brand.texture === 'mist' ? 0.36 : 0.3, alpha: 0.9, speed: 0.6, sweep: 0, seed: i * 7 + 3 });
+    worldTex.push(tex);
+  });
+}
+const isDarkHex = h => { const n = parseInt(String(h).replace('#', ''), 16); const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255; return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.45; };
+function ambientColors(p) {
+  const t = p.brand.textureColors || [];
+  return p.brand.texture === 'mist' ? [t[0], t[1], t[2], t[3]] : [t[1], t[2], t[3], t[0]];
+}
+function hoverWorld(i, on) {
+  const ws = $$('.world', L.universe);
+  ws.forEach((w, k) => w.classList.toggle('is-dim', on && k !== i));
+  ws[i]?.classList.toggle('is-hover', on);
+  const t = worldTex[i]; if (!t?.set) return;
+  const p = projectsOf(S.content)[i];
+  gsap.to(t, { progress: on ? (p.brand.texture === 'mist' ? 0.5 : 0.44) : (p.brand.texture === 'mist' ? 0.36 : 0.3), speed: on ? 1.8 : 0.6, duration: 1.4, ease: 'power2.out' });
+}
+function universeEntrance() {
+  const tl = gsap.timeline();
+  tl.fromTo(logosEl, { opacity: 0, y: pxs(30) }, { opacity: 1, y: 0, duration: 1.6, ease: 'expo.out', clearProps: 'transform' }, 0.2);
+  tl.fromTo($$('.world', L.universe), { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 1.8, ease: 'expo.out', stagger: 0.18 }, 0.45);
+  tl.fromTo($$('.w-content > *', L.universe), { opacity: 0, y: pxs(20) }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.06 }, 0.9);
+  tl.fromTo($$('.u-hint', L.universe), { opacity: 0 }, { opacity: 0.6, duration: 1.4 }, 1.6);
+  return tl;
+}
+function startWorlds(on) { worldTex.forEach(t => (on ? t.start() : t.stop())); }
+
+/* ======================================================================= hub */
+function renderHub(p) {
+  const secs = sectionsOf(p);
+  const visited = S.lastSection[p.id];
+  L.hub.innerHTML = `
+    <div class="hub style-${p.brand.texture === 'mist' ? 'mist' : 'bubbles'}" style="--n:${secs.length}">
+      <div class="hub-head">
+        ${p.brand.logo ? `<span class="logo-mask hub-logo" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : `<h1 class="tx-title">${esc(p.name)}</h1>`}
+        ${p.tagline ? `<p class="hub-tag">${esc(p.tagline)}</p>` : ''}
+      </div>
+      <div class="stations">
+        <span class="st-line"></span>
+        ${secs.map((s, i) => `
+          <button class="station ${visited != null && i <= visited ? 'is-visited' : ''}" data-section="${esc(s.id)}" style="--i:${i}">
+            <span class="st-orb"><span class="st-num latin">${String(i + 1).padStart(2, '0')}</span></span>
+            <span class="st-title">${escBr(s.title)}</span>
+            ${s.titleEn ? `<span class="st-en latin">${esc(s.titleEn)}</span>` : ''}
+          </button>`).join('')}
+      </div>
+    </div>`;
+  $$('.station', L.hub).forEach(b => b.addEventListener('click', () => command('enterSection', { sectionId: b.dataset.section })));
+}
+
+/* ======================================================================= level changes (camera) */
+function show(layer, on) { layer.classList.toggle('on', on); }
+function originOf(el, layer) {
+  const r = el.getBoundingClientRect(), s = layer.getBoundingClientRect();
+  return `${((r.left + r.width / 2 - s.left) / s.width) * 100}% ${((r.top + r.height / 2 - s.top) / s.height) * 100}%`;
+}
+const ZOOM = () => (reduced() ? 0.6 : 1.5);
+
+async function enterProject(pid, { sectionId = null, slideIndex = 0, fromLevel = S.level } = {}) {
+  const p = findProject(S.content, pid); if (!p) return;
+  const prevP = project();
+  if (fromLevel === 'section' || fromLevel === 'hub' || fromLevel === 'decision' || fromLevel === 'closing') {
+    if (prevP?.id === pid && fromLevel === 'hub' && sectionId) return enterSection(sectionId, slideIndex);
+    // identity morph straight into the target (brand cover in the target identity)
+    const secs = sectionsOf(p); const sec = sectionId ? findSection(p, sectionId) : null;
+    await coverTransition({ p, dir: 1, card: sec ? { number: secs.indexOf(sec) + 1, title: sec.title, titleEn: sec.titleEn } : { number: projectsOf(S.content).indexOf(p) + 1, title: p.nameAr || p.name, titleEn: p.name }, swap: () => {
+      leaveSpecial(true);
+      S.pid = pid; applyBrand(p, false); placeLogos('corner', false);
+      if (sec) { S.sid = sec.id; S.li = Math.max(0, slideIndex); S.step = 0; enterSectionInstant(); S.lastSection[pid] = secs.indexOf(sec); }
+      else { renderHub(p); show(L.hub, true); gsap.set(L.hub, { opacity: 1, scale: 1, filter: 'none' }); show(L.section, false); unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null; S.level = 'hub'; logosColor(p.brand.colors.text, false); }
+    }, after: () => { if (sec && S.slideEl) introTL(S.slideEl, 1); else hubIntro(); } });
+    updateHUD(); broadcastState(); return;
+  }
+  // Universe → Project: cinematic camera move into the chosen world
+  const world = $(`.world[data-project="${CSS.escape(pid)}"]`, L.universe);
+  const origin = world ? originOf(world, L.universe) : '50% 60%';
+  S.pid = pid; S.sid = null; S.level = 'hub';
+  applyBrand(p);
+  renderHub(p);
+  logosColor(p.brand.colors.text, false);
+  sound.play('zoom', p.id);
+  show(L.hub, true);
+  const D = ZOOM();
+  const tl = gsap.timeline();
+  if (world) world.classList.add('is-chosen');
+  tl.to(L.universe, { scale: 3.4, opacity: 0, filter: 'blur(10px)', transformOrigin: origin, duration: D, ease: 'power3.inOut' }, 0);
+  tl.fromTo(L.hub, { scale: 0.42, opacity: 0, filter: 'blur(8px)', transformOrigin: origin }, { scale: 1, opacity: 1, filter: 'blur(0px)', duration: D * 0.8, ease: 'power3.out' }, D * 0.32);
+  tl.add(() => placeLogos('corner'), D * 0.12);
+  tl.add(hubIntro(true), D * 0.55);
+  await tl;
+  show(L.universe, false); startWorlds(false);
+  gsap.set(L.hub, { clearProps: 'filter' });
+  updateHUD(); broadcastState();
+  if (sectionId) await enterSection(sectionId, slideIndex);
+}
+function hubIntro(ret) {
+  const tl = gsap.timeline();
+  tl.fromTo($$('.hub-head > *', L.hub), { opacity: 0, y: pxs(24) }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.08 }, 0);
+  tl.fromTo($$('.st-line', L.hub), { scaleX: 0 }, { scaleX: 1, duration: 1.6, ease: 'expo.inOut' }, 0.05);
+  tl.fromTo($$('.station', L.hub), { opacity: 0, y: pxs(40) }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.08 }, 0.15);
+  return ret ? tl : tl;
+}
+function enterSectionInstant() {
+  show(L.hub, false); show(L.section, true); gsap.set(L.section, { opacity: 1, scale: 1, filter: 'none' });
+  unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null; S.level = 'section';
+  showSlide(S.li || 0, { instant: true });
+  $$('[data-a]', S.slideEl).forEach(n => gsap.set(n, { opacity: 0 }));
+}
+
+async function enterSection(sid, slideIndex = 0) {
+  const p = project(); if (!p) return;
+  const sec = findSection(p, sid); if (!sec || !slidesOf(sec).length) return;
+  const secs = sectionsOf(p);
+  if (S.level === 'section') { // section → section inside the project: brand cover + title card
+    const dir = secs.indexOf(sec) >= secs.findIndex(s => s.id === S.sid) ? 1 : -1;
+    return sectionCover(sec, slideIndex, dir);
+  }
+  const station = $(`.station[data-section="${CSS.escape(sid)}"]`, L.hub);
+  const origin = station ? originOf(station, L.hub) : '50% 50%';
+  S.sid = sid; S.li = slideIndex; S.step = slideIndex < 0 ? 0 : 0; S.level = 'section';
+  S.lastSection[p.id] = secs.indexOf(sec);
+  unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
+  show(L.section, true);
+  const list = slidesOf(sec); const li = slideIndex < 0 ? list.length - 1 : slideIndex;
+  await showSlide(li, { instant: true });
+  if (slideIndex < 0) { S.step = stepsOf(S.slideTpl, S.slide); if (S.slideTpl.steps) applyStep(S.slideEl, S.step, true); }
+  gsap.set($$('[data-a]', S.slideEl), { opacity: 0 });
+  sound.play('zoom', p.id);
+  const D = ZOOM();
+  const tl = gsap.timeline();
+  if (station) station.classList.add('is-chosen');
+  tl.to(L.hub, { scale: 2.8, opacity: 0, filter: 'blur(8px)', transformOrigin: origin, duration: D, ease: 'power3.inOut' }, 0);
+  tl.fromTo(L.section, { scale: 0.5, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.8, ease: 'power3.out' }, D * 0.3);
+  tl.add(introTL(S.slideEl, 1), D * 0.55);
+  await tl;
+  show(L.hub, false); gsap.set(L.hub, { clearProps: 'all' });
+  updateHUD(); broadcastState();
+}
+
+async function sectionCover(sec, slideIndex = 0, dir = 1) {
+  const p = project(); const secs = sectionsOf(p);
+  const list = slidesOf(sec); const li = slideIndex < 0 ? list.length - 1 : slideIndex;
+  await coverTransition({ p, dir, card: { number: secs.indexOf(sec) + 1, title: sec.title, titleEn: sec.titleEn }, swap: () => {
+    unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
+    S.sid = sec.id; S.lastSection[p.id] = secs.indexOf(sec); S.step = 0;
+    showSlide(li, { instant: true });
+    if (slideIndex < 0) { S.step = stepsOf(S.slideTpl, S.slide); if (S.slideTpl.steps) applyStep(S.slideEl, S.step, true); }
+    gsap.set($$('[data-a]', S.slideEl), { opacity: 0 });
+  }, after: () => introTL(S.slideEl, dir) });
+  updateHUD(); broadcastState();
+}
+
+async function zoomOut() {
+  if (S.level === 'section') {
+    if (S.focus >= 0) { focusConcept(-1); return; }
+    const p = project(); renderHub(p); show(L.hub, true);
+    const station = $(`.station[data-section="${CSS.escape(S.sid)}"]`, L.hub);
+    const origin = station ? originOf(station, L.hub) : '50% 50%';
+    sound.play('zoom', p.id);
+    const D = ZOOM(); const tl = gsap.timeline();
+    tl.to(L.section, { scale: 0.5, opacity: 0, filter: 'blur(6px)', transformOrigin: origin, duration: D * 0.85, ease: 'power3.inOut' }, 0);
+    tl.fromTo(L.hub, { scale: 2.8, opacity: 0, filter: 'blur(8px)', transformOrigin: origin }, { scale: 1, opacity: 1, filter: 'blur(0px)', duration: D, ease: 'power3.inOut' }, D * 0.1);
+    S.level = 'hub'; logosColor(p.brand.colors.text, false); updateHUD();
+    await tl;
+    unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
+    show(L.section, false); gsap.set(L.section, { clearProps: 'all' }); gsap.set(L.hub, { clearProps: 'filter' });
+    broadcastState(); return;
+  }
+  if (S.level === 'hub') return toUniverse();
+  if (S.level === 'decision' || S.level === 'closing') return toUniverse();
+}
+
+async function toUniverse() {
+  const fromP = project();
+  const fromLayer = S.level === 'section' ? L.section : S.level === 'hub' ? L.hub : L.special;
+  if (fromP) S.visitedProjects.add(fromP.id);
+  renderUniverse(); show(L.universe, true);
+  const world = fromP ? $(`.world[data-project="${CSS.escape(fromP.id)}"]`, L.universe) : null;
+  const origin = world ? originOf(world, L.universe) : '50% 60%';
+  applyBrand(null);
+  sound.play('zoom', null, 'neutral');
+  const D = ZOOM() * 1.1; const tl = gsap.timeline();
+  tl.to(fromLayer, { scale: 0.35, opacity: 0, filter: 'blur(10px)', transformOrigin: origin, duration: D * 0.85, ease: 'power3.inOut' }, 0);
+  tl.fromTo(L.universe, { scale: 3.4, opacity: 0, filter: 'blur(10px)', transformOrigin: origin }, { scale: 1, opacity: 1, filter: 'blur(0px)', duration: D, ease: 'power3.inOut' }, D * 0.1);
+  tl.add(() => { logosEl.hidden = settings().headerLogos?.show === false || settings().universe?.showLogos === false; placeLogos('hero'); }, D * 0.2);
+  S.level = 'universe'; S.focus = -1;
+  logosColor(universeColors().fg, true);
+  startWorlds(true); updateHUD();
+  await tl;
+  unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
+  [L.section, L.hub, L.special].forEach(l => { show(l, false); gsap.set(l, { clearProps: 'all' }); });
+  gsap.set(L.universe, { clearProps: 'filter' });
+  S.pid = null; S.sid = null;
+  updateHUD(); broadcastState();
+}
+
+/* ======================================================================= Decision Point + Closing */
+function renderDecision() {
+  const d = S.content.decision || {};
+  const sel = S.decision.selections;
+  L.special.innerHTML = `
+    <div class="special decision">
+      <div class="d-breath"></div>
+      <div class="d-head">${d.eyebrow ? `<div class="tx-eyebrow latin">${esc(d.eyebrow)}</div>` : ''}<h1 class="d-q">${escBr(d.question || '')}</h1></div>
+      <div class="d-groups" style="--g:${(d.groups || []).length}">
+        ${(d.groups || []).map(g => {
+          const p = g.projectId ? findProject(S.content, g.projectId) : null;
+          return `<div class="d-group" data-group="${esc(g.id)}">
+            <div class="d-gtitle">${p?.brand?.logo ? `<span class="logo-mask d-glogo" style="--src:url('${esc(asset(p.brand.logo))}')" title="${esc(g.title)}"></span>` : `<span>${esc(g.title)}</span>`}</div>
+            <div class="d-options">${(g.options || []).map(o => `<button class="d-opt ${sel[g.id] === o.id ? 'is-on' : ''}" data-group="${esc(g.id)}" data-option="${esc(o.id)}"><span class="d-ring"></span><span class="d-label">${escBr(o.label)}</span></button>`).join('')}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="d-timer latin ${S.decision.timerOn ? 'on' : ''}"></div>
+    </div>`;
+  $$('.d-opt', L.special).forEach(b => b.addEventListener('click', () => selectDecision(b.dataset.group, b.dataset.option)));
+}
+function selectDecision(gid, oid) {
+  const d = S.content.decision || {}; const g = (d.groups || []).find(x => x.id === gid); if (!g) return;
+  const same = S.decision.selections[gid] === oid;
+  if (same) delete S.decision.selections[gid]; else S.decision.selections[gid] = oid;
+  try { localStorage.setItem('bxl-decisions', JSON.stringify(S.decision.selections)); } catch {}
+  const o = (g.options || []).find(x => x.id === oid);
+  if (!PREVIEW) logDecision({ groupId: gid, groupTitle: g.title, optionId: same ? null : oid, optionLabel: same ? null : o?.label, action: same ? 'clear' : 'select', at: new Date().toISOString() });
+  $$(`.d-opt[data-group="${CSS.escape(gid)}"]`, L.special).forEach(b => {
+    const on = b.dataset.option === S.decision.selections[gid];
+    b.classList.toggle('is-on', on);
+    if (on) gsap.fromTo($('.d-ring', b), { scale: 0.92, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.2, ease: 'expo.out' });
+  });
+  sound.play('ui', null, 'neutral');
+  broadcastState();
+}
+function decisionSummary() {
+  const d = S.content.decision || {}; const sel = S.decision.selections;
+  return (d.groups || []).map(g => { const o = (g.options || []).find(x => x.id === sel[g.id]); return o ? { group: g.title, option: o.label, projectId: g.projectId } : null; }).filter(Boolean);
+}
+function renderClosing() {
+  const c = S.content.closing || {};
+  const ps = projectsOf(S.content);
+  const sum = c.showDecisions !== false ? decisionSummary() : [];
+  const sumHTML = sum.length ? `<div class="c-sum"><div class="c-sum-title">${esc(c.decisionsTitle || '')}</div><div class="c-sum-list">${sum.map(s => `<div class="c-sum-item"><span class="c-g">${esc(s.group)}</span><span class="c-o">${esc(s.option)}</span></div>`).join('')}</div></div>` : '';
+  const logos = ps.map(p => p.brand.logo ? `<span class="logo-mask c-logo" data-ar-src="${esc(asset(p.brand.logo))}" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : '').join('<span class="c-x latin">×</span>');
+  const marks = ps.map(p => `<div class="c-markbox"><span class="logo-mask c-mark" style="--src:url('${esc(asset(p.brand.mark || p.brand.logo))}')"></span><span class="c-mname latin">${esc(p.name)}</span></div>`).join('');
+  const layout = c.layout || 'logos';
+  L.special.innerHTML = `
+    <div class="special closing layout-${esc(layout)}">
+      <div class="d-breath"></div>
+      ${layout === 'marks' ? `<div class="c-marks">${marks}</div>` : layout === 'discussion' ? '' : `<div class="c-logos">${logos}</div>`}
+      <h1 class="c-line">${escBr(c.line || '')}</h1>
+      ${c.subline ? `<p class="c-sub">${escBr(c.subline)}</p>` : ''}
+      ${sumHTML}
+      ${c.contact ? `<p class="c-contact latin">${escBr(c.contact)}</p>` : ''}
+    </div>`;
+  fixAspects(L.special);
+}
+function leaveSpecial(instant) { if (S.level === 'decision' || S.level === 'closing') { show(L.special, false); if (instant) gsap.set(L.special, { clearProps: 'all' }); logosEl.classList.remove('is-hidden'); } }
+
+async function toSpecial(kind) {
+  if (S.level === kind) return;
+  const from = S.level === 'section' ? L.section : S.level === 'hub' ? L.hub : S.level === 'universe' ? L.universe : L.special;
+  const wasSpecial = S.level === 'decision' || S.level === 'closing';
+  const p = project(); if (p) S.visitedProjects.add(p.id);
+  sound.play('zoom', null, 'neutral');
+  const tl = gsap.timeline();
+  tl.to(from, { opacity: 0, scale: 0.96, filter: 'blur(8px)', duration: 0.9, ease: 'power2.inOut' }, 0);
+  await tl;
+  if (!wasSpecial) show(from, false);
+  gsap.set(from, { clearProps: 'all' });
+  if (S.level === 'universe') startWorlds(false);
+  unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
+  [L.section, L.hub, L.universe].forEach(l => show(l, false));
+  S.level = kind; S.pid = null; S.sid = null; S.focus = -1;
+  applyBrand(null);
+  kind === 'decision' ? renderDecision() : renderClosing();
+  show(L.special, true);
+  logosColor(universeColors().fg, true);
+  logosEl.classList.toggle('is-hidden', kind === 'closing');
+  placeLogos('corner', false);
+  updateHUD();
+  const t2 = gsap.timeline();
+  t2.fromTo(L.special, { opacity: 0, scale: 1.03 }, { opacity: 1, scale: 1, duration: 1.4, ease: 'power3.out' }, 0);
+  t2.fromTo($$('.special > *:not(.d-breath), .d-group, .c-sum-item', L.special), { opacity: 0, y: pxs(24) }, { opacity: 1, y: 0, duration: 1.3, ease: 'expo.out', stagger: 0.08 }, 0.3);
+  await t2;
+  broadcastState();
+}
+
+/* ======================================================================= flow: next / previous */
+async function next() {
+  if (S.level === 'universe') {
+    const ps = projectsOf(S.content);
+    const target = ps.find(p => !S.visitedProjects.has(p.id));
+    if (target) return enterProject(target.id);
+    if (S.content.decision && settings().flow?.afterAllProjects !== 'none') return toSpecial('decision');
+    return ps[0] && enterProject(ps[0].id);
+  }
+  if (S.level === 'hub') {
+    const p = project(); const secs = sectionsOf(p);
+    const nxt = (S.lastSection[p.id] ?? -1) + 1;
+    if (secs[nxt]) return enterSection(secs[nxt].id);
+    return toUniverse();
+  }
+  if (S.level === 'section') {
+    const steps = stepsOf(S.slideTpl, S.slide);
+    if (steps && S.step < steps) { S.step++; applyStep(S.slideEl, S.step); sound.play('ui', S.pid); broadcastState(); return; }
+    const list = slidesOf(section());
+    if (S.li < list.length - 1) { S.step = 0; return showSlide(S.li + 1, { dir: 1 }); }
+    const secs = sectionsOf(project()); const si = secs.findIndex(s => s.id === S.sid);
+    if (secs[si + 1]) return sectionCover(secs[si + 1], 0, 1);
+    S.visitedProjects.add(S.pid); return toUniverse();
+  }
+  if (S.level === 'decision') return toSpecial('closing');
+}
+async function prev() {
+  if (S.level === 'section') {
+    if (S.step > 0) { S.step--; applyStep(S.slideEl, S.step); sound.play('ui', S.pid); broadcastState(); return; }
+    if (S.li > 0) {
+      const list = slidesOf(section()); const target = list[S.li - 1];
+      const tpl = TEMPLATES[target.template]; S.step = stepsOf(tpl, target);
+      return showSlide(S.li - 1, { dir: -1 });
+    }
+    const secs = sectionsOf(project()); const si = secs.findIndex(s => s.id === S.sid);
+    if (secs[si - 1]) return sectionCover(secs[si - 1], -1, -1);
+    return zoomOut();
+  }
+  if (S.level === 'hub') return toUniverse();
+  if (S.level === 'closing') return toSpecial('decision');
+  if (S.level === 'decision') return toUniverse();
+}
+async function jumpSection(delta) {
+  if (S.level === 'hub') { const p = project(); const secs = sectionsOf(p); const i = clamp((S.lastSection[p.id] ?? -1) + (delta > 0 ? 1 : 0), 0, secs.length - 1); return enterSection(secs[i].id); }
+  if (S.level !== 'section') return;
+  const secs = sectionsOf(project()); const si = secs.findIndex(s => s.id === S.sid);
+  const t = secs[si + delta]; if (t) return sectionCover(t, 0, delta);
+  if (delta > 0) { S.visitedProjects.add(S.pid); return toUniverse(); }
+}
+async function jumpNumber(n) {
+  if (S.level === 'universe') { const p = projectsOf(S.content)[n - 1]; if (p) return enterProject(p.id); return; }
+  const p = project(); if (!p) return;
+  const sec = sectionsOf(p)[n - 1]; if (!sec) return;
+  if (S.level === 'hub') return enterSection(sec.id);
+  if (S.level === 'section' && sec.id !== S.sid) return sectionCover(sec, 0, n - 1 > sectionsOf(p).findIndex(s => s.id === S.sid) ? 1 : -1);
+}
+async function gotoTarget({ projectId, sectionId, slideIndex = 0, slideId }) {
+  if (slideId) { const loc = locate(S.content, slideId); if (loc?.kind === 'slide') { projectId = loc.project.id; sectionId = loc.section.id; slideIndex = slidesOf(loc.section).indexOf(loc.slide); } }
+  const p = findProject(S.content, projectId); if (!p) return;
+  if (S.level === 'universe') return enterProject(projectId, { sectionId, slideIndex });
+  if (S.pid !== projectId) return enterProject(projectId, { sectionId, slideIndex, fromLevel: S.level });
+  if (!sectionId) return S.level === 'section' ? zoomOut() : undefined;
+  if (S.level === 'hub') return enterSection(sectionId, slideIndex);
+  if (S.level === 'section') {
+    if (sectionId === S.sid) { if (slideIndex !== S.li) { S.step = 0; return showSlide(slideIndex, { dir: slideIndex > S.li ? 1 : -1 }); } return; }
+    const sec = findSection(p, sectionId); const secs = sectionsOf(p);
+    return sectionCover(sec, slideIndex, secs.indexOf(sec) > secs.findIndex(s => s.id === S.sid) ? 1 : -1);
+  }
+}
+
+/* ======================================================================= command queue */
+const ACTIONS = {
+  next, prev, zoomOut,
+  nextSection: () => jumpSection(1), prevSection: () => jumpSection(-1),
+  number: a => jumpNumber(a.n),
+  enterProject: a => (S.level === 'universe' ? enterProject(a.projectId) : gotoTarget({ projectId: a.projectId })),
+  enterSection: a => enterSection(a.sectionId),
+  goto: a => gotoTarget(a),
+  universe: () => (S.level === 'universe' ? null : toUniverse()),
+  decision: () => toSpecial('decision'),
+  closing: () => toSpecial('closing'),
+};
+const INSTANT = {
+  black: a => setBlack(a.on ?? !S.black),
+  mute: a => { const m = a.on ?? !sound.cfg.muted; sound.setMuted(m); broadcastState(); },
+  focus: a => focusConcept(a.index),
+  decisionSelect: a => selectDecision(a.groupId, a.optionId),
+  decisionClear: () => { S.decision.selections = {}; try { localStorage.removeItem('bxl-decisions'); } catch {} if (S.level === 'decision') renderDecision(); if (S.level === 'closing') renderClosing(); logDecision({ action: 'clear-all', at: new Date().toISOString() }); broadcastState(); },
+  discussionTimer: a => { S.decision.timerOn = a.on ?? !S.decision.timerOn; if (S.decision.timerOn) S.decision.timerStart = Date.now(); $('.d-timer', L.special)?.classList.toggle('on', S.decision.timerOn); broadcastState(); },
+  resetTimer: () => { S.startedAt = Date.now(); broadcastState(); },
+  fullscreen: () => toggleFullscreen(),
+  reload: () => location.reload(),
+};
+function command(name, args = {}) {
+  sound.unlock();
+  if (INSTANT[name]) return INSTANT[name](args);
+  const fn = ACTIONS[name]; if (!fn) return;
+  if (S.busy) { if (S.queue.length < 2) S.queue.push([name, args]); return; }
+  run(fn, args);
+}
+async function run(fn, args) {
+  S.busy = true;
+  try { await fn(args); } catch (e) { console.error(e); }
+  S.busy = false;
+  broadcastState();
+  const n = S.queue.shift(); if (n) command(n[0], n[1]);
+}
+function setBlack(on) {
+  S.black = on; gsap.to(blackEl, { opacity: on ? 1 : 0, duration: 0.6, ease: 'power2.inOut' }); blackEl.classList.toggle('on', on); broadcastState();
+}
+function toggleFullscreen() {
+  if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.().catch(() => {});
+}
+
+/* ======================================================================= state → remote / control */
+let sync = null;
+function nextInfo() {
+  const p = project(), s = section();
+  const pack = (pp, ss, sl, kind) => {
+    if (!sl) return { kind, label: kind };
+    const img = slideMedia(sl).find(x => !/\.(mp4|webm|mov|m4v)/i.test(x));
+    return { kind, project: pp.name, section: ss.title, label: slideLabel(sl), template: TEMPLATES[sl.template]?.name, image: img || '' };
+  };
+  if (S.level === 'section' && p && s) {
+    const steps = stepsOf(S.slideTpl, S.slide);
+    if (steps && S.step < steps) return { kind: 'step', label: `المرحلة ${S.step + 2} من ${steps + 1}`, project: p.name, section: s.title };
+    const list = slidesOf(s);
+    if (list[S.li + 1]) return pack(p, s, list[S.li + 1], 'slide');
+    const secs = sectionsOf(p); const ns = secs[secs.findIndex(x => x.id === s.id) + 1];
+    if (ns) return pack(p, ns, slidesOf(ns)[0], 'section');
+    return { kind: 'universe', label: 'العودة إلى البداية (Universe)' };
+  }
+  if (S.level === 'hub' && p) { const secs = sectionsOf(p); const ns = secs[(S.lastSection[p.id] ?? -1) + 1]; return ns ? pack(p, ns, slidesOf(ns)[0], 'section') : { kind: 'universe', label: 'العودة إلى البداية' }; }
+  if (S.level === 'universe') { const t = projectsOf(S.content).find(x => !S.visitedProjects.has(x.id)); return t ? { kind: 'project', label: t.nameAr || t.name, project: t.name } : { kind: 'decision', label: 'نقطة القرار' }; }
+  if (S.level === 'decision') return { kind: 'closing', label: 'الختام' };
+  return { kind: 'end', label: '—' };
+}
+function broadcastState() {
+  if (!sync || PREVIEW) return;
+  const p = project(), s = section();
+  sync.send('state', { state: {
+    level: S.level, projectId: S.pid, sectionId: S.sid, slideIndex: S.li, slideId: S.slide?.id || null, step: S.step,
+    steps: S.level === 'section' ? stepsOf(S.slideTpl, S.slide) : 0,
+    slideCount: s ? slidesOf(s).length : 0,
+    title: S.level === 'section' ? slideLabel(S.slide) : S.level === 'hub' ? (p?.nameAr || p?.name) : S.level,
+    projectName: p?.name || '', sectionTitle: s?.title || '',
+    notes: S.level === 'section' ? (S.slide?.notes || '') : '',
+    template: S.level === 'section' ? (S.slideTpl ? Object.keys(TEMPLATES).find(k => TEMPLATES[k] === S.slideTpl) : '') : '',
+    focus: S.focus, next: nextInfo(), black: S.black, muted: sound.cfg.muted, soundReady: sound.ready,
+    startedAt: S.startedAt, busy: S.busy,
+    decision: { selections: S.decision.selections, timerOn: S.decision.timerOn, timerStart: S.decision.timerStart },
+    visited: [...S.visitedProjects],
+  } });
+}
+
+/* ======================================================================= live content updates */
+function applyContent(c, { keep = true } = {}) {
+  S.content = c;
+  registerFonts(c);
+  sound.configure(c.settings?.sound, c.projects || []);
+  gsap.globalTimeline.timeScale(clamp(c.settings?.motion?.speed || 1, 0.25, 3));
+  renderLogos();
+  if (!keep) return;
+  const p = project();
+  if (S.level === 'universe') { renderUniverse(); startWorlds(true); gsap.set($$('.world, .w-content > *, .u-hint', L.universe), { opacity: 1, y: 0, scale: 1 }); applyBrand(null, false); }
+  else if (S.level === 'hub' && p) { applyBrand(p, false); renderHub(p); }
+  else if (S.level === 'section' && p) {
+    applyBrand(p, false);
+    const s = section();
+    if (!s || !slidesOf(s).length) return toUniverseInstant();
+    const list = slidesOf(s); const idx = list.findIndex(x => x.id === S.slide?.id);
+    const old = S.slideEl; unmountSlide(old); old?.remove(); S.slideEl = null;
+    showSlide(idx >= 0 ? idx : clamp(S.li, 0, list.length - 1), { instant: true });
+    if (S.slideTpl?.steps) applyStep(S.slideEl, S.step = clamp(S.step, 0, stepsOf(S.slideTpl, S.slide)), true);
+  } else if (S.level === 'decision') renderDecision();
+  else if (S.level === 'closing') renderClosing();
+  else if (!p && (S.level === 'hub' || S.level === 'section')) toUniverseInstant();
+  placeLogos(S.level === 'universe' ? 'hero' : 'corner', false);
+  updateHUD();
+}
+function toUniverseInstant() {
+  unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
+  [L.section, L.hub, L.special].forEach(l => show(l, false));
+  S.level = 'universe'; S.pid = S.sid = null;
+  applyBrand(null, false); renderUniverse(); show(L.universe, true); startWorlds(true);
+  logosColor(universeColors().fg, true); placeLogos('hero', false); updateHUD();
+}
+
+/* ======================================================================= preview mode (control panel iframe) */
+function previewShow(target = {}, animate = false) {
+  [L.universe, L.hub, L.section, L.special].forEach(l => { show(l, false); gsap.set(l, { clearProps: 'all' }); });
+  unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null; startWorlds(false);
+  logosEl.classList.remove('is-hidden');
+  if (target.level === 'universe' || (!target.projectId && !target.level)) { toUniverseInstant(); if (animate) universeEntrance(); return; }
+  if (target.level === 'decision' || target.level === 'closing') {
+    S.level = target.level; S.pid = null; applyBrand(null, false); target.level === 'decision' ? renderDecision() : renderClosing();
+    show(L.special, true); logosColor(universeColors().fg, true); placeLogos('corner', false); logosEl.classList.toggle('is-hidden', target.level === 'closing'); updateHUD(); return;
+  }
+  const p = findProject(S.content, target.projectId); if (!p) return toUniverseInstant();
+  S.pid = p.id; applyBrand(p, false); placeLogos('corner', false);
+  if (!target.sectionId) { S.level = 'hub'; renderHub(p); show(L.hub, true); logosColor(p.brand.colors.text, false); updateHUD(); if (animate) hubIntro(); return; }
+  const sec = findSection(p, target.sectionId); if (!sec) return;
+  S.sid = sec.id; S.level = 'section'; show(L.section, true);
+  const list = slidesOf(sec);
+  let li = target.slideId ? list.findIndex(x => x.id === target.slideId) : (target.slideIndex || 0);
+  if (li < 0) { // hidden slide: show it anyway for editing
+    const hiddenSlide = (sec.slides || []).find(x => x.id === target.slideId);
+    if (hiddenSlide) { const { el, tpl } = buildSlide(p, hiddenSlide); slidesHost.appendChild(el); S.slideEl = el; S.slide = hiddenSlide; S.slideTpl = tpl; S.step = 0; mountSlide(el, tpl, hiddenSlide); logosColor(getComputedStyle(el).getPropertyValue('--sfg'), el.classList.contains('is-dark')); if (animate) introTL(el, 1, hiddenSlide.transition); return; }
+    li = 0;
+  }
+  S.step = target.step || 0;
+  showSlide(li, { instant: true });
+  if (animate) { gsap.set($$('[data-a]', S.slideEl), { opacity: 0 }); introTL(S.slideEl, 1, list[li]?.transition === 'mask' ? 'drift' : list[li]?.transition); }
+}
+
+/* ======================================================================= input */
+function onKey(e) {
+  if (e.target.closest && e.target.closest('input, textarea, select')) return;
+  sound.unlock();
+  const k = e.key;
+  if (k === 'ArrowLeft' || k === ' ' || k === 'PageDown' || k === 'Enter') { e.preventDefault(); command(e.shiftKey ? 'nextSection' : 'next'); }
+  else if (k === 'ArrowRight' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); command(e.shiftKey ? 'prevSection' : 'prev'); }
+  else if (k === 'Escape') { e.preventDefault(); if (S.black) setBlack(false); else command('zoomOut'); }
+  else if (/^[1-9]$/.test(k)) command('number', { n: +k });
+  else if (k === 'f' || k === 'F') toggleFullscreen();
+  else if (k === 'b' || k === 'B' || k === '.') setBlack(!S.black);
+  else if (k === 'm' || k === 'M') INSTANT.mute({});
+}
+
+/* ======================================================================= boot */
+async function boot() {
+  fit(); grainTexture();
+  let c;
+  try { c = await loadContent(); } catch (e) { $('#boot').innerHTML = `<p>${esc(e.message)}</p>`; return; }
+  veil = new BrandTexture($('#veil'), { resScale: c.settings?.motion?.textureScale || 0.5 });
+  applyContent(c, { keep: false });
+  await fontsReady(c);
+  $('#boot').classList.add('done');
+  sound.unlock(); // works when Chrome is started with --autoplay-policy=no-user-gesture-required (the launcher does this)
+
+  if (PREVIEW) {
+    stage.classList.add('is-preview');
+    addEventListener('message', ev => {
+      const m = ev.data || {};
+      if (m.type === 'content') applyContent(m.content, { keep: false });
+      if (m.type === 'content' || m.type === 'show') previewShow(m.target || {}, !!m.animate);
+      if (m.type === 'decisions') { S.decision.selections = m.selections || {}; if (S.level === 'decision') renderDecision(); if (S.level === 'closing') renderClosing(); }
+    });
+    parent.postMessage({ type: 'preview-ready' }, '*');
+    toUniverseInstant();
+    return;
+  }
+
+  sync = createSync('show', msg => {
+    if (msg.type === 'hello') broadcastState();
+    else if (msg.type === 'content' && msg.content) applyContent(msg.content);
+    else if (msg.type === 'cmd') command(msg.cmd, msg.args || {});
+  });
+  addEventListener('keydown', onKey);
+  addEventListener('pointerdown', () => sound.unlock());
+
+  // start position
+  const start = c.settings?.startAt;
+  const loc = start && start !== 'universe' ? locate(c, start) : null;
+  toUniverseInstant();
+  if (loc?.kind === 'slide' || loc?.kind === 'section' || loc?.kind === 'project') {
+    const sid = loc.section?.id, li = loc.slide ? slidesOf(loc.section).indexOf(loc.slide) : 0;
+    previewShow({ projectId: loc.project.id, sectionId: sid, slideIndex: Math.max(0, li) }, true);
+  } else universeEntrance();
+  broadcastState();
+}
+boot();
