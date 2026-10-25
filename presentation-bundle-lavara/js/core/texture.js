@@ -114,7 +114,8 @@ export class BrandTexture {
     return this;
   }
   resize() {
-    const r = this.canvas.getBoundingClientRect();
+    // layout size, NOT getBoundingClientRect(): a parent layer scaled by a camera move must not inflate the pixel count
+    const r = { width: this.canvas.clientWidth, height: this.canvas.clientHeight };
     const w = Math.max(2, Math.round(r.width * this.resScale)), h = Math.max(2, Math.round(r.height * this.resScale));
     if (this.canvas.width !== w || this.canvas.height !== h) { this.canvas.width = w; this.canvas.height = h; }
   }

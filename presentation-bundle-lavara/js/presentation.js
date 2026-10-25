@@ -701,8 +701,8 @@ async function enterProject(pid, { sectionId = null, slideIndex = 0, fromLevel =
   const tl = gsap.timeline();
   if (world) world.classList.add('is-chosen');
   startWorlds(false);
-  tl.to(L.universe, { scale: 3.4, opacity: 0, transformOrigin: origin, duration: D, ease: 'power3.inOut' }, 0);
-  tl.fromTo(L.hub, { scale: 0.42, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.8, ease: 'power3.out' }, D * 0.32);
+  tl.to(L.universe, { scale: 1.18, opacity: 0, transformOrigin: origin, duration: D * 0.75, ease: 'power2.in' }, 0);
+  tl.fromTo(L.hub, { scale: 0.3, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.9, ease: 'expo.out' }, D * 0.28);
   tl.add(() => placeLogos('corner'), D * 0.12);
   tl.add(hubIntro(true), D * 0.55);
   await tl;
@@ -748,8 +748,8 @@ async function enterSection(sid, slideIndex = 0) {
   const D = ZOOM();
   const tl = gsap.timeline();
   
-  tl.to(L.hub, { scale: 2.8, opacity: 0, transformOrigin: origin, duration: D, ease: 'power3.inOut' }, 0);
-  tl.fromTo(L.section, { scale: 0.5, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.8, ease: 'power3.out' }, D * 0.3);
+  tl.to(L.hub, { scale: 1.18, opacity: 0, transformOrigin: origin, duration: D * 0.75, ease: 'power2.in' }, 0);
+  tl.fromTo(L.section, { scale: 0.12, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.95, ease: 'expo.out' }, D * 0.25);
   tl.add(introTL(S.slideEl, 1), D * 0.55);
   await tl;
   show(L.hub, false); gsap.set(L.hub, { clearProps: 'all' }); stopHubTex();
@@ -789,8 +789,8 @@ async function zoomOut({ strong = false } = {}) {
     const origin = station ? originOf(station, L.hub) : '50% 50%';
     sound.play('zoom', p.id);
     const D = ZOOM() * (strong ? 1.3 : 1); const tl = gsap.timeline();
-    tl.to(L.section, { scale: strong ? 0.18 : 0.5, opacity: 0, transformOrigin: origin, duration: D * 0.9, ease: 'power3.inOut' }, 0);
-    tl.fromTo(L.hub, { scale: strong ? 4.2 : 2.8, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D, ease: 'power3.inOut' }, D * 0.08);
+    tl.to(L.section, { scale: strong ? 0.06 : 0.3, opacity: 0, transformOrigin: origin, duration: D * 0.9, ease: 'expo.inOut' }, 0);
+    tl.fromTo(L.hub, { scale: 1.12, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.9, ease: 'power2.out' }, D * 0.3);
     tl.add(hubIntro(), D * 0.5);
     S.level = 'hub'; logosColor(p.brand.colors.textLight || '#fff', true); updateHUD();
     await tl;
@@ -813,7 +813,7 @@ async function toUniverse() {
   sound.play('zoom', null, 'neutral');
   const D = ZOOM() * 1.1; const tl = gsap.timeline();
   tl.to(fromLayer, { scale: 0.35, opacity: 0, transformOrigin: origin, duration: D * 0.85, ease: 'power3.inOut' }, 0);
-  tl.fromTo(L.universe, { scale: 3.4, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D, ease: 'power3.inOut' }, D * 0.1);
+  tl.fromTo(L.universe, { scale: 1.12, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.9, ease: 'power2.out' }, D * 0.3);
   tl.add(() => { logosEl.hidden = settings().headerLogos?.show === false || settings().universe?.showLogos === false; placeLogos('hero'); }, D * 0.2);
   S.level = 'universe'; S.focus = -1;
   logosColor(universeColors().fg, true);
