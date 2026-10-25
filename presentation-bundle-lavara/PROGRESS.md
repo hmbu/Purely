@@ -25,7 +25,15 @@
   - restrained eyebrows.
 - "Expressive" brings back the brand textures.
 
+## Round 3
+- Opening screen: **Living horizon**, a merge of option 8 and option 10, is now the default.
+  - The two halves show their brand colours, each with a calm live texture: soft drifting bubbles for Bundle and faint smoke for Lavara.
+  - A line of light crosses the screen and its glow drifts slowly along it.
+  - On hover, the light glides to the hovered project in that project's colour.
+- The corporate logos sit with their divider exactly on the centre line.
+- Online editing and publishing through GitHub (`docs/03-publishing.md`). The control panel has a new **Publish** tab, and its history and uploads work through GitHub.
+
 ## Waiting for the user's decision
-0. Which opening screen (1–9) and which tone (quiet or expressive).
+0. One-time GitHub setup (see `docs/03-publishing.md`): enable Pages and create the token.
 1. Closing layout: (a) both logos + a closing line [current default], (b) both project marks + a line + contact, (c) a calm discussion screen.
 2. Higher-resolution brand imagery for the opening screen (current covers are cropped from the PDFs; Bundle's art is 1080px).

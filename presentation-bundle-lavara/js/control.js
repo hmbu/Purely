@@ -705,6 +705,7 @@ function renderPublish() {
         h('li', {}, 'افتح GitHub ← Settings ← Developer settings ← Personal access tokens ← Fine-grained tokens ← Generate new token.'),
         h('li', {}, 'اختر المستودع فقط، وفي Permissions اختر Contents: Read and write. انسخ الرمز والصقه هنا.'),
         h('li', {}, 'في المستودع: Settings ← Pages ← Source: GitHub Actions (مرة واحدة). كل نشر بعدها يحدّث الموقع تلقائياً خلال دقيقة تقريباً.'),
+        h('li', {}, 'ثم Settings ← Environments ← github-pages ← Deployment branches: أضف الفرع ccr-87aacda0-76dx1f (أو ادمجه في الفرع الرئيسي).'),
         h('li', {}, 'افتح لوحة التحكم من رابط الموقع (…/control.html) على أي جهاز، وعدّل ثم اضغط «نشر».')),
       h('p', { class: 'muted small' }, 'الموقع بدون أي علامة مائية. الريموت عبر الجوال والمزامنة الحية بين الأجهزة تعمل مع المشغّل المحلي أثناء العرض الفعلي؛ على الموقع يعمل التحكم من نفس المتصفح.')));
 }
