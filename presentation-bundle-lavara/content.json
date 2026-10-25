@@ -2,7 +2,7 @@
   "version": 1,
   "meta": {
     "title": "Bundle × Lavara",
-    "updatedAt": "2026-10-25T01:43:34.689Z"
+    "updatedAt": "2026-10-25T12:57:02.422Z"
   },
   "fonts": [
     {
@@ -112,7 +112,9 @@
       "pauseOnLeave": true
     },
     "flow": {
-      "afterAllProjects": "decision"
+      "afterAllProjects": "decision",
+      "sectionTransition": "hub",
+      "afterSection": "wait"
     },
     "tone": "quiet"
   },
@@ -801,26 +803,26 @@
           "slides": [
             {
               "id": "sl-00p",
-              "template": "device",
+              "template": "image-text",
               "transition": "drift",
               "bg": "auto",
               "notes": "",
               "hidden": false,
               "data": {
-                "device": "phone",
-                "screens": [
-                  {
-                    "src": ""
-                  },
-                  {
-                    "src": ""
+                "image": {
+                  "src": "assets/lavara/uploads/mvnu0ykt-images _2_.jpg",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 46,
+                    "y": 37
                   }
-                ],
-                "laptop": "",
-                "interval": 3.5,
+                },
                 "eyebrow": "Digital Product",
-                "title": "المنتج الرقمي",
-                "body": "مساحة لعرض شاشات المنتج أو فيديو النموذج التفاعلي."
+                "title": "تجربة المنتج الرقمي",
+                "body": "امسح الباركود الذي على الطاولة",
+                "imageSide": "left",
+                "imageWidth": 50,
+                "framed": false
               }
             }
           ]
