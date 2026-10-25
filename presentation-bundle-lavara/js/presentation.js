@@ -18,6 +18,9 @@ const stage = $('#stage');
 const L = { universe: $('#L-universe'), hub: $('#L-hub'), section: $('#L-section'), special: $('#L-special') };
 const slidesHost = $('#L-section .slides');
 const coverEl = $('#cover'), logosEl = $('#logos'), blackEl = $('#black');
+// Universe ↔ project morph: a brand-colour plate that grows from the chosen world to the full screen.
+// Moved by transforms only (composited), so it stays smooth at 4K.
+const morphEl = Object.assign(document.createElement('div'), { id: 'morph' }); L.hub.before(morphEl);
 const hud = { root: $('#hud'), crumb: $('#hud .crumb'), bar: $('#hud .bar i'), clock: $('#hud .clock') };
 
 // Transition sounds are removed (user decision): only video audio remains. This stub keeps the call sites inert.
@@ -29,7 +32,8 @@ const S = {
   content: null,
   level: 'boot', pid: null, sid: null, li: 0, step: 0,
   slideEl: null, slideTpl: null, slide: null,
-  visitedProjects: new Set(), lastSection: {},
+  visitedProjects: new Set(), lastSection: {}, seenSections: {},
+  hubTarget: 0, hubPending: null, // the station the light rests on, and the section waiting for the presenter's press
   busy: false, queue: [],
   black: false, startedAt: Date.now(),
   decision: { selections: {}, timerOn: false, timerStart: 0 },
@@ -618,8 +622,10 @@ function pooledTexture(key, slot) {
 function stopHubTex() { if (hubTex) { hubTex.stop(); hubTex = null; } }
 function renderHub(p) {
   const secs = sectionsOf(p);
-  const visited = S.lastSection[p.id] ?? -1;
-  const nextI = Math.min(visited + 1, secs.length - 1);
+  const seen = S.seenSections[p.id] ?? -1;
+  const pend = S.hubPending ? secs.findIndex(x => x.id === S.hubPending.sid) : -1;
+  const nextI = pend >= 0 ? pend : clamp((S.lastSection[p.id] ?? -1) + 1, 0, secs.length - 1);
+  S.hubTarget = nextI;
   const c = p.brand.colors || {};
   L.hub.innerHTML = `
     <div class="hub2 style-${p.brand.texture === 'mist' ? 'mist' : 'bubbles'}" style="--n:${secs.length};--hbg:${c.primary || '#222'};--glow:${c.secondary || '#fff'}">
@@ -631,7 +637,7 @@ function renderHub(p) {
       <div class="h2-line"><i class="h2-light"></i></div>
       <div class="h2-stations">
         ${secs.map((s, i) => `
-          <button class="h2-station ${i <= visited ? 'is-visited' : ''} ${i === nextI ? 'is-next' : ''}" data-section="${esc(s.id)}" data-i="${i}">
+          <button class="h2-station ${i <= seen ? 'is-visited' : ''} ${i === nextI ? 'is-next' : ''}" data-section="${esc(s.id)}" data-i="${i}">
             <span class="h2-num latin">${String(i + 1).padStart(2, '0')}</span>
             <span class="h2-dot"><i></i></span>
             <span class="h2-title">${escBr(s.title)}</span>
@@ -643,10 +649,11 @@ function renderHub(p) {
   const st = $$('.h2-station', L.hub);
   st.forEach(b => {
     b.addEventListener('click', () => command('enterSection', { sectionId: b.dataset.section }));
-    b.addEventListener('mouseenter', () => hubLight(+b.dataset.i, true));
-    b.addEventListener('mouseleave', () => hubLight(nextI, false));
+    // hover only moves the light while the page is at rest; leaving always returns it to the current target
+    b.addEventListener('mouseenter', () => { if (!S.busy) hubLight(+b.dataset.i, true); });
+    b.addEventListener('mouseleave', () => { if (!S.busy) hubLight(S.hubTarget, false); });
   });
-  requestAnimationFrame(() => hubLight(nextI, false, true));
+  hubLight(nextI, false, true);
   stopHubTex();
   const cv = $('.h2-tex', L.hub);
   if (cv && !reduced()) {
@@ -657,13 +664,24 @@ function renderHub(p) {
     hubTex.start();
   }
 }
+// Measured in layout pixels (offsetLeft), never getBoundingClientRect(): the line is scaled during its intro
+// and the whole page is scaled during camera moves, which used to throw the light off its station.
+function layoutLeft(el) { let x = 0; while (el && el !== L.hub) { x += el.offsetLeft; el = el.offsetParent; } return x; }
 function hubLight(i, hover, instant) {
-  const line = $('.h2-line', L.hub), st = $$('.h2-station', L.hub)[i]; if (!line || !st) return;
-  const r = $('.h2-dot', st).getBoundingClientRect(), s0 = line.getBoundingClientRect();
-  line.style.setProperty('--lx', ((r.left + r.width / 2 - s0.left) / s0.width) * 100 + '%');
-  line.classList.toggle('is-hover', !!hover); line.classList.toggle('instant', !!instant);
+  const line = $('.h2-line', L.hub), st = $$('.h2-station', L.hub)[i]; if (!line || !st || !line.offsetWidth) return;
+  const dot = $('.h2-dot', st);
+  const x = layoutLeft(dot) + dot.offsetWidth / 2 - layoutLeft(line);
+  line.style.setProperty('--lx', clamp(x / line.offsetWidth, 0, 1) * 100 + '%');
+  line.classList.toggle('is-hover', !!hover);
+  if (instant) { line.classList.add('instant'); void line.offsetWidth; requestAnimationFrame(() => line.classList.remove('instant')); }
   $$('.h2-station', L.hub).forEach((x, k) => x.classList.toggle('is-lit', k === i));
 }
+function stageRect(el) {
+  const r = el.getBoundingClientRect(), s = stage.getBoundingClientRect(), k = stage.clientWidth / (s.width || 1);
+  return { x: (r.left - s.left) * k, y: (r.top - s.top) * k, w: r.width * k, h: r.height * k };
+}
+function morphTo(r) { const W = stage.clientWidth, H = stage.clientHeight; return { x: r.x, y: r.y, scaleX: r.w / W, scaleY: r.h / H }; }
+const worldContent = w => [...w.children].filter(c => !c.classList.contains('w-bg'));
 
 /* ======================================================================= level changes (camera) */
 function show(layer, on) { layer.classList.toggle('on', on); }
@@ -683,31 +701,38 @@ async function enterProject(pid, { sectionId = null, slideIndex = 0, fromLevel =
     await coverTransition({ p, dir: 1, card: sec ? { number: secs.indexOf(sec) + 1, title: sec.title, titleEn: sec.titleEn } : { number: projectsOf(S.content).indexOf(p) + 1, title: p.nameAr || p.name, titleEn: p.name }, swap: () => {
       leaveSpecial(true);
       S.pid = pid; applyBrand(p, false); placeLogos('corner', false);
-      if (sec) { S.sid = sec.id; S.li = Math.max(0, slideIndex); S.step = 0; enterSectionInstant(); S.lastSection[pid] = secs.indexOf(sec); }
+      if (sec) { S.sid = sec.id; S.li = Math.max(0, slideIndex); S.step = 0; enterSectionInstant(); S.lastSection[pid] = secs.indexOf(sec); S.seenSections[pid] = Math.max(S.seenSections[pid] ?? -1, secs.indexOf(sec)); }
       else { renderHub(p); show(L.hub, true); gsap.set(L.hub, { opacity: 1, scale: 1, filter: 'none' }); show(L.section, false); unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null; S.level = 'hub'; logosColor(p.brand.colors.textLight || '#fff', true); }
     }, after: () => { if (sec && S.slideEl) introTL(S.slideEl, 1); else hubIntro(); } });
     updateHUD(); broadcastState(); return;
   }
-  // Universe → Project: cinematic camera move into the chosen world
+  // Universe → Project: the chosen world grows into the project page (brand plate morph), then the page settles in.
   const world = $(`.world[data-project="${CSS.escape(pid)}"]`, L.universe);
-  const origin = world ? originOf(world, L.universe) : '50% 60%';
-  S.pid = pid; S.sid = null; S.level = 'hub';
+  S.pid = pid; S.sid = null; S.level = 'hub'; S.hubPending = null;
   applyBrand(p);
   renderHub(p);
   logosColor(p.brand.colors.textLight || '#fff', true);
-  sound.play('zoom', p.id);
-  show(L.hub, true);
-  const D = ZOOM();
-  const tl = gsap.timeline();
-  if (world) world.classList.add('is-chosen');
   startWorlds(false);
-  tl.to(L.universe, { scale: 1.18, opacity: 0, transformOrigin: origin, duration: D * 0.75, ease: 'power2.in' }, 0);
-  tl.fromTo(L.hub, { scale: 0.3, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.9, ease: 'expo.out' }, D * 0.28);
-  tl.add(() => placeLogos('corner'), D * 0.12);
-  tl.add(hubIntro(true), D * 0.55);
+  gsap.set(L.hub, { opacity: 0 }); show(L.hub, true);
+  const k = reduced() ? 0.5 : 1;
+  const tl = gsap.timeline();
+  if (world) {
+    world.classList.add('is-chosen');
+    morphEl.style.setProperty('--m-bg', p.brand.colors.primary || '#222');
+    gsap.set(morphEl, { ...morphTo(stageRect(world)), opacity: 0, transformOrigin: '0 0' });
+    morphEl.classList.add('on');
+    tl.to(worldContent(world), { opacity: 0, duration: 0.45 * k, ease: 'power2.in' }, 0);
+    tl.to($$('.world', L.universe).filter(w => w !== world), { opacity: 0.35, duration: 0.7 * k, ease: 'power2.inOut' }, 0);
+    tl.to(morphEl, { opacity: 1, duration: 0.4 * k, ease: 'power1.inOut' }, 0.05 * k);
+    tl.to(morphEl, { x: 0, y: 0, scaleX: 1, scaleY: 1, duration: 1.3 * k, ease: 'expo.inOut' }, 0.15 * k);
+  } else tl.to(L.universe, { opacity: 0, duration: 0.8 * k, ease: 'power2.inOut' }, 0);
+  tl.add(() => placeLogos('corner'), 0.2 * k);
+  tl.to(L.hub, { opacity: 1, duration: 0.8 * k, ease: 'power1.inOut' }, 1.15 * k);
+  tl.add(hubIntro(), 1.25 * k);
   await tl;
-  show(L.universe, false); startWorlds(false);
-  gsap.set(L.hub, { clearProps: 'filter' });
+  show(L.universe, false); gsap.set(L.universe, { clearProps: 'all' });
+  morphEl.classList.remove('on'); gsap.set(morphEl, { clearProps: 'all' });
+  gsap.set(L.hub, { clearProps: 'all' });
   updateHUD(); broadcastState();
   if (sectionId) await enterSection(sectionId, slideIndex);
 }
@@ -735,8 +760,8 @@ async function enterSection(sid, slideIndex = 0) {
   }
   const station = $(`.h2-station[data-section="${CSS.escape(sid)}"] .h2-dot`, L.hub);
   const origin = station ? originOf(station, L.hub) : '50% 50%';
-  S.sid = sid; S.li = slideIndex; S.step = slideIndex < 0 ? 0 : 0; S.level = 'section';
-  S.lastSection[p.id] = secs.indexOf(sec);
+  S.sid = sid; S.li = slideIndex; S.step = 0; S.level = 'section'; S.hubPending = null;
+  S.lastSection[p.id] = secs.indexOf(sec); S.seenSections[p.id] = Math.max(S.seenSections[p.id] ?? -1, secs.indexOf(sec));
   unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
   show(L.section, true);
   const list = slidesOf(sec); const li = slideIndex < 0 ? list.length - 1 : slideIndex;
@@ -761,8 +786,10 @@ async function enterSection(sid, slideIndex = 0) {
 async function flowSection(sec, slideIndex = 0, dir = 1) {
   if ((settings().flow?.sectionTransition || 'hub') !== 'hub' || reduced()) return sectionCover(sec, slideIndex, dir);
   await zoomOut({ strong: true });
-  const st = $(`.h2-station[data-section="${CSS.escape(sec.id)}"]`, L.hub);
-  if (st) hubLight(+st.dataset.i, true);
+  const i = sectionsOf(project()).indexOf(sec);
+  S.hubTarget = i; hubLight(i, false);
+  $$('.h2-station', L.hub).forEach((x, k) => x.classList.toggle('is-next', k === i));
+  if ((settings().flow?.afterSection || 'wait') !== 'auto') { S.hubPending = { sid: sec.id, slideIndex }; broadcastState(); return; } // the presenter presses Next
   await new Promise(r => setTimeout(r, 1100 / (gsap.globalTimeline.timeScale() || 1)));
   return enterSection(sec.id, slideIndex);
 }
@@ -772,7 +799,7 @@ async function sectionCover(sec, slideIndex = 0, dir = 1) {
   const list = slidesOf(sec); const li = slideIndex < 0 ? list.length - 1 : slideIndex;
   await coverTransition({ p, dir, card: { number: secs.indexOf(sec) + 1, title: sec.title, titleEn: sec.titleEn }, swap: () => {
     unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
-    S.sid = sec.id; S.lastSection[p.id] = secs.indexOf(sec); S.step = 0;
+    S.sid = sec.id; S.lastSection[p.id] = secs.indexOf(sec); S.seenSections[p.id] = Math.max(S.seenSections[p.id] ?? -1, secs.indexOf(sec)); S.step = 0;
     showSlide(li, { instant: true });
     if (slideIndex < 0) { S.step = stepsOf(S.slideTpl, S.slide); if (S.slideTpl.steps) applyStep(S.slideEl, S.step, true); }
     gsap.set($$('[data-a]', S.slideEl), { opacity: 0 });
@@ -783,7 +810,7 @@ async function sectionCover(sec, slideIndex = 0, dir = 1) {
 async function zoomOut({ strong = false } = {}) {
   if (S.level === 'section') {
     if (S.focus >= 0 && !strong) { focusConcept(-1); return; }
-    const p = project(); S.lastSection[p.id] = Math.max(S.lastSection[p.id] ?? -1, sectionsOf(p).findIndex(x => x.id === S.sid));
+    const p = project(); S.lastSection[p.id] = sectionsOf(p).findIndex(x => x.id === S.sid);
     renderHub(p); show(L.hub, true);
     const station = $(`.h2-station[data-section="${CSS.escape(S.sid)}"] .h2-dot`, L.hub);
     const origin = station ? originOf(station, L.hub) : '50% 50%';
@@ -806,22 +833,36 @@ async function toUniverse() {
   const fromP = project();
   const fromLayer = S.level === 'section' ? L.section : S.level === 'hub' ? L.hub : L.special;
   if (fromP) S.visitedProjects.add(fromP.id);
+  S.hubPending = null;
   renderUniverse(); show(L.universe, true);
   const world = fromP ? $(`.world[data-project="${CSS.escape(fromP.id)}"]`, L.universe) : null;
-  const origin = world ? originOf(world, L.universe) : '50% 60%';
   applyBrand(null);
-  sound.play('zoom', null, 'neutral');
-  const D = ZOOM() * 1.1; const tl = gsap.timeline();
-  tl.to(fromLayer, { scale: 0.35, opacity: 0, transformOrigin: origin, duration: D * 0.85, ease: 'power3.inOut' }, 0);
-  tl.fromTo(L.universe, { scale: 1.12, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.9, ease: 'power2.out' }, D * 0.3);
-  tl.add(() => { logosEl.hidden = settings().headerLogos?.show === false || settings().universe?.showLogos === false; placeLogos('hero'); }, D * 0.2);
+  const k = reduced() ? 0.5 : 1;
+  const tl = gsap.timeline();
+  if (world) {
+    // reverse morph: the page dissolves into its brand plate, which shrinks back into its world
+    const content = worldContent(world);
+    gsap.set(content, { opacity: 0 });
+    morphEl.style.setProperty('--m-bg', fromP.brand.colors.primary || '#222');
+    gsap.set(morphEl, { x: 0, y: 0, scaleX: 1, scaleY: 1, opacity: 1, transformOrigin: '0 0' });
+    morphEl.classList.add('on');
+    tl.to(fromLayer, { opacity: 0, duration: 0.6 * k, ease: 'power1.inOut' }, 0);
+    tl.to(morphEl, { ...morphTo(stageRect(world)), duration: 1.3 * k, ease: 'expo.inOut' }, 0.4 * k);
+    tl.to(morphEl, { opacity: 0, duration: 0.5 * k, ease: 'power1.inOut' }, 1.5 * k);
+    tl.to(content, { opacity: 1, duration: 0.8 * k, ease: 'power2.out' }, 1.45 * k);
+  } else {
+    tl.to(fromLayer, { opacity: 0, duration: 0.8 * k, ease: 'power2.inOut' }, 0);
+    tl.fromTo(L.universe, { opacity: 0 }, { opacity: 1, duration: 0.9 * k, ease: 'power2.out' }, 0.4 * k);
+  }
+  tl.add(() => { logosEl.hidden = settings().headerLogos?.show === false || settings().universe?.showLogos === false; placeLogos('hero'); }, 0.5 * k);
   S.level = 'universe'; S.focus = -1;
   logosColor(universeColors().fg, true);
   startWorlds(true); updateHUD();
   await tl;
   unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
   [L.section, L.hub, L.special].forEach(l => { show(l, false); gsap.set(l, { clearProps: 'all' }); });
-  gsap.set(L.universe, { clearProps: 'filter' });
+  morphEl.classList.remove('on'); gsap.set(morphEl, { clearProps: 'all' });
+  gsap.set(L.universe, { clearProps: 'all' });
   S.pid = null; S.sid = null; stopHubTex();
   updateHUD(); broadcastState();
 }
@@ -928,6 +969,7 @@ async function next() {
     return ps[0] && enterProject(ps[0].id);
   }
   if (S.level === 'hub') {
+    if (S.hubPending) return enterSection(S.hubPending.sid, S.hubPending.slideIndex);
     const p = project(); const secs = sectionsOf(p);
     const nxt = (S.lastSection[p.id] ?? -1) + 1;
     if (secs[nxt]) return enterSection(secs[nxt].id);
@@ -956,12 +998,12 @@ async function prev() {
     if (secs[si - 1]) return flowSection(secs[si - 1], -1, -1);
     return zoomOut();
   }
-  if (S.level === 'hub') return toUniverse();
+  if (S.level === 'hub') return S.hubPending?.slideIndex < 0 ? enterSection(S.hubPending.sid, -1) : toUniverse();
   if (S.level === 'closing') return toSpecial('decision');
   if (S.level === 'decision') return toUniverse();
 }
 async function jumpSection(delta) {
-  if (S.level === 'hub') { const p = project(); const secs = sectionsOf(p); const i = clamp((S.lastSection[p.id] ?? -1) + (delta > 0 ? 1 : 0), 0, secs.length - 1); return enterSection(secs[i].id); }
+  if (S.level === 'hub') { const p = project(); const secs = sectionsOf(p); const i = clamp(S.hubTarget + (delta > 0 ? 0 : -1), 0, secs.length - 1); return enterSection(secs[i].id); }
   if (S.level !== 'section') return;
   const secs = sectionsOf(project()); const si = secs.findIndex(s => s.id === S.sid);
   const t = secs[si + delta]; if (t) return flowSection(t, 0, delta);
@@ -1019,9 +1061,10 @@ function command(name, args = {}) {
   run(fn, args);
 }
 async function run(fn, args) {
-  S.busy = true;
+  S.busy = true; stage.classList.add('is-moving'); // no hover or click reaches the pages while the camera moves
+  if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur?.();
   try { await fn(args); } catch (e) { console.error(e); }
-  S.busy = false;
+  S.busy = false; stage.classList.remove('is-moving');
   broadcastState();
   const n = S.queue.shift(); S.queue = [];
   if (n && Date.now() - n[2] < 900) command(n[0], n[1]); // stale presses made during a long transition are ignored
@@ -1051,7 +1094,7 @@ function nextInfo() {
     if (ns) return pack(p, ns, slidesOf(ns)[0], 'section');
     return { kind: 'universe', label: 'العودة إلى البداية (Universe)' };
   }
-  if (S.level === 'hub' && p) { const secs = sectionsOf(p); const ns = secs[(S.lastSection[p.id] ?? -1) + 1]; return ns ? pack(p, ns, slidesOf(ns)[0], 'section') : { kind: 'universe', label: 'العودة إلى البداية' }; }
+  if (S.level === 'hub' && p) { const secs = sectionsOf(p); const ns = S.hubPending ? findSection(p, S.hubPending.sid) : secs[(S.lastSection[p.id] ?? -1) + 1]; return ns ? pack(p, ns, slidesOf(ns)[0], 'section') : { kind: 'universe', label: 'العودة إلى البداية' }; }
   if (S.level === 'universe') { const t = projectsOf(S.content).find(x => !S.visitedProjects.has(x.id)); return t ? { kind: 'project', label: t.nameAr || t.name, project: t.name } : { kind: 'decision', label: 'نقطة القرار' }; }
   if (S.level === 'decision') return { kind: 'closing', label: 'الختام' };
   return { kind: 'end', label: '—' };

@@ -540,6 +540,8 @@ function renderGlobal() {
     { key: 'video.autoplay', type: 'toggle', label: 'تشغيل الفيديو تلقائياً عند الوصول' },
     { key: 'video.pauseOnLeave', type: 'toggle', label: 'إيقاف الفيديو عند المغادرة' },
     { key: 'flow.afterAllProjects', type: 'select', label: 'بعد إنهاء كل المشاريع', options: [['decision', 'الانتقال إلى نقطة القرار'], ['none', 'البقاء في البداية']] },
+    { key: 'flow.sectionTransition', type: 'select', label: 'الانتقال بين الأقسام', options: [['hub', 'زوم أوت إلى صفحة المشروع ثم القسم التالي'], ['cover', 'بطاقة الهوية مباشرة']] },
+    { key: 'flow.afterSection', type: 'select', label: 'بعد الرجوع لصفحة المشروع', options: [['wait', 'انتظر ضغطة المقدّم (التالي)'], ['auto', 'ادخل القسم التالي تلقائياً']] },
   ], st, ctx)));
 }
 function fontUploader() {

@@ -39,7 +39,9 @@
   - the wordmark large;
   - sections as stations on a line of light, with the light resting on the next section and a soft ring marking it;
   - visited sections shown in the accent colour.
-- Between sections: a strong zoom out to the project page, the light glides to the next station, then a zoom into it. The setting is `flow.sectionTransition`: `hub` (default) or `cover`.
+- Between sections: a strong zoom out to the project page and the light glides to the next station. The show then waits for the presenter's Next press (`flow.afterSection`: `wait` (default) or `auto`). The setting `flow.sectionTransition` is `hub` (default) or `cover`. Both are in the control panel under global settings.
+- Universe ↔ project: the chosen world's brand plate grows to full screen (transform-only morph, `#morph`), then the project page fades in. The reverse runs on the way back.
+- Hub light: positioned in layout pixels (immune to camera scaling), and it always returns to the current target station. Hover is ignored while a transition runs, and pages ignore the pointer during camera moves (`#stage.is-moving`).
 - Lavara wordmark is now Alternative 1, including the "by Al Majed Oud" lockup. The isotype stays Alternative 2 (framed A monogram).
 - Lavara palette: mostly Alternative 2, plus Alt 1 gold ochre `#926A23` and Alt 3 sage `#929E7A`.
 

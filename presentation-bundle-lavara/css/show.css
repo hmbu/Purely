@@ -611,3 +611,10 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 #stage .t-journey .j-node.on .j-dot::before { opacity: .7; transform: scale(1.5); }
 #stage .t-journey .j-node.on .j-label { opacity: 1; font-family: var(--f-title); font-weight: var(--w-title); font-size: 1.7rem; color: var(--stitle); }
 #stage .t-journey .j-stages { top: 34rem; }
+
+/* universe ↔ project morph plate (transform-only) */
+#morph { position: absolute; inset: 0; visibility: hidden; pointer-events: none; background: var(--m-bg, #222); }
+#morph::before { content: ''; position: absolute; inset: 0; background: radial-gradient(60% 80% at 50% 40%, rgba(255, 255, 255, .07), transparent 70%); }
+#morph.on { visibility: visible; will-change: transform, opacity; }
+/* while the camera moves, pages ignore the pointer (no stray hover or click) */
+#stage.is-moving .layer { pointer-events: none; }
