@@ -5,7 +5,7 @@
 
 Requires Python 3 + Pillow, and esbuild (npx esbuild works). Output: dist/presentation-standalone.html
 Everything is embedded: content.json, CSS, GSAP, code, fonts in use, logos and images (resized).
-Videos are not embedded (too large) — video slides show their placeholder.
+Videos are embedded only with --embed-video (otherwise video slides show their placeholder).
 """
 import argparse, base64, io, json, os, re, subprocess, sys
 from PIL import Image
@@ -15,6 +15,8 @@ ap = argparse.ArgumentParser()
 ap.add_argument('--esbuild', default='npx esbuild')
 ap.add_argument('--max-width', type=int, default=1920)
 ap.add_argument('--quality', type=int, default=74)
+ap.add_argument('--embed-video', action='store_true', help='embed videos too (larger file)')
+ap.add_argument('--out', default='dist/presentation-standalone.html')
 a = ap.parse_args()
 
 def rd(p, mode='r'):
@@ -37,7 +39,10 @@ def data_uri(path):
         if im.width > a.max_width: im = im.resize((a.max_width, round(im.height * a.max_width / im.width)), Image.LANCZOS)
         b = io.BytesIO(); im.save(b, 'JPEG', quality=a.quality, optimize=True, progressive=True)
         return 'data:image/jpeg;base64,' + base64.b64encode(b.getvalue()).decode()
-    return None  # videos and others are dropped
+    if a.embed_video and ext in ('.mp4', '.m4v', '.mov', '.webm'):
+        mt = {'.webm': 'video/webm', '.mov': 'video/mp4'}.get(ext, 'video/mp4')  # .mov from phones is H.264 in practice
+        return f'data:{mt};base64,' + base64.b64encode(rd(path, 'rb')).decode()
+    return None  # videos are dropped unless --embed-video
 
 content = json.loads(rd('content.json'))
 # keep only the font families/weights in use (global + per-project overrides) + Medium for eyebrows
@@ -73,6 +78,6 @@ html = html.replace('<script type="module" src="js/presentation.js"></script>',
 html = html.replace('<meta name="viewport" content="width=device-width, initial-scale=1">',
     '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="theme-color" content="#15120F">')
 os.makedirs(os.path.join(ROOT, 'dist'), exist_ok=True)
-out = os.path.join(ROOT, 'dist', 'presentation-standalone.html')
+out = os.path.join(ROOT, a.out)
 with open(out, 'w') as f: f.write(html)
 print(out, f'{os.path.getsize(out) / 1e6:.1f} MB', 'fonts:', {k: sorted(v) for k, v in used.items()})

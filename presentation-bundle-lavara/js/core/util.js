@@ -52,7 +52,7 @@ export function fmtClock(ms) {
   return h ? `${h}:${z(m)}:${z(x)}` : `${z(m)}:${z(x)}`;
 }
 export const arabicDigits = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
-export const isVideo = src => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src || '');
+export const isVideo = src => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src || '') || /^data:video\//.test(src || '');
 
 export function prefersReducedMotion() {
   return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
