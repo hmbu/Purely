@@ -2,7 +2,7 @@
   "version": 1,
   "meta": {
     "title": "Bundle × Lavara",
-    "updatedAt": "2026-10-25T12:57:02.422Z"
+    "updatedAt": "2026-10-25T13:25:38.520Z"
   },
   "fonts": [
     {
@@ -682,25 +682,22 @@
             },
             {
               "id": "sl-00i",
-              "template": "full-image",
+              "template": "video",
               "transition": "veil",
               "bg": "auto",
               "notes": "",
               "hidden": false,
               "data": {
-                "image": {
-                  "src": "assets/lavara/sample/room.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 50,
-                    "y": 55
-                  }
+                "video": {
+                  "src": "assets/lavara/uploads/mvnv1d4a-Bundle teaser E - Blueprint to Unwrap _20s_.MP4",
+                  "poster": "",
+                  "autoplay": true,
+                  "muted": true,
+                  "loop": true
                 },
+                "mode": "full",
                 "eyebrow": "A stay to remember",
-                "title": "إقامة لا تُنسى،\nوعطر صُنع لك",
-                "body": "",
-                "textPosition": "bottom-start",
-                "shade": true
+                "title": "إقامة لا تُنسى،\nوعطر صُنع لك"
               }
             },
             {
