@@ -1198,7 +1198,7 @@ function renderDecision() {
     <div class="special decision">
       <div class="d-breath"></div>
       <div class="d-head">${d.eyebrow ? `<div class="tx-eyebrow latin">${esc(d.eyebrow)}</div>` : ''}<h1 class="d-q">${escBr(d.question || '')}</h1></div>
-      <div class="d-groups" style="--g:${(d.groups || []).length}">
+      <div class="d-groups ${(d.groups || []).length > 3 ? 'is-rows' : ''}" style="--g:${(d.groups || []).length}">
         ${(d.groups || []).map(g => {
           const p = g.projectId ? findProject(S.content, g.projectId) : null;
           return `<div class="d-group" data-group="${esc(g.id)}">

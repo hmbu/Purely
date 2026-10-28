@@ -1465,3 +1465,13 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="lavara"] .scr { border-radius: var(--lv-r, .7rem); outline: var(--hair) solid color-mix(in srgb, var(--sfg) 18%, transparent); outline-offset: 1.2rem; }
 [data-brand="lavara"] .scr-n { color: var(--lv-terra); opacity: 1; }
 [data-style="bubbles"] .scr { border-radius: 2rem; }
+
+/* decision page with many items: a formal sheet of rows — the item on the right, its choices beside it */
+.d-groups.is-rows { display: flex; flex-direction: column; gap: 0; max-width: 150rem; }
+.is-rows .d-group { display: grid; grid-template-columns: 40rem 1fr; align-items: center; gap: 3rem; padding: 1.1rem 0; border-top: var(--hair) solid color-mix(in srgb, var(--b-fg) 18%, transparent); text-align: right; }
+.is-rows .d-group:last-child { border-bottom: var(--hair) solid color-mix(in srgb, var(--b-fg) 18%, transparent); }
+.is-rows .d-group:first-child { margin-bottom: 2.4rem; border-bottom: var(--hair) solid color-mix(in srgb, var(--b-fg) 18%, transparent); }
+.is-rows .d-gtitle { height: auto; margin: 0; display: block; font-family: var(--f-title); font-weight: var(--w-title); font-size: 2.7rem; opacity: 1; }
+.is-rows .d-options { flex-direction: row; gap: 1.2rem; }
+.is-rows .d-opt { min-width: 18rem; padding: 1.25rem 2.4rem; font-size: 1.85rem; }
+.special:has(.is-rows) .d-q { margin-bottom: 4.5rem; }

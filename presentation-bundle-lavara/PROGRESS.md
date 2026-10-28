@@ -180,3 +180,4 @@
 - Section exit made calm: the slide eases back while the already-built project page settles in; stations rise softly, the line is not redrawn.
 - Identity sections: the wordmark travels between the title slide and the identity board (both directions), changing colour on the way, while the rest of the slide changes around it.
 - Lavara digital product: new slide «لوحة التحكم للفندق» (screens template: two offset screenshots + numbered points); the two screenshots are uploaded by the user in the control panel.
+- Decision page → «الاعتماد»: perfumes/oils decision (Al Majed only / Lavara only / both), then approval rows for the financial, operating and legal models, business model, tripartite agreement and CEO (اعتماد / اعتماد مع تعديل / تأجيل); more than three items show as rows.
