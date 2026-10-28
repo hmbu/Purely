@@ -250,7 +250,7 @@
               "hidden": false,
               "data": {
                 "video": {
-                  "src": "",
+                  "src": "assets/bundle/video/bundle-identity-film.mp4",
                   "poster": "",
                   "autoplay": true,
                   "muted": false,
@@ -1033,7 +1033,7 @@
               "hidden": false,
               "data": {
                 "video": {
-                  "src": "assets/lavara/uploads/mvnv1d4a-Bundle teaser E - Blueprint to Unwrap _20s_.MP4",
+                  "src": "assets/lavara/video/lavara-noir-reveal.mp4",
                   "poster": "",
                   "autoplay": true,
                   "muted": false,
