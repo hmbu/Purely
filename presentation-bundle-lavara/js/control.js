@@ -2,6 +2,7 @@
 // live show remote, backups. Every edit is pushed live to the show and auto-saved to content.json.
 import { $, $$, esc, uid, clone, debounce, fmtClock } from './core/util.js';
 import { watchForUpdates } from './core/fresh.js';
+const BUNDLE_SKY = ['meadow', 'sunrise', 'bloom', 'rhythm', 'skybubbles']; // Bundle styles that replace the green ground
 import { projectsOf, allProjectsOf, sectionsOf, slidesOf, locate } from './core/model.js';
 import { loadContent, saveContent, hasServer, hasGithub, backendMode, githubConfig, setGithubConfig, testGithub, listBackups, getBackup, makeBackup, uploadFile, listFiles, serverInfo, getDecisionLog } from './core/store.js';
 import { createSync } from './core/sync.js';
@@ -455,8 +456,15 @@ function renderBrands() {
   p.brand ||= {}; const b = p.brand; b.colors ||= {}; b.textureColors ||= ['#333333', '#666666', '#999999', '#CCCCCC'];
   const ctx = { path: 'brand-' + p.id, uploadDir: `assets/${p.id}` };
   f.append(group('المشروع', ...renderFields([{ key: 'name', type: 'text', label: 'الاسم (لاتيني)' }, { key: 'nameAr', type: 'text', label: 'الاسم بالعربية' }, { key: 'tagline', type: 'text', label: 'السطر التعريفي' }], p, { ...ctx, onChange: renderTreeSoon })));
+  if (b.texture !== 'mist') { // one tap: the whole of Bundle in green (its original look) or in sky blue, transitions included
+    const pick = v => { b.textureStyle = v; commit({ key: ctx.path + '.textureStyle' }); renderBrands(); };
+    const cur = b.textureStyle === 'skybubbles' ? 'sky' : (BUNDLE_SKY.includes(b.textureStyle) ? '' : 'green');
+    f.append(group('لون بندل بالكامل (الخلفيات والانتقالات)', h('div', { class: 'row', style: 'gap:10px;flex-wrap:wrap' },
+      h('button', { class: 'btn' + (cur === 'green' ? ' primary' : ''), onclick: () => pick('orbs') }, 'أخضر — الهوية الأصلية'),
+      h('button', { class: 'btn' + (cur === 'sky' ? ' primary' : ''), onclick: () => pick('skybubbles') }, 'سماوي — فقاعات ملوّنة'))));
+  }
   if (b.texture !== 'mist') f.append(group('خلفية بندل المتحركة', renderField({ key: 'textureStyle', type: 'select', label: 'اختر شكل الخلفية', options: [['bubbles', 'فقاعات تندمج (السابق)'],
-    ['orbs', '١ · كرات منفصلة تطفو ولا تندمج'], ['strips', '٢ · شرائط بأشكال الهوية'], ['stacks', '٣ · أعمدة دوائر متحركة'], ['meadow', '٤ · أرضية كريمية · أشكال تطفو وتدور'], ['sunrise', '٥ · أرضية سماوية · أنصاف دوائر تشرق وتغيب'], ['bloom', '٦ · أرضية وردية · حقل دوائر يتنفس'], ['rhythm', '٧ · أرضية ليموني · أعمدة ترتفع وتنخفض'], ['orbit', '٨ · أرضية خضراء · كرات في مدارات']] }, b, ctx)));
+    ['orbs', '١ · كرات منفصلة تطفو ولا تندمج'], ['strips', '٢ · شرائط بأشكال الهوية'], ['stacks', '٣ · أعمدة دوائر متحركة'], ['meadow', '٤ · أرضية كريمية · أشكال تطفو وتدور'], ['sunrise', '٥ · أرضية سماوية · أنصاف دوائر تشرق وتغيب'], ['bloom', '٦ · أرضية وردية · حقل دوائر يتنفس'], ['rhythm', '٧ · أرضية ليموني · أعمدة ترتفع وتنخفض'], ['orbit', '٨ · أرضية خضراء · كرات في مدارات'], ['skybubbles', '٩ · أرضية سماوية · فقاعات ملوّنة تصعد']] }, b, ctx)));
   if (b.texture === 'mist') f.append(group('خلفية لافارا المتحركة', renderField({ key: 'textureStyle', type: 'select', label: 'اختر شكل الخلفية', options: [['mist', 'الضباب (السابق)'],
     ['silk', '١ · سائل صابون — طيّات حريرية'], ['lather', '٢ · سائل صابون مع رغوة خفيفة'], ['pour', '٣ · سائل صابون ينساب للأسفل'],
     ['drop', '٤ · قطرات على سائل كثيف'], ['swirl', '٥ · دوامة سائل وكريم'], ['soap', '٦ · صابون طبيعي — رخام'],

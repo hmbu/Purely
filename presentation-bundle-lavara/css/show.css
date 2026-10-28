@@ -1362,3 +1362,5 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 /* opening screen: a Bundle scene with a light ground keeps its shapes clear and the words in its ink */
 .uf-world.is-light .uf-shade { background: linear-gradient(rgba(255, 255, 255, .25), transparent 30%, transparent 70%, rgba(255, 255, 255, .2)); }
 .uf-world.is-light::after { mix-blend-mode: multiply; opacity: .06; }
+/* Bundle scenes carry their own fine grain; the page grain on top stays very light */
+.hub2.is-light::after, .uf-world.is-light::after { opacity: .03; }

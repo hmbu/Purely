@@ -86,7 +86,7 @@ function applyBrand(p, animate = true) {
   tc.forEach((v, i) => st.setProperty(`--b-t${i}`, v));
   st.setProperty('--b-fg', isDarkHex(c.primary || '#222') ? (c.textLight || '#fff') : (c.text || '#111')); st.setProperty('--b-on', c.primary || '#111');
   applyTypography(stage, S.content, p);
-  gsap.to(stage, { backgroundColor: c.primary || c.background, duration: animate ? 0.6 : 0, ease: 'power2.inOut' });
+  gsap.to(stage, { backgroundColor: hubGround(p) || c.background, duration: animate ? 0.6 : 0, ease: 'power2.inOut' });
 }
 
 /* ======================================================================= header logos */
@@ -508,7 +508,7 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
   coverEl.classList.toggle('is-panel', panel);
   const cvBg = sceneOf(p)?.ground || (panel ? p.brand.colors.primary : (p.brand.textureColors || [])[0] || p.brand.colors.primary);
   // light grounds (the shared frame's paper) take the dark ink, never white on white
-  coverEl.style.setProperty('--cv-fg', isDark(cvBg) ? p.brand.colors?.textLight || '#fff' : p.brand.colors?.title || p.brand.colors?.dark || '#1E1B17');
+  coverEl.style.setProperty('--cv-fg', sceneOf(p) ? sceneOf(p).ink : isDark(cvBg) ? p.brand.colors?.textLight || '#fff' : p.brand.colors?.title || p.brand.colors?.dark || '#1E1B17');
   coverEl.style.setProperty('--cv-bg', cvBg);
   coverEl.innerHTML = card ? coverCard(p, card.number, card.title, card.titleEn) : '';
   sound.play(light ? 'slide' : 'section', p.id);
@@ -519,7 +519,7 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
     veil.start();
     tl.to(veil, { progress: 1, duration: inT, ease: 'power2.inOut' }, 0);
   } else {
-    coverEl.style.setProperty('--cv-bg', p.brand.colors.primary);
+    coverEl.style.setProperty('--cv-bg', cvBg);
     tl.fromTo(coverEl, { clipPath: dir > 0 ? 'inset(0% 100% 0% 0%)' : 'inset(0% 0% 0% 100%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: inT, ease: 'expo.inOut' }, 0);
     tl.fromTo(coverEl, { '--lx': dir > 0 ? '20%' : '80%' }, { '--lx': dir > 0 ? '70%' : '30%', duration: inT + 1.8, ease: 'sine.inOut' }, 0);
   }
@@ -885,7 +885,7 @@ async function enterProject(pid, { sectionId = null, slideIndex = 0, fromLevel =
   const tl = gsap.timeline();
   if (world) {
     world.classList.add('is-chosen');
-    morphEl.style.setProperty('--m-bg', p.brand.colors.primary || '#222');
+    morphEl.style.setProperty('--m-bg', hubGround(p));
     gsap.set(morphEl, { ...morphTo(stageRect(world)), opacity: 0, transformOrigin: '0 0' });
     morphEl.classList.add('on');
     tl.to(worldContent(world), { opacity: 0, duration: 0.45 * k, ease: 'power2.in' }, 0);
@@ -1045,7 +1045,7 @@ async function toUniverse() {
     // reverse morph: the page dissolves into its brand plate, which shrinks back into its world
     const content = worldContent(world);
     gsap.set(content, { opacity: 0 });
-    morphEl.style.setProperty('--m-bg', fromP.brand.colors.primary || '#222');
+    morphEl.style.setProperty('--m-bg', hubGround(fromP));
     gsap.set(morphEl, { x: 0, y: 0, scaleX: 1, scaleY: 1, opacity: 1, transformOrigin: '0 0' });
     morphEl.classList.add('on');
     tl.to(fromLayer, { opacity: 0, duration: 0.6 * k, ease: 'power1.inOut' }, 0);

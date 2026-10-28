@@ -324,9 +324,11 @@ const STACKS = COMMON + SPHERE + '\n#define STRIPS_N 7.0\n#define STRIPS_EMPTY -
 //   bloom   → pink ground: a field of circles and half circles breathing in a slow diagonal wave
 //   rhythm  → lime ground: rounded columns rising and falling like a slow equaliser, a sphere riding each
 //   orbit   → deep-green ground: spheres travelling on wide elliptical orbits at three depths
+//   skybubbles → sky ground: bubbles of the brand's vivid gradients rising slowly with a gentle sway, never merging
 export const BUNDLE_SCENES = {
   meadow: { ground: '#F4EFE6', ink: '#245845' }, sunrise: { ground: '#CCE2F2', ink: '#0A1215' },
   bloom: { ground: '#F2A9C2', ink: '#0A1215' }, rhythm: { ground: '#AEE67F', ink: '#245845' }, orbit: { ground: '#245845', ink: '#F9FAFC' },
+  skybubbles: { ground: '#CCE2F2', ink: '#0A1215' },
 };
 const SCENE_SRC = `
 #define PI 3.14159265
@@ -393,6 +395,18 @@ void main(){
     vec2 q = p - vec2(mod(fi * 0.37 * asp + t * 0.025 * (1.0 + fi * 0.2), asp + 0.2) - 0.1, 0.9 - 0.05 * fi);
     float rr = 0.022 + 0.012 * h1(fi, 8.0); paint(col, a, length(q) - rr, mod(fi, 4.0) == 1.0 ? 4.0 : mod(fi, 4.0), q / rr, px);
   }
+#elif SCENE == 6
+  for (int i = 0; i < 16; i++) { float fi = float(i);
+    float r = 0.035 + 0.075 * h1(fi, 1.0) * h1(fi, 7.0) + (mod(fi, 5.0) < 0.5 ? 0.04 : 0.0);
+    float sp = 0.018 + 0.03 * h1(fi, 2.0);
+    float y = fract(h1(fi, 3.0) + t * sp) * (1.0 + 4.0 * r) - 2.0 * r;
+    float x = (fi + 0.5) / 16.0 * asp + 0.05 * sin(t * (0.25 + 0.3 * h1(fi, 4.0)) + fi * 2.1);
+    vec2 q = p - vec2(x, y);
+    float tone = mod(fi * 3.0, 5.0); tone = tone == 2.0 ? 4.0 : tone;
+    vec2 o2 = q / r; float m = 1.0 - smoothstep(-px, px, length(q) - r);
+    vec3 c = pairCol(tone, o2); c = mix(c, c * c * 1.15, 0.35); // clearer, deeper colour on the sky
+    col = mix(col, c, m); a = max(a, m);
+  }
 #else
   vec2 ctr = vec2(asp * 0.5, 0.5);
   for (int ring = 0; ring < 3; ring++) { float fr = float(ring);
@@ -408,7 +422,7 @@ void main(){
 #endif
   // the middle stays quiet for the wordmark and the stations
   col = mix(col, SCENE_GROUND, calm * 0.8 * a);
-  col += coarseGrain() * (0.06 + 0.1 * a);
+  col += coarseGrain() * (0.025 + 0.045 * a);
   // reveal for transitions: a soft wipe from the sweep side
   float order = u_sweep >= 0.0 ? uv.x : 1.0 - uv.x;
   float rv = smoothstep(order * 0.7, order * 0.7 + 0.3, u_progress * 1.0001);
