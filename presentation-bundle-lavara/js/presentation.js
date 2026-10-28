@@ -545,9 +545,11 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
   const outAt = inT + hold + (card ? 0.4 : 0);
   if (card) tl.to(cardEls, { opacity: 0, y: -pxs(16), duration: 0.5, ease: 'power2.in', stagger: 0.04 }, outAt - 0.25);
   if (markEl) tl.to(markEl, { opacity: 0, duration: 0.6, ease: 'power2.in' }, outAt - 0.25);
-  if (useVeil) tl.to(veil, { progress: 0, duration: outT, ease: 'power2.inOut' }, outAt);
-  else tl.to(coverEl, { clipPath: dir > 0 ? 'inset(0% 0% 0% 100%)' : 'inset(0% 100% 0% 0%)', duration: outT, ease: 'expo.inOut' }, outAt);
-  if (after) tl.add(() => { after(); }, outAt + outT * 0.25);
+  // the cover starts leaving while the title fades, and the slide starts entering with it: no empty beat in between
+  const leave = card ? outAt - 0.12 : outAt;
+  if (useVeil) tl.to(veil, { progress: 0, duration: outT, ease: 'power2.inOut' }, leave);
+  else tl.to(coverEl, { clipPath: dir > 0 ? 'inset(0% 0% 0% 100%)' : 'inset(0% 100% 0% 0%)', duration: outT, ease: 'expo.inOut' }, leave);
+  if (after) tl.add(() => { after(); }, leave + outT * 0.15);
   await tl;
   coverEl.classList.remove('on', 'is-panel'); coverEl.innerHTML = ''; gsap.set(coverEl, { clearProps: 'backgroundColor,clipPath' });
   if (useVeil) veil.stop(), veil.set({ progress: 0 });

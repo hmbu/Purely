@@ -278,6 +278,9 @@ void main(){
     vec3 base = u_col[int(mod(u_tone[i], 4.0))];
     col = mix(col, sphereCol(base, d), m); a = max(a, m);
   }
+  // the middle stays clear for the wordmark and the stations (never during a cover, where the flood fills it)
+  float calm = 1.0 - smoothstep(0.55, 1.0, length((p - vec2(asp * 0.5, 0.58)) / vec2(asp * 0.36, 0.3)));
+  a *= 1.0 - calm * 0.8;
   float flood = smoothstep(0.82, 1.0, u_progress);
   col = mix(col, u_col[0], flood * (1.0 - a * 0.0)); a = max(a, flood);
   col += coarseGrain() * 0.16 * a;

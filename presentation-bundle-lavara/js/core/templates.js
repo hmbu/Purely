@@ -252,7 +252,8 @@ const PARTIES = [[/الماجد/, 'assets/logos/almajed-oud.png', 3.43, 5], [/^�
 function partyLogo(n, ctx) {
   if ((n.shape || 'box') !== 'box' || !ctx?.asset) return '';
   const hit = PARTIES.find(([re]) => re.test(String(n.title || '').trim())); if (!hit) return '';
-  return `<span class="logo-mask dg-logo" style="--src:url('${esc(ctx.asset(hit[1]))}');aspect-ratio:${hit[2]};height:${hit[3]}rem"></span>`;
+  // Al Majed's logo already spells its Arabic name, so the card shows the logo instead of repeating the name
+  return `<span class="logo-mask dg-logo${/الماجد/.test(hit[0].source) ? ' is-named' : ''}" style="--src:url('${esc(ctx.asset(hit[1]))}');aspect-ratio:${hit[2]};height:${hit[3]}rem"></span>`;
 }
 TEMPLATES.diagram = {
   name: 'مخطط (صناديق وأسهم)', en: 'Diagram', group: 'extra', defaultBg: 'background', suggested: 'الهيكل',
@@ -300,6 +301,10 @@ TEMPLATES.diagram = {
     const grid = el.querySelector('.dg'), svg = el.querySelector('.dg-wires'); if (!grid || !svg) return;
     el.querySelectorAll('.dg-label').forEach(x => x.remove());
     const W = grid.offsetWidth, H = grid.offsetHeight; if (!W) return;
+    // A tall diagram (all its steps shown) never runs off the slide: it is scaled down to fit above the caption.
+    const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16, cap = el.querySelector('.dg-caption');
+    const room = el.offsetHeight - grid.offsetTop - (cap ? cap.offsetHeight + rem * 9 : rem * 7);
+    grid.style.transformOrigin = '50% 0'; grid.style.transform = H > room && room > 0 ? `scale(${(room / H).toFixed(4)})` : '';
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('width', W); svg.setAttribute('height', H);
     const box = id => { const n = grid.querySelector(`[data-node="${CSS.escape(id || '')}"]`); return n && { x: n.offsetLeft, y: n.offsetTop, w: n.offsetWidth, h: n.offsetHeight }; };
     const px = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16, pad = px * 0.9, ah = px * 0.75;

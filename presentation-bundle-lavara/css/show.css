@@ -1391,3 +1391,30 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .sc-frame { width: 100%; height: 100%; }
 .sc-frame .m { width: 100% !important; height: 100% !important; max-width: none; max-height: none; object-fit: cover !important; object-position: 50% 90% !important; }
 [data-brand="bundle"] .sc-item { justify-content: flex-start; }
+
+/* ======================================================================= review fixes */
+/* a card whose logo already carries its name does not repeat it */
+.dg-logo.is-named + b { display: none; }
+.dg-logo.is-named { height: 5.6rem !important; margin-bottom: 1rem; }
+/* the caption on a full video sits clear of the footer */
+.t-video .s-copy { bottom: 8rem; }
+/* business model: the busiest blocks keep all their lines */
+.cv-b { padding: 2rem 2.2rem; gap: 1rem; }
+.cv-x { font-size: 1.55rem; line-height: 1.6; }
+[data-brand="lavara"] .cv-x { font-size: 1.45rem; line-height: 1.55; }
+[data-brand="lavara"] .cv-b { padding: 2.2rem 2.4rem; }
+/* footer (logo · section · page) a touch larger and clearer */
+#hud .crumb { font-size: 1.55rem; bottom: 2.6rem; }
+#hud .crumb i { height: 1.6rem; margin: 0 1.6rem; }
+#hud .crumb .cr-logo { width: 9.5rem; height: 2rem; }
+#hud.show-crumb .crumb { opacity: .7; }
+/* Bundle sources: the brand shapes larger, so the cards read as shape + words rather than empty space */
+[data-brand="bundle"] .so-shape { width: 22rem; }
+[data-brand="bundle"] .so-shape.sh-column { height: 24rem !important; border-radius: 11rem 11rem 0 0; }
+[data-brand="bundle"] .so-shape.sh-circle { width: 22rem; height: 22rem !important; bottom: -7.5rem; }
+[data-brand="bundle"] .so-shape.sh-half { width: 26rem; height: 13rem !important; border-radius: 13rem 13rem 0 0; }
+[data-brand="bundle"] .so-shape.sh-slim { width: 12.5rem !important; height: 29rem !important; border-radius: 6.25rem 6.25rem 0 0; }
+/* Bundle categories: the list sits in the middle of the photo column's height */
+[data-brand="bundle"] .t-categories .ca-list { top: 50%; translate: 0 -38%; }
+/* Bundle product pages: products centred in the space under the tabs (no empty band at the bottom) */
+[data-brand="bundle"] .sc-items { align-items: center; }

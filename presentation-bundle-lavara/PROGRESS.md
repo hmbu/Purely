@@ -166,3 +166,7 @@
 - Follow-up: shared-frame cards for Al Majed Oud and Rimthan carry their logos and party colours (gold, indigo; entity teal); revenue bars rise slowly year after year; Lavara lineup entrance slower; Bundle product photos back to one size, whole product visible, crop from the top.
 - Follow-up: Bundle product photos breathe with a slow light zoom.
 - Follow-up: product photo zoom only on entry (settles and holds) and a light zoom on exit; no continuous zoom.
+
+## Full review fixes (2026-10-28)
+- Contract diagram scaled to fit when all steps show; Al Majed cards show the logo (which carries the name) without repeating it; Lavara video caption clear of the footer; business-model text no longer clipped; Lavara revenue years 2027–2031 like Bundle; opening-screen chooser hidden; green orbs calm in the middle of the hub; section title → first slide without an empty beat; Bundle sources shapes ~40% larger, categories list centred, product pages centred; footer larger.
+- Not touched (user decision): digital product sections, decision page, operating-model flowcharts.
