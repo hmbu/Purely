@@ -158,7 +158,7 @@ button { font: inherit; color: inherit; }
 /* ------------------------------------------------------------ shared section header for rich templates */
 .board-head { position: absolute; top: 7.5rem; right: 8rem; left: 18rem; display: flex; flex-direction: column; align-items: flex-start; }
 .board-head .tx-eyebrow { margin-bottom: 1.4rem; }
-.board-head .tx-title { font-size: calc(3.8rem * var(--s-title)); }
+.board-head .tx-title { font-size: calc(5.6rem * var(--s-title)); }
 
 /* ------------------------------------------------------------ 5. brand board */
 .t-board .board-grid { position: absolute; top: 25rem; bottom: 7rem; right: 8rem; left: 8rem; display: grid; grid-template-columns: 1.35fr .8fr 1.15fr; grid-template-rows: 1fr auto; gap: 2rem; }
@@ -586,9 +586,9 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .h2-dot { position: relative; width: 2.4rem; height: 2.4rem; margin: -.1rem 0 2.4rem; display: grid; place-items: center; }
 .h2-dot i { width: .9rem; height: .9rem; border-radius: 50%; background: #F5F1E8; opacity: .55; transition: transform 1.2s cubic-bezier(.16, 1, .3, 1), opacity 1s, background 1s; }
 .h2-dot::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: var(--hair) solid rgba(245, 241, 232, .5); opacity: 0; transform: scale(.6); transition: opacity 1s, transform 1.2s cubic-bezier(.16, 1, .3, 1); }
-.h2-title { font-family: var(--f-title); font-weight: var(--w-title); font-size: 2.3rem; line-height: 1.3; text-align: center; opacity: .78; transition: opacity 1s; }
+.h2-title { font-family: var(--f-title); font-weight: var(--w-title); font-size: 2.9rem; line-height: 1.3; text-align: center; opacity: .78; transition: opacity 1s; }
 .h2-en { margin-top: 1rem; font-size: .9rem; letter-spacing: .3em; text-transform: uppercase; opacity: .45; }
-.h2-desc { margin-top: .9rem; max-width: 24rem; font-size: 1.35rem; line-height: 1.55; text-align: center; opacity: .55; transition: opacity 1s; }
+.h2-desc { margin-top: .9rem; max-width: 24rem; font-size: 1.55rem; line-height: 1.55; text-align: center; opacity: .55; transition: opacity 1s; }
 .h2-station.is-lit .h2-desc { opacity: .85; }
 .h2-station.is-visited .h2-dot i { background: var(--glow); opacity: .9; }
 .h2-station.is-visited .h2-num { opacity: .35; }
@@ -1206,3 +1206,102 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .t-title .s-watermark { display: block; overflow: hidden; }
 .t-title .s-watermark .logo-mask, [data-style="bubbles"] .t-title .s-watermark .logo-mask { position: absolute; right: -16rem; bottom: -26rem; left: auto; top: auto; width: 64rem; height: 64rem; margin: 0; opacity: .07; }
 [data-brand="lavara"] .t-title .s-watermark .logo-mask { width: 52rem; height: 70rem; right: -12rem; bottom: -30rem; }
+
+/* ======================================================================= Lavara: colour-blocked boxes
+   From the Alternative 2 application pages: the terracotta card, the sage soap box, the ochre ground and the olive soap.
+   Each box is one solid brand colour with ivory words and an ivory hairline frame inset, numbered (001), the framed A
+   as its seal. Ivory boxes stay for reading-heavy content, tinted from the same colours. Never casual: no gradients,
+   no rounded corners, no shadows. */
+[data-brand="lavara"] {
+  --lv-ivory: #F3F2E0; --lv-brown: #3C2E25; --lv-terra: #AD6243; --lv-rust: #8F2E02; --lv-olive: #5B634A;
+  --lv-sage: #929E7A; --lv-ochre: #926A23; --lv-saj: #959163;
+}
+[data-brand="lavara"] .lv-block, [data-brand="lavara"] :is(.so-card, .cp-col, .st-cell, .sc-col) { --lv-c: var(--lv-terra); }
+[data-brand="lavara"] :is(.so-card, .cp-col, .st-cell, .sc-col):nth-child(4n+2) { --lv-c: var(--lv-sage); }
+[data-brand="lavara"] :is(.so-card, .cp-col, .st-cell, .sc-col):nth-child(4n+3) { --lv-c: var(--lv-ochre); }
+[data-brand="lavara"] :is(.so-card, .cp-col, .st-cell, .sc-col):nth-child(4n+4) { --lv-c: var(--lv-olive); }
+
+/* product categories: three tall colour blocks, number on top, the name, a short rule, the framed A low in the block */
+[data-brand="lavara"] .so-cards { gap: 1.6rem; top: 20rem; }
+[data-brand="lavara"] .so-card, [data-brand="lavara"] .so-card.feat { align-items: center; text-align: center; justify-content: flex-start; padding: 5.4rem 3.6rem; background: var(--lv-c); color: var(--lv-ivory); --stitle: var(--lv-ivory); }
+[data-brand="lavara"] .so-card::before { inset: 1.4rem !important; opacity: .45 !important; }
+[data-brand="lavara"] .so-card::after { content: attr(data-n); order: -1; font-family: var(--f-title); font-size: 1.8rem; letter-spacing: .06em; opacity: .8; }
+[data-brand="lavara"] .so-card h3 { font-size: 4rem; line-height: 1.3; }
+[data-brand="lavara"] .so-card h3::after { content: ''; display: block; width: 4.4rem; height: var(--hair); margin: 2.6rem auto 0; background: currentColor; opacity: .6; }
+[data-brand="lavara"] .so-mark { left: 50%; translate: -50% 0; bottom: 5.4rem; width: 11rem; height: 14.6rem; opacity: .9; }
+[data-brand="lavara"] .so-mark .logo-mask { background-color: var(--lv-ivory); }
+
+/* perfumes: two colour blocks side by side (terracotta, sage), points on ivory hairlines */
+[data-brand="lavara"] .cp-cols { gap: 1.6rem; }
+[data-brand="lavara"] .cp-col, [data-brand="lavara"] .cp-col.feat { padding: 5rem 5.4rem; background: var(--lv-c); color: var(--lv-ivory); --stitle: var(--lv-ivory); }
+[data-brand="lavara"] .cp-col::before { inset: 1.4rem; opacity: .45; }
+[data-brand="lavara"] .cp-col li { border-top-color: color-mix(in srgb, var(--lv-ivory) 30%, transparent); }
+[data-brand="lavara"] .cp-col li.con { opacity: .78; }
+[data-brand="lavara"] .cp-col::after { content: ''; position: absolute; left: 5.4rem; bottom: 4.6rem; width: 6.4rem; height: 8.5rem; background-color: var(--lv-ivory); opacity: .85; -webkit-mask: var(--lv-mark) center / contain no-repeat; mask: var(--lv-mark) center / contain no-repeat; }
+
+/* operations numbers: four colour tiles in a row, the figure large in ivory */
+[data-brand="lavara"] .st-row { gap: 1.6rem; translate: 0 -38%; }
+[data-brand="lavara"] .st-cell { aspect-ratio: 3 / 3.4; justify-content: space-between; padding: 4.4rem 3rem 4rem; background: var(--lv-c); color: var(--lv-ivory); --stitle: var(--lv-ivory); border: 0 !important; }
+[data-brand="lavara"] .st-cell::before { content: ''; position: absolute; inset: 1.2rem; border: var(--hair) solid currentColor; opacity: .45; pointer-events: none; }
+[data-brand="lavara"] .st-cell::after { content: attr(data-n); position: absolute; top: 3.2rem; font-family: var(--f-title); font-size: 1.6rem; opacity: .8; }
+[data-brand="lavara"] .st-v { margin-top: auto; font-size: 11rem; }
+[data-brand="lavara"] .st-l { font-size: 2.4rem; }
+
+/* sectors: the lead sector in terracotta, the rest as ivory boxes with a band of their colour on top */
+[data-brand="lavara"] .sc-col, [data-brand="lavara"] .sc-col:first-child { background: var(--ssurf); color: var(--sfg); --stitle: var(--sfg); border-top: .9rem solid var(--lv-c); }
+[data-brand="lavara"] .sc-col:first-child { background: var(--lv-terra); color: var(--lv-ivory); --stitle: var(--lv-ivory); border-top-color: var(--lv-terra); }
+
+/* business model: blocks tinted by family (partners side sage, customer side ochre, money terracotta), the value in solid terracotta */
+[data-brand="lavara"] .cv-b { background: color-mix(in srgb, var(--lv-sage) 16%, var(--lv-ivory)); }
+[data-brand="lavara"] .cv-b.g-infra { background: color-mix(in srgb, var(--lv-sage) 26%, var(--lv-ivory)); }
+[data-brand="lavara"] .cv-b.g-fin { background: color-mix(in srgb, var(--lv-terra) 16%, var(--lv-ivory)); }
+[data-brand="lavara"] .cv-b.g-cust { background: color-mix(in srgb, var(--lv-ochre) 16%, var(--lv-ivory)); }
+[data-brand="lavara"] .cv-b.g-value { background: var(--lv-terra); color: var(--lv-ivory); --stitle: var(--lv-ivory); }
+
+/* ======================================================================= Shared frame: its own identity, "the dossier"
+   The joint frame of the two companies reads like a bound agreement: warm ivory sheets on paper, square corners, no
+   shadows, no inset frames. Every box carries a solid rule along its top edge in its party's colour (ink by default;
+   gold, indigo, teal mark the parties in diagrams), a copper index, and labels as small copper-square notes instead of
+   pills. One box per slide may be the ink sheet (the decision, the value). */
+[data-brand="shared"] { --sh-paper: #F7F3EC; --sh-sheet: #EFE9DD; --sh-ink: #1E1B17; --sh-copper: #B08A4E; --sh-line: rgba(30, 27, 23, .14); }
+[data-brand="shared"] :is(.dg-node:not(.shape-note), .fl-ph, .up-card, .fn-chart, .fn-panel, .cv-b, .cp-col, .so-card, .oc-col, .pa-band) {
+  background: var(--sh-sheet); border: 0; border-top: .45rem solid var(--rule, var(--sh-ink)); border-radius: 0; box-shadow: none;
+}
+[data-brand="shared"] :is(.dg-node:not(.shape-note), .up-card, .fn-chart, .fn-panel, .cv-b, .cp-col, .so-card, .oc-col, .pa-band)::before,
+[data-brand="shared"] :is(.dg-node:not(.shape-note), .up-card, .fn-chart, .fn-panel, .cv-b, .cp-col, .so-card, .oc-col, .pa-band)::after,
+[data-brand="shared"] .fl-ph::before { content: none; }
+[data-brand="shared"] .dg-node:not(.shape-note) { --rule: var(--tc); padding: 2.8rem 3rem 3rem; }
+[data-brand="shared"] .dg .tone-neutral { --tc: var(--sh-ink); }
+[data-brand="shared"] .dg-node b { font-size: 2.8rem; }
+[data-brand="shared"] .dg-node span { opacity: .66; }
+[data-brand="shared"] .dg-label { background: var(--sh-paper); }
+[data-brand="shared"] .dg-label::before { rotate: 0deg; width: .7rem; height: .7rem; background: var(--sh-copper); }
+[data-brand="shared"] .dg-frame { border-top: .2rem solid var(--sh-ink); background: none; }
+[data-brand="shared"] .dg-flabel::before { width: .8rem; height: .8rem; background: var(--sh-copper); }
+
+/* operating model phases */
+[data-brand="shared"] .fl-ph { --rule: var(--fc); padding: 2.6rem 2.4rem 2.4rem; }
+[data-brand="shared"] .fl-n { font-family: var(--f-title); font-size: 2rem; color: var(--sh-copper); }
+[data-brand="shared"] .fl-steps li::before { border-radius: 0; width: .5rem; height: .5rem; background: var(--sh-copper); opacity: 1; }
+[data-brand="shared"] .fl-own span { border-radius: 0; background: none; padding: .2rem 0 .2rem 1.2rem; display: inline-flex; align-items: center; gap: .7rem; font-size: 1.2rem; }
+[data-brand="shared"] .fl-own span::before { content: ''; width: .6rem; height: .6rem; background: var(--sh-copper); }
+[data-brand="shared"] .fl-full { border-radius: 0; background: var(--sh-ink); }
+
+/* updates / agreement points: the decision is the ink sheet with a copper rule */
+[data-brand="shared"] .up-card { padding: 3.2rem 3.4rem; }
+[data-brand="shared"] .up-num { font-family: var(--f-title); font-size: 2rem; color: var(--sh-copper); opacity: 1; letter-spacing: .04em; }
+[data-brand="shared"] .up-badge { border: 0 !important; border-radius: 0; background: none; padding: 0; display: inline-flex; align-items: center; gap: .8rem; color: inherit; opacity: .75; }
+[data-brand="shared"] .up-badge::before { content: ''; width: .7rem; height: .7rem; background: var(--sh-copper); }
+[data-brand="shared"] .up-card.kind-decision { background: var(--sh-ink); color: var(--sh-paper); --stitle: var(--sh-paper); --rule: var(--sh-copper); }
+[data-brand="shared"] .up-card.kind-decision .up-badge { color: var(--sh-copper); opacity: 1; }
+
+/* finance */
+[data-brand="shared"] .fn-chart { padding: 2.6rem 3.2rem 2.2rem; }
+[data-brand="shared"] .fn-bar { border-radius: 0; }
+[data-brand="shared"] .fn-panel { --rule: var(--sh-copper); }
+[data-brand="shared"] .fn-ptitle i { border-radius: 0; }
+[data-brand="shared"] .fn-points li::before { rotate: 0deg; width: .6rem; height: .6rem; border: 0; background: var(--sh-copper); }
+
+/* canvas, compare and the catalogue boxes if they ever appear here */
+[data-brand="shared"] .cv-b.g-value, [data-brand="shared"] .cp-col.feat, [data-brand="shared"] .so-card.feat { background: var(--sh-ink); color: var(--sh-paper); --stitle: var(--sh-paper); --rule: var(--sh-copper); }
+[data-brand="shared"] :is(.sc-pill, .so-pill, .cv-badge) { border-radius: 0; }

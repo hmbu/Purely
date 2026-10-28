@@ -143,3 +143,10 @@
 - Waiting: user review.
 - Follow-up: sources back to the original card idea (pill, words, one brand shape rising from the card floor: column, cut circle, half circle, slim column; green card for Bundle's line). Partners placed as in the gift catalogue (right under the title, green band with white tiles, white band with cream tiles), logos no longer cropped.
 - Follow-up: occasion group titles are now the same gradient pills as the product-page tabs, on the same columns; moving on from occasions they rise into the tabs, then the examples come up.
+
+## Titles, Lavara colours, shared identity (2026-10-28)
+- Hub section titles larger (2.9rem, descriptions 1.55rem); slide titles larger (5.6rem, close to the gift catalogue's 72px).
+- Lavara boxes: colour blocks from Alternative 2 (terracotta, sage, ochre, olive) with ivory words, inset hairline, (001) and the framed A; business model tinted by family with the value in terracotta; sectors with the lead in terracotta and colour bands on the rest.
+- Shared frame: its own identity ("the dossier"): ivory sheets, square corners, no shadows, a solid top rule in the party's colour, copper index and copper-square labels; the decision is the ink sheet.
+- Section title cards pick dark text on light grounds (the shared frame's titles were white on white).
+- Waiting: the decision content from the user.

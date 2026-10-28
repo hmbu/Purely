@@ -614,7 +614,7 @@ TEMPLATES.sources = {
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
       <div class="so-cards" style="--n:${(d.items || []).length || 1}">
         ${(d.items || []).map((it, i) => `
-          <div class="so-card tn-${esc(it.tone || 't1')} ${it.featured ? 'feat' : ''}" data-a="extra" data-seq="${i}">
+          <div class="so-card tn-${esc(it.tone || 't1')} ${it.featured ? 'feat' : ''}" data-a="extra" data-seq="${i}" data-n="(${String(i + 1).padStart(3, '0')})">
             ${it.pill ? `<span class="so-pill">${esc(it.pill)}</span>` : ''}
             <h3>${escBr(it.title || '')}</h3>
             <i class="so-shape ${SHAPES[i % SHAPES.length]}" data-grow></i>
@@ -716,8 +716,8 @@ TEMPLATES.compare = {
       newItem: { title: 'خيار', sub: '', points: '', featured: false } },
     { key: 'proLabel', type: 'text', label: 'اسم المزايا' }, { key: 'conLabel', type: 'text', label: 'اسم التحديات' }],
   defaults: { eyebrow: '', title: 'المقارنة', lead: '', options: [], proLabel: 'ميزة', conLabel: 'تحدٍّ' },
-  render: d => `
-    <div class="t t-compare">
+  render: (d, ctx) => `
+    <div class="t t-compare" style="${ctx?.brand?.mark ? `--lv-mark:url('${esc(ctx.asset(ctx.brand.mark))}')` : ''}">
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
       <div class="cp-legend" data-a="body"><span class="pro"><i></i>${esc(d.proLabel || '')}</span><span class="con"><i></i>${esc(d.conLabel || '')}</span></div>
       <div class="cp-cols" style="--n:${(d.options || []).length || 1}">
@@ -743,7 +743,7 @@ TEMPLATES.stats = {
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
       <div class="st-row" style="--n:${(d.items || []).length || 1}">
         ${(d.items || []).map((it, i) => `
-          <div class="st-cell" data-a="extra" data-seq="${i}">
+          <div class="st-cell" data-a="extra" data-seq="${i}" data-n="(${String(i + 1).padStart(3, '0')})">
             <b class="st-v latin">${esc(it.value || '')}</b>
             <span class="st-l">${esc(it.label || '')}</span>
             ${it.note ? `<span class="st-n">${esc(it.note)}</span>` : ''}

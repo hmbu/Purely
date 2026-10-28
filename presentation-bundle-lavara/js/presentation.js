@@ -1,7 +1,7 @@
 // Bundle × Lavara — the show.
 // One giant canvas navigated by a camera: Universe (L0) → Project hub (L1) → Section (L2, slides advance horizontally).
 // Everything is driven by content.json; nothing about projects/sections/slides is hard-coded.
-import { $, $$, esc, escBr, clamp, fmtClock, prefersReducedMotion, grainTexture, rgba, fixAspects } from './core/util.js';
+import { $, $$, esc, escBr, clamp, fmtClock, prefersReducedMotion, grainTexture, rgba, fixAspects, isDark } from './core/util.js';
 import { projectsOf, sectionsOf, slidesOf, findProject, findSection, slideTheme, locate, isShared, sharedOf } from './core/model.js';
 import { loadContent, logDecision } from './core/store.js';
 import { createEditor, edAttr } from './core/editor.js';
@@ -443,8 +443,10 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
   const useVeil = !panel;
   coverEl.dataset.style = tex;
   coverEl.classList.toggle('is-panel', panel);
-  coverEl.style.setProperty('--cv-fg', p.brand.colors?.textLight || '#fff');
-  coverEl.style.setProperty('--cv-bg', (p.brand.textureColors || [])[0] || p.brand.colors.primary);
+  const cvBg = panel ? p.brand.colors.primary : (p.brand.textureColors || [])[0] || p.brand.colors.primary;
+  // light grounds (the shared frame's paper) take the dark ink, never white on white
+  coverEl.style.setProperty('--cv-fg', isDark(cvBg) ? p.brand.colors?.textLight || '#fff' : p.brand.colors?.title || p.brand.colors?.dark || '#1E1B17');
+  coverEl.style.setProperty('--cv-bg', cvBg);
   coverEl.innerHTML = card ? coverCard(p, card.number, card.title, card.titleEn) : '';
   sound.play(light ? 'slide' : 'section', p.id);
   const inT = light ? 0.65 : 1.1, hold = card ? (p.brand.mark ? 1.25 : 0.75) : 0.1, outT = light ? 0.7 : 1.05; // the symbol's opening needs a beat longer
