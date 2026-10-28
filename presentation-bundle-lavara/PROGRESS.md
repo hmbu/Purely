@@ -63,6 +63,7 @@
 - Team feedback: the Lavara "mist" texture reads as fog. Foam was suggested and rejected (reads cheap / bath product).
 - Added three styles, chosen per brand in the control panel (Brands › Lavara › "شكل ملمس لافارا"; field `brand.textureStyle`):
   - `silk` liquid soap: glossy poured folds with a moving sheen.
+  - `lather` the liquid soap with a light lather (scattered small bubbles in soft patches), added at the user's request.
   - `soap` handmade soap bar: marbled swirls with fine flecks.
   - `amber` light through perfume / oil: warm caustics.
 - `mist` stays the default until the user picks one (content.json is untouched).
