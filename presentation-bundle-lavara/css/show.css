@@ -1422,3 +1422,13 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .t-video.is-paused::after { content: ''; position: absolute; left: 50%; top: 50%; width: 11rem; height: 11rem; margin: -5.5rem 0 0 -5.5rem; border-radius: 50%; pointer-events: none;
   background: rgba(0, 0, 0, .35) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 7l9 5-9 5z' fill='white'/%3E%3C/svg%3E") center / 45% no-repeat; backdrop-filter: blur(6px); }
 .t-video video.m { cursor: pointer; }
+
+/* ======================================================================= the station is the door (section entry) */
+.sd-card { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; pointer-events: none; color: inherit; }
+.sd-c { display: flex; flex-direction: column; align-items: center; gap: 2.2rem; text-align: center; }
+.sd-num { font-family: var(--f-title); font-size: 2.6rem; letter-spacing: .08em; transform-origin: 50% 50%; }
+.sd-rule { display: block; width: 22rem; height: var(--hair); background: currentColor; opacity: .5; }
+.sd-title { margin: 0; font-family: var(--f-title); font-weight: var(--w-title); font-size: calc(7.4rem * var(--s-title, 1)); line-height: 1.2; transform-origin: 50% 50%; }
+.sd-en { font-size: 1.2rem; letter-spacing: .32em; text-transform: uppercase; }
+.sd-mark { position: absolute; right: -12rem; bottom: -20rem; width: 64rem; height: 64rem; background-color: currentColor; opacity: 0; }
+.style-mist .sd-mark { width: 52rem; height: 70rem; right: -10rem; bottom: -26rem; }

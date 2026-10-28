@@ -948,15 +948,7 @@ async function enterSection(sid, slideIndex = 0) {
     const dir = secs.indexOf(sec) >= secs.findIndex(s => s.id === S.sid) ? 1 : -1;
     return flowSection(sec, slideIndex, dir);
   }
-  if (settings().flow?.titleCards !== false && !reduced()) { // the section opens with its title: the project's symbol unveils it
-    const i = secs.indexOf(sec);
-    S.hubPending = null; S.lastSection[p.id] = i; S.seenSections[p.id] = Math.max(S.seenSections[p.id] ?? -1, i);
-    await coverTransition({ p, dir: 1, card: { number: i + 1, title: sec.title, titleEn: sec.titleEn }, swap: () => {
-      S.sid = sid; S.li = slideIndex < 0 ? slidesOf(sec).length - 1 : slideIndex; S.step = 0; enterSectionInstant();
-      if (slideIndex < 0) { S.step = stepsOf(S.slideTpl, S.slide); if (S.slideTpl.steps) applyStep(S.slideEl, S.step, true); }
-    }, after: () => { if (S.slideEl) introTL(S.slideEl, 1); } });
-    updateHUD(); broadcastState(); return;
-  }
+  if (settings().flow?.titleCards !== false && !reduced()) return stationDoor(p, sec, slideIndex); // the station opens the section
   const station = $(`.h2-station[data-section="${CSS.escape(sid)}"] .h2-dot`, L.hub);
   const origin = station ? originOf(station, L.hub) : '50% 50%';
   S.sid = sid; S.li = slideIndex; S.step = 0; S.level = 'section'; S.hubPending = null;
@@ -977,6 +969,57 @@ async function enterSection(sid, slideIndex = 0) {
   tl.add(introTL(S.slideEl, 1), D * 0.55);
   await tl;
   show(L.hub, false); gsap.set(L.hub, { clearProps: 'all' }); stopHubTex();
+  updateHUD(); broadcastState();
+}
+
+/* The station is the door. Entering: the station's own number and name travel from the line to the middle of the
+   page and become the section's title (the rest of the page steps back, the project's symbol settles as a faint
+   shadow in the corner), then the title lifts away and the first slide enters. Leaving (zoomOut) is the same path
+   reversed: the slide closes into its station's dot and the page comes back around it. */
+async function stationDoor(p, sec, slideIndex = 0) {
+  const secs = sectionsOf(p), i = secs.indexOf(sec);
+  const st = $(`.h2-station[data-section="${CSS.escape(sec.id)}"]`, L.hub), root = $('.hub2', L.hub);
+  S.hubPending = null; S.lastSection[p.id] = i; S.seenSections[p.id] = Math.max(S.seenSections[p.id] ?? -1, i);
+  const mark = p.brand.mark ? `<span class="logo-mask sd-mark" style="--src:url('${esc(asset(p.brand.mark))}')"></span>` : '';
+  const card = document.createElement('div'); card.className = 'sd-card';
+  card.innerHTML = `${mark}<div class="sd-c"><span class="sd-num latin">${String(i + 1).padStart(2, '0')}</span><span class="sd-rule"></span>
+    <h2 class="sd-title">${escBr(sec.title || '')}</h2>${sec.titleEn ? `<span class="sd-en latin">${esc(sec.titleEn)}</span>` : ''}</div>`;
+  (root || L.hub).appendChild(card);
+  const q = c => $(c, card), from = st && { num: $('.h2-num', st), title: $('.h2-title', st) };
+  // FLIP: start each part exactly where (and as large as) it stands on the line
+  const flip = (el, src) => {
+    if (!src) return { opacity: 0 };
+    const a = stageRect(src), b = stageRect(el);
+    return { x: a.x + a.w / 2 - (b.x + b.w / 2), y: a.y + a.h / 2 - (b.y + b.h / 2), scale: Math.max(0.05, a.h / (b.h || 1)), opacity: 1 };
+  };
+  const fNum = flip(q('.sd-num'), from?.num), fTitle = flip(q('.sd-title'), from?.title);
+  sound.play('zoom', p.id);
+  const tl = gsap.timeline();
+  if (from) gsap.set([from.num, from.title], { opacity: 0 });
+  const rest = $$('.h2-head, .h2-line, .h2-station', L.hub).filter(x => x !== st).concat(st ? $$('.h2-dot, .h2-desc, .h2-en', st) : []);
+  tl.to(rest, { opacity: 0, y: pxs(18), duration: 0.7, ease: 'power2.in', stagger: 0.02 }, 0);
+  tl.to($('.h2-bg', L.hub), { scale: 1.06, duration: 2.6, ease: 'power2.out' }, 0);
+  tl.fromTo(q('.sd-num'), fNum, { x: 0, y: 0, scale: 1, opacity: 1, duration: 1.15, ease: 'expo.inOut' }, 0.1);
+  tl.fromTo(q('.sd-title'), fTitle, { x: 0, y: 0, scale: 1, opacity: 1, duration: 1.15, ease: 'expo.inOut' }, 0.12);
+  tl.fromTo(q('.sd-rule'), { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: 'expo.inOut' }, 0.75);
+  tl.fromTo(q('.sd-en'), { opacity: 0, y: pxs(10) }, { opacity: 0.7, y: 0, duration: 0.8, ease: 'expo.out' }, 0.95);
+  if (mark) tl.fromTo(q('.sd-mark'), { opacity: 0, scale: 0.9 }, { opacity: 0.1, scale: 1, duration: 1.4, ease: 'expo.out' }, 0.6);
+  const T = 2.05; // the title has been read: it lifts away and the first slide enters
+  tl.call(() => {
+    S.sid = sec.id; const list = slidesOf(sec); S.li = slideIndex < 0 ? list.length - 1 : slideIndex; S.step = 0;
+    unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null; S.level = 'section';
+    show(L.section, true); gsap.set(L.section, { opacity: 0, scale: 1, filter: 'none', clipPath: 'none' });
+    showSlide(S.li, { instant: true });
+    if (slideIndex < 0) { S.step = stepsOf(S.slideTpl, S.slide); if (S.slideTpl.steps) applyStep(S.slideEl, S.step, true); }
+    $$('[data-a]', S.slideEl).forEach(n => gsap.set(n, { opacity: 0 }));
+    gsap.timeline()
+      .to(q('.sd-c'), { y: -pxs(46), opacity: 0, duration: 0.55, ease: 'power2.in' }, 0)
+      .to(L.section, { opacity: 1, duration: 0.8, ease: 'power2.out' }, 0.15)
+      .add(() => { if (S.slideEl) introTL(S.slideEl, 1); }, 0.25);
+  }, null, T);
+  tl.to({}, { duration: 1.2 }, T); // let the slide arrive before the page underneath is put away
+  await tl;
+  card.remove(); show(L.hub, false); gsap.set(L.hub, { clearProps: 'all' }); stopHubTex();
   updateHUD(); broadcastState();
 }
 
@@ -1022,9 +1065,19 @@ async function zoomOut({ strong = false } = {}) {
     const origin = station ? originOf(station, L.hub) : '50% 50%';
     sound.play('zoom', p.id);
     const D = ZOOM() * (strong ? 1.3 : 1); const tl = gsap.timeline();
-    tl.to(L.section, { scale: strong ? 0.2 : 0.4, opacity: 0, transformOrigin: origin, duration: D * 0.9, ease: 'power3.inOut' }, 0);
-    tl.fromTo(L.hub, { scale: 1.12, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.9, ease: 'power2.out' }, D * 0.3);
-    tl.add(hubIntro(), D * 0.5);
+    if (settings().flow?.titleCards !== false && !reduced()) {
+      // the door in reverse: the slide closes into its station's dot while the page comes back around it
+      const at = station ? (() => { const r = stageRect(station); return `${r.x + r.w / 2}px ${r.y + r.h / 2}px`; })() : '50% 50%';
+      const far = Math.hypot(stage.clientWidth, stage.clientHeight);
+      gsap.set(L.hub, { opacity: 1 });
+      tl.fromTo(L.section, { clipPath: `circle(${far}px at ${at})` }, { clipPath: `circle(0px at ${at})`, scale: 0.97, duration: D * 1.05, ease: 'power3.inOut' }, 0);
+      tl.fromTo($('.h2-bg', L.hub), { scale: 1.06 }, { scale: 1, duration: D * 1.4, ease: 'power2.out' }, 0);
+      tl.add(hubIntro(), D * 0.45);
+    } else {
+      tl.to(L.section, { scale: strong ? 0.2 : 0.4, opacity: 0, transformOrigin: origin, duration: D * 0.9, ease: 'power3.inOut' }, 0);
+      tl.fromTo(L.hub, { scale: 1.12, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.9, ease: 'power2.out' }, D * 0.3);
+      tl.add(hubIntro(), D * 0.5);
+    }
     S.level = 'hub'; logosColor(hubFg(p), hubDark(p)); updateHUD();
     await tl;
     unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
