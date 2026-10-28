@@ -116,3 +116,5 @@
 - New templates: `occasions`, `showcase`, `sources`, `categories`, `partners`, coloured through a per-identity tone layer (`.tn-t1…t5`).
 - Bundle-wide touches taken from the deck (light): grainy shape mosaic on Bundle title slides (`.t-mosaic`), the business model's value block in the deck's green gradient, lime status pills, softer image corners.
 - Assets: `assets/bundle/gifts/`, `assets/bundle/partners/`. Not added: the deck's cover and thank-you pages.
+- Operating model (user): phases slide, then the full flowchart as its own next slide (new `figure` template) instead of a button. The flowcharts were recoloured from black to a transparent base (`assets/shared/opmodel-*-light.png`): white boxes kept with a fine outline, grey lines and labels turned to ink, coloured chips and loop lines kept; the slide's paper shows through. Clicking the figure still zooms.
+- Financial model: sides swapped (screenshots panel first on the right, charts after).

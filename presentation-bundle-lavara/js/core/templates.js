@@ -661,7 +661,26 @@ TEMPLATES.partners = {
     </div>`,
 };
 
-export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product', 'updates', 'sectors', 'finance', 'canvas', 'flow', 'occasions', 'showcase', 'sources', 'categories', 'partners'];
+
+/* ---------------------------------------------------------------- figure (a detailed chart or flowchart, full width) */
+// For material that must be seen whole: the image fills the slide under the title, contained, on the slide's own
+// background (use transparent artwork so it takes each identity's paper). Clicking it opens the zoom viewer.
+TEMPLATES.figure = {
+  name: 'مخطط أو صورة تفصيلية', en: 'Figure', group: 'extra', defaultBg: 'background', suggested: 'النموذج التشغيلي',
+  fields: [F.eyebrow, F.title, { key: 'lead', type: 'text', label: 'سطر قصير تحت العنوان' }, { key: 'image', type: 'image', simple: true, label: 'الصورة (يفضّل خلفية شفافة)' },
+    { key: 'zoom', type: 'toggle', label: 'التكبير عند الضغط' }],
+  defaults: { eyebrow: '', title: 'المخطط', lead: '', image: '', zoom: true },
+  render: (d, ctx) => {
+    const src = imgSrc(d.image);
+    return `
+    <div class="t t-figure">
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
+      <div class="fg-art" data-a="media">${src ? `<img src="${esc(ctx.asset(src))}" alt="${esc(d.title || '')}" ${d.zoom !== false ? `data-zoom="${esc(ctx.asset(src))}"` : ''}>` : ''}</div>
+    </div>`;
+  },
+};
+
+export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product', 'updates', 'sectors', 'finance', 'canvas', 'flow', 'occasions', 'showcase', 'sources', 'categories', 'partners', 'figure'];
 
 export function newSlide(templateId, uidFn) {
   const t = TEMPLATES[templateId];

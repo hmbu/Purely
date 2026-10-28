@@ -741,7 +741,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .sc-logo span { font-size: 1.3rem; color: #333; text-align: center; }
 .sc-note { position: absolute; bottom: 5rem; right: 8rem; margin: 0; font-size: 1.4rem; opacity: .55; }
 
-.fn-body { position: absolute; top: 22rem; bottom: 7.5rem; right: 8rem; left: 8rem; display: grid; grid-template-columns: 1fr 46rem; gap: 2.8rem; }
+.fn-body { position: absolute; top: 22rem; bottom: 7.5rem; right: 8rem; left: 8rem; display: grid; grid-template-columns: 46rem 1fr; gap: 2.8rem; }
+.fn-panel { order: -1; } /* the panel with the model screenshots reads first (right), the charts after it */
 .fn-charts { display: grid; grid-auto-rows: 1fr; gap: 2.4rem; min-height: 0; }
 .fn-chart, .fn-panel { background: var(--card); border: var(--hair) solid var(--line); border-radius: .4rem; }
 .fn-chart { display: flex; flex-direction: column; min-height: 0; padding: 2.4rem 3.2rem 2rem; }
@@ -1048,3 +1049,9 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="bundle"] .cv-b.g-value .cv-badge { background: #AEE67F; }
 /* product sheets and images: the deck's softer corners */
 [data-brand="bundle"] :is(.pr-main, .pr-thumb, .s-media) { border-radius: 2.4rem; overflow: hidden; }
+
+/* ---- figure ---- */
+.t-figure .board-head { top: 6.4rem; }
+.fg-art { position: absolute; top: 19rem; bottom: 6.6rem; right: 6rem; left: 6rem; display: grid; place-items: center; }
+.fg-art img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.fg-art img[data-zoom] { cursor: zoom-in; }
