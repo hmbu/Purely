@@ -2,7 +2,7 @@
   "version": 1,
   "meta": {
     "title": "Bundle × Lavara",
-    "updatedAt": "2026-10-28T18:58:35.976Z"
+    "updatedAt": "2026-10-28T19:22:37.953Z"
   },
   "fonts": [
     {
@@ -250,7 +250,7 @@
               "hidden": false,
               "data": {
                 "video": {
-                  "src": "assets/lavara/uploads/mvnv1d4a-Bundle teaser E - Blueprint to Unwrap _20s_.MP4",
+                  "src": "",
                   "poster": "",
                   "autoplay": true,
                   "muted": false,
