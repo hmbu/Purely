@@ -385,6 +385,9 @@ TEMPLATES.updates = {
 };
 
 /* ---------------------------------------------------------------- sectors (columns with client logos) */
+// Each identity dresses it its own way (CSS): Lavara frames the columns, numbers them in Roman numerals and
+// tints every logo in its own ink (the first column is the lead, set dark); others show the logos as they are.
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
 TEMPLATES.sectors = {
   name: 'قطاعات وعملاء', en: 'Sectors & clients', group: 'extra', defaultBg: 'background', suggested: 'الأعمال',
   fields: [F.eyebrow, F.title,
@@ -401,10 +404,10 @@ TEMPLATES.sectors = {
       <div class="sc-cols">
         ${it.map((x, i) => `
           <div class="sc-col" data-a="extra" data-seq="${i}">
-            <div class="sc-head"><span class="sc-num latin">${String(i + 1).padStart(2, '0')}</span><h3 class="sc-title">${escBr(x.title || '')}</h3></div>
+            <div class="sc-head"><span class="sc-num latin">${String(i + 1).padStart(2, '0')}</span><span class="sc-roman latin">${ROMAN[i] || i + 1}</span><h3 class="sc-title">${escBr(x.title || '')}</h3></div>
             ${x.body ? `<p class="sc-body">${escBr(x.body)}</p>` : ''}
             <div class="sc-logos">${(x.logos || []).map(l => { const src = typeof l.logo === 'string' ? l.logo : l.logo?.src;
-              return `<div class="sc-logo" title="${esc(l.name || '')}">${src ? `<img src="${esc(ctx.asset(src))}" alt="${esc(l.name || '')}">` : `<span>${esc(l.name || '')}</span>`}</div>`; }).join('')}</div>
+              return `<div class="sc-logo" title="${esc(l.name || '')}">${src ? `<img src="${esc(ctx.asset(src))}" alt="${esc(l.name || '')}"><i class="sc-mark" style="--src:url('${esc(ctx.asset(src))}')"></i>` : `<span>${esc(l.name || '')}</span>`}</div>`; }).join('')}</div>
           </div>`).join('')}
       </div>
       ${d.note ? `<p class="sc-note" data-a="body">${escBr(d.note)}</p>` : ''}
@@ -423,7 +426,8 @@ TEMPLATES.finance = {
       { key: 'years', type: 'text', label: 'السنوات (مفصولة بفاصلة)' },
       { key: 'aName', type: 'text', label: 'السلسلة الأولى' }, { key: 'a', type: 'text', label: 'قيمها (مفصولة بفاصلة)' },
       { key: 'bName', type: 'text', label: 'السلسلة الثانية' }, { key: 'b', type: 'text', label: 'قيمها' },
-      { key: 'mName', type: 'text', label: 'اسم الهامش' }, { key: 'm', type: 'text', label: 'الهامش لكل سنة' }],
+      { key: 'mName', type: 'text', label: 'اسم الهامش' }, { key: 'm', type: 'text', label: 'الهامش لكل سنة' },
+      { key: 'color', type: 'color', label: 'لون الأعمدة (فارغ = لون الهوية)' }],
       newItem: { name: 'نموذج', unit: 'مليون ريال', years: '2027, 2028, 2029', aName: 'صافي الإيرادات', a: '1, 2, 3', bName: 'إجمالي الربح', b: '0.3, 0.7, 1.1', mName: 'هامش الربح %', m: '30%, 33%, 36%' } },
     { key: 'panelTitle', type: 'text', label: 'عنوان اللوحة الجانبية' }, { key: 'panelSub', type: 'text', label: 'سطر تحته' },
     { key: 'shots', type: 'list', label: 'صور من النموذج', item: [{ key: 'image', type: 'image', label: 'الصورة' }], newItem: { image: { src: '' } } },
@@ -442,7 +446,7 @@ TEMPLATES.finance = {
         <div class="fn-charts">
           ${ch.map((c, k) => { const ys = nums(c.years), a = nums(c.a), b = nums(c.b), m = nums(c.m);
             return `
-            <div class="fn-chart" data-a="extra" data-seq="${k}">
+            <div class="fn-chart" data-a="extra" data-seq="${k}" ${c.color ? `style="--cc:${esc(c.color)}"` : ''}>
               <div class="fn-head"><h3>${esc(c.name || '')}</h3>
                 <div class="fn-legend"><span class="is-a">${esc(c.aName || '')}</span><span class="is-b">${esc(c.bName || '')}</span>${c.mName ? `<span class="is-m">${esc(c.mName)}</span>` : ''}<span class="fn-unit">${esc(c.unit || '')}</span></div></div>
               <div class="fn-plot" style="--n:${ys.length || a.length || 1}">

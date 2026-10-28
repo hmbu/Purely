@@ -86,3 +86,4 @@
 - Shared › النموذج المالي: revenue charts for both models first, then the money flow. Model screenshots in `assets/shared/`.
 - Not added: the deck cover, the "المالية" divider (each section has its own cover) and the second revenue layout (same content, sides swapped).
 - Placeholders kept from the deck for the user to fill: revenue headline "[الخلاصة الرئيسية…]", the three agreement points, and the tripartite agreement duration "[__]".
+- Themed per project (user: same theme per project, not copy-paste): Lavara sectors use framed panels on its ivory surface, Roman numerals, a dark lead panel and logos tinted in its ink; shared slides use the editorial paper cards of its diagrams (inset hairline, brass rule, no pills); revenue bars take each project's colour (Bundle green, Lavara terracotta; chart `color` field); Bundle gets rounded cards.
