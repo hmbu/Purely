@@ -1376,3 +1376,18 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="bundle"] .sc-frame .sc-pill { position: absolute; top: 1.8rem; right: 1.8rem; line-height: 1.3; }
 [data-brand="bundle"] .sc-tabs { top: 10.4rem; }
 [data-brand="bundle"] .sc-items { top: 21rem; }
+
+/* the two companies in the shared frame: their cards carry their logo and are tinted with their colour
+   (Al Majed Oud gold, Rimthan indigo, the new entity teal) */
+.dg-logo { display: block; height: 3.4rem; margin-bottom: .8rem; background-color: var(--tc); }
+[data-brand="shared"] .dg-node:is(.tone-gold, .tone-indigo, .tone-teal):not(.shape-note) { background: color-mix(in srgb, var(--tc) 10%, var(--sh-sheet)); }
+[data-brand="shared"] .dg-node:is(.tone-gold, .tone-indigo, .tone-teal) b { color: color-mix(in srgb, var(--tc) 55%, #1E1B17); }
+
+/* revenue bars rise slowly, year after year, so the growth reads as movement */
+.fn-bar { animation-duration: 2.6s; animation-timing-function: cubic-bezier(.3, .9, .3, 1); animation-delay: calc(.8s + var(--i) * .38s); }
+
+/* Bundle product pages: one size for every photo again; the whole product stays in view, any crop comes from the top */
+.sc-img { container-type: normal; flex: none; aspect-ratio: 1.15; }
+.sc-frame { width: 100%; height: 100%; }
+.sc-frame .m { width: 100% !important; height: 100% !important; max-width: none; max-height: none; object-fit: cover !important; object-position: 50% 90% !important; }
+[data-brand="bundle"] .sc-item { justify-content: flex-start; }

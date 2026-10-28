@@ -331,12 +331,12 @@ function specialIntro(el, tl, extra) {
     const row = $('.ln-row', el), n = extra.length, mid = (n - 1) / 2;
     const order = extra.map((x, i) => [x, Math.abs(i - mid)]).sort((a, b) => a[1] - b[1]);
     gsap.set(extra, { opacity: 1 });
-    tl.fromTo(row, { scale: 1.22, filter: 'blur(1.2rem)', opacity: 0, transformOrigin: '50% 70%' }, { scale: 1, filter: 'blur(0rem)', opacity: 1, duration: 2, ease: 'power3.out', clearProps: 'filter' }, 0.2);
-    tl.fromTo($$('.ln-art', el), { '--shelf': 0 }, { '--shelf': 1, duration: 1.4, ease: 'power2.out' }, 0.6);
+    tl.fromTo(row, { scale: 1.22, filter: 'blur(1.2rem)', opacity: 0, transformOrigin: '50% 70%' }, { scale: 1, filter: 'blur(0rem)', opacity: 1, duration: 2.8, ease: 'power3.out', clearProps: 'filter' }, 0.2);
+    tl.fromTo($$('.ln-art', el), { '--shelf': 0 }, { '--shelf': 1, duration: 2, ease: 'power2.out' }, 0.8);
     order.forEach(([x, d]) => {
-      const at = 0.75 + d * 0.22;
-      tl.fromTo($('.ln-art img', x), { opacity: 0, y: pxs(140), scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 1.5, ease: 'expo.out' }, at);
-      tl.fromTo($('.ln-text', x), { opacity: 0, y: pxs(30) }, { opacity: 1, y: 0, duration: 1.1, ease: 'expo.out' }, at + 0.35);
+      const at = 1 + d * 0.42;
+      tl.fromTo($('.ln-art img', x), { opacity: 0, y: pxs(140), scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 2.2, ease: 'expo.out' }, at);
+      tl.fromTo($('.ln-text', x), { opacity: 0, y: pxs(30) }, { opacity: 1, y: 0, duration: 1.5, ease: 'expo.out' }, at + 0.55);
     });
     return true;
   }
