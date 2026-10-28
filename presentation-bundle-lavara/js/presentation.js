@@ -1176,6 +1176,7 @@ function broadcastState() {
 /* ======================================================================= live content updates */
 function applyContent(c, { keep = true } = {}) {
   S.content = c;
+  stage.classList.toggle('no-eyebrow', c.settings?.eyebrows === false);
   registerFonts(c);
   sound.configure(c.settings?.sound, c.projects || []);
   gsap.globalTimeline.timeScale(clamp(c.settings?.motion?.speed || 1, 0.25, 3));

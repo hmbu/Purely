@@ -830,4 +830,4 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .is-editing .h2-station { cursor: default; }
 
 /* the small labels above slide titles are off unless turned on in the control panel */
-.no-eyebrow .slide .tx-eyebrow { display: none; }
+#stage.no-eyebrow .slide .tx-eyebrow { display: none; }
