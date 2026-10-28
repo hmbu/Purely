@@ -156,3 +156,4 @@
 - Entrances: refill lineup "dives" (blur + zoom settle, bottles rise from the middle outwards, shelf line draws); operations tiles open from the floor and count up; perfume cards open like curtains with points line by line.
 - Business model canvas in three colour-coded parts with a small legend: feasibility (right), desirability with the value at its centre (left), viability (bottom). Legend names editable.
 - Operations numbers: 3 factories, +50 trials, +40 samples, +30 perfumes. Sectors: hotels block in dark brown.
+- Follow-up: Lavara words only white or near-black; canvas parts as solid colour families (olive / ochre / terracotta) with the value in dark brown; Lavara boxes lifted slightly with barely rounded corners.

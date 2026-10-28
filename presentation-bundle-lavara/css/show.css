@@ -1338,3 +1338,24 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="lavara"] .cv-x { font-size: 1.55rem; line-height: 1.6; }
 /* sectors: the lead sector (hotels) is the dark brown block */
 [data-brand="lavara"] .sc-col:first-child { background: var(--lv-brown); border-top-color: var(--lv-brown); }
+
+/* Lavara boxes, refined: words only in white or near-black, never coloured; the colour lives in the box.
+   Boxes sit a little off the page (a soft lift) with barely rounded corners. */
+[data-brand="lavara"] { --lv-lift: 0 2.2rem 4.4rem -2.6rem rgba(60, 46, 37, .55), 0 .3rem .8rem -.4rem rgba(60, 46, 37, .18); --lv-r: .7rem; }
+[data-brand="lavara"] :is(.cv-b, .cp-col, .st-cell, .sc-col) { border-radius: var(--lv-r); box-shadow: var(--lv-lift); }
+[data-brand="lavara"] :is(.cv-b, .cp-col, .st-cell, .sc-col)::before, [data-brand="lavara"] .cv-b::after { border-radius: calc(var(--lv-r) * .6); }
+[data-brand="lavara"] .sc-col { color: #1E1B17; --stitle: #1E1B17; }
+[data-brand="lavara"] .sc-col:first-child { color: #fff; --stitle: #fff; }
+
+/* business model: the three parts as three colour families, the value in dark brown; all words white */
+[data-brand="lavara"] { --cv-infra: #5B634A; --cv-cust: #926A23; --cv-fin: #AD6243; }
+[data-brand="lavara"] .cv-grid { gap: 1.2rem; }
+[data-brand="lavara"] .cv-b.cv-b { background: var(--pc); color: #fff; --stitle: #fff; }
+[data-brand="lavara"] .cv-b.g-infra:nth-child(2), [data-brand="lavara"] .cv-b.g-infra:nth-child(3) { background: color-mix(in srgb, var(--pc) 82%, #929E7A); }
+[data-brand="lavara"] .cv-b.g-cust:nth-child(5), [data-brand="lavara"] .cv-b.g-cust:nth-child(6) { background: color-mix(in srgb, var(--pc) 80%, #959163); }
+[data-brand="lavara"] .cv-b.cv-b.g-value { background: var(--lv-brown); color: #fff; }
+[data-brand="lavara"] .cv-b.cv-b :is(.cv-t, .cv-x) { color: #fff; }
+[data-brand="lavara"] .cv-b.cv-b .cv-x { opacity: .9; }
+[data-brand="lavara"] .cv-b::after { border-color: #fff; opacity: .3; }
+[data-brand="lavara"] .cv-legend { color: #1E1B17; }
+[data-brand="lavara"] .cv-legend i { border-radius: .2rem; }
