@@ -2,7 +2,7 @@
   "version": 1,
   "meta": {
     "title": "Bundle × Lavara",
-    "updatedAt": "2026-10-28T16:37:10.190Z"
+    "updatedAt": "2026-10-28T17:40:19.589Z"
   },
   "fonts": [
     {
@@ -114,7 +114,8 @@
     "flow": {
       "afterAllProjects": "decision",
       "sectionTransition": "hub",
-      "afterSection": "wait"
+      "afterSection": "wait",
+      "titleCards": true
     },
     "tone": "quiet",
     "eyebrows": false
@@ -790,29 +791,6 @@
                 "align": "center",
                 "showLogo": false,
                 "showMark": true
-              }
-            },
-            {
-              "id": "sl-007",
-              "template": "full-image",
-              "transition": "mask",
-              "bg": "auto",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "image": {
-                  "src": "assets/bundle/sample/product-page.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 50,
-                    "y": 50
-                  }
-                },
-                "eyebrow": "",
-                "title": "",
-                "body": "",
-                "textPosition": "none",
-                "shade": false
               }
             }
           ],
