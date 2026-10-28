@@ -552,10 +552,10 @@ TEMPLATES.flow = {
 
 /* ---------------------------------------------------------------- gift catalogue set (occasions, showcase, sources, categories, partners) */
 // Colour comes from "tones" (t1–t5), which each identity defines from its own palette in CSS: for Bundle the
-// grainy gradients of its gift-products deck (lime-green, sky-blue, lilac-pink, sunset, lime). Shapes are the
-// deck's soft architecture (arch, quarter, leaf, drop), cycled.
+// grainy gradients of bundle-brand.pdf (green, sky-blue, lilac-pink, sunset, lime). Shapes are only those in
+// that file (circle, half circle, a column with a rounded end), cycled.
 const TONES5 = [['t1', 'النغمة 1'], ['t2', 'النغمة 2'], ['t3', 'النغمة 3'], ['t4', 'النغمة 4'], ['t5', 'النغمة 5']];
-const SHAPES = ['sh-arch', 'sh-quarter', 'sh-leaf', 'sh-drop'];
+const SHAPES = ['sh-column', 'sh-circle', 'sh-half', 'sh-circle']; // only the shapes in bundle-brand.pdf
 const lines = s => String(s || '').split('\n').map(x => x.trim()).filter(Boolean);
 const imgSrc = v => (typeof v === 'string' ? v : v?.src);
 

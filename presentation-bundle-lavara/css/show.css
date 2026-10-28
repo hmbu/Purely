@@ -946,7 +946,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="shared"] :is(.tn-t1, .tn-t3, .tn-t5) { --tp: rgba(168, 130, 74, .16); --tg: linear-gradient(160deg, #E2CFA9, #A8824A); --th: #1E1B17; --thc: #F7F3EC; --td: #A8824A; --tt: rgba(168, 130, 74, .1); }
 [data-brand="shared"] :is(.tn-t2, .tn-t4) { --tp: rgba(124, 106, 82, .16); --tg: linear-gradient(160deg, #CFC3AF, #7C6A52); --th: #7C6A52; --thc: #F7F3EC; --td: #7C6A52; --tt: rgba(124, 106, 82, .1); }
 /* the deck's soft architecture, with grain */
-.sh-arch { border-radius: 20rem 20rem 0 0; } .sh-quarter { border-radius: 20rem 0 0 0; } .sh-leaf { border-radius: 0 20rem 0 20rem; } .sh-drop { border-radius: 20rem 20rem 0 20rem; }
+/* shapes from bundle-brand.pdf only: full circle, half circle, a column with a rounded end */
+.sh-circle { border-radius: 50%; } .sh-half { height: 9rem !important; border-radius: 9rem 9rem 0 0; } .sh-column { height: 22rem !important; border-radius: 9rem 9rem 0 0; }
 .grainy { position: relative; overflow: hidden; } .grainy::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .5; pointer-events: none; }
 
 /* ---- occasions ---- */
@@ -1029,17 +1030,15 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="shared"] :is(.sc-pill, .so-pill) { border-radius: .3rem; }
 
 /* ---- Bundle-wide touches from its gift deck (a little, not everywhere) ---- */
-/* title slides: a quiet mosaic of the deck's grainy shapes on the left (the shapes are rendered by the title template, hidden elsewhere) */
+/* title slides: a column of stacked grainy circles, as on the website page of bundle-brand.pdf */
 .t-mosaic { display: none; }
-[data-brand="bundle"] .t-mosaic { position: absolute; left: 8rem; top: 50%; translate: 0 -50%; display: grid; grid-template-columns: repeat(2, 13rem); grid-auto-rows: 13rem; }
-[data-brand="bundle"] .t-mosaic i { position: relative; overflow: hidden; }
+[data-brand="bundle"] .t-mosaic { position: absolute; left: 9rem; top: 50%; translate: 0 -50%; display: flex; flex-direction: column; }
+[data-brand="bundle"] .t-mosaic i { position: relative; overflow: hidden; width: 22rem; height: 22rem; border-radius: 50%; }
 [data-brand="bundle"] .t-mosaic i::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .5; }
-[data-brand="bundle"] .t-mosaic i:nth-child(1) { background: linear-gradient(140deg, #EDC6F7, #F2A9C2 45%, #D6673A); border-radius: 13rem 0 0 0; }
-[data-brand="bundle"] .t-mosaic i:nth-child(2) { background: linear-gradient(140deg, #DFE392, #AEE67F 45%, #6B8F5A); border-radius: 6.5rem 6.5rem 0 0; }
-[data-brand="bundle"] .t-mosaic i:nth-child(3) { background: linear-gradient(140deg, #CCE2F2, #7FA8EF 50%, #4B81E7); border-radius: 13rem 0 13rem 0; }
-[data-brand="bundle"] .t-mosaic i:nth-child(4) { background: linear-gradient(180deg, #9F3517, #D6673A 45%, #ECC39F); border-radius: 6.5rem 6.5rem 0 0; }
-[data-brand="bundle"] .t-mosaic i:nth-child(5) { background: #CCE2F2; }
-[data-brand="bundle"] .t-mosaic i:nth-child(6) { background: linear-gradient(140deg, #AEE67F, #3C8A5E 55%, #245845); border-radius: 0 0 6.5rem 6.5rem; }
+[data-brand="bundle"] .t-mosaic i:nth-child(1) { background: linear-gradient(180deg, #E8735F, #F2A9C2 60%, #EDC6F7); }
+[data-brand="bundle"] .t-mosaic i:nth-child(2) { background: linear-gradient(90deg, #3B7BE0, #7FA8EF 55%, #CCE2F2); }
+[data-brand="bundle"] .t-mosaic i:nth-child(3) { background: linear-gradient(90deg, #D6531F, #E8836A 55%, #EDC6F7); }
+[data-brand="bundle"] .t-mosaic i:nth-child(n+4) { display: none; }
 [data-brand="bundle"] .t-title .s-watermark { display: none; }
 /* business model: the value block in the deck's green gradient, with grain */
 [data-brand="bundle"] .cv-b.g-value { background: linear-gradient(140deg, #3C8A5E 0%, #245845 70%); }
@@ -1125,3 +1124,59 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 /* journey dots: a small square, like the monogram's frame (no diamonds) */
 [data-style="mist"] .j-dot { transform: scale(.7); }
 [data-style="mist"] .j-node.on .j-dot { transform: scale(1); }
+
+/* =====================================================================
+   BUNDLE — product pages redrawn in the language of bundle-brand.pdf (its application pages), not the
+   working deck they came from: white floating cards with soft shadows, grainy gradient spheres as icons,
+   stacked white pills with a sphere bullet, solid and gradient pills, serif headlines.
+   ===================================================================== */
+[data-brand="bundle"] { --b-card: #FFFFFF; --b-shadow: 0 1.8rem 4rem -2.2rem rgba(10, 18, 21, .28), 0 .2rem .6rem rgba(10, 18, 21, .05); }
+/* a grainy gradient sphere, as the brand's icons */
+[data-brand="bundle"] :is(.oc-col li:not(.later) i, .ca-list li i, .b-sphere) { background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .7), transparent 45%), var(--tg); }
+
+/* occasions: three soft panels, each a stack of white pills (like Plan · Design · Choose) under a solid pill title */
+[data-brand="bundle"] .oc-col { overflow: visible; padding: 2.6rem 2.6rem 3rem; border-radius: 3.2rem; background: color-mix(in srgb, var(--tp) 35%, var(--sbg)); }
+[data-brand="bundle"] .oc-head { display: inline-flex; align-items: center; gap: 1.2rem; padding: 1.1rem 2.6rem 1.1rem 2.2rem; border-radius: 10rem; margin-bottom: 2.2rem; }
+[data-brand="bundle"] .oc-head::after { display: none; }
+[data-brand="bundle"] .oc-head h3 { font-size: 2.5rem; }
+[data-brand="bundle"] .oc-col ul { padding: 0; gap: 1.1rem; }
+[data-brand="bundle"] .oc-col li { background: var(--b-card); border-radius: 1.8rem; padding: 1.3rem 1.8rem; box-shadow: var(--b-shadow); font-weight: 500; color: #0A1215; }
+[data-brand="bundle"] .oc-col li i { width: 2rem; height: 2rem; }
+[data-brand="bundle"] .oc-col li.later { background: none; box-shadow: none; padding-block: .8rem; }
+
+/* product pages: the three groups as pills (the active one in its gradient), products as white floating cards */
+[data-brand="bundle"] .sc-tabs { gap: 2rem; }
+[data-brand="bundle"] .sc-tab { height: 6.6rem; border-radius: 10rem; padding: 0 2.8rem; gap: 1.4rem; background: var(--b-card); color: color-mix(in srgb, #0A1215 40%, transparent); box-shadow: var(--b-shadow); }
+[data-brand="bundle"] .sc-tab::before { content: ''; flex: none; width: 2.2rem; height: 2.2rem; border-radius: 50%; border: .2rem solid currentColor; opacity: .5; }
+[data-brand="bundle"] .sc-tab.on { background: var(--tg); color: #fff; }
+[data-brand="bundle"] .sc-tab.on::before { border: 0; opacity: 1; background: #fff; }
+[data-brand="bundle"] .sc-tab h3 { font-size: 2.3rem; }
+[data-brand="bundle"] .sc-items { top: 18rem; gap: 2.8rem; }
+[data-brand="bundle"] .sc-item { position: relative; padding: 1.6rem 1.6rem 2.4rem; background: var(--b-card); border-radius: 3rem; box-shadow: var(--b-shadow); gap: 1.2rem; }
+[data-brand="bundle"] .sc-img { border-radius: 2rem; order: -1; }
+[data-brand="bundle"] .sc-pill { position: absolute; top: 2.8rem; right: 2.8rem; z-index: 1; background: #fff; box-shadow: var(--b-shadow); color: #245845; font-weight: 600; }
+[data-brand="bundle"] .sc-item h3, [data-brand="bundle"] .sc-item p { padding: 0 .8rem; }
+
+/* sources: white cards, each with the brand's gradient sphere; the house line is the green card */
+[data-brand="bundle"] .so-card { background: var(--b-card); border-radius: 3.2rem; box-shadow: var(--b-shadow); justify-content: flex-end; padding: 3.6rem 3.4rem 4rem; }
+[data-brand="bundle"] .so-card.feat { background: #245845; }
+[data-brand="bundle"] .so-card .so-pill { order: 2; }
+[data-brand="bundle"] .so-card h3 { order: 3; }
+[data-brand="bundle"] .so-shape { position: static; order: 1; width: 12rem; height: 12rem !important; border-radius: 50% !important; margin-bottom: auto; background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .7), transparent 45%), var(--tg); }
+
+/* categories: white pills with a sphere bullet; photos as white floating cards */
+[data-brand="bundle"] .ca-list { gap: 1.2rem; }
+[data-brand="bundle"] .ca-list li { background: var(--b-card); border-radius: 10rem; box-shadow: var(--b-shadow); padding: 1.1rem 1.8rem 1.1rem 2.4rem; }
+[data-brand="bundle"] .ca-list li i { width: 2.2rem; height: 2.2rem; }
+[data-brand="bundle"] .ca-collage { gap: 1.6rem; }
+[data-brand="bundle"] .ca-tile { padding: .9rem; background: var(--b-card); border-radius: 2.4rem; box-shadow: var(--b-shadow); }
+[data-brand="bundle"] .ca-tile .m { border-radius: 1.6rem; }
+
+/* partners: band titles as pills; logos on white floating cards */
+[data-brand="bundle"] .pa-band { border-radius: 3.2rem; background: color-mix(in srgb, #CCE2F2 40%, var(--sbg)); }
+[data-brand="bundle"] .pa-band.feat { background: #245845; }
+[data-brand="bundle"] .pa-band h3 { display: inline-flex; align-items: center; gap: 1rem; padding: .9rem 2.2rem .9rem 1.8rem; border-radius: 10rem; font-size: 2.2rem; background: #CCE2F2; color: #245845; }
+[data-brand="bundle"] .pa-band.feat h3 { background: #AEE67F; color: #245845; }
+[data-brand="bundle"] .pa-band h3::before { content: ''; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .7), transparent 45%), linear-gradient(140deg, #AEE67F, #3C8A5E 55%, #245845); }
+[data-brand="bundle"] .pa-logo { background: var(--b-card) !important; border-radius: 2rem; box-shadow: var(--b-shadow); }
+[data-brand="bundle"] .pa-more { border-radius: 2rem; }

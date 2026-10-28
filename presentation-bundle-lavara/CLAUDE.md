@@ -9,7 +9,7 @@ This folder is a standalone project. The hotel in-room store rules in the reposi
 - Stop and wait for the user's approval after each phase. Track status in `PROGRESS.md`.
 
 ## Identity sources (user decision, strict)
-- Bundle: only `brand-source/bundle-brand.pdf` (its palettes, grainy gradient shapes — arches, half/quarter circles, gradient spheres — pills, rounded cards). The gift-products deck follows it.
+- Bundle: only `brand-source/bundle-brand.pdf`: its palettes; grainy gradient circles, half circles and rounded-end columns (no leaves, no shape mosaics); gradient spheres as icons; white floating cards with soft shadows; stacked white pills with a sphere bullet; solid and gradient pills; serif headlines. Its application pages are the model for slide layouts.
 - Lavara: only `brand-source/lavara-brand.pdf`, Alternative 2: the LAVARA wordmark, the framed "A" monogram, the round LA·VA·RA seal, hairline frames/lines, its palette, numbering as (001). No shapes, gradients or markers from anywhere else (no diamonds, no Roman numerals, no borrowed Bundle shapes).
 - Never take identity from working files (HTML/PPTX decks the user sends): they give content only.
 
