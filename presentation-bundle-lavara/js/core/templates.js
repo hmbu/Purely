@@ -555,7 +555,7 @@ TEMPLATES.flow = {
 // grainy gradients of bundle-brand.pdf (green, sky-blue, lilac-pink, sunset, lime). Shapes are only those in
 // that file (circle, half circle, a column with a rounded end), cycled.
 const TONES5 = [['t1', 'النغمة 1'], ['t2', 'النغمة 2'], ['t3', 'النغمة 3'], ['t4', 'النغمة 4'], ['t5', 'النغمة 5']];
-const SHAPES = ['sh-column', 'sh-circle', 'sh-half', 'sh-circle']; // only the shapes in bundle-brand.pdf
+const SHAPES = ['sh-column', 'sh-circle', 'sh-half', 'sh-slim']; // only the shapes in bundle-brand.pdf
 const lines = s => String(s || '').split('\n').map(x => x.trim()).filter(Boolean);
 const imgSrc = v => (typeof v === 'string' ? v : v?.src);
 

@@ -947,7 +947,7 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="shared"] :is(.tn-t2, .tn-t4) { --tp: rgba(124, 106, 82, .16); --tg: linear-gradient(160deg, #CFC3AF, #7C6A52); --th: #7C6A52; --thc: #F7F3EC; --td: #7C6A52; --tt: rgba(124, 106, 82, .1); }
 /* the deck's soft architecture, with grain */
 /* shapes from bundle-brand.pdf only: full circle, half circle, a column with a rounded end */
-.sh-circle { border-radius: 50%; } .sh-half { height: 9rem !important; border-radius: 9rem 9rem 0 0; } .sh-column { height: 22rem !important; border-radius: 9rem 9rem 0 0; }
+.sh-circle { border-radius: 50%; } .sh-slim { width: 9rem !important; height: 20rem !important; border-radius: 4.5rem 4.5rem 0 0; } .sh-half { height: 9rem !important; border-radius: 9rem 9rem 0 0; } .sh-column { height: 22rem !important; border-radius: 9rem 9rem 0 0; }
 .grainy { position: relative; overflow: hidden; } .grainy::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .5; pointer-events: none; }
 
 /* ---- occasions ---- */
@@ -1158,18 +1158,19 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="bundle"] .sc-item p { min-height: calc(2 * 1.65em); }
 .sc-slider { position: absolute; top: 0; bottom: 0; z-index: 0; border-radius: 10rem; background: var(--tg); pointer-events: none; }
 
-/* sources: each source is one of the brand's rounded-end columns rising from the floor, its words above it;
-   the house line is the deep-green column carrying the symbol */
-[data-brand="bundle"] .so-cards { top: 20rem; bottom: 7rem; gap: 3.2rem; }
-[data-brand="bundle"] .so-card { overflow: visible; background: none; padding: 0; gap: 1.6rem; --stitle: #245845; }
-[data-brand="bundle"] .so-card.feat { background: none; --stitle: #245845; }
+/* sources: the original cards (pill, words, one brand shape rising from the card's floor); the house line is the green card.
+   Shapes only from the brand file: a rounded-end column, a circle cut by the floor, a half circle, a slim column */
+[data-brand="bundle"] .so-cards { top: 20rem; bottom: 7rem; gap: 2.4rem; }
+[data-brand="bundle"] .so-card { background: var(--b-card); border-radius: 3.2rem; padding: 3.4rem 3.2rem; gap: 2rem; --stitle: #245845; }
+[data-brand="bundle"] .so-card.feat { background: #245845; --stitle: #fff; }
 [data-brand="bundle"] .so-card .so-pill { border-radius: 10rem; }
-[data-brand="bundle"] .so-card h3 { font-size: 2.9rem; min-height: calc(2 * 1.35em); }
-[data-brand="bundle"] .so-shape { position: relative; flex: 1; width: 100%; height: auto !important; min-height: 0; margin-top: .8rem; border-radius: 100rem 100rem 0 0 !important; overflow: hidden; }
-[data-brand="bundle"] .so-card.feat .so-shape { background: linear-gradient(180deg, #3C8A5E, #245845 70%); }
+[data-brand="bundle"] .so-card h3 { font-size: 3rem; }
+[data-brand="bundle"] .so-shape { left: 3.2rem; bottom: 0; width: 16rem; overflow: hidden; }
+[data-brand="bundle"] .so-shape.sh-column { height: 17rem !important; border-radius: 8rem 8rem 0 0; }
+[data-brand="bundle"] .so-shape.sh-circle { height: 16rem !important; bottom: -5.5rem; border-radius: 50%; }
+[data-brand="bundle"] .so-shape.sh-half { width: 19rem; height: 9.5rem !important; border-radius: 9.5rem 9.5rem 0 0; }
+[data-brand="bundle"] .so-shape.sh-slim { width: 9rem; height: 21rem !important; border-radius: 4.5rem 4.5rem 0 0; }
 [data-brand="bundle"] .so-mark { display: none; }
-[data-brand="bundle"] .so-card.feat .so-mark { display: block; position: absolute; bottom: 4rem; left: 50%; translate: -50% 0; width: 9rem; height: 9rem; color: #fff; z-index: 1; }
-[data-brand="bundle"] .so-card.feat .so-mark .logo-mask { display: block; width: 100%; height: 100%; background-color: #fff; }
 
 /* categories: white pills with a sphere bullet; photos as white floating cards */
 [data-brand="bundle"] .ca-list { gap: 1.2rem; }
@@ -1178,14 +1179,19 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="bundle"] .ca-collage { gap: 1.6rem; }
 [data-brand="bundle"] .ca-tile { border-radius: 2.4rem; }
 
-/* partners: band titles as pills; logos on white floating cards */
-[data-brand="bundle"] .pa-band { border-radius: 3.2rem; background: color-mix(in srgb, #CCE2F2 40%, var(--sbg)); }
-[data-brand="bundle"] .pa-band.feat { background: #245845; }
-[data-brand="bundle"] .pa-band h3 { display: inline-flex; align-items: center; gap: 1rem; padding: .9rem 2.2rem .9rem 1.8rem; border-radius: 10rem; font-size: 2.2rem; background: #CCE2F2; color: #245845; }
-[data-brand="bundle"] .pa-band.feat h3 { background: #AEE67F; color: #245845; }
-[data-brand="bundle"] .pa-band h3::before { content: ''; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .7), transparent 45%), linear-gradient(140deg, #AEE67F, #3C8A5E 55%, #245845); }
-[data-brand="bundle"] .pa-logo { background: var(--b-card) !important; border-radius: 2rem; box-shadow: var(--b-shadow); }
-[data-brand="bundle"] .pa-more { border-radius: 2rem; }
+/* partners: as in the gift catalogue: right under the title, the current suppliers on the green band (white tiles),
+   the coming ones on a white band (cream tiles, logos in grey) */
+[data-brand="bundle"] .pa-bands { top: 19rem; bottom: auto; justify-content: flex-start; gap: 1.6rem; }
+[data-brand="bundle"] .pa-band { border-radius: 2.8rem; padding: 2.2rem 3.4rem 2.6rem; background: var(--b-card); }
+[data-brand="bundle"] .pa-band.feat { background: #245845; --stitle: #fff; }
+[data-brand="bundle"] .pa-band h3 { margin-bottom: 1.6rem; font-size: 3rem; font-weight: 600; color: #0A1215; }
+[data-brand="bundle"] .pa-band.feat h3 { color: #fff; }
+[data-brand="bundle"] .pa-row { gap: 1.4rem; }
+[data-brand="bundle"] .pa-logo { height: 12.5rem; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 1.6rem; background: #fff !important; }
+[data-brand="bundle"] .pa-logo img { display: block; width: 100%; height: 100%; min-height: 0; object-fit: contain; padding: 1.8rem; box-sizing: border-box; }
+[data-brand="bundle"] .pa-band:not(.feat) .pa-logo { background: var(--sbg) !important; }
+[data-brand="bundle"] .pa-more { height: 12.5rem; border-radius: 1.6rem; }
+[data-brand="bundle"] .pa-more span { color: #0A1215; font-weight: 500; }
 
 /* section titles: the project's symbol opens the title and stays behind it as a large faint shadow */
 #cover .cv-mark { position: absolute; left: 50%; top: 50%; width: 56rem; height: 56rem; margin: -28rem 0 0 -28rem; opacity: 0; pointer-events: none; z-index: 0; background-color: currentColor; }
