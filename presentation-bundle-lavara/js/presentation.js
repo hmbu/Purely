@@ -236,6 +236,10 @@ function mountSlide(el, tpl, slide) {
   adoptVideos(el);
   const vs = settings().video || {};
   $$('video.m', el).forEach(v => {
+    const box = v.closest('.t');
+    const mark = () => box?.classList.toggle('is-paused', v.paused);
+    v.addEventListener('play', mark); v.addEventListener('pause', mark); mark();
+    v.addEventListener('click', e => { e.stopPropagation(); toggleVideo(); });
     if (vs.autoplay !== false && v.dataset.autoplay !== 'false') {
       const tryPlay = () => v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
       v.readyState >= 2 ? tryPlay() : v.addEventListener('canplay', tryPlay, { once: true });
@@ -1187,6 +1191,8 @@ async function next() {
     return toUniverse();
   }
   if (S.level === 'section') {
+    const pv = slideVideo();
+    if (pv && pv.paused && !pv._started && (settings().video?.autoplay === false || pv.dataset.autoplay === 'false')) { toggleVideo(); return; }
     const steps = stepsOf(S.slideTpl, S.slide);
     if (steps && S.step < steps) { S.step++; applyStep(S.slideEl, S.step); sound.play('ui', S.pid); broadcastState(); return; }
     const list = slidesOf(section());
@@ -1255,7 +1261,16 @@ const ACTIONS = {
   decision: () => toSpecial('decision'),
   closing: () => toSpecial('closing'),
 };
+// A video that does not start by itself: the first «next» (or a click on it, the P key, or the panel/remote button)
+// starts it; later presses move on as usual. The same key/button pauses and resumes it.
+function slideVideo() { return S.slideEl && $('video.m', S.slideEl); }
+function toggleVideo() {
+  const v = slideVideo(); if (!v) return false;
+  if (v.paused) { v._started = true; sound.unlock(); v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }); } else v.pause();
+  broadcastState(); return true;
+}
 const INSTANT = {
+  video: () => toggleVideo(),
   black: a => setBlack(a.on ?? !S.black),
   mute: a => { const m = a.on ?? !sound.cfg.muted; sound.setMuted(m); broadcastState(); },
   focus: a => focusConcept(a.index),
@@ -1407,6 +1422,7 @@ function onKey(e) {
   else if (k === 'f' || k === 'F') toggleFullscreen();
   else if (k === 'b' || k === 'B' || k === '.') setBlack(!S.black);
   else if (k === 'm' || k === 'M') INSTANT.mute({});
+  else if (e.code === 'KeyP' || e.code === 'KeyK') toggleVideo();
 }
 
 /* ======================================================================= touch (phones / tablets) */

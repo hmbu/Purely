@@ -170,3 +170,4 @@
 ## Full review fixes (2026-10-28)
 - Contract diagram scaled to fit when all steps show; Al Majed cards show the logo (which carries the name) without repeating it; Lavara video caption clear of the footer; business-model text no longer clipped; Lavara revenue years 2027–2031 like Bundle; opening-screen chooser hidden; green orbs calm in the middle of the hub; section title → first slide without an empty beat; Bundle sources shapes ~40% larger, categories list centred, product pages centred; footer larger.
 - Not touched (user decision): digital product sections, decision page, operating-model flowcharts.
+- Videos without autoplay: the first «next» starts them (later presses move on); click on the video, the P key, and a play/pause button in the control panel (live) and on the remote; a quiet play mark shows while paused.
