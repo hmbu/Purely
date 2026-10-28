@@ -37,6 +37,11 @@ jobs:
           mkdir -p _site
           rsync -a --exclude '.github' --exclude 'data' --exclude 'brand-source' --exclude 'tools' presentation-bundle-lavara/ _site/
           touch _site/.nojekyll
+      - name: Join large uploads (videos are uploaded from the control panel in numbered parts)
+        run: |
+          find _site -name '*.part-[0-9][0-9][0-9]' | sed -E 's/\.part-[0-9]{3}$//' | sort -u | while IFS= read -r f; do
+            cat "$f".part-* > "$f" && rm -f "$f".part-* && echo "joined $f ($(stat -c%s "$f") bytes)"
+          done
       - name: Cache-bust (every deploy gets fresh CSS/JS, no stale browser copies)
         run: |
           V="${GITHUB_SHA::8}"

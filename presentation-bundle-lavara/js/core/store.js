@@ -49,18 +49,6 @@ async function ghPutFile(path, base64, message, expectSha) {
   if (expectSha && sha && sha !== expectSha) { const err = new Error('changed on GitHub since this panel was opened'); err.status = 409; err.conflict = true; throw err; }
   return gh('PUT', `/contents/${encodeURI(ghPath(path))}`, { message, content: base64, branch: githubConfig().branch || 'main', ...(sha ? { sha } : {}) });
 }
-async function ghPutBig(path, base64, message) {
-  const branch = githubConfig().branch || 'main', full = ghPath(path);
-  const blob = await gh('POST', '/git/blobs', { content: base64, encoding: 'base64' });
-  for (let i = 0; ; i++) { // someone may commit in between (the panel saving content): rebuild on the newer commit
-    const ref = await gh('GET', `/git/ref/heads/${encodeURIComponent(branch)}`);
-    const head = await gh('GET', `/git/commits/${ref.object.sha}`);
-    const tree = await gh('POST', '/git/trees', { base_tree: head.tree.sha, tree: [{ path: full, mode: '100644', type: 'blob', sha: blob.sha }] });
-    const commit = await gh('POST', '/git/commits', { message, tree: tree.sha, parents: [ref.object.sha] });
-    try { await gh('PATCH', `/git/refs/heads/${encodeURIComponent(branch)}`, { sha: commit.sha }); return; }
-    catch (e) { if (e.status === 422 && i < 3) continue; throw e; }
-  }
-}
 export async function testGithub() {
   const g = githubConfig();
   const repo = await gh('GET', '');
@@ -147,7 +135,7 @@ export async function makeBackup(reason = 'manual') {
 
 /* ---------------------------------------------------------------- files */
 const fileB64 = file => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1]); fr.onerror = rej; fr.readAsDataURL(file); });
-export async function uploadFile(file, dir) {
+export async function uploadFile(file, dir, { onProgress } = {}) {
   const name = file.name.replace(/[^\w.\-؀-ۿ ]+/g, '_');
   if (isServer) {
     const r = await fetch(`/api/upload?dir=${encodeURIComponent(dir)}&name=${encodeURIComponent(name)}`, { method: 'POST', body: file });
@@ -157,10 +145,17 @@ export async function uploadFile(file, dir) {
   if (hasGithub()) {
     if (file.size > 95 * 1024 * 1024) throw new Error('الملف أكبر من 95MB — حد GitHub');
     const path = `${dir.replace(/\/+$/, '')}/${Date.now().toString(36)}-${name}`;
-    // Big files (videos) go through the Git data API (blob → tree → commit), which takes files up to 100MB;
-    // the simple contents endpoint fails on large files.
-    if (file.size > 20 * 1024 * 1024) await ghPutBig(path, await fileB64(file), `Upload ${name}`);
-    else await ghPutFile(path, await fileB64(file), `Upload ${name}`);
+    // Big files (videos) are sent as numbered parts of 8MB each (small requests always go through); the publish
+    // workflow joins the parts back into the original file, byte for byte, when it builds the site.
+    const PART = 8 * 1024 * 1024;
+    if (file.size > PART * 1.5) {
+      const n = Math.ceil(file.size / PART);
+      for (let i = 0; i < n; i++) {
+        onProgress?.(i, n);
+        await ghPutFile(`${path}.part-${String(i).padStart(3, '0')}`, await fileB64(file.slice(i * PART, (i + 1) * PART)), `Upload ${name} (${i + 1}/${n})`);
+      }
+      onProgress?.(n, n);
+    } else await ghPutFile(path, await fileB64(file), `Upload ${name}`);
     return path;
   }
   throw new Error('الرفع يتطلب المشغّل المحلي أو ربط GitHub');

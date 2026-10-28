@@ -338,7 +338,7 @@ function mediaWidget(obj, key, { kind = 'image', simple = false, focal = false }
     if (backendMode() === 'local') return toast('الرفع يتطلب المشغّل المحلي أو ربط GitHub (تبويب النشر)');
     toast('جارٍ الرفع…');
     if (f.size > 20 * 1024 * 1024) toast(`جارٍ رفع ${(f.size / 1048576).toFixed(0)}MB… قد يأخذ دقيقة أو أكثر، لا تغلق الصفحة`);
-    try { setSrc(await uploadFile(f, ctx.uploadDir || 'assets/uploads')); toast('تم الرفع ✓ احفظ لينشر'); } catch (err) { toast('فشل الرفع: ' + (err.message || err)); console.error(err); }
+    try { setSrc(await uploadFile(f, ctx.uploadDir || 'assets/uploads', { onProgress: (i, n) => toast(i < n ? `جارٍ الرفع… الجزء ${i + 1} من ${n}` : 'اكتمل رفع الأجزاء') })); toast(f.size > 12 * 1048576 ? 'تم الرفع ✓ احفظ لينشر — يظهر الفيديو في العرض المنشور بعد دقيقتين تقريباً' : 'تم الرفع ✓ احفظ لينشر'); } catch (err) { toast('فشل الرفع: ' + (err.message || err)); console.error(err); }
   } });
   const ctl = h('div', { class: 'media-ctl' }, input,
     h('div', { class: 'inline' },
