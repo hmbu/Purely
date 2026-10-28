@@ -617,7 +617,7 @@ const quiet = () => (settings().tone || 'quiet') === 'quiet';
 
 /* ======================================================================= hub (project page) */
 // Lavara's material styles (liquid soap, soap bar, amber light) have defined edges and highlights: they need more pixels than the fog.
-const crisp = p => ['silk', 'soap', 'amber'].includes(p.brand.textureStyle);
+const crisp = p => ['silk', 'lather', 'soap', 'amber'].includes(p.brand.textureStyle);
 // The project page continues the opening screen: brand colour + calm live texture, and the sections as
 // stations on a line of light. The light rests on the next section; hovering slides it to another station.
 let hubTex = null;
