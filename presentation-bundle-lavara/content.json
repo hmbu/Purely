@@ -2,7 +2,7 @@
   "version": 1,
   "meta": {
     "title": "Bundle × Lavara",
-    "updatedAt": "2026-10-28T20:01:58.597Z"
+    "updatedAt": "2026-10-28T21:31:55.264Z"
   },
   "fonts": [
     {
@@ -51,7 +51,7 @@
       "eyebrow": "Projects"
     },
     "motion": {
-      "speed": 1,
+      "speed": 0.8,
       "reduced": "auto",
       "textureScale": 0.5
     },
