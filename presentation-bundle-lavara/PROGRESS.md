@@ -134,3 +134,10 @@
 - Bundle backgrounds (control panel › الهويات › بندل › «خلفية بندل المتحركة»): `orbs` separate grainy gradient spheres that drift and bounce, never merging (set as Bundle's choice); `strips` the Purpose page's strips with circles/half circles/rounded columns; `stacks` columns of touching circles (website page); `bubbles` the previous merging bubbles. Gradients are bundle-brand.pdf's pairs, flat and grainy.
 - A shader that fails to compile disables every background: each new mode was compiled and rendered in a browser before pushing.
 - Symbol shadow (user): never directly behind the brand; it sits at the bottom-right corner, large and cut by the edge (about half shows), on title slides and at the end of the section-title animation (the symbol opens the title in the centre, then slides to the corner).
+
+## Bundle products: frames off, sources as columns, Bundle motion (2026-10-28)
+- Product photos (showcase, categories) have no white frames: rounded photos on the page, tag pill on the photo.
+- Sources: each source is a rounded-end brand column rising from the floor with its words above; Bundle's own line is the green column with the symbol.
+- Bundle title slides: wordmark only (stacked circles removed); the half-cut symbol shadow stays bottom-right.
+- Motion for Bundle slides follows its gift catalogue: elements rise into place (cubic-bezier .2,.7,.2,1, staggered); columns grow from the floor; between product pages the group pills stay and the highlight slides to the next group.
+- Waiting: user review.

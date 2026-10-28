@@ -617,7 +617,7 @@ TEMPLATES.sources = {
           <div class="so-card tn-${esc(it.tone || 't1')} ${it.featured ? 'feat' : ''}" data-a="extra" data-seq="${i}">
             ${it.pill ? `<span class="so-pill">${esc(it.pill)}</span>` : ''}
             <h3>${escBr(it.title || '')}</h3>
-            <i class="so-shape ${SHAPES[i % SHAPES.length]}"></i>
+            <i class="so-shape ${SHAPES[i % SHAPES.length]}" data-grow></i>
             ${ctx?.brand?.mark ? `<span class="so-mark">${logoHTML(ctx.brand.mark, ctx)}</span>` : ''}
           </div>`).join('')}
       </div>

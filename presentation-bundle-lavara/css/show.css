@@ -1032,7 +1032,7 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 /* ---- Bundle-wide touches from its gift deck (a little, not everywhere) ---- */
 /* title slides: a column of stacked grainy circles, as on the website page of bundle-brand.pdf */
 .t-mosaic { display: none; }
-[data-brand="bundle"] .t-mosaic { position: absolute; left: 9rem; top: 50%; translate: 0 -50%; display: flex; flex-direction: column; }
+[data-brand="bundle"] .t-mosaic { display: none !important; position: absolute; left: 9rem; top: 50%; translate: 0 -50%; display: flex; flex-direction: column; }
 [data-brand="bundle"] .t-mosaic i { position: relative; overflow: hidden; width: 22rem; height: 22rem; border-radius: 50%; }
 [data-brand="bundle"] .t-mosaic i::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .5; }
 [data-brand="bundle"] .t-mosaic i:nth-child(1) { background: linear-gradient(180deg, #E8735F, #F2A9C2 60%, #EDC6F7); }
@@ -1150,26 +1150,33 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="bundle"] .sc-tab.on { background: var(--tg); color: #fff; }
 [data-brand="bundle"] .sc-tab.on::before { border: 0; opacity: 1; background: #fff; }
 [data-brand="bundle"] .sc-tab h3 { font-size: 2.3rem; }
-[data-brand="bundle"] .sc-items { top: 18rem; gap: 2.8rem; }
-[data-brand="bundle"] .sc-item { position: relative; padding: 1.6rem 1.6rem 2.4rem; background: var(--b-card); border-radius: 3rem; box-shadow: var(--b-shadow); gap: 1.2rem; }
-[data-brand="bundle"] .sc-img { border-radius: 2rem; order: -1; }
-[data-brand="bundle"] .sc-pill { position: absolute; top: 2.8rem; right: 2.8rem; z-index: 1; background: #fff; box-shadow: var(--b-shadow); color: #245845; font-weight: 600; }
-[data-brand="bundle"] .sc-item h3, [data-brand="bundle"] .sc-item p { padding: 0 .8rem; }
+[data-brand="bundle"] .sc-items { top: 17.4rem; bottom: 7rem; gap: 3.2rem; }
+[data-brand="bundle"] .sc-item { position: relative; gap: .8rem; }
+[data-brand="bundle"] .sc-img { border-radius: 3rem; order: -1; margin-bottom: 1.2rem; background: none; }
+[data-brand="bundle"] .sc-pill { position: absolute; top: 2rem; right: 2rem; z-index: 1; background: #fff; color: #245845; font-weight: 600; }
+[data-brand="bundle"] .sc-item h3 { font-size: 3rem; }
+[data-brand="bundle"] .sc-item p { min-height: calc(2 * 1.65em); }
+.sc-slider { position: absolute; top: 0; bottom: 0; z-index: 0; border-radius: 10rem; background: var(--tg); pointer-events: none; }
 
-/* sources: white cards, each with the brand's gradient sphere; the house line is the green card */
-[data-brand="bundle"] .so-card { background: var(--b-card); border-radius: 3.2rem; box-shadow: var(--b-shadow); justify-content: flex-end; padding: 3.6rem 3.4rem 4rem; }
-[data-brand="bundle"] .so-card.feat { background: #245845; }
-[data-brand="bundle"] .so-card .so-pill { order: 2; }
-[data-brand="bundle"] .so-card h3 { order: 3; }
-[data-brand="bundle"] .so-shape { position: static; order: 1; width: 12rem; height: 12rem !important; border-radius: 50% !important; margin-bottom: auto; background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .7), transparent 45%), var(--tg); }
+/* sources: each source is one of the brand's rounded-end columns rising from the floor, its words above it;
+   the house line is the deep-green column carrying the symbol */
+[data-brand="bundle"] .so-cards { top: 20rem; bottom: 7rem; gap: 3.2rem; }
+[data-brand="bundle"] .so-card { overflow: visible; background: none; padding: 0; gap: 1.6rem; --stitle: #245845; }
+[data-brand="bundle"] .so-card.feat { background: none; --stitle: #245845; }
+[data-brand="bundle"] .so-card .so-pill { border-radius: 10rem; }
+[data-brand="bundle"] .so-card h3 { font-size: 2.9rem; min-height: calc(2 * 1.35em); }
+[data-brand="bundle"] .so-shape { position: relative; flex: 1; width: 100%; height: auto !important; min-height: 0; margin-top: .8rem; border-radius: 100rem 100rem 0 0 !important; overflow: hidden; }
+[data-brand="bundle"] .so-card.feat .so-shape { background: linear-gradient(180deg, #3C8A5E, #245845 70%); }
+[data-brand="bundle"] .so-mark { display: none; }
+[data-brand="bundle"] .so-card.feat .so-mark { display: block; position: absolute; bottom: 4rem; left: 50%; translate: -50% 0; width: 9rem; height: 9rem; color: #fff; z-index: 1; }
+[data-brand="bundle"] .so-card.feat .so-mark .logo-mask { display: block; width: 100%; height: 100%; background-color: #fff; }
 
 /* categories: white pills with a sphere bullet; photos as white floating cards */
 [data-brand="bundle"] .ca-list { gap: 1.2rem; }
 [data-brand="bundle"] .ca-list li { background: var(--b-card); border-radius: 10rem; box-shadow: var(--b-shadow); padding: 1.1rem 1.8rem 1.1rem 2.4rem; }
 [data-brand="bundle"] .ca-list li i { width: 2.2rem; height: 2.2rem; }
 [data-brand="bundle"] .ca-collage { gap: 1.6rem; }
-[data-brand="bundle"] .ca-tile { padding: .9rem; background: var(--b-card); border-radius: 2.4rem; box-shadow: var(--b-shadow); }
-[data-brand="bundle"] .ca-tile .m { border-radius: 1.6rem; }
+[data-brand="bundle"] .ca-tile { border-radius: 2.4rem; }
 
 /* partners: band titles as pills; logos on white floating cards */
 [data-brand="bundle"] .pa-band { border-radius: 3.2rem; background: color-mix(in srgb, #CCE2F2 40%, var(--sbg)); }

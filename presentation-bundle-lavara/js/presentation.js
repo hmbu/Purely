@@ -276,9 +276,17 @@ function decodeIn(el, ms = 700) {
 }
 
 /* ---------- Layered Drift building blocks */
+// Bundle's own motion (its gift catalogue): things rise into place on a soft cubic-bezier(.2,.7,.2,1), one after another
+const bez = (x1, y1, x2, y2) => t => { // CSS cubic-bezier as a GSAP ease
+  let u = t; for (let i = 0; i < 8; i++) { const x = 3 * x1 * u * (1 - u) ** 2 + 3 * x2 * u * u * (1 - u) + u ** 3 - t; const dx = 3 * x1 * (1 - u) ** 2 + 6 * (x2 - x1) * u * (1 - u) + 3 * (1 - x2) * u * u; if (Math.abs(dx) < 1e-6) break; u = Math.min(1, Math.max(0, u - x / dx)); }
+  return 3 * y1 * u * (1 - u) ** 2 + 3 * y2 * u * u * (1 - u) + u ** 3;
+};
+const RISE = bez(0.2, 0.7, 0.2, 1);
+const risesIn = () => stage.dataset.brand === 'bundle';
 function introTL(el, dir = 1, kind = 'drift') {
   const tl = gsap.timeline();
   const q = s => $$(s, el);
+  if (risesIn() && kind !== 'fade') return riseTL(el, tl, q);
   const X = -dir * pxs(56); // next enters from the LEFT (RTL)
   const sx = kind === 'drift' ? X : 0;
   const bg = q('.slide-bg'), bgx = q('[data-a="bg"]:not(.slide-bg)'), media = q('[data-a="media"]');
@@ -293,7 +301,36 @@ function introTL(el, dir = 1, kind = 'drift') {
   if (extra.length) tl.fromTo(extra, { opacity: 0, x: sx * 0.6, y: pxs(14) }, { opacity: 1, x: 0, y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.09 }, 0.45);
   return tl;
 }
+function riseTL(el, tl, q) {
+  const extra = q('[data-a="extra"]').sort((a, b) => (+a.dataset.seq || 0) - (+b.dataset.seq || 0));
+  const Y = pxs(60);
+  tl.fromTo(q('.slide-bg'), { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power2.out' }, 0);
+  tl.fromTo(q('[data-a="bg"]:not(.slide-bg)'), { opacity: 0 }, { opacity: 1, duration: 1.2, ease: 'power2.out' }, 0.05);
+  tl.fromTo(q('[data-a="media"]'), { opacity: 0, y: Y }, { opacity: 1, y: 0, duration: 0.95, ease: RISE }, 0.1);
+  tl.fromTo(q('[data-a="eyebrow"], [data-a="title"], [data-a="body"]'), { opacity: 0, y: Y }, { opacity: 1, y: 0, duration: 0.85, ease: RISE, stagger: 0.09 }, 0.12);
+  if (extra.length) tl.fromTo(extra, { opacity: 0, y: Y * 1.4 }, { opacity: 1, y: 0, duration: 0.85, ease: RISE, stagger: 0.09 }, 0.3);
+  tl.fromTo(q('[data-a] .m, [data-a] .ph'), { scale: 1.06 }, { scale: 1, duration: 1.6, ease: RISE }, 0.3);
+  const grow = q('[data-grow]');
+  if (grow.length) tl.fromTo(grow, { scaleY: 0, transformOrigin: '50% 100%' }, { scaleY: 1, duration: 1.1, ease: RISE, stagger: 0.09 }, 0.45);
+  return tl;
+}
+// two product pages in a row: the group pills stay where they are and the highlight slides to the next group
+function tabsSwap(old, el) {
+  const a = $('.sc-tabs', old), b = $('.sc-tabs', el); if (!a || !b) return null;
+  const from = $('.sc-tab.on', a), to = $('.sc-tab.on', b); if (!from || !to) return null;
+  const tl = gsap.timeline();
+  b.removeAttribute('data-a'); gsap.set(b, { opacity: 1 }); gsap.set(a, { opacity: 0 }); // same place: the new pills simply take over
+  to.classList.remove('on');
+  const slider = document.createElement('i'); slider.className = 'sc-slider';
+  b.append(slider); // above the pills, under their words
+  gsap.set(slider, { left: from.offsetLeft, width: from.offsetWidth });
+  tl.to($$('.sc-item', old), { opacity: 0, y: -pxs(30), duration: 0.4, ease: 'power2.in', stagger: 0.05 }, 0);
+  tl.to(slider, { left: to.offsetLeft, width: to.offsetWidth, duration: 0.75, ease: RISE }, 0.1);
+  tl.add(() => { to.classList.add('on'); slider.remove(); }, 0.85);
+  return tl;
+}
 function outroTL(el, dir = 1) {
+  if (risesIn()) return gsap.to($$('.t, .slide-bg ~ *', el), { y: -pxs(16), opacity: 0, duration: 0.4, ease: 'power2.in' });
   const t = $$('.t, .slide-bg ~ *', el);
   return gsap.to(t, { x: dir * pxs(50), opacity: 0, duration: 0.5, ease: 'power2.in', force3D: true });
 }
@@ -358,8 +395,9 @@ async function showSlide(li, { dir = 1, kind, instant = false } = {}) {
       mountSlide(el, tpl, slide);
       lightVeil(p, dir);
       const tl = gsap.timeline();
-      tl.add(outroTL(old, dir), 0);
-      tl.add(introTL(el, dir, 'drift'), 0.3);
+      const swap = risesIn() && tabsSwap(old, el);
+      if (swap) { tl.add(swap, 0); tl.add(introTL(el, dir, 'drift'), 0.3); }
+      else { tl.add(outroTL(old, dir), 0); tl.add(introTL(el, dir, 'drift'), 0.3); }
       await tl; unmountSlide(old); old.remove();
     }
   }
