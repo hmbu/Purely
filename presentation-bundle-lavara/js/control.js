@@ -337,7 +337,8 @@ function mediaWidget(obj, key, { kind = 'image', simple = false, focal = false }
     const f = e.target.files[0]; if (!f) return;
     if (backendMode() === 'local') return toast('الرفع يتطلب المشغّل المحلي أو ربط GitHub (تبويب النشر)');
     toast('جارٍ الرفع…');
-    try { setSrc(await uploadFile(f, ctx.uploadDir || 'assets/uploads')); toast('تم الرفع ✓'); } catch (err) { toast('فشل الرفع'); }
+    if (f.size > 20 * 1024 * 1024) toast(`جارٍ رفع ${(f.size / 1048576).toFixed(0)}MB… قد يأخذ دقيقة أو أكثر، لا تغلق الصفحة`);
+    try { setSrc(await uploadFile(f, ctx.uploadDir || 'assets/uploads')); toast('تم الرفع ✓ احفظ لينشر'); } catch (err) { toast('فشل الرفع: ' + (err.message || err)); console.error(err); }
   } });
   const ctl = h('div', { class: 'media-ctl' }, input,
     h('div', { class: 'inline' },
