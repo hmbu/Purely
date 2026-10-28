@@ -100,6 +100,7 @@ export const TEMPLATES = {
     defaults: { eyebrow: '', title: 'عنوان', subtitle: '', align: 'center', showLogo: false, showMark: true },
     render: (d, ctx) => `
       <div class="t t-title align-${esc(d.align || 'center')}">
+        <div class="t-mosaic" aria-hidden="true" data-a="bg"><i></i><i></i><i></i><i></i><i></i><i></i></div>
         ${d.showMark && ctx.brand.mark ? `<div class="s-watermark" data-a="bg">${logoHTML(ctx.brand.mark, ctx)}</div>` : ''}
         <div class="s-copy">${eyebrow(d.eyebrow)}${d.showLogo && ctx.brand.logo ? `<h1 class="t-logo" data-a="title" aria-label="${esc(d.title || '')}">${logoHTML(ctx.brand.logo, ctx)}</h1>` : title(d.title, 'is-xl')}${body(d.subtitle, 'is-lead')}</div>
       </div>`,
@@ -548,7 +549,119 @@ TEMPLATES.flow = {
   },
 };
 
-export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product', 'updates', 'sectors', 'finance', 'canvas', 'flow'];
+
+/* ---------------------------------------------------------------- gift catalogue set (occasions, showcase, sources, categories, partners) */
+// Colour comes from "tones" (t1–t5), which each identity defines from its own palette in CSS: for Bundle the
+// grainy gradients of its gift-products deck (lime-green, sky-blue, lilac-pink, sunset, lime). Shapes are the
+// deck's soft architecture (arch, quarter, leaf, drop), cycled.
+const TONES5 = [['t1', 'النغمة 1'], ['t2', 'النغمة 2'], ['t3', 'النغمة 3'], ['t4', 'النغمة 4'], ['t5', 'النغمة 5']];
+const SHAPES = ['sh-arch', 'sh-quarter', 'sh-leaf', 'sh-drop'];
+const lines = s => String(s || '').split('\n').map(x => x.trim()).filter(Boolean);
+const imgSrc = v => (typeof v === 'string' ? v : v?.src);
+
+TEMPLATES.occasions = {
+  name: 'مناسبات (أعمدة تركيز)', en: 'Occasions', group: 'extra', defaultBg: 'background', suggested: 'المنتجات',
+  fields: [F.eyebrow, F.title, { key: 'legendNow', type: 'text', label: 'وصف المميّز' }, { key: 'legendLater', type: 'text', label: 'وصف الباهت' },
+    { key: 'groups', type: 'list', label: 'الأعمدة', item: [{ key: 'title', type: 'text', label: 'العنوان' }, { key: 'tone', type: 'select', label: 'اللون', options: TONES5 },
+      { key: 'items', type: 'textarea', rows: 6, label: 'البنود (سطر لكل بند، ~ في البداية = لاحقاً)' }], newItem: { title: 'مجموعة', tone: 't1', items: '' } }],
+  defaults: { eyebrow: '', title: 'المناسبات', legendNow: 'نركّز عليها الآن', legendLater: 'لاحقاً', groups: [] },
+  render: d => `
+    <div class="t t-occasions">
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
+      <div class="oc-legend" data-a="body"><span><i></i>${esc(d.legendNow || '')}</span><span class="lt"><i></i>${esc(d.legendLater || '')}</span></div>
+      <div class="oc-cols">
+        ${(d.groups || []).map((g, i) => `
+          <div class="oc-col tn-${esc(g.tone || 't1')}" data-a="extra" data-seq="${i}">
+            <div class="oc-head"><h3>${esc(g.title || '')}</h3></div>
+            <ul>${lines(g.items).map(x => (x[0] === '~' ? `<li class="later"><i></i>${esc(x.slice(1).trim())}</li>` : `<li><i></i>${esc(x)}</li>`)).join('')}</ul>
+          </div>`).join('')}
+      </div>
+    </div>`,
+};
+
+TEMPLATES.showcase = {
+  name: 'منتجات مناسبة (تبويبات + ثلاثة منتجات)', en: 'Showcase', group: 'extra', defaultBg: 'background', suggested: 'المنتجات',
+  fields: [F.title, { key: 'tabs', type: 'text', label: 'التبويبات (مفصولة بفاصلة)' }, { key: 'active', type: 'number', label: 'التبويب النشط (1 = الأول)' },
+    { key: 'tone', type: 'select', label: 'لون التبويب النشط', options: TONES5 },
+    { key: 'items', type: 'list', label: 'المنتجات', item: [{ key: 'tag', type: 'text', label: 'المناسبة' }, { key: 'image', type: 'image', label: 'الصورة' }, { key: 'title', type: 'text', label: 'الاسم' }, { key: 'body', type: 'textarea', rows: 2, label: 'الوصف' }],
+      newItem: { tag: '', image: { src: '' }, title: 'منتج', body: '' } }],
+  defaults: { title: 'منتجات', tabs: '', active: 1, tone: 't1', items: [] },
+  render: (d, ctx) => {
+    const tabs = String(d.tabs || '').split(/[,،]/).map(x => x.trim()).filter(Boolean), act = (Number(d.active) || 1) - 1;
+    return `
+    <div class="t t-showcase tn-${esc(d.tone || 't1')}">
+      ${tabs.length ? `<div class="sc-tabs" data-a="title">${tabs.map((t, i) => `<div class="sc-tab ${i === act ? 'on' : ''}"><h3>${esc(t)}</h3></div>`).join('')}</div>` : `<div class="board-head">${title(d.title)}</div>`}
+      <div class="sc-items">
+        ${(d.items || []).slice(0, 3).map((it, i) => `
+          <div class="sc-item" data-a="extra" data-seq="${i}">
+            ${it.tag ? `<span class="sc-pill">${esc(it.tag)}</span>` : ''}
+            <div class="sc-img">${mediaHTML(it.image, ctx, { label: it.title || 'صورة' })}</div>
+            <h3>${esc(it.title || '')}</h3>
+            ${it.body ? `<p>${escBr(it.body)}</p>` : ''}
+          </div>`).join('')}
+      </div>
+    </div>`;
+  },
+};
+
+TEMPLATES.sources = {
+  name: 'مصادر / أنواع (بطاقات بأشكال)', en: 'Sources', group: 'extra', defaultBg: 'background', suggested: 'المنتجات',
+  fields: [F.eyebrow, F.title, { key: 'items', type: 'list', label: 'البطاقات', item: [{ key: 'pill', type: 'text', label: 'الوسم' }, { key: 'title', type: 'textarea', rows: 2, label: 'الوصف' },
+    { key: 'tone', type: 'select', label: 'اللون', options: TONES5 }, { key: 'featured', type: 'toggle', label: 'بطاقة بارزة' }], newItem: { pill: '', title: '', tone: 't1', featured: false } }],
+  defaults: { eyebrow: '', title: 'المصادر', items: [] },
+  render: d => `
+    <div class="t t-sources">
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
+      <div class="so-cards" style="--n:${(d.items || []).length || 1}">
+        ${(d.items || []).map((it, i) => `
+          <div class="so-card tn-${esc(it.tone || 't1')} ${it.featured ? 'feat' : ''}" data-a="extra" data-seq="${i}">
+            ${it.pill ? `<span class="so-pill">${esc(it.pill)}</span>` : ''}
+            <h3>${escBr(it.title || '')}</h3>
+            <i class="so-shape ${SHAPES[i % SHAPES.length]}"></i>
+          </div>`).join('')}
+      </div>
+    </div>`,
+};
+
+TEMPLATES.categories = {
+  name: 'فئات + صور', en: 'Categories', group: 'extra', defaultBg: 'background', suggested: 'المنتجات',
+  fields: [F.eyebrow, F.title, { key: 'items', type: 'textarea', rows: 8, label: 'الفئات (سطر لكل فئة)' },
+    { key: 'images', type: 'list', label: 'الصور (حتى 9، ترتيب المجمّع)', item: [{ key: 'image', type: 'image', label: 'الصورة' }], newItem: { image: { src: '' } } }],
+  defaults: { eyebrow: '', title: 'الفئات', items: '', images: [] },
+  render: (d, ctx) => {
+    const im = (d.images || []).filter(x => imgSrc(x?.image)).slice(0, 9);
+    return `
+    <div class="t t-categories">
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
+      <ul class="ca-list" data-a="body">${lines(d.items).map((x, i) => `<li><i class="tn-t${(i % 5) + 1}"></i>${esc(x)}</li>`).join('')}</ul>
+      <div class="ca-collage n-${im.length}">${im.map((x, i) => `<div class="ca-tile c${i + 1}" data-a="extra" data-seq="${i}">${mediaHTML(x.image, ctx)}</div>`).join('')}</div>
+    </div>`;
+  },
+};
+
+TEMPLATES.partners = {
+  name: 'شركاء وموردون (شرائط شعارات)', en: 'Partners', group: 'extra', defaultBg: 'background', suggested: 'المنتجات',
+  fields: [F.eyebrow, F.title, { key: 'bands', type: 'list', label: 'الشرائط', item: [{ key: 'title', type: 'text', label: 'العنوان' }, { key: 'featured', type: 'toggle', label: 'شريط بارز (الحالي)' },
+    { key: 'logos', type: 'list', label: 'الشعارات', item: [{ key: 'logo', type: 'image', simple: true, label: 'الشعار' }, { key: 'name', type: 'text', label: 'الاسم' }], newItem: { logo: '', name: '' } },
+    { key: 'more', type: 'text', label: 'عدد إضافي (مثل +8)' }, { key: 'moreLabel', type: 'text', label: 'تحت العدد' }], newItem: { title: 'شريط', featured: false, logos: [], more: '', moreLabel: '' } }],
+  defaults: { eyebrow: '', title: 'الشركاء', bands: [] },
+  render: (d, ctx) => `
+    <div class="t t-partners">
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
+      <div class="pa-bands">
+        ${(d.bands || []).map((b, i) => `
+          <div class="pa-band ${b.featured ? 'feat' : ''}" data-a="extra" data-seq="${i}">
+            <h3>${esc(b.title || '')}</h3>
+            <div class="pa-row">
+              ${(b.logos || []).map(l => `<div class="pa-logo" title="${esc(l.name || '')}">${imgSrc(l.logo) ? `<img src="${esc(ctx.asset(imgSrc(l.logo)))}" alt="${esc(l.name || '')}">` : `<span>${esc(l.name || '')}</span>`}</div>`).join('')}
+              ${b.more ? `<div class="pa-more"><b class="latin">${esc(b.more)}</b><span>${esc(b.moreLabel || '')}</span></div>` : ''}
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`,
+};
+
+export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product', 'updates', 'sectors', 'finance', 'canvas', 'flow', 'occasions', 'showcase', 'sources', 'categories', 'partners'];
 
 export function newSlide(templateId, uidFn) {
   const t = TEMPLATES[templateId];

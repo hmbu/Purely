@@ -110,3 +110,9 @@
 - The hotel canvas's partners box in the brief is a copy of Bundle's; Purely's partners kept and the user told.
 - Operating models → shared › النموذج التشغيلي: new `flow` template (six phases right to left, steps, owner teams, decision gates, rework loops) accented in each project's colour, plus "المخطط الكامل" opening the original flowchart full screen (`js/core/zoom.js`: wheel/± zoom, drag, double-click fit, Esc; it owns the keyboard while open). Images: `assets/shared/opmodel-*.webp`.
 - Not added: the brief's cover, section dividers, summary and next-steps pages.
+
+## Bundle gift products (Bundle-Gift-Products_2.html)
+- Bundle › المنتجات now opens with: occasions (focus now / later), three product pages (one per occasion group, tabs on top), product sources, categories with a photo collage; then the existing concepts and packages; partners & suppliers last. The old placeholder brand grid is hidden, not deleted.
+- New templates: `occasions`, `showcase`, `sources`, `categories`, `partners`, coloured through a per-identity tone layer (`.tn-t1…t5`).
+- Bundle-wide touches taken from the deck (light): grainy shape mosaic on Bundle title slides (`.t-mosaic`), the business model's value block in the deck's green gradient, lime status pills, softer image corners.
+- Assets: `assets/bundle/gifts/`, `assets/bundle/partners/`. Not added: the deck's cover and thank-you pages.

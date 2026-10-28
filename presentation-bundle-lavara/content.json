@@ -361,6 +361,345 @@
           "hidden": false,
           "slides": [
             {
+              "id": "sl-gp-occ",
+              "template": "occasions",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "",
+                "title": "مناسبات الإهداء",
+                "legendNow": "نركّز عليها الآن",
+                "legendLater": "لاحقاً",
+                "groups": [
+                  {
+                    "title": "مناسبات دورية",
+                    "tone": "t1",
+                    "items": "استقبال الموظفين الجدد\nذكرى الانضمام\n~أيام الميلاد\n~الترقيات والمحطات المهنية\nالتقدير والتكريم\nتوديع الموظفين"
+                  },
+                  {
+                    "title": "مناسبات موسمية",
+                    "tone": "t2",
+                    "items": "رمضان\n~عيد الفطر وعيد الأضحى\n~اليوم الوطني ويوم التأسيس\n~نهاية العام والسنة الجديدة"
+                  },
+                  {
+                    "title": "مناسبات استثنائية",
+                    "tone": "t3",
+                    "items": "كبار الشخصيات والتنفيذيين\nافتتاح المكاتب الجديدة\n~احتفالات ومحطات الشركة\n~تقدير العملاء والشركاء\n~المؤتمرات والفعاليات"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sl-gp-sc1",
+              "template": "showcase",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "title": "مناسبات دورية",
+                "tabs": "مناسبات دورية, مناسبات موسمية, مناسبات استثنائية",
+                "active": 1,
+                "tone": "t1",
+                "items": [
+                  {
+                    "tag": "استقبال الموظفين الجدد",
+                    "image": {
+                      "src": "assets/bundle/gifts/welcome-kit.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    },
+                    "title": "الحقيبة الترحيبية",
+                    "body": "حقيبة جلدية بهوية الشركة، تحتوي على دفتر بغلاف جلدي، وبطاقة تعريف، وقلم، وقاعدة خشبية تُضاف لها قيم ورسالة الشركة"
+                  },
+                  {
+                    "tag": "التقدير والتكريم",
+                    "image": {
+                      "src": "assets/bundle/gifts/digital-gift-card.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    },
+                    "title": "بطاقة هدية رقمية",
+                    "body": "رصيد يُستبدل لدى متجر شريك، مع رسالة شكر باسم الموظف"
+                  },
+                  {
+                    "tag": "توديع الموظفين",
+                    "image": {
+                      "src": "assets/bundle/gifts/chocolate-orchid.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 40
+                      }
+                    },
+                    "title": "شوكولاتة وأوركيد",
+                    "body": "علبة شوكولاتة فاخرة من أور، مع أوركيد في أصيص مخصّص من أشجار"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sl-gp-sc2",
+              "template": "showcase",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "title": "مناسبات موسمية",
+                "tabs": "مناسبات دورية, مناسبات موسمية, مناسبات استثنائية",
+                "active": 2,
+                "tone": "t2",
+                "items": [
+                  {
+                    "tag": "رمضان",
+                    "image": {
+                      "src": "assets/bundle/gifts/prayer-mat.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 55
+                      }
+                    },
+                    "title": "سجادة صلاة",
+                    "body": "سجادة صلاة مبطّنة بقطن، مع حقيبة قماشية بهوية الشركة"
+                  },
+                  {
+                    "tag": "عيد الفطر / اليوم الوطني",
+                    "image": {
+                      "src": "assets/bundle/gifts/incense-burner.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 55
+                      }
+                    },
+                    "title": "مبخرة",
+                    "body": "مبخرة خشبية بطابع ثقافي صممه طلاب المعهد الملكي للفنون التقليدية (ورث)، مع قاعدة حجرية في صندوق أكريليك شفاف"
+                  },
+                  {
+                    "tag": "رمضان",
+                    "image": {
+                      "src": "assets/bundle/gifts/dates-box.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 40
+                      }
+                    },
+                    "title": "صندوق تمر",
+                    "body": "صندوق مطرّز بالنخيل يدوياً، معبّأ بتمر سكري فاخر، وبطاقة تهنئة بالشهر"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sl-gp-sc3",
+              "template": "showcase",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "title": "مناسبات استثنائية",
+                "tabs": "مناسبات دورية, مناسبات موسمية, مناسبات استثنائية",
+                "active": 3,
+                "tone": "t3",
+                "items": [
+                  {
+                    "tag": "كبار الشخصيات والتنفيذيين",
+                    "image": {
+                      "src": "assets/bundle/gifts/desk-calendar.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 55
+                      }
+                    },
+                    "title": "تقويم مكتبي دائم",
+                    "body": "تقويم خشبي دائم بطابع العمارة النجدية، على قاعدة حجرية في صندوق أكريليك شفاف"
+                  },
+                  {
+                    "tag": "كبار الشخصيات والتنفيذيين",
+                    "image": {
+                      "src": "assets/bundle/gifts/oud-box.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 58
+                      }
+                    },
+                    "title": "صندوق عود",
+                    "body": "صندوق خشبي محفور بهوية الجهة، بداخله صندوق عود طبيعي ودهن عود فاخر"
+                  },
+                  {
+                    "tag": "افتتاح المكاتب الجديدة",
+                    "image": {
+                      "src": "assets/bundle/gifts/reed-diffuser.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    },
+                    "title": "معطّر بالأعواد",
+                    "body": "معطّر فوّاح من الماجد للعود، في صندوق بهوية الشركة"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sl-gp-src",
+              "template": "sources",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "",
+                "title": "مصادر المنتجات",
+                "items": [
+                  {
+                    "pill": "الهدايا العامة",
+                    "title": "من موردين عامين وصنّاع محليين",
+                    "tone": "t1",
+                    "featured": false
+                  },
+                  {
+                    "pill": "هدايا العلامات التجارية",
+                    "title": "من علامات تجارية معروفة في السوق",
+                    "tone": "t2",
+                    "featured": false
+                  },
+                  {
+                    "pill": "خط بندل",
+                    "title": "مجموعاتنا المنسّقة الخاصة",
+                    "tone": "t3",
+                    "featured": true
+                  },
+                  {
+                    "pill": "الهدايا المخصّصة",
+                    "title": "تُصمَّم حسب الطلب للمشاريع الكبيرة",
+                    "tone": "t4",
+                    "featured": false
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sl-gp-cat",
+              "template": "categories",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "",
+                "title": "أمثلة على الفئات",
+                "items": "القرطاسية وأدوات الكتابة\nالتقنية والأجهزة\nإكسسوارات المكتب\nالحقائب والمنتجات الجلدية\nالأزياء والإكسسوارات\nالعطور والعود\nالمنزل ونمط الحياة\nالزهور والنباتات\nالشوكولاتة والحلويات\nأكواب وأدوات القهوة\nالمنتجات الفاخرة\nالدروع والتكريم\nالهدايا التراثية والثقافية",
+                "images": [
+                  {
+                    "image": {
+                      "src": "assets/bundle/gifts/category-1.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/gifts/category-2.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/gifts/category-3.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/gifts/category-4.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 55
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/gifts/category-5.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 55
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/gifts/category-6.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/gifts/category-7.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/gifts/category-8.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 62
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/bundle/gifts/category-9.webp",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
               "id": "sl-009",
               "template": "journey",
               "transition": "drift",
@@ -727,12 +1066,102 @@
               }
             },
             {
+              "id": "sl-gp-partners",
+              "template": "partners",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "",
+                "title": "الشركاء والموردون",
+                "bands": [
+                  {
+                    "title": "نتحدث معهم حالياً",
+                    "featured": true,
+                    "more": "+8",
+                    "moreLabel": "موردين",
+                    "logos": [
+                      {
+                        "logo": "assets/bundle/partners/raff.png",
+                        "name": "رف"
+                      },
+                      {
+                        "logo": "assets/bundle/partners/resal.png",
+                        "name": "رسال"
+                      },
+                      {
+                        "logo": "assets/bundle/partners/ashjar.svg",
+                        "name": "أشجار"
+                      },
+                      {
+                        "logo": "assets/bundle/partners/laderach.png",
+                        "name": "لاديراخ"
+                      },
+                      {
+                        "logo": "assets/bundle/partners/sdb.png",
+                        "name": "بنك التنمية الاجتماعية"
+                      },
+                      {
+                        "logo": "assets/bundle/partners/madinah-gift.png",
+                        "name": "هدية المدينة"
+                      },
+                      {
+                        "logo": "assets/bundle/partners/musa-palm.png",
+                        "name": "موسى & بالم"
+                      }
+                    ]
+                  },
+                  {
+                    "title": "قريباً..",
+                    "featured": false,
+                    "more": "",
+                    "moreLabel": "",
+                    "logos": [
+                      {
+                        "logo": "assets/bundle/partners/wrth.png",
+                        "name": "ورث"
+                      },
+                      {
+                        "logo": "assets/bundle/partners/floward.png",
+                        "name": "فلاورد"
+                      },
+                      {
+                        "logo": "assets/bundle/partners/patchi.png",
+                        "name": "باتشي"
+                      },
+                      {
+                        "logo": "assets/bundle/partners/harf.png",
+                        "name": "حرف"
+                      },
+                      {
+                        "logo": "assets/bundle/partners/palet.png",
+                        "name": "باليت"
+                      },
+                      {
+                        "logo": "assets/bundle/partners/levo.png",
+                        "name": "ليفو"
+                      },
+                      {
+                        "logo": "assets/bundle/partners/qirmiz.png",
+                        "name": "قرمز"
+                      },
+                      {
+                        "logo": "assets/bundle/partners/aleph.png",
+                        "name": "ألف"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
               "id": "sl-00b",
               "template": "brand-grid",
               "transition": "drift",
               "bg": "auto",
               "notes": "",
-              "hidden": false,
+              "hidden": true,
               "data": {
                 "eyebrow": "Brands Selection",
                 "title": "العلامات المختارة",

@@ -15,6 +15,7 @@ This folder is a standalone project. The hotel in-room store rules in the reposi
   - Bundle (`[data-style="bubbles"]`): soft rounded shapes (≈2rem radius), pills, gentle lift.
   - Lavara (`[data-brand="lavara"]`): panels on its ivory surface with a hairline inset frame, one dark lead panel, Roman numerals or a small diamond, status as an underline, logos tinted in its ink.
   - Shared (`[data-brand="shared"]`): editorial paper cards like its diagrams (inset hairline, short brass rule on top), no pills.
+- Colour sets for multi-item slides come from the tone layer (`.tn-t1…t5` in `css/show.css`), defined per identity from its own palette; Bundle's tones are the grainy gradients of its gift-products deck (lime-green, sky-blue, lilac-pink, sunset, lime).
 - Restrained: one highlighted element per slide at most, motion = the existing stagger. Check every new slide in all identities it can appear in before pushing.
 - No small eyebrow labels above titles (`settings.eyebrows` false); the slide footer is logo · section · page only.
 
