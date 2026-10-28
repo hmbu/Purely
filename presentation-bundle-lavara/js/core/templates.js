@@ -607,8 +607,7 @@ TEMPLATES.showcase = {
       <div class="sc-items">
         ${(d.items || []).slice(0, 3).map((it, i) => `
           <div class="sc-item" data-a="extra" data-seq="${i}">
-            ${it.tag ? `<span class="sc-pill">${esc(it.tag)}</span>` : ''}
-            <div class="sc-img">${mediaHTML(it.image, ctx, { label: it.title || 'صورة' })}</div>
+            <div class="sc-img"><div class="sc-frame">${mediaHTML(it.image, ctx, { label: it.title || 'صورة' })}${it.tag ? `<span class="sc-pill">${esc(it.tag)}</span>` : ''}</div></div>
             <h3>${esc(it.title || '')}</h3>
             ${it.body ? `<p>${escBr(it.body)}</p>` : ''}
           </div>`).join('')}

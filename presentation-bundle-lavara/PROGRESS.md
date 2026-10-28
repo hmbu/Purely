@@ -162,3 +162,4 @@
 - Five new Bundle backgrounds, each with its own ground from the brand palette and motion from brand shapes only: meadow (cream, shapes floating and turning), sunrise (sky, half circles rising/setting, hanging columns), bloom (pink, breathing field of circles), rhythm (lime, columns rising and falling with spheres), orbit (deep green, spheres on orbits). The middle stays calm for the wordmark and stations; the hub's ink follows the ground. Chosen in the control panel (Bundle's animated background).
 - Waiting: the user's pick.
 - Follow-up: sky scene with rising bubbles (skybubbles), lighter grain; stage, section covers and project morphs take the scene's ground and ink (no leftover green); control panel switch «لون بندل بالكامل»: green (original, orbs) or sky (skybubbles). Bundle set to sky at the user's request.
+- Follow-up: product pages show each photo whole (own shape, never cropped, tag on the photo); tabs and products moved a little lower.
