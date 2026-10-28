@@ -177,3 +177,4 @@
 - Follow-up: section entry styles, chosen with one tap in the control panel (global settings): 'merged' (default: the brand cover and symbol as before, with the station's own number and name flying into it), 'cover' (the previous cover card exactly), 'door' (station title alone, slide closes into its station on exit). Merged/cover exit = the previous camera pull-back.
 - Follow-up: shared frame company cards — Al Majed Oud: black logo only on an oud-gold card; Rimthan: white logo on a deep charcoal card.
 - Follow-up: company cards show only the logo (no Arabic name in text) for both Al Majed Oud and Rimthan.
+- Section exit made calm: the slide eases back while the already-built project page settles in; stations rise softly, the line is not redrawn.

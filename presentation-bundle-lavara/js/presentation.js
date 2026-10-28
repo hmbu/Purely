@@ -1112,9 +1112,14 @@ async function zoomOut({ strong = false } = {}) {
       tl.fromTo($('.h2-bg', L.hub), { scale: 1.06 }, { scale: 1, duration: D * 1.4, ease: 'power2.out' }, 0);
       tl.add(hubIntro(), D * 0.45);
     } else {
-      tl.to(L.section, { scale: strong ? 0.2 : 0.4, opacity: 0, transformOrigin: origin, duration: D * 0.9, ease: 'power3.inOut' }, 0);
-      tl.fromTo(L.hub, { scale: 1.12, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.9, ease: 'power2.out' }, D * 0.3);
-      tl.add(hubIntro(), D * 0.5);
+      // a calm step back: the slide eases away while the page (already built and still) settles in under it;
+      // the line stays drawn, only the stations rise softly. No double zoom, nothing rebuilds on screen.
+      gsap.set(L.hub, { opacity: 0 });
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); // let the page and its texture settle first
+      tl.to(L.section, { scale: 0.92, opacity: 0, transformOrigin: origin, duration: D * 0.75, ease: 'power2.inOut' }, 0);
+      tl.fromTo(L.hub, { scale: 1.05, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: D * 0.95, ease: 'power2.out' }, D * 0.18);
+      tl.fromTo($$('.h2-head > *', L.hub), { opacity: 0, y: pxs(16) }, { opacity: 1, y: 0, duration: D * 0.7, ease: 'power2.out', stagger: 0.06 }, D * 0.35);
+      tl.fromTo($$('.h2-station', L.hub), { opacity: 0, y: pxs(16) }, { opacity: 1, y: 0, duration: D * 0.7, ease: 'power2.out', stagger: 0.05 }, D * 0.42);
     }
     S.level = 'hub'; logosColor(hubFg(p), hubDark(p)); updateHUD();
     await tl;
