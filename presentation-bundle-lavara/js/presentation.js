@@ -9,6 +9,7 @@ import { initZoom } from './core/zoom.js';
 import { createSync } from './core/sync.js';
 import { registerFonts, applyTypography, fontsReady } from './core/fonts.js';
 import { BrandTexture, BUNDLE_SCENES } from './core/texture.js';
+import { watchForUpdates } from './core/fresh.js';
 import { TEMPLATES, slideLabel, slideMedia, mediaHTML } from './core/templates.js';
 
 const gsap = window.gsap;
@@ -1465,3 +1466,4 @@ async function boot() {
   broadcastState();
 }
 boot();
+watchForUpdates();

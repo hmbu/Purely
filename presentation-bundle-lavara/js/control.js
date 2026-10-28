@@ -1,6 +1,7 @@
 // Control panel: structure tree, schema-driven slide editor, brands, global settings, Decision Point + Closing,
 // live show remote, backups. Every edit is pushed live to the show and auto-saved to content.json.
 import { $, $$, esc, uid, clone, debounce, fmtClock } from './core/util.js';
+import { watchForUpdates } from './core/fresh.js';
 import { projectsOf, allProjectsOf, sectionsOf, slidesOf, locate } from './core/model.js';
 import { loadContent, saveContent, hasServer, hasGithub, backendMode, githubConfig, setGithubConfig, testGithub, listBackups, getBackup, makeBackup, uploadFile, listFiles, serverInfo, getDecisionLog } from './core/store.js';
 import { createSync } from './core/sync.js';
@@ -782,3 +783,4 @@ addEventListener('beforeunload', e => { if ($('#saveState').classList.contains('
   pushPreview(true);
   sync.send('hello', {});
 })();
+watchForUpdates();

@@ -41,6 +41,8 @@ jobs:
         run: |
           V="${GITHUB_SHA::8}"
           find _site -maxdepth 1 -name '*.html' -exec sed -i -E "s#(href=\"css/[^\"?]+\.css)\"#\1?v=$V\"#g; s#(src=\"(js|assets/vendor)/[^\"?]+\.js)\"#\1?v=$V\"#g" {} +
+          echo "$V" > _site/version.txt
+          find _site -maxdepth 1 -name '*.html' -exec sed -i -E "s#^<html #<html data-build=\"$V\" #" {} +
           find _site/js -name '*.js' -exec sed -i -E "s#(from ['\"]\.{1,2}/[^'\"?]+\.js)(['\"])#\1?v=$V\2#g; s#(import\(['\"]\.{1,2}/[^'\"?]+\.js)(['\"])#\1?v=$V\2#g" {} +
       - uses: actions/upload-pages-artifact@v3
         with:
