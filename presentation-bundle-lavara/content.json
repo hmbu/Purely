@@ -2,7 +2,7 @@
   "version": 1,
   "meta": {
     "title": "Bundle × Lavara",
-    "updatedAt": "2026-10-25T13:31:44.471Z"
+    "updatedAt": "2026-10-28T16:37:10.190Z"
   },
   "fonts": [
     {
@@ -116,7 +116,8 @@
       "sectionTransition": "hub",
       "afterSection": "wait"
     },
-    "tone": "quiet"
+    "tone": "quiet",
+    "eyebrows": false
   },
   "projects": [
     {
@@ -256,30 +257,6 @@
                 "mode": "full",
                 "eyebrow": "Purpose",
                 "title": ""
-              }
-            },
-            {
-              "id": "sl-004",
-              "template": "image-text",
-              "transition": "drift",
-              "bg": "auto",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "image": {
-                  "src": "assets/bundle/sample/office.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 45,
-                    "y": 40
-                  }
-                },
-                "eyebrow": "Audience",
-                "title": "لمن يدير الهدايا\nفي الشركة",
-                "body": "مسؤولو الموارد البشرية ومديرو المكاتب، والمؤسس أو مسؤول العمليات في الشركات الصغيرة. يهتمون بتقدير الموظفين، لكن الهدايا ليست كل عملهم.",
-                "imageSide": "left",
-                "imageWidth": 50,
-                "framed": false
               }
             }
           ],
@@ -700,372 +677,6 @@
               }
             },
             {
-              "id": "sl-009",
-              "template": "journey",
-              "transition": "drift",
-              "bg": "auto",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "Concepts",
-                "title": "الهوية",
-                "stepped": true,
-                "stages": [
-                  {
-                    "label": "الوصول",
-                    "title": "الوصول",
-                    "body": "",
-                    "image": {
-                      "src": ""
-                    }
-                  },
-                  {
-                    "label": "الغرفة",
-                    "title": "الغرفة",
-                    "body": "",
-                    "image": {
-                      "src": ""
-                    }
-                  },
-                  {
-                    "label": "التجربة",
-                    "title": "التجربة",
-                    "body": "",
-                    "image": {
-                      "src": ""
-                    }
-                  },
-                  {
-                    "label": "الذكرى",
-                    "title": "الذكرى",
-                    "body": "",
-                    "image": {
-                      "src": ""
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "id": "sl-bp1",
-              "template": "product",
-              "transition": "drift",
-              "bg": "background",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "Onboarding",
-                "title": "هدية الموظف الجديد #1",
-                "body": "باقة عملية وأنيقة تضم أساسيات المكتب اليومية للموظف الجديد، مع ستاند مميز يعرض رسالة الشركة وقيمها، ليكون جزءاً من مساحة عمله وتجربة انضمامه منذ اليوم الأول.",
-                "image": {
-                  "src": "assets/bundle/products/new-employee-1.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 50,
-                    "y": 50
-                  }
-                },
-                "gallery": [
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-1-a.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-1-b.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-1-c.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-1-d.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  }
-                ],
-                "attrs": [
-                  {
-                    "label": "نوع الهدية",
-                    "value": "باكج",
-                    "chip": true,
-                    "alt": "منتج فردي"
-                  },
-                  {
-                    "label": "مستوى التخصيص",
-                    "value": "متوسط",
-                    "chip": true,
-                    "alt": ""
-                  },
-                  {
-                    "label": "مناسبات فرعية",
-                    "value": "مكتب جديد، انتقال لقسم آخر، العودة للمكتب.",
-                    "chip": false,
-                    "alt": ""
-                  },
-                  {
-                    "label": "الفئة السعرية",
-                    "value": "متوسطة",
-                    "chip": true,
-                    "alt": ""
-                  }
-                ],
-                "codes": "P21, P15, P8, P11, P37"
-              }
-            },
-            {
-              "id": "sl-bp2",
-              "template": "product",
-              "transition": "drift",
-              "bg": "background",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "Onboarding",
-                "title": "هدية الموظف الجديد #2",
-                "body": "مجموعة متكاملة تجمع بين الأدوات العملية ومنتجات تساعد على جعل تجربة العمل اليومية أكثر راحة وتميزاً.",
-                "image": {
-                  "src": "assets/bundle/products/new-employee-2.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 50,
-                    "y": 50
-                  }
-                },
-                "gallery": [
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-2-a.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-2-b.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-2-c.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-2-d.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  }
-                ],
-                "attrs": [
-                  {
-                    "label": "نوع الهدية",
-                    "value": "باكج",
-                    "chip": true,
-                    "alt": "منتج فردي"
-                  },
-                  {
-                    "label": "مستوى التخصيص",
-                    "value": "متوسط",
-                    "chip": true,
-                    "alt": ""
-                  },
-                  {
-                    "label": "مناسبات فرعية",
-                    "value": "مكتب جديد، انتقال لقسم آخر، العودة للمكتب، تقدير موظف.",
-                    "chip": false,
-                    "alt": ""
-                  },
-                  {
-                    "label": "الفئة السعرية",
-                    "value": "عالية",
-                    "chip": true,
-                    "alt": ""
-                  }
-                ],
-                "codes": "P1, P38, P46, P15, P47"
-              }
-            },
-            {
-              "id": "sl-bp3",
-              "template": "product",
-              "transition": "drift",
-              "bg": "background",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "Onboarding",
-                "title": "هدية الموظف الجديد #3",
-                "body": "مجموعة بسيطة وعملية لتجهيز مساحة العمل، تجمع بين أساسيات المكتب ومنتجات بسيطة تضيف طابعاً شخصياً للمكان.",
-                "image": {
-                  "src": "assets/bundle/products/new-employee-3.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 50,
-                    "y": 50
-                  }
-                },
-                "gallery": [
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-3-a.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-3-b.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-3-c.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "image": {
-                      "src": "assets/bundle/products/new-employee-3-d.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  }
-                ],
-                "attrs": [
-                  {
-                    "label": "نوع الهدية",
-                    "value": "باكج",
-                    "chip": true,
-                    "alt": "منتج فردي"
-                  },
-                  {
-                    "label": "مستوى التخصيص",
-                    "value": "بسيط - متوسط",
-                    "chip": true,
-                    "alt": ""
-                  },
-                  {
-                    "label": "مناسبات فرعية",
-                    "value": "مكتب جديد، انتقال لقسم آخر، العودة للمكتب، تقدير موظف.",
-                    "chip": false,
-                    "alt": ""
-                  },
-                  {
-                    "label": "الفئة السعرية",
-                    "value": "منخفضة",
-                    "chip": true,
-                    "alt": ""
-                  }
-                ],
-                "codes": "P44, P45, P34, P15, P8"
-              }
-            },
-            {
-              "id": "sl-bp4",
-              "template": "product",
-              "transition": "drift",
-              "bg": "background",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "Farewell",
-                "title": "وداعية الموظف #1",
-                "body": "باقة وداع تذكارية صُممت لتوثيق اللحظات الأخيرة للموظف مع فريقه، وتضم كاميرا فورية مخصصة وبطاقة لكتابة رسائل الوداع وأطيب التمنيات، لتكون ذكرى شخصية ومعنوية من الفريق.",
-                "image": {
-                  "src": "assets/bundle/products/farewell-1.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 50,
-                    "y": 50
-                  }
-                },
-                "gallery": [],
-                "attrs": [
-                  {
-                    "label": "نوع الهدية",
-                    "value": "باكج",
-                    "chip": true,
-                    "alt": ""
-                  },
-                  {
-                    "label": "مستوى التخصيص",
-                    "value": "بسيط - متوسط",
-                    "chip": true,
-                    "alt": ""
-                  },
-                  {
-                    "label": "مناسبات فرعية",
-                    "value": "حفل داخلي، ختام دورات تدريبية.",
-                    "chip": false,
-                    "alt": ""
-                  },
-                  {
-                    "label": "الفئة السعرية",
-                    "value": "منخفض - متوسط",
-                    "chip": true,
-                    "alt": ""
-                  }
-                ],
-                "codes": "P41"
-              }
-            },
-            {
               "id": "sl-gp-partners",
               "template": "partners",
               "transition": "drift",
@@ -1154,61 +765,6 @@
                   }
                 ]
               }
-            },
-            {
-              "id": "sl-00b",
-              "template": "brand-grid",
-              "transition": "drift",
-              "bg": "auto",
-              "notes": "",
-              "hidden": true,
-              "data": {
-                "eyebrow": "Brands Selection",
-                "title": "العلامات المختارة",
-                "columns": 4,
-                "items": [
-                  {
-                    "logo": "",
-                    "name": "علامة 1",
-                    "note": ""
-                  },
-                  {
-                    "logo": "",
-                    "name": "علامة 2",
-                    "note": ""
-                  },
-                  {
-                    "logo": "",
-                    "name": "علامة 3",
-                    "note": ""
-                  },
-                  {
-                    "logo": "",
-                    "name": "علامة 4",
-                    "note": ""
-                  },
-                  {
-                    "logo": "",
-                    "name": "علامة 5",
-                    "note": ""
-                  },
-                  {
-                    "logo": "",
-                    "name": "علامة 6",
-                    "note": ""
-                  },
-                  {
-                    "logo": "",
-                    "name": "علامة 7",
-                    "note": ""
-                  },
-                  {
-                    "logo": "",
-                    "name": "علامة 8",
-                    "note": ""
-                  }
-                ]
-              }
             }
           ],
           "desc": "الهدايا والعلامات المختارة"
@@ -1221,23 +777,18 @@
           "slides": [
             {
               "id": "sl-006",
-              "template": "device",
+              "template": "title",
               "transition": "drift",
               "bg": "auto",
               "notes": "",
               "hidden": false,
               "data": {
-                "device": "laptop",
-                "screens": [
-                  {
-                    "src": ""
-                  }
-                ],
-                "laptop": "assets/bundle/sample/product-page.jpg",
-                "interval": 3.5,
                 "eyebrow": "Digital Product",
-                "title": "تجربة طلب\nبلا عناء",
-                "body": "من اختيار الهدية إلى استلامها، في مكان واحد."
+                "title": "تجربـة المنتـج الرقمـي",
+                "subtitle": "",
+                "align": "center",
+                "showLogo": false,
+                "showMark": true
               }
             },
             {
