@@ -400,6 +400,7 @@ function renderEditor() {
     ed.append(group('البيانات', ...renderFields([
       { key: 'title', type: 'text', label: 'اسم القسم' },
       { key: 'titleEn', type: 'text', label: 'الاسم الإنجليزي (Eyebrow)' },
+      { key: 'desc', type: 'text', label: 'وصف قصير تحت العنوان (صفحة المشروع)' },
       { key: 'hidden', type: 'toggle', label: 'إخفاء من العرض', rerender: true },
     ], s, { path: s.id, uploadDir: upload, onChange: renderTreeSoon })));
     ed.append(group('إضافة شريحة بقالب', templatePicker(null, t => addSlide(s, t))));
@@ -583,6 +584,7 @@ function renderDecisionTab() {
   f.append(group('نقطة القرار', ...renderFields([
     { key: 'title', type: 'text', label: 'اسم المحطة في الإطار المشترك' },
     { key: 'titleEn', type: 'text', label: 'اسم المحطة بالإنجليزية' },
+    { key: 'desc', type: 'text', label: 'وصف قصير تحت اسم المحطة' },
     { key: 'eyebrow', type: 'text', label: 'عنوان صغير' },
     { key: 'question', type: 'textarea', rows: 2, label: 'السؤال' },
     { key: 'groups', type: 'list', label: 'بنود القرار', item: [

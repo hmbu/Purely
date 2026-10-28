@@ -137,6 +137,10 @@ button { font: inherit; color: inherit; }
 .t-title .s-copy { align-items: center; text-align: center; }
 .t-title.align-start { justify-content: flex-start; }
 .t-title.align-start .s-copy { align-items: flex-start; text-align: right; }
+/* the project's wordmark in place of a written title: a fixed box, the mask keeps the logo's own proportions */
+.t-title .t-logo { margin: 0; line-height: 0; }
+.t-title .t-logo .logo-mask { display: block; width: 78rem; height: 17rem; }
+.t-title.align-start .t-logo .logo-mask { -webkit-mask-position: right center; mask-position: right center; }
 .t-title .s-watermark { position: absolute; inset: 0; display: grid; place-items: center; color: var(--saccent); }
 .t-title .s-watermark .logo-mask { width: 58rem; height: 58rem; opacity: .07; }
 [data-style="bubbles"] .t-title .s-watermark { place-items: end start; }
@@ -582,6 +586,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .h2-dot::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: var(--hair) solid rgba(245, 241, 232, .5); opacity: 0; transform: scale(.6); transition: opacity 1s, transform 1.2s cubic-bezier(.16, 1, .3, 1); }
 .h2-title { font-family: var(--f-title); font-weight: var(--w-title); font-size: 2.3rem; line-height: 1.3; text-align: center; opacity: .78; transition: opacity 1s; }
 .h2-en { margin-top: 1rem; font-size: .9rem; letter-spacing: .3em; text-transform: uppercase; opacity: .45; }
+.h2-desc { margin-top: .9rem; max-width: 24rem; font-size: 1.35rem; line-height: 1.55; text-align: center; opacity: .55; transition: opacity 1s; }
+.h2-station.is-lit .h2-desc { opacity: .85; }
 .h2-station.is-visited .h2-dot i { background: var(--glow); opacity: .9; }
 .h2-station.is-visited .h2-num { opacity: .35; }
 .h2-station.is-lit .h2-num { opacity: 1; transform: translateY(-.4rem); }

@@ -213,11 +213,12 @@
               "notes": "",
               "hidden": false,
               "data": {
-                "eyebrow": "Bundle",
+                "eyebrow": "",
                 "title": "باندل",
                 "subtitle": "هدايا الشركات، بإحساس إنساني",
                 "align": "center",
-                "showMark": true
+                "showMark": true,
+                "showLogo": true
               }
             },
             {
@@ -281,7 +282,8 @@
                 "framed": false
               }
             }
-          ]
+          ],
+          "desc": "الاسم والشعار والألوان"
         },
         {
           "id": "sec-b-model",
@@ -304,12 +306,13 @@
                 "showMark": true
               }
             }
-          ]
+          ],
+          "desc": "كيف نعمل ونحقق الإيراد"
         },
         {
           "id": "sec-00a",
-          "title": "المنتجات والعلامات",
-          "titleEn": "Products & Brands",
+          "title": "المنتجات",
+          "titleEn": "Products",
           "hidden": false,
           "slides": [
             {
@@ -733,12 +736,13 @@
                 ]
               }
             }
-          ]
+          ],
+          "desc": "الهدايا والعلامات المختارة"
         },
         {
           "id": "sec-008",
-          "title": "ديمو المنتج الرقمي",
-          "titleEn": "Digital Product Demo",
+          "title": "المنتج الرقمي",
+          "titleEn": "Digital Product",
           "hidden": false,
           "slides": [
             {
@@ -785,7 +789,8 @@
                 "shade": false
               }
             }
-          ]
+          ],
+          "desc": "تجربة الطلب أونلاين"
         },
         {
           "id": "sec-00f",
@@ -990,11 +995,12 @@
               "notes": "",
               "hidden": false,
               "data": {
-                "eyebrow": "Lavara",
+                "eyebrow": "",
                 "title": "لافارا",
                 "subtitle": "عطور وعناية · by Al Majed Oud",
                 "align": "center",
-                "showMark": true
+                "showMark": true,
+                "showLogo": true
               }
             },
             {
@@ -1058,7 +1064,8 @@
                 "framed": true
               }
             }
-          ]
+          ],
+          "desc": "الاسم والشعار والألوان"
         },
         {
           "id": "sec-l-model",
@@ -1081,12 +1088,13 @@
                 "showMark": true
               }
             }
-          ]
+          ],
+          "desc": "كيف نعمل ونحقق الإيراد"
         },
         {
           "id": "sec-00o",
-          "title": "المنتجات والعطور",
-          "titleEn": "Products & Fragrances",
+          "title": "المنتجات",
+          "titleEn": "Products",
           "hidden": false,
           "slides": [
             {
@@ -1200,12 +1208,13 @@
                 ]
               }
             }
-          ]
+          ],
+          "desc": "العطور ومنتجات العناية"
         },
         {
           "id": "sec-l-commercial",
-          "title": "التحديث التجاري",
-          "titleEn": "Commercial Update",
+          "title": "الأعمال",
+          "titleEn": "Business",
           "hidden": false,
           "slides": [
             {
@@ -1217,18 +1226,19 @@
               "hidden": false,
               "data": {
                 "eyebrow": "Lavara",
-                "title": "التحديث التجاري",
+                "title": "الأعمال",
                 "subtitle": "",
                 "align": "center",
                 "showMark": true
               }
             }
-          ]
+          ],
+          "desc": "الفنادق والعملاء والتقدّم"
         },
         {
           "id": "sec-00q",
-          "title": "ديمو المنتج الرقمي",
-          "titleEn": "Digital Product Demo",
+          "title": "المنتج الرقمي",
+          "titleEn": "Digital Product",
           "hidden": false,
           "slides": [
             {
@@ -1255,7 +1265,8 @@
                 "framed": false
               }
             }
-          ]
+          ],
+          "desc": "تجربة الطلب أونلاين"
         },
         {
           "id": "sec-00v",
@@ -1410,8 +1421,8 @@
       "sections": [
         {
           "id": "sec-sh-ops",
-          "title": "مراجعة النموذج التشغيلي",
-          "titleEn": "Operating Model Review",
+          "title": "النموذج التشغيلي",
+          "titleEn": "Operating Model",
           "hidden": false,
           "slides": [
             {
@@ -1423,18 +1434,19 @@
               "hidden": false,
               "data": {
                 "eyebrow": "Shared",
-                "title": "مراجعة النموذج التشغيلي",
+                "title": "النموذج التشغيلي",
                 "subtitle": "",
                 "align": "center",
                 "showMark": true
               }
             }
-          ]
+          ],
+          "desc": "الفريق والأدوار وطريقة العمل"
         },
         {
           "id": "sec-sh-finance",
-          "title": "مراجعة النموذج المالي",
-          "titleEn": "Financial Model Review",
+          "title": "النموذج المالي",
+          "titleEn": "Financial Model",
           "hidden": false,
           "slides": [
             {
@@ -1608,12 +1620,13 @@
                 ]
               }
             }
-          ]
+          ],
+          "desc": "التكاليف والإيرادات والتوقعات"
         },
         {
           "id": "sec-sh-legal",
-          "title": "التحديث القانوني",
-          "titleEn": "Legal Update",
+          "title": "القانوني",
+          "titleEn": "Legal",
           "hidden": false,
           "slides": [
             {
@@ -1854,7 +1867,8 @@
                 ]
               }
             }
-          ]
+          ],
+          "desc": "الشركات والعقود والتراخيص"
         }
       ]
     }
@@ -1923,7 +1937,8 @@
       }
     ],
     "title": "الاعتماد",
-    "titleEn": "Approval"
+    "titleEn": "Approval",
+    "desc": "القرارات المطلوبة اليوم"
   },
   "closing": {
     "layout": "logos",

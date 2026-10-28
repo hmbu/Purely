@@ -653,11 +653,11 @@ function renderHub(p) {
             <span class="h2-num latin">${String(i + 1).padStart(2, '0')}</span>
             <span class="h2-dot"><i></i></span>
             <span class="h2-title">${escBr(s.title)}</span>
-            ${s.titleEn ? `<span class="h2-en latin">${esc(s.titleEn)}</span>` : ''}
+            ${s.desc ? `<span class="h2-desc">${esc(s.desc)}</span>` : s.titleEn ? `<span class="h2-en latin">${esc(s.titleEn)}</span>` : ''}
           </button>`).join('')}
         ${decI >= 0 ? `<button class="h2-station is-final ${decI === nextI ? 'is-next' : ''}" data-special="decision" data-i="${decI}">
             <span class="h2-num latin">${String(decI + 1).padStart(2, '0')}</span><span class="h2-dot"><i></i></span>
-            <span class="h2-title">${esc(S.content.decision?.title || 'القرارات')}</span><span class="h2-en latin">${esc(S.content.decision?.titleEn || 'Decisions')}</span></button>` : ''}
+            <span class="h2-title">${esc(S.content.decision?.title || 'القرارات')}</span>${S.content.decision?.desc ? `<span class="h2-desc">${esc(S.content.decision.desc)}</span>` : `<span class="h2-en latin">${esc(S.content.decision?.titleEn || 'Decisions')}</span>`}</button>` : ''}
       </div>
     </div>`;
   fixAspects(L.hub);

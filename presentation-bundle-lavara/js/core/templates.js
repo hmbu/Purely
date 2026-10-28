@@ -95,12 +95,13 @@ export const TEMPLATES = {
     name: 'عنوان فقط', en: 'Title only', group: 'core', defaultBg: 'background',
     fields: [F.eyebrow, F.title, { key: 'subtitle', type: 'textarea', rows: 2, label: 'سطر فرعي' },
       { key: 'align', type: 'select', label: 'المحاذاة', options: [['center', 'وسط'], ['start', 'يمين']] },
+      { key: 'showLogo', type: 'toggle', label: 'شعار المشروع بدل العنوان' },
       { key: 'showMark', type: 'toggle', label: 'إظهار رمز العلامة بخفة' }],
-    defaults: { eyebrow: '', title: 'عنوان', subtitle: '', align: 'center', showMark: true },
+    defaults: { eyebrow: '', title: 'عنوان', subtitle: '', align: 'center', showLogo: false, showMark: true },
     render: (d, ctx) => `
       <div class="t t-title align-${esc(d.align || 'center')}">
         ${d.showMark && ctx.brand.mark ? `<div class="s-watermark" data-a="bg">${logoHTML(ctx.brand.mark, ctx)}</div>` : ''}
-        <div class="s-copy">${eyebrow(d.eyebrow)}${title(d.title, 'is-xl')}${body(d.subtitle, 'is-lead')}</div>
+        <div class="s-copy">${eyebrow(d.eyebrow)}${d.showLogo && ctx.brand.logo ? `<h1 class="t-logo" data-a="title" aria-label="${esc(d.title || '')}">${logoHTML(ctx.brand.logo, ctx)}</h1>` : title(d.title, 'is-xl')}${body(d.subtitle, 'is-lead')}</div>
       </div>`,
   },
 

@@ -76,3 +76,5 @@
 - Shared: مراجعة النموذج التشغيلي (new) · مراجعة النموذج المالي · التحديث القانوني · الاعتماد (decision station renamed; `decision.title/titleEn`, editable in the control panel).
 - "قصة التجربة الكاملة" is hidden in both projects (not deleted).
 - Opening section (welcome + Q1 review) postponed; approach proposed to the user, waiting for content.
+- Titles simplified (user): Bundle الهوية · نموذج العمل · المنتجات · المنتج الرقمي; Lavara adds الأعمال; shared النموذج التشغيلي · النموذج المالي · القانوني · الاعتماد. Each station shows a short Arabic line (`section.desc`, `decision.desc`) instead of the English label.
+- Project opening slides show the brand wordmark instead of the written name (title template option `showLogo`).
