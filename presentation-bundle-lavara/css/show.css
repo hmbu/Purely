@@ -1359,3 +1359,6 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="lavara"] .cv-b::after { border-color: #fff; opacity: .3; }
 [data-brand="lavara"] .cv-legend { color: #1E1B17; }
 [data-brand="lavara"] .cv-legend i { border-radius: .2rem; }
+/* opening screen: a Bundle scene with a light ground keeps its shapes clear and the words in its ink */
+.uf-world.is-light .uf-shade { background: linear-gradient(rgba(255, 255, 255, .25), transparent 30%, transparent 70%, rgba(255, 255, 255, .2)); }
+.uf-world.is-light::after { mix-blend-mode: multiply; opacity: .06; }

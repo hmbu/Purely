@@ -129,6 +129,18 @@ function logosColor(fg, dark) {
   const h = settings().headerLogos || {};
   logosEl.style.color = h.autoContrast === false ? (h.color || fg) : fg;
   logosEl.classList.toggle('is-dark', !!dark);
+  $$('.hl', logosEl).forEach(x => { x.style.color = ''; });
+  if (S.level === 'universe' && h.autoContrast !== false) setTimeout(tintLogosOverWorlds, 50);
+}
+// Opening screen: a logo standing over a light world (a Bundle scene's light ground) takes that world's ink.
+function tintLogosOverWorlds() {
+  if (S.level !== 'universe') return;
+  const worlds = $$('.uf-world', L.universe);
+  $$('.hl', logosEl).forEach(x => {
+    const r = x.getBoundingClientRect(), cx = r.left + r.width / 2;
+    const w = worlds.find(w => { const q = w.getBoundingClientRect(); return cx >= q.left && cx <= q.right; });
+    x.style.color = w?.classList.contains('is-light') ? getComputedStyle(w).color : '';
+  });
 }
 
 /* ======================================================================= HUD */
@@ -610,7 +622,8 @@ const UNIVERSE_HTML = {
       </button>`).join('')}</div>`,
   fusion: ps => `<div class="uf-row">${ps.map((p, i) => {
       const c = p.brand.colors || {};
-      return `<button class="world uf-world style-${p.brand.texture === 'mist' ? 'mist' : 'bubbles'}" data-project="${esc(p.id)}" style="--wbg:${c.primary || '#222'};--glow:${c.secondary || '#fff'}">
+      const sc = sceneOf(p); // a Bundle scene brings its own ground and ink here too
+      return `<button class="world uf-world style-${p.brand.texture === 'mist' ? 'mist' : 'bubbles'}${sc && !isDarkHex(sc.ground) ? ' is-light' : ''}" data-project="${esc(p.id)}" style="--wbg:${sc ? sc.ground : c.primary || '#222'};--glow:${c.secondary || '#fff'}${sc ? `;color:${sc.ink}` : ''}">
         <div class="w-bg"><canvas class="w-tex"></canvas></div><div class="uf-shade"></div>
         <div class="uf-content">${num(i)}${logoTint(p, 'uf-logo')}${tag(p)}</div>
       </button>`;
@@ -663,10 +676,11 @@ function renderUniverse() {
     if ((!legacy && !fusion) || !cv || (legacy && (p.brand.universe?.visual === 'color' || p.brand.universe?.visual === 'image')) || reduced()) { worldTex.push({ stop() {}, start() {}, set() {} }); return; }
     const { tex, fresh } = pooledTexture(`world-${layout === 'fusion' ? 'f' : 'l'}-${p.id}${p.brand.textureStyle || ''}`, cv, p.brand.texture === 'mist' && !crisp(p) ? 0.3 : 0.5);
     const mist = p.brand.texture === 'mist';
-    tex._base = fusion ? { progress: mist ? 0.36 : 0.05, speed: 0.4 } : { progress: mist ? 0.36 : 0.3, speed: 0.6 };
+    const scene = !!sceneOf(p);
+    tex._base = scene ? { progress: 1, speed: 1 } : fusion ? { progress: mist ? 0.36 : 0.05, speed: 0.4 } : { progress: mist ? 0.36 : 0.3, speed: 0.6 };
     const tc = p.brand.textureColors || [];
     const colors = fusion ? (mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]]) : ambientColors(p);
-    tex.set({ mode: p.brand.texture, variant: p.brand.textureStyle, colors, progress: tex._base.progress, alpha: fusion ? (mist ? 0.42 : 0.26) : 0.9, speed: tex._base.speed, sweep: 0, ...(fresh ? { seed: i * 7 + 3 } : {}) });
+    tex.set({ mode: p.brand.texture, variant: p.brand.textureStyle, colors, progress: tex._base.progress, alpha: scene ? 1 : fusion ? (mist ? 0.42 : 0.26) : 0.9, speed: tex._base.speed, sweep: 0, ...(fresh ? { seed: i * 7 + 3 } : {}) });
     worldTex.push(tex);
   });
   $('.u-down', L.universe)?.addEventListener('click', e => { e.stopPropagation(); command('shared'); });
@@ -1047,6 +1061,7 @@ async function toUniverse() {
   logosColor(universeColors().fg, true);
   startWorlds(true); updateHUD();
   await tl;
+  setTimeout(tintLogosOverWorlds, 1400); // after the logos settle in their hero place
   unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
   [L.section, L.hub, L.special].forEach(l => { show(l, false); gsap.set(l, { clearProps: 'all' }); });
   morphEl.classList.remove('on'); gsap.set(morphEl, { clearProps: 'all' });
@@ -1343,7 +1358,7 @@ function toUniverseInstant() {
   [L.section, L.hub, L.special].forEach(l => show(l, false));
   S.level = 'universe'; S.pid = S.sid = null;
   applyBrand(null, false); renderUniverse(); show(L.universe, true); startWorlds(true);
-  logosColor(universeColors().fg, true); placeLogos('hero', false); updateHUD();
+  logosColor(universeColors().fg, true); placeLogos('hero', false); updateHUD(); setTimeout(tintLogosOverWorlds, 2600);
 }
 
 /* ======================================================================= preview mode (control panel iframe) */
