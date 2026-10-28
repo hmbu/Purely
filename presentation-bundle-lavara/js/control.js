@@ -455,7 +455,7 @@ function renderBrands() {
   const ctx = { path: 'brand-' + p.id, uploadDir: `assets/${p.id}` };
   f.append(group('المشروع', ...renderFields([{ key: 'name', type: 'text', label: 'الاسم (لاتيني)' }, { key: 'nameAr', type: 'text', label: 'الاسم بالعربية' }, { key: 'tagline', type: 'text', label: 'السطر التعريفي' }], p, { ...ctx, onChange: renderTreeSoon })));
   if (b.texture !== 'mist') f.append(group('خلفية بندل المتحركة', renderField({ key: 'textureStyle', type: 'select', label: 'اختر شكل الخلفية', options: [['bubbles', 'فقاعات تندمج (السابق)'],
-    ['orbs', '١ · كرات منفصلة تطفو ولا تندمج'], ['strips', '٢ · شرائط بأشكال الهوية'], ['stacks', '٣ · أعمدة دوائر متحركة']] }, b, ctx)));
+    ['orbs', '١ · كرات منفصلة تطفو ولا تندمج'], ['strips', '٢ · شرائط بأشكال الهوية'], ['stacks', '٣ · أعمدة دوائر متحركة'], ['meadow', '٤ · أرضية كريمية · أشكال تطفو وتدور'], ['sunrise', '٥ · أرضية سماوية · أنصاف دوائر تشرق وتغيب'], ['bloom', '٦ · أرضية وردية · حقل دوائر يتنفس'], ['rhythm', '٧ · أرضية ليموني · أعمدة ترتفع وتنخفض'], ['orbit', '٨ · أرضية خضراء · كرات في مدارات']] }, b, ctx)));
   if (b.texture === 'mist') f.append(group('خلفية لافارا المتحركة', renderField({ key: 'textureStyle', type: 'select', label: 'اختر شكل الخلفية', options: [['mist', 'الضباب (السابق)'],
     ['silk', '١ · سائل صابون — طيّات حريرية'], ['lather', '٢ · سائل صابون مع رغوة خفيفة'], ['pour', '٣ · سائل صابون ينساب للأسفل'],
     ['drop', '٤ · قطرات على سائل كثيف'], ['swirl', '٥ · دوامة سائل وكريم'], ['soap', '٦ · صابون طبيعي — رخام'],

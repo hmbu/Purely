@@ -317,7 +317,106 @@ void main(){
 const STRIPS = COMMON + SPHERE + '\n#define STRIPS_N 6.0\n#define STRIPS_EMPTY 0.18\n#define STRIPS_BG (u_col[int(mod(si, 4.0))] * 0.82)\n#define STRIPS_ALPHA_BG 1.0\n' + STRIP_SRC;
 // Bundle: the website page — columns of touching circles on the background, moving up and down.
 const STACKS = COMMON + SPHERE + '\n#define STRIPS_N 7.0\n#define STRIPS_EMPTY -1.0\n#define STRIPS_BG vec3(0.0)\n#define STRIPS_ALPHA_BG 0.0\n' + STRIP_SRC.replace('float k = mod(ci + si * 2.0, 3.0);', 'float k = 0.0; if (hash(vec2(si, 1.0)) < 0.42) { o = vec4(0.0); return; }');
-const BUNDLE_STYLES = ['orbs', 'strips', 'stacks'];
+// Bundle scenes for the main screen: each brings its own ground from the brand palette and a motion made only of the
+// brand file's shapes (grainy gradient circles, half circles, rounded-end columns). The middle stays calm for the words.
+//   meadow  → cream ground: separate shapes floating and slowly turning
+//   sunrise → sky ground: half circles rising and setting along the floor, columns hanging from the top
+//   bloom   → pink ground: a field of circles and half circles breathing in a slow diagonal wave
+//   rhythm  → lime ground: rounded columns rising and falling like a slow equaliser, a sphere riding each
+//   orbit   → deep-green ground: spheres travelling on wide elliptical orbits at three depths
+export const BUNDLE_SCENES = {
+  meadow: { ground: '#F4EFE6', ink: '#245845' }, sunrise: { ground: '#CCE2F2', ink: '#0A1215' },
+  bloom: { ground: '#F2A9C2', ink: '#0A1215' }, rhythm: { ground: '#AEE67F', ink: '#245845' }, orbit: { ground: '#245845', ink: '#F9FAFC' },
+};
+const SCENE_SRC = `
+#define PI 3.14159265
+vec3 pairCol(float k, vec2 o){ vec3 a1, a2;
+  if (k < 0.5)      { a1 = vec3(0.929,0.776,0.969); a2 = vec3(0.91,0.45,0.373); }    // lilac → pink → coral
+  else if (k < 1.5) { a1 = vec3(0.875,0.89,0.573);  a2 = vec3(0.235,0.541,0.369); }  // lime → green
+  else if (k < 2.5) { a1 = vec3(0.8,0.886,0.949);   a2 = vec3(0.231,0.482,0.878); }  // sky → deep blue
+  else if (k < 3.5) { a1 = vec3(0.925,0.765,0.624); a2 = vec3(0.839,0.325,0.122); }  // peach → orange
+  else              { a1 = vec3(0.235,0.541,0.369); a2 = vec3(0.141,0.345,0.271); }  // green → deep green
+  float t = clamp(dot(o, normalize(vec2(0.55, -0.83))) * 0.5 + 0.5, 0.0, 1.0);
+  return mix(a1, a2, smoothstep(0.05, 0.95, t)); }
+mat2 rot(float a){ float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
+float sdDome(vec2 q, float r){ return max(length(q) - r, -q.y); }               // half circle, flat side down at y = 0
+float sdColumn(vec2 q, float r, float h){                                        // body from y = -h, rounded top at y = h
+  if (q.y > h) return length(q - vec2(0.0, h)) - r; return max(abs(q.x) - r, -h - q.y); }
+float h1(float i, float k){ return hash(vec2(i, k)); }
+void paint(inout vec3 col, inout float a, float d, float k, vec2 o, float px){
+  float m = 1.0 - smoothstep(-px, px, d); col = mix(col, pairCol(k, o), m); a = max(a, m); }
+void main(){
+  vec2 uv = gl_FragCoord.xy / u_res; float asp = u_res.x / u_res.y;
+  vec2 p = vec2(uv.x * asp, uv.y); float t = u_time; float px = 2.0 / u_res.y;
+  vec3 col = SCENE_GROUND; float a = 0.0;
+  float calm = 1.0 - smoothstep(0.55, 1.0, length((p - vec2(asp * 0.5, 0.58)) / vec2(asp * 0.36, 0.3)));
+#if SCENE == 1
+  for (int i = 0; i < 12; i++) { float fi = float(i);
+    float r = 0.055 + 0.075 * h1(fi, 1.0);
+    vec2 c = vec2((fi + 0.5) / 12.0 * asp + 0.08 * sin(t * 0.12 * (0.6 + h1(fi, 3.0)) + fi), 0.5 + (mod(fi, 2.0) < 0.5 ? 0.36 : -0.34) + 0.1 * sin(t * 0.1 * (0.6 + h1(fi, 4.0)) + fi * 1.7) + (h1(fi, 6.0) - 0.5) * 0.12);
+    vec2 q = rot(t * 0.12 * (h1(fi, 5.0) - 0.5) * 2.0 + fi) * (p - c); float k = mod(fi, 3.0), d;
+    if (k < 0.5) d = length(q) - r; else if (k < 1.5) d = sdDome(q + vec2(0.0, r * 0.42), r); else d = sdColumn(q, r * 0.48, r * 0.95);
+    paint(col, a, d, mod(fi * 7.0, 4.0), q / r, px);
+  }
+#elif SCENE == 2
+  float n = 7.0; float w = asp / n;
+  for (int i = 0; i < 7; i++) { float fi = float(i);
+    float r = w * (0.36 + 0.16 * sin(t * 0.35 + fi * 0.9));
+    vec2 q = p - vec2((fi + 0.5) * w, -0.02);
+    paint(col, a, sdDome(q, r), mod(fi * 3.0, 4.0) == 2.0 ? 1.0 : mod(fi * 3.0, 4.0), q / r, px);
+  }
+  for (int i = 0; i < 6; i++) { float fi = float(i);
+    float hh = 0.08 + 0.07 * (0.5 + 0.5 * sin(t * 0.28 + fi * 1.3));
+    vec2 q = (p - vec2((fi + 1.0) * asp / 7.0, 1.0)) * vec2(1.0, -1.0);
+    paint(col, a, sdColumn(q, w * 0.16, hh), mod(fi + 1.0, 4.0) == 2.0 ? 4.0 : mod(fi + 1.0, 4.0), q / 0.1, px);
+  }
+#elif SCENE == 3
+  float cols = 10.0; float cw = asp / cols; float rows = floor(1.0 / cw) + 1.0;
+  vec2 cell = floor(vec2(p.x / cw, p.y / cw)); vec2 q = (vec2(p.x, p.y) - (cell + 0.5) * cw);
+  float wave = 0.5 + 0.5 * sin(t * 0.55 - (cell.x + cell.y) * 0.55);
+  float r = cw * 0.44 * (0.35 + 0.65 * wave) * (1.0 - calm * 0.92);
+  float kind = mod(cell.x + cell.y, 2.0);
+  float d = kind < 0.5 ? length(q) - r : sdDome(q + vec2(0.0, r * 0.42), r);
+  float tone = mod(cell.x * 2.0 + cell.y, 4.0); tone = tone < 0.5 ? 4.0 : tone;
+  paint(col, a, d, tone, q / max(r, 1e-3), px);
+#elif SCENE == 4
+  float n = 9.0; float w = asp / n;
+  for (int i = 0; i < 9; i++) { float fi = float(i);
+    float hgt = 0.04 + 0.12 * (0.5 + 0.5 * sin(t * 0.42 + fi * 0.75)) * (0.6 + 0.4 * h1(fi, 2.0));
+    vec2 q = p - vec2((fi + 0.5) * w, 0.0);
+    float tone = mod(fi, 4.0); tone = tone == 1.0 ? 4.0 : tone;
+    paint(col, a, sdColumn(q, w * 0.34, hgt), tone, q / 0.15, px);
+    vec2 qb = p - vec2((fi + 0.5) * w, hgt + w * 0.34 + w * 0.36);
+    paint(col, a, length(qb) - w * 0.18, mod(fi + 2.0, 4.0) == 1.0 ? 4.0 : mod(fi + 2.0, 4.0), qb / (w * 0.18), px);
+  }
+  for (int i = 0; i < 5; i++) { float fi = float(i);
+    vec2 q = p - vec2(mod(fi * 0.37 * asp + t * 0.025 * (1.0 + fi * 0.2), asp + 0.2) - 0.1, 0.9 - 0.05 * fi);
+    float rr = 0.022 + 0.012 * h1(fi, 8.0); paint(col, a, length(q) - rr, mod(fi, 4.0) == 1.0 ? 4.0 : mod(fi, 4.0), q / rr, px);
+  }
+#else
+  vec2 ctr = vec2(asp * 0.5, 0.5);
+  for (int ring = 0; ring < 3; ring++) { float fr = float(ring);
+    float R = 0.32 + fr * 0.19; vec2 e = (p - ctr) / vec2(1.75, 1.0);
+    float line = abs(length(e) - R); col = mix(col, vec3(0.976), (1.0 - smoothstep(0.0, px * 0.8, line)) * 0.16);
+    for (int j = 0; j < 4; j++) { float fj = float(j);
+      float ang = t * (0.06 - fr * 0.015) * (mod(fr, 2.0) < 0.5 ? 1.0 : -1.0) + fj * PI * 0.5 + fr * 0.7;
+      vec2 c = ctr + vec2(cos(ang) * 1.75, sin(ang)) * R;
+      float rr = 0.03 + fr * 0.022 + 0.01 * h1(fj, fr);
+      vec2 q = p - c; paint(col, a, length(q) - rr, mod(fj + fr, 4.0), q / rr, px);
+    }
+  }
+#endif
+  // the middle stays quiet for the wordmark and the stations
+  col = mix(col, SCENE_GROUND, calm * 0.8 * a);
+  col += coarseGrain() * (0.06 + 0.1 * a);
+  // reveal for transitions: a soft wipe from the sweep side
+  float order = u_sweep >= 0.0 ? uv.x : 1.0 - uv.x;
+  float rv = smoothstep(order * 0.7, order * 0.7 + 0.3, u_progress * 1.0001);
+  o = vec4(col * rv * u_alpha, rv * u_alpha);
+}`;
+const hexVec = h => { const n = parseInt(h.slice(1), 16); return `vec3(${(((n >> 16) & 255) / 255).toFixed(3)}, ${(((n >> 8) & 255) / 255).toFixed(3)}, ${((n & 255) / 255).toFixed(3)})`; };
+const SCENE_PROGS = Object.entries(BUNDLE_SCENES).map(([name, sc], i) => [name, COMMON + SPHERE + `\n#define SCENE ${i + 1}\n#define SCENE_GROUND ${hexVec(sc.ground)}\n` + SCENE_SRC]);
+const BUNDLE_STYLES = ['orbs', 'strips', 'stacks', ...Object.keys(BUNDLE_SCENES)];
 
 const BALLS = 14;
 
@@ -348,7 +447,7 @@ export class BrandTexture {
     const gl = this.gl;
     const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    for (const [name, src] of [['bubbles', BUBBLES], ['mist', MIST], ['orbs', ORBS], ['strips', STRIPS], ['stacks', STACKS], ['silk', SILK], ['lather', LATHER], ['pour', POUR], ['drop', DROP], ['swirl', SWIRL], ['soap', SOAP], ['amber', AMBER]]) {
+    for (const [name, src] of [['bubbles', BUBBLES], ['mist', MIST], ['orbs', ORBS], ['strips', STRIPS], ['stacks', STACKS], ['silk', SILK], ['lather', LATHER], ['pour', POUR], ['drop', DROP], ['swirl', SWIRL], ['soap', SOAP], ['amber', AMBER], ...SCENE_PROGS]) {
       const prog = gl.createProgram();
       for (const [type, code] of [[gl.VERTEX_SHADER, VERT], [gl.FRAGMENT_SHADER, src]]) {
         const sh = gl.createShader(type); gl.shaderSource(sh, code); gl.compileShader(sh);

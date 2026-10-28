@@ -8,7 +8,7 @@ import { createEditor, edAttr } from './core/editor.js';
 import { initZoom } from './core/zoom.js';
 import { createSync } from './core/sync.js';
 import { registerFonts, applyTypography, fontsReady } from './core/fonts.js';
-import { BrandTexture } from './core/texture.js';
+import { BrandTexture, BUNDLE_SCENES } from './core/texture.js';
 import { TEMPLATES, slideLabel, slideMedia, mediaHTML } from './core/templates.js';
 
 const gsap = window.gsap;
@@ -119,8 +119,11 @@ function placeLogos(mode, animate = true) {
     x: first.left - last.left, y: first.top - last.top, scale: first.width / last.width, transformOrigin: '0 0',
   }, { x: 0, y: 0, scale: 1, duration: 1.4, ease: 'power3.inOut', clearProps: 'transform' });
 }
-const hubFg = p => { const c = p?.brand?.colors || {}; return isDarkHex(c.primary || '#222') ? (c.textLight || '#fff') : (c.text || '#111'); };
-const hubDark = p => isDarkHex(p?.brand?.colors?.primary || '#222');
+// a Bundle scene brings its own ground and ink for the main screen
+const sceneOf = p => (p?.brand?.texture !== 'mist' && BUNDLE_SCENES[p?.brand?.textureStyle]) || null;
+const hubGround = p => sceneOf(p)?.ground || p?.brand?.colors?.primary || '#222';
+const hubFg = p => { const sc = sceneOf(p); if (sc) return sc.ink; const c = p?.brand?.colors || {}; return isDarkHex(c.primary || '#222') ? (c.textLight || '#fff') : (c.text || '#111'); };
+const hubDark = p => isDarkHex(hubGround(p));
 function logosColor(fg, dark) {
   const h = settings().headerLogos || {};
   logosEl.style.color = h.autoContrast === false ? (h.color || fg) : fg;
@@ -490,7 +493,7 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
   const useVeil = !panel;
   coverEl.dataset.style = tex;
   coverEl.classList.toggle('is-panel', panel);
-  const cvBg = panel ? p.brand.colors.primary : (p.brand.textureColors || [])[0] || p.brand.colors.primary;
+  const cvBg = sceneOf(p)?.ground || (panel ? p.brand.colors.primary : (p.brand.textureColors || [])[0] || p.brand.colors.primary);
   // light grounds (the shared frame's paper) take the dark ink, never white on white
   coverEl.style.setProperty('--cv-fg', isDark(cvBg) ? p.brand.colors?.textLight || '#fff' : p.brand.colors?.title || p.brand.colors?.dark || '#1E1B17');
   coverEl.style.setProperty('--cv-bg', cvBg);
@@ -749,7 +752,7 @@ const quiet = () => (settings().tone || 'quiet') === 'quiet';
 
 /* ======================================================================= hub (project page) */
 // Lavara's material styles (liquid soap, soap bar, amber light) have defined edges and highlights: they need more pixels than the fog.
-const crisp = p => ['silk', 'lather', 'pour', 'drop', 'swirl', 'soap', 'amber', 'orbs', 'strips', 'stacks'].includes(p.brand.textureStyle);
+const crisp = p => ['silk', 'lather', 'pour', 'drop', 'swirl', 'soap', 'amber', 'orbs', 'strips', 'stacks', ...Object.keys(BUNDLE_SCENES)].includes(p.brand.textureStyle);
 // The project page continues the opening screen: brand colour + calm live texture, and the sections as
 // stations on a line of light. The light rests on the next section; hovering slides it to another station.
 let hubTex = null;
@@ -772,7 +775,7 @@ function renderHub(p) {
   S.hubTarget = nextI;
   const c = p.brand.colors || {};
   L.hub.innerHTML = `
-    <div class="hub2 style-${p.brand.texture === 'mist' ? 'mist' : 'bubbles'} ${hubDark(p) ? '' : 'is-light'}" style="--n:${secs.length + (decI >= 0 ? 1 : 0)};--hbg:${c.primary || '#222'};--hfg:${hubFg(p)};--glow:${c.secondary || '#fff'}">
+    <div class="hub2 style-${p.brand.texture === 'mist' ? 'mist' : 'bubbles'} ${hubDark(p) ? '' : 'is-light'}" style="--n:${secs.length + (decI >= 0 ? 1 : 0)};--hbg:${hubGround(p)};--hfg:${hubFg(p)};--glow:${c.secondary || '#fff'}">
       <div class="h2-bg"><canvas class="h2-tex"></canvas></div><div class="h2-shade"></div>
       <div class="h2-head">
         ${p.brand.logo ? `<span class="logo-mask h2-logo" data-ar-src="${esc(asset(p.brand.logo))}" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : `<h1 class="h2-name">${esc(isShared(p) ? (p.nameAr || p.name) : p.name)}</h1>`}
@@ -807,7 +810,8 @@ function renderHub(p) {
     const tc = p.brand.textureColors || []; const mist = p.brand.texture === 'mist';
     const { tex, fresh } = pooledTexture('hub-' + p.id + (p.brand.textureStyle || ''), cv, mist && !crisp(p) ? 0.3 : 0.5);
     hubTex = tex;
-    hubTex.set({ mode: p.brand.texture, variant: p.brand.textureStyle, colors: mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]], progress: mist ? 0.34 : 0.05, alpha: mist ? 0.4 : 0.24, speed: 0.4, sweep: 0, ...(fresh ? { seed: 11 } : {}) });
+    const scene = !!sceneOf(p);
+    hubTex.set({ mode: p.brand.texture, variant: p.brand.textureStyle, colors: mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]], progress: scene ? 1 : mist ? 0.34 : 0.05, alpha: scene ? 1 : mist ? 0.4 : 0.24, speed: scene ? 1 : 0.4, sweep: 0, ...(fresh ? { seed: 11 } : {}) });
     hubTex.start();
   }
 }

@@ -157,3 +157,7 @@
 - Business model canvas in three colour-coded parts with a small legend: feasibility (right), desirability with the value at its centre (left), viability (bottom). Legend names editable.
 - Operations numbers: 3 factories, +50 trials, +40 samples, +30 perfumes. Sectors: hotels block in dark brown.
 - Follow-up: Lavara words only white or near-black; canvas parts as solid colour families (olive / ochre / terracotta) with the value in dark brown; Lavara boxes lifted slightly with barely rounded corners.
+
+## Bundle main-screen scenes (2026-10-28)
+- Five new Bundle backgrounds, each with its own ground from the brand palette and motion from brand shapes only: meadow (cream, shapes floating and turning), sunrise (sky, half circles rising/setting, hanging columns), bloom (pink, breathing field of circles), rhythm (lime, columns rising and falling with spheres), orbit (deep green, spheres on orbits). The middle stays calm for the wordmark and stations; the hub's ink follows the ground. Chosen in the control panel (Bundle's animated background).
+- Waiting: the user's pick.
