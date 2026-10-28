@@ -1218,18 +1218,122 @@
           "hidden": false,
           "slides": [
             {
-              "id": "sl-l-commercial",
-              "template": "title",
+              "id": "sl-l-sectors",
+              "template": "sectors",
               "transition": "drift",
               "bg": "auto",
-              "notes": "Placeholder for the agenda item: add this section's content.",
+              "notes": "لكل قطاع وصف قصير لطلبه على منتجات لافارا، والشعارات في أسفل كل عمود. تواصلنا مع أكثر من 35 جهة، والشعارات أمثلة عليها.",
               "hidden": false,
               "data": {
-                "eyebrow": "Lavara",
-                "title": "الأعمال",
-                "subtitle": "",
-                "align": "center",
-                "showMark": true
+                "eyebrow": "Business",
+                "title": "تواصلنا مع أكثر من 35 جهة في أربعة قطاعات",
+                "items": [
+                  {
+                    "title": "الفنادق",
+                    "body": "تسعى الفنادق إلى هوية عطرية ومستلزمات ضيافة فاخرة تميّز تجربة النزيل وتعزز ولاءه",
+                    "logos": [
+                      {
+                        "logo": "assets/lavara/clients/accor.png",
+                        "name": "أكور"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/brera.png",
+                        "name": "بريرا"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/st-regis.png",
+                        "name": "سانت ريجيس"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/fairmont-ramla.png",
+                        "name": "فيرمونت رملة الرياض"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/narcisse.png",
+                        "name": "نارسيس"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/courtyard.png",
+                        "name": "كورتيارد من ماريوت"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/suknai.png",
+                        "name": "مجموعة سكناي"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/hunter-amenities.png",
+                        "name": "هنتر أمنيتيز"
+                      }
+                    ]
+                  },
+                  {
+                    "title": "السبا والنوادي",
+                    "body": "تبحث مراكز السبا والنوادي الرياضية عن روائح ومنتجات عناية تعزز الإحساس بالراحة وتمنح المكان طابعًا مميزًا",
+                    "logos": [
+                      {
+                        "logo": "assets/lavara/clients/lijam.png",
+                        "name": "لجام"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/ocean-spa.png",
+                        "name": "أوشن سبا"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/puregym.png",
+                        "name": "بيورجيم"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/oxygen.png",
+                        "name": "أكسجين"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/bfit.png",
+                        "name": "بي فت"
+                      }
+                    ]
+                  },
+                  {
+                    "title": "التطوير العقاري",
+                    "body": "يتجه المطورون إلى تعطير المشاريع السكنية والمكتبية لرفع قيمة التجربة وتمييز علاماتهم",
+                    "logos": [
+                      {
+                        "logo": "assets/lavara/clients/alkhozama.png",
+                        "name": "الخزامى للاستثمار"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/abunayyan.png",
+                        "name": "أبونيان القابضة"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/ajco.png",
+                        "name": "أجكو"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/taiba.png",
+                        "name": "طيبة"
+                      }
+                    ]
+                  },
+                  {
+                    "title": "متاجر السفر",
+                    "body": "يتيح قطاع السفر فرصة لمنتجات فاخرة بأحجام مناسبة للمسافرين تعكس الهوية السعودية",
+                    "logos": [
+                      {
+                        "logo": "assets/lavara/clients/sar.png",
+                        "name": "الخطوط الحديدية السعودية"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/haramain-train.png",
+                        "name": "قطار الحرمين السريع"
+                      },
+                      {
+                        "logo": "assets/lavara/clients/altanfeethi.png",
+                        "name": "التنفيذي"
+                      }
+                    ]
+                  }
+                ],
+                "note": "الشعارات أمثلة من الجهات التي تواصلنا معها"
               }
             }
           ],
@@ -1449,6 +1553,78 @@
           "titleEn": "Financial Model",
           "hidden": false,
           "slides": [
+            {
+              "id": "sl-sh-revenue",
+              "template": "finance",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "أعمدة صافي الإيرادات وإجمالي الربح لكل سنة مع القيمة فوق كل عمود بالمليون ريال، وهامش الربح الإجمالي في الأعلى. الرسمان على المقياس نفسه.",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Financials · Revenue",
+                "title": "الإيرادات: [الخلاصة الرئيسية من النموذجين]",
+                "charts": [
+                  {
+                    "name": "باندل",
+                    "unit": "مليون ريال",
+                    "years": "2027, 2028, 2029, 2030, 2031",
+                    "aName": "صافي الإيرادات",
+                    "a": "1.5, 5.1, 11.4, 20.2, 30.3",
+                    "bName": "إجمالي الربح",
+                    "b": "0.5, 1.8, 4.3, 8.0, 12.8",
+                    "mName": "هامش الربح %",
+                    "m": "32.7%, 34.9%, 37.3%, 39.8%, 42.3%"
+                  },
+                  {
+                    "name": "لافارا",
+                    "unit": "مليون ريال",
+                    "years": "السنة 1, السنة 2, السنة 3, السنة 4, السنة 5",
+                    "aName": "صافي الإيرادات",
+                    "a": "1.2, 4.3, 10.1, 20.3, 34.8",
+                    "bName": "إجمالي الربح",
+                    "b": "0.4, 1.4, 3.6, 7.8, 14.1",
+                    "mName": "هامش الربح %",
+                    "m": "31.0%, 33.4%, 35.8%, 38.2%, 40.6%"
+                  }
+                ],
+                "panelTitle": "أرسلنا النماذج المالية المحدّثة",
+                "panelSub": "باندل ولافارا · بين أيديكم للمراجعة",
+                "shots": [
+                  {
+                    "image": {
+                      "src": "assets/shared/model-market-demand.png",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 0
+                      }
+                    }
+                  },
+                  {
+                    "image": {
+                      "src": "assets/shared/model-bundle-pnl.png",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 0
+                      }
+                    }
+                  }
+                ],
+                "pointsTitle": "نقاط نحتاج الاتفاق عليها",
+                "points": [
+                  {
+                    "text": "[النقطة · صاحب القرار · الموعد]"
+                  },
+                  {
+                    "text": "[النقطة · صاحب القرار · الموعد]"
+                  },
+                  {
+                    "text": "[النقطة · صاحب القرار · الموعد]"
+                  }
+                ]
+              }
+            },
             {
               "id": "sl-sh-money",
               "template": "diagram",
@@ -1691,7 +1867,7 @@
                   {
                     "id": "p-majed",
                     "title": "الماجد للعود",
-                    "sub": "تضمن سداد مستحقات رمثان",
+                    "sub": "تملك الكيان الجديد وتموّله، وتضمن سداد مستحقات رمثان",
                     "tone": "gold",
                     "shape": "box",
                     "col": 1,
@@ -1743,6 +1919,15 @@
                     "style": "solid",
                     "lane": "1",
                     "step": 0
+                  },
+                  {
+                    "from": "p-majed",
+                    "to": "p-ent",
+                    "label": "ملكية 100%",
+                    "tone": "gold",
+                    "style": "solid",
+                    "lane": "0",
+                    "step": 1
                   },
                   {
                     "from": "p-majed",
@@ -1863,6 +2048,48 @@
                     "style": "solid",
                     "lane": "1",
                     "step": 0
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sl-sh-updates",
+              "template": "updates",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "نقاط الحديث: 1) بدأنا صياغة الاتفاقية الثلاثية بين الماجد للعود والكيانات الجديدة ورمثان، والمدة المتوقعة تُحدد. 2) بدأنا جلسات مع الفريق المالي في الماجد للعود لضمان تقارير دقيقة يسهل توحيدها مع قوائم الشركات من البداية. 3) بدأنا مع فريق الماجد للعود تسجيل العلامات التجارية Bundle وLavara وPearla وOvanta لدى الهيئة السعودية للملكية الفكرية (SAIP)، والمدة المتوقعة شهر ونصف. 4) للنقاش: من سيكون الرئيس التنفيذي للكيان الجديد.",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Legal · Next Steps",
+                "title": "المستجدات ونقاط الاتفاق",
+                "items": [
+                  {
+                    "title": "الاتفاقية الثلاثية",
+                    "body": "بدأنا صياغة الاتفاقية بين الماجد للعود والكيانات الجديدة ورمثان",
+                    "badge": "المدة المتوقعة: [__]",
+                    "kind": "progress",
+                    "tags": ""
+                  },
+                  {
+                    "title": "التقارير المالية",
+                    "body": "بدأنا جلسات مع الفريق المالي في الماجد للعود لضمان تقارير دقيقة يسهل توحيدها مع قوائم الشركات من البداية",
+                    "badge": "قيد التنفيذ",
+                    "kind": "progress",
+                    "tags": ""
+                  },
+                  {
+                    "title": "تسجيل العلامات التجارية",
+                    "body": "بدأنا مع فريق الماجد للعود تسجيل أسماء باندل ولافارا وبيرلا وأوفانتا لدى الهيئة السعودية للملكية الفكرية",
+                    "badge": "المدة المتوقعة: شهر ونصف",
+                    "kind": "progress",
+                    "tags": "Bundle · Lavara · Pearla · Ovanta"
+                  },
+                  {
+                    "title": "للنقاش: الرئيس التنفيذي",
+                    "body": "من سيتولى منصب الرئيس التنفيذي للكيان الجديد؟",
+                    "badge": "قرار مطلوب",
+                    "kind": "decision",
+                    "tags": ""
                   }
                 ]
               }

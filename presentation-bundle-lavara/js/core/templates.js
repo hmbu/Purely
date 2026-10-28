@@ -354,7 +354,119 @@ TEMPLATES.product = {
   },
 };
 
-export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product'];
+
+/* ---------------------------------------------------------------- status updates (work in progress + an ask) */
+// Cards in two columns: what started, where it stands (badge) and the names involved (tags).
+// A "decision" item spans the full width at the end, marked as the ask for the room.
+const KINDS = [['progress', 'قيد العمل'], ['done', 'منجز'], ['decision', 'قرار مطلوب']];
+TEMPLATES.updates = {
+  name: 'مستجدات وحالات', en: 'Status updates', group: 'extra', defaultBg: 'background', suggested: 'القانوني',
+  fields: [F.eyebrow, F.title,
+    { key: 'items', type: 'list', label: 'البنود', item: [{ key: 'title', type: 'text', label: 'العنوان' }, { key: 'body', type: 'textarea', rows: 2, label: 'الوصف' },
+      { key: 'badge', type: 'text', label: 'الحالة / المدة (شارة)' }, { key: 'kind', type: 'select', label: 'النوع', options: KINDS }, { key: 'tags', type: 'text', label: 'أسماء أو وسوم (اختياري)' }],
+      newItem: { title: 'بند', body: '', badge: '', kind: 'progress', tags: '' } }],
+  defaults: { eyebrow: 'Next Steps', title: 'المستجدات', items: [{ title: 'بند', body: '', badge: 'قيد التنفيذ', kind: 'progress', tags: '' }] },
+  render: d => {
+    const it = d.items || [];
+    return `
+    <div class="t t-updates">
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
+      <div class="up-grid">
+        ${it.map((x, i) => `
+          <div class="up-card kind-${esc(x.kind || 'progress')}" data-a="extra" data-seq="${i}">
+            <div class="up-top"><span class="up-num latin">${String(i + 1).padStart(2, '0')}</span>${x.badge ? `<span class="up-badge ${langCls(x.badge)}">${esc(x.badge)}</span>` : ''}</div>
+            <h3 class="up-title">${escBr(x.title || '')}</h3>
+            ${x.body ? `<p class="up-body">${escBr(x.body)}</p>` : ''}
+            ${x.tags ? `<span class="up-tags ${langCls(x.tags)}">${esc(x.tags)}</span>` : ''}
+          </div>`).join('')}
+      </div>
+    </div>`;
+  },
+};
+
+/* ---------------------------------------------------------------- sectors (columns with client logos) */
+TEMPLATES.sectors = {
+  name: 'قطاعات وعملاء', en: 'Sectors & clients', group: 'extra', defaultBg: 'background', suggested: 'الأعمال',
+  fields: [F.eyebrow, F.title,
+    { key: 'items', type: 'list', label: 'القطاعات (الأول = اليمين)', item: [{ key: 'title', type: 'text', label: 'القطاع' }, { key: 'body', type: 'textarea', rows: 3, label: 'الوصف' },
+      { key: 'logos', type: 'list', label: 'الشعارات', item: [{ key: 'logo', type: 'image', label: 'الشعار', simple: true }, { key: 'name', type: 'text', label: 'الاسم' }], newItem: { logo: '', name: '' } }],
+      newItem: { title: 'قطاع', body: '', logos: [] } },
+    { key: 'note', type: 'text', label: 'سطر صغير أسفل الشريحة' }],
+  defaults: { eyebrow: 'Business', title: 'القطاعات', items: [1, 2, 3, 4].map(n => ({ title: `قطاع ${n}`, body: '', logos: [] })), note: '' },
+  render: (d, ctx) => {
+    const it = d.items || [];
+    return `
+    <div class="t t-sectors" style="--n:${it.length || 1}">
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
+      <div class="sc-cols">
+        ${it.map((x, i) => `
+          <div class="sc-col" data-a="extra" data-seq="${i}">
+            <div class="sc-head"><span class="sc-num latin">${String(i + 1).padStart(2, '0')}</span><h3 class="sc-title">${escBr(x.title || '')}</h3></div>
+            ${x.body ? `<p class="sc-body">${escBr(x.body)}</p>` : ''}
+            <div class="sc-logos">${(x.logos || []).map(l => { const src = typeof l.logo === 'string' ? l.logo : l.logo?.src;
+              return `<div class="sc-logo" title="${esc(l.name || '')}">${src ? `<img src="${esc(ctx.asset(src))}" alt="${esc(l.name || '')}">` : `<span>${esc(l.name || '')}</span>`}</div>`; }).join('')}</div>
+          </div>`).join('')}
+      </div>
+      ${d.note ? `<p class="sc-note" data-a="body">${escBr(d.note)}</p>` : ''}
+    </div>`;
+  },
+};
+
+/* ---------------------------------------------------------------- financials (bar charts + a side panel) */
+// One chart per model: two bars a year (net revenue, gross profit) with the value on top and the margin above.
+// All charts share one scale so the models compare honestly. Values are comma-separated, one per year.
+const nums = s => String(s || '').split(/[,،]/).map(x => x.trim()).filter(x => x !== '');
+TEMPLATES.finance = {
+  name: 'نموذج مالي (أعمدة)', en: 'Financial bars', group: 'extra', defaultBg: 'background', suggested: 'النموذج المالي',
+  fields: [F.eyebrow, F.title,
+    { key: 'charts', type: 'list', label: 'الرسوم (الأول في الأعلى)', item: [{ key: 'name', type: 'text', label: 'الاسم' }, { key: 'unit', type: 'text', label: 'الوحدة' },
+      { key: 'years', type: 'text', label: 'السنوات (مفصولة بفاصلة)' },
+      { key: 'aName', type: 'text', label: 'السلسلة الأولى' }, { key: 'a', type: 'text', label: 'قيمها (مفصولة بفاصلة)' },
+      { key: 'bName', type: 'text', label: 'السلسلة الثانية' }, { key: 'b', type: 'text', label: 'قيمها' },
+      { key: 'mName', type: 'text', label: 'اسم الهامش' }, { key: 'm', type: 'text', label: 'الهامش لكل سنة' }],
+      newItem: { name: 'نموذج', unit: 'مليون ريال', years: '2027, 2028, 2029', aName: 'صافي الإيرادات', a: '1, 2, 3', bName: 'إجمالي الربح', b: '0.3, 0.7, 1.1', mName: 'هامش الربح %', m: '30%, 33%, 36%' } },
+    { key: 'panelTitle', type: 'text', label: 'عنوان اللوحة الجانبية' }, { key: 'panelSub', type: 'text', label: 'سطر تحته' },
+    { key: 'shots', type: 'list', label: 'صور من النموذج', item: [{ key: 'image', type: 'image', label: 'الصورة' }], newItem: { image: { src: '' } } },
+    { key: 'pointsTitle', type: 'text', label: 'عنوان النقاط' },
+    { key: 'points', type: 'list', label: 'النقاط', item: [{ key: 'text', type: 'text', label: 'النقطة' }], newItem: { text: '' } }],
+  defaults: { eyebrow: 'Financials', title: 'الإيرادات', charts: [], panelTitle: '', panelSub: '', shots: [], pointsTitle: '', points: [] },
+  render: (d, ctx) => {
+    const ch = d.charts || [];
+    const max = Math.max(1e-9, ...ch.flatMap(c => [...nums(c.a), ...nums(c.b)].map(Number).filter(Number.isFinite)));
+    const bar = (v, cls, i) => { const n = Number(v); return `<span class="fn-bar ${cls}" style="--h:${Number.isFinite(n) ? (n / max) * 100 : 0}%;--i:${i}"><em class="latin">${esc(v)}</em></span>`; };
+    const shots = (d.shots || []).filter(x => x?.image?.src || typeof x?.image === 'string');
+    return `
+    <div class="t t-finance">
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
+      <div class="fn-body">
+        <div class="fn-charts">
+          ${ch.map((c, k) => { const ys = nums(c.years), a = nums(c.a), b = nums(c.b), m = nums(c.m);
+            return `
+            <div class="fn-chart" data-a="extra" data-seq="${k}">
+              <div class="fn-head"><h3>${esc(c.name || '')}</h3>
+                <div class="fn-legend"><span class="is-a">${esc(c.aName || '')}</span><span class="is-b">${esc(c.bName || '')}</span>${c.mName ? `<span class="is-m">${esc(c.mName)}</span>` : ''}<span class="fn-unit">${esc(c.unit || '')}</span></div></div>
+              <div class="fn-plot" style="--n:${ys.length || a.length || 1}">
+                ${(ys.length ? ys : a).map((y, i) => `
+                  <div class="fn-year">
+                    ${m[i] ? `<span class="fn-margin latin">${esc(m[i])}</span>` : ''}
+                    <div class="fn-bars">${a[i] != null ? bar(a[i], 'is-a', i) : ''}${b[i] != null ? bar(b[i], 'is-b', i) : ''}</div>
+                    <span class="fn-y ${langCls(y)}">${esc(ys.length ? y : '')}</span>
+                  </div>`).join('')}
+              </div>
+            </div>`; }).join('')}
+        </div>
+        ${d.panelTitle || shots.length || (d.points || []).length ? `
+        <aside class="fn-panel" data-a="media">
+          ${d.panelTitle ? `<div class="fn-ptitle"><i></i><b>${esc(d.panelTitle)}</b>${d.panelSub ? `<span>${esc(d.panelSub)}</span>` : ''}</div>` : ''}
+          ${shots.length ? `<div class="fn-shots n-${Math.min(shots.length, 3)}">${shots.slice(0, 3).map(x => `<div class="fn-shot">${mediaHTML(x.image, ctx)}</div>`).join('')}</div>` : ''}
+          ${(d.points || []).length ? `<div class="fn-points">${d.pointsTitle ? `<h4>${esc(d.pointsTitle)}</h4>` : ''}<ul>${d.points.map(p => `<li>${escBr(p.text || '')}</li>`).join('')}</ul></div>` : ''}
+        </aside>` : ''}
+      </div>
+    </div>`;
+  },
+};
+
+export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product', 'updates', 'sectors', 'finance'];
 
 export function newSlide(templateId, uidFn) {
   const t = TEMPLATES[templateId];

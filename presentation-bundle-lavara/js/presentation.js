@@ -201,6 +201,7 @@ function buildSlide(p, slide) {
   el.style.setProperty('--sfg', theme.fg);
   el.style.setProperty('--stitle', theme.dark ? (c.textLight || '#fff') : (c.title || c.text));
   el.style.setProperty('--saccent', theme.dark ? (c.secondary || c.textLight) : (c.primary || c.text));
+  el.style.setProperty('--ssec', c.secondary || c.primary || c.text); // the brand's second colour, for charts and status marks
   el.style.setProperty('--sline', rgba(theme.fg, 0.28));
   let inner = '';
   try { inner = tpl.render(slide.data || {}, ctxFor(p)); } catch (e) { inner = `<div class="t"><p class="tx-body">Template error: ${esc(e.message)}</p></div>`; }

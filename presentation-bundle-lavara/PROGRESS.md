@@ -78,3 +78,11 @@
 - Opening section (welcome + Q1 review) postponed; approach proposed to the user, waiting for content.
 - Titles simplified (user): Bundle الهوية · نموذج العمل · المنتجات · المنتج الرقمي; Lavara adds الأعمال; shared النموذج التشغيلي · النموذج المالي · القانوني · الاعتماد. Each station shows a short Arabic line (`section.desc`, `decision.desc`) instead of the English label.
 - Project opening slides show the brand wordmark instead of the written name (title template option `showLogo`).
+
+## Working slides merged (Lavara_-_Working_Slides.pptx)
+- New templates: `updates` (status cards + a decision ask), `sectors` (columns with client logos), `finance` (bar charts on one shared scale + side panel). They take the colours of the section they sit in (`--ssec` = the brand's second colour).
+- Shared › القانوني: contract diagram updated to the deck (Al Majed's new line, "ملكية 100%" arrow); added "المستجدات ونقاط الاتفاق".
+- Lavara › الأعمال: "تواصلنا مع أكثر من 35 جهة في أربعة قطاعات" with 20 client logos (`assets/lavara/clients/`).
+- Shared › النموذج المالي: revenue charts for both models first, then the money flow. Model screenshots in `assets/shared/`.
+- Not added: the deck cover, the "المالية" divider (each section has its own cover) and the second revenue layout (same content, sides swapped).
+- Placeholders kept from the deck for the user to fill: revenue headline "[الخلاصة الرئيسية…]", the three agreement points, and the tripartite agreement duration "[__]".
