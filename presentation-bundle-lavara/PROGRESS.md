@@ -181,3 +181,6 @@
 - Identity sections: the wordmark travels between the title slide and the identity board (both directions), changing colour on the way, while the rest of the slide changes around it.
 - Lavara digital product: new slide «لوحة التحكم للفندق» (screens template: two offset screenshots + numbered points); the two screenshots are uploaded by the user in the control panel.
 - Decision page → «الاعتماد»: perfumes/oils decision (Al Majed only / Lavara only / both), then approval rows for the financial, operating and legal models, business model, tripartite agreement and CEO (اعتماد / اعتماد مع تعديل / تأجيل); more than three items show as rows.
+
+## Review page above the opening screen (2026-10-28)
+- New page above the opening screen (the shared frame is below): «ما تم بناؤه وإنجازه خلال الأشهر الثلاثة الماضية» as a timeline of dossier sheets in the shared frame's light identity. Opened by the first «next» of the show, the up arrow, or the ⌃ button; down / next returns. Edited in the control panel (Decision & closing tab → صفحة المراجعة). Items read from the user's handwritten note; uncertain ones to confirm.

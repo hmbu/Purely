@@ -696,6 +696,7 @@ function renderUniverse() {
   L.universe.innerHTML = `<div class="u-wrap layout-${layout} ${legacy ? 'is-legacy' : 'is-exec'}" style="--n:${ps.length}">
       ${(legacy ? UNIVERSE_HTML.legacy : UNIVERSE_HTML[layout])(ps, u)}
       ${u.hint ? `<div class="u-hint">${esc(u.hint)}</div>` : ''}${chooserHTML(u, layout)}
+      ${hasReview() ? `<button class="u-up" aria-label="${esc(S.content.review.title || 'Review')}"><svg viewBox="0 0 24 24"><path d="M5 15l7-7 7 7"/></svg></button>` : ''}
       ${sharedOf(S.content) ? `<button class="u-down" aria-label="${esc(sharedOf(S.content).nameAr || 'Shared')}"><svg viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></svg></button>` : ''}
     </div>`;
   fixAspects(L.universe);
@@ -725,6 +726,7 @@ function renderUniverse() {
     worldTex.push(tex);
   });
   $('.u-down', L.universe)?.addEventListener('click', e => { e.stopPropagation(); command('shared'); });
+  $('.u-up', L.universe)?.addEventListener('click', e => { e.stopPropagation(); command('review'); });
   $$('.u-chooser button', L.universe).forEach(b => b.addEventListener('click', e => {
     e.stopPropagation();
     if (b.dataset.layout) S.content.settings.universe.layout = b.dataset.layout;
@@ -1145,6 +1147,7 @@ async function zoomOut({ strong = false } = {}) {
     broadcastState(); return;
   }
   if (S.level === 'hub') return toUniverse();
+  if (S.level === 'review') return fromReview();
   if (S.level === 'decision' || S.level === 'closing') return toUniverse();
 }
 
@@ -1253,6 +1256,55 @@ function renderClosing() {
 }
 function leaveSpecial(instant) { if (S.level === 'decision' || S.level === 'closing') { show(L.special, false); if (instant) gsap.set(L.special, { clearProps: 'all' }); logosEl.classList.remove('is-hidden'); } }
 
+/* ======================================================================= the review (above the opening screen)
+   One page in the shared frame's light identity: what was built and achieved over the last months, as a timeline of
+   dossier cards. It sits above the opening screen (the shared frame sits below): up to open it, down or next to return. */
+const hasReview = () => !!(S.content.review && !S.content.review.hidden && (S.content.review.items || []).length);
+function renderReview() {
+  const r = S.content.review || {}, items = (r.items || []).filter(x => !x.hidden);
+  L.special.innerHTML = `
+    <div class="special review">
+      <div class="rv-head">${r.eyebrow ? `<div class="rv-eyebrow latin">${esc(r.eyebrow)}</div>` : ''}<h1 class="rv-title">${escBr(r.title || '')}</h1>${r.subtitle ? `<p class="rv-sub">${escBr(r.subtitle)}</p>` : ''}</div>
+      <div class="rv-line" style="--n:${items.length}"><i class="rv-axis"></i>
+        ${items.map((it, i) => `<div class="rv-item ${i % 2 ? 'is-down' : 'is-up'}">
+          <span class="rv-dot"></span>
+          <div class="rv-card"><span class="rv-n latin">${String(i + 1).padStart(2, '0')}</span><h3>${escBr(it.title || '')}</h3>${it.body ? `<p>${escBr(it.body)}</p>` : ''}${it.status ? `<span class="rv-status">${esc(it.status)}</span>` : ''}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+}
+async function toReview() {
+  if (!hasReview() || S.level === 'review') return;
+  if (S.level !== 'universe') { await toUniverse(); }
+  S.reviewSeen = true;
+  const dp = sharedOf(S.content);
+  renderReview(); show(L.special, true);
+  sound.play('zoom', null, 'neutral');
+  const tl = gsap.timeline();
+  tl.to(L.universe, { yPercent: 100, duration: 1.5, ease: 'power3.inOut' }, 0);
+  tl.fromTo(L.special, { yPercent: -100, opacity: 1 }, { yPercent: 0, duration: 1.5, ease: 'power3.inOut' }, 0);
+  tl.add(() => { applyBrand(dp); dp ? logosColor(hubFg(dp), hubDark(dp)) : null; placeLogos('corner'); }, 0.5);
+  tl.fromTo($$('.rv-head > *', L.special), { opacity: 0, y: pxs(24) }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.08 }, 0.9);
+  tl.fromTo($('.rv-axis', L.special), { scaleX: 0 }, { scaleX: 1, duration: 1.6, ease: 'expo.inOut' }, 1.0);
+  tl.fromTo($$('.rv-item', L.special), { opacity: 0, y: pxs(22) }, { opacity: 1, y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.12 }, 1.35);
+  S.level = 'review'; S.pid = null; S.sid = null; startWorlds(false); updateHUD();
+  await tl;
+  show(L.universe, false); gsap.set(L.universe, { clearProps: 'all' });
+  broadcastState();
+}
+async function fromReview() {
+  if (S.level !== 'review') return;
+  renderUniverse(); show(L.universe, true); applyBrand(null);
+  const tl = gsap.timeline();
+  tl.to(L.special, { yPercent: -100, duration: 1.5, ease: 'power3.inOut' }, 0);
+  tl.fromTo(L.universe, { yPercent: 100 }, { yPercent: 0, duration: 1.5, ease: 'power3.inOut' }, 0);
+  S.level = 'universe';
+  logosColor(universeColors().fg, true); placeLogos('hero'); startWorlds(true); updateHUD();
+  await tl;
+  show(L.special, false); gsap.set(L.special, { clearProps: 'all' }); L.special.innerHTML = ''; gsap.set(L.universe, { clearProps: 'all' });
+  broadcastState();
+}
+
 async function toSpecial(kind) {
   if (S.level === kind) return;
   const from = S.level === 'section' ? L.section : S.level === 'hub' ? L.hub : S.level === 'universe' ? L.universe : L.special;
@@ -1285,6 +1337,8 @@ async function toSpecial(kind) {
 
 /* ======================================================================= flow: next / previous */
 async function next() {
+  if (S.level === 'review') return fromReview();
+  if (S.level === 'universe' && hasReview() && !S.reviewSeen) return toReview(); // the review opens the show
   if (S.level === 'universe') {
     const ps = projectsOf(S.content);
     const target = ps.find(p => !S.visitedProjects.has(p.id));
@@ -1318,6 +1372,7 @@ async function next() {
   if (S.level === 'decision') return toSpecial('closing');
 }
 async function prev() {
+  if (S.level === 'review') return fromReview();
   if (S.level === 'section') {
     if (S.step > 0) { S.step--; applyStep(S.slideEl, S.step); sound.play('ui', S.pid); broadcastState(); return; }
     if (S.li > 0) {
@@ -1371,6 +1426,7 @@ const ACTIONS = {
   goto: a => gotoTarget(a),
   universe: () => (S.level === 'universe' ? null : toUniverse()),
   shared: () => { const sh = sharedOf(S.content); if (!sh) return; if (S.level === 'universe') return enterProject(sh.id); if (S.pid !== sh.id) return gotoTarget({ projectId: sh.id }); },
+  review: () => (S.level === 'review' ? fromReview() : toReview()),
   decision: () => toSpecial('decision'),
   closing: () => toSpecial('closing'),
 };
@@ -1498,6 +1554,10 @@ function previewShow(target = {}, animate = false) {
   unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null; startWorlds(false);
   logosEl.classList.remove('is-hidden');
   if (target.level === 'universe' || (!target.projectId && !target.level)) { toUniverseInstant(); if (animate) universeEntrance(); return; }
+  if (target.level === 'review') {
+    const dp = sharedOf(S.content); S.level = 'review'; S.pid = null; applyBrand(dp, false); renderReview();
+    show(L.special, true); dp && logosColor(hubFg(dp), hubDark(dp)); placeLogos('corner', false); updateHUD(); return;
+  }
   if (target.level === 'decision' || target.level === 'closing') {
     const dp = sharedOf(S.content);
     S.level = target.level; S.pid = null; applyBrand(dp, false); target.level === 'decision' ? renderDecision() : renderClosing();
@@ -1529,6 +1589,8 @@ function onKey(e) {
   if (k === 'ArrowLeft' || k === ' ' || k === 'PageDown' || k === 'Enter') { e.preventDefault(); command(e.shiftKey ? 'nextSection' : 'next'); }
   else if (k === 'ArrowRight' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); command(e.shiftKey ? 'prevSection' : 'prev'); }
   else if (k === 'Escape') { e.preventDefault(); if (S.black) setBlack(false); else command('zoomOut'); }
+  else if (k === 'ArrowDown' && S.level === 'review') { e.preventDefault(); command('review'); }
+  else if (k === 'ArrowUp' && S.level === 'universe' && hasReview()) { e.preventDefault(); command('review'); }
   else if (k === 'ArrowDown' && S.level === 'universe') { e.preventDefault(); command('shared'); }
   else if (k === 'ArrowUp' && S.level === 'hub' && isShared(project())) { e.preventDefault(); command('universe'); }
   else if (/^[1-9]$/.test(k)) command('number', { n: +k });

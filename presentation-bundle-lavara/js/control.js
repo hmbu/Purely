@@ -614,6 +614,16 @@ function renderDecisionTab() {
       { key: 'options', type: 'list', label: 'الخيارات', item: [{ key: 'label', type: 'text', label: 'الخيار' }], newItem: () => ({ id: uid('do'), label: 'خيار' }) }],
       newItem: () => ({ id: uid('dg'), title: 'بند جديد', projectId: '', options: [{ id: uid('do'), label: 'اعتماد' }, { id: uid('do'), label: 'تعديل' }, { id: uid('do'), label: 'تأجيل' }] }) },
   ], C.decision, { path: 'decision', onChange: () => { previewOverride = { level: 'decision' }; } })));
+  C.review ||= { eyebrow: 'Timeline', title: '', items: [] };
+  f.append(group('صفحة المراجعة (فوق الشاشة الرئيسية)', ...renderFields([
+    { key: 'hidden', type: 'toggle', label: 'إخفاء الصفحة' },
+    { key: 'eyebrow', type: 'text', label: 'عنوان صغير' },
+    { key: 'title', type: 'textarea', rows: 2, label: 'العنوان' },
+    { key: 'subtitle', type: 'text', label: 'سطر تحت العنوان' },
+    { key: 'items', type: 'list', label: 'ما تم إنجازه (بالترتيب على الخط الزمني)', item: [
+      { key: 'title', type: 'text', label: 'العنوان' }, { key: 'body', type: 'text', label: 'وصف قصير' }, { key: 'status', type: 'text', label: 'الحالة (مثل: مكتمل)' }, { key: 'hidden', type: 'toggle', label: 'إخفاء' }],
+      newItem: () => ({ title: 'إنجاز', body: '', status: 'مكتمل' }) },
+  ], C.review, { path: 'review', onChange: () => { previewOverride = { level: 'review' }; } })));
   f.append(group('الختام', ...renderFields([
     { key: 'layout', type: 'select', label: 'التخطيط', options: [['logos', '(أ) الشعاران + سطر ختامي'], ['marks', '(ب) رمزا المشروعين + سطر + تواصل'], ['discussion', '(ج) شاشة نقاش هادئة']] },
     { key: 'line', type: 'textarea', rows: 2, label: 'السطر الختامي' },
