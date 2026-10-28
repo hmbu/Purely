@@ -104,3 +104,9 @@
 - Lavara › نموذج العمل: Purely's model, the headline of each block only.
 - Design rule written into this folder's CLAUDE.md so every future addition follows its project's identity.
 - Canvases revised (user): block titles larger (the question), a short answer under each. Bundle answers = the workshop's leaning options and proposed inputs (badge "الاتجاه المرجّح" until the workshop decides); Purely answers = each block's headline plus its key facts.
+
+## Validation-phase brief (Almajed_260824_CEO_work1.pptx)
+- Business models replaced with the brief's updated content (Bundle and hotel supplies), numbered in the brief's reading order (1 segments … 9 costs), reveal follows the same order. Meeting notes moved to speaker notes.
+- The hotel canvas's partners box in the brief is a copy of Bundle's; Purely's partners kept and the user told.
+- Operating models → shared › النموذج التشغيلي: new `flow` template (six phases right to left, steps, owner teams, decision gates, rework loops) accented in each project's colour, plus "المخطط الكامل" opening the original flowchart full screen (`js/core/zoom.js`: wheel/± zoom, drag, double-click fit, Esc; it owns the keyboard while open). Images: `assets/shared/opmodel-*.webp`.
+- Not added: the brief's cover, section dividers, summary and next-steps pages.

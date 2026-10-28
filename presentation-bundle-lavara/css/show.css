@@ -875,3 +875,54 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="shared"] .cv-b { background: color-mix(in srgb, var(--sbg) 55%, #fff); border: var(--hair) solid color-mix(in srgb, var(--sfg) 14%, transparent); border-radius: .35rem; }
 [data-brand="shared"] .cv-b::before { content: ''; position: absolute; top: -1px; right: 2.4rem; width: 3.6rem; height: .22rem; background: #A8824A; }
 [data-brand="shared"] .cv-b.g-value { background: var(--sfg); color: var(--sbg); }
+
+/* =====================================================================
+   FLOW — operating model in phases, read right to left. Accent = the project's colour (--cc) when set.
+   ===================================================================== */
+.t-flow { --fc: var(--cc, var(--saccent)); }
+.t-flow .board-head { top: 6.4rem; }
+.fl-row { position: absolute; top: 20rem; bottom: 15rem; right: 8rem; left: 8rem; display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 3rem; }
+.fl-ph { position: relative; display: flex; flex-direction: column; min-height: 0; padding: 2.6rem 2.4rem 2.2rem; background: color-mix(in srgb, var(--sbg) 55%, #fff); border: var(--hair) solid color-mix(in srgb, var(--sfg) 14%, transparent); }
+.fl-ph:not(:last-child)::after { content: ''; position: absolute; top: 50%; left: -2.15rem; width: 1.1rem; height: 1.1rem; border: solid color-mix(in srgb, var(--fc) 70%, transparent); border-width: 0 0 .2rem .2rem; rotate: 45deg; translate: 0 -50%; }
+.fl-top { display: flex; align-items: center; justify-content: space-between; }
+.fl-n { font-size: 1.5rem; color: var(--fc); font-weight: 600; }
+.fl-roman { display: none; }
+.fl-t { margin: 1.2rem 0 1.4rem; font-family: var(--f-title); font-weight: var(--w-title); font-size: 2.5rem; line-height: 1.3; color: var(--stitle); }
+.fl-steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .8rem; }
+.fl-steps li { position: relative; padding-right: 1.6rem; font-size: 1.45rem; line-height: 1.55; opacity: .8; }
+.fl-steps li::before { content: ''; position: absolute; right: 0; top: .75rem; width: .45rem; height: .45rem; border-radius: 50%; background: var(--fc); opacity: .7; }
+.fl-steps li.fl-sub { padding: .6rem 0 0; font-weight: 600; font-size: 1.35rem; opacity: 1; color: var(--fc); }
+.fl-steps li.fl-sub::before { display: none; }
+.fl-gate { margin-top: 1.6rem; display: flex; align-items: center; gap: 1rem; font-size: 1.4rem; font-weight: 600; }
+.fl-gate i { flex: none; width: 1.2rem; height: 1.2rem; rotate: 45deg; border: .2rem solid var(--fc); }
+.fl-own { margin-top: auto; padding-top: 1.6rem; display: flex; flex-wrap: wrap; gap: .6rem; }
+.fl-own span { font-size: 1.15rem; line-height: 1; padding: .6rem 1.1rem; border-radius: 10rem; background: color-mix(in srgb, var(--fc) 13%, transparent); }
+.fl-foot { position: absolute; bottom: 6.6rem; right: 8rem; left: 8rem; display: flex; align-items: center; gap: 3rem; }
+.fl-loops { flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: .8rem 2.4rem; font-size: 1.4rem; }
+.fl-loops b { font-weight: 600; color: var(--fc); }
+.fl-loops span { position: relative; padding-right: 2.2rem; opacity: .75; }
+.fl-loops span::before { content: '↺'; position: absolute; right: 0; top: -.1rem; color: var(--fc); }
+.fl-full { appearance: none; cursor: pointer; font: inherit; font-size: 1.4rem; color: var(--sbg); background: var(--fc); border: 0; padding: 1.1rem 2.2rem; border-radius: 10rem; white-space: nowrap; }
+.fl-full::before { content: '⤢'; margin-left: .9rem; }
+
+/* Bundle: rounded */
+[data-style="bubbles"] .fl-ph { border-radius: 2rem; border: 0; background: color-mix(in srgb, var(--fc) 6%, var(--sbg)); }
+/* Lavara: framed panels, Roman numerals, underline owners, square button */
+[data-brand="lavara"] .fl-ph { background: var(--ssurf); border: 0; }
+[data-brand="lavara"] .fl-ph::before { content: ''; position: absolute; inset: 1rem; border: var(--hair) solid currentColor; opacity: .2; pointer-events: none; }
+[data-brand="lavara"] .fl-n { display: none; } [data-brand="lavara"] .fl-roman { display: block; font-family: var(--f-title); font-size: 1.8rem; letter-spacing: .12em; opacity: .7; }
+[data-brand="lavara"] .fl-own span { border-radius: 0; background: none; padding: .3rem 0; border-bottom: var(--hair) solid currentColor; }
+[data-brand="lavara"] .fl-full { border-radius: 0; }
+/* Shared: editorial paper with a short rule on top in the project's colour */
+[data-brand="shared"] .fl-ph { border-radius: .35rem; box-shadow: 0 2.4rem 5rem -3.2rem color-mix(in srgb, var(--sfg) 30%, transparent); }
+[data-brand="shared"] .fl-ph::before { content: ''; position: absolute; top: -1px; right: 2.4rem; width: 3.6rem; height: .22rem; background: var(--fc); }
+[data-brand="shared"] .fl-own span { border-radius: .3rem; }
+[data-brand="shared"] .fl-full { border-radius: .3rem; }
+
+/* full-screen viewer for detailed material */
+.zoom-view { position: fixed; inset: 0; z-index: 300; background: #0B0B0C; overflow: hidden; cursor: grab; touch-action: none; }
+.zoom-view[hidden] { display: none; }
+.zoom-view.is-drag { cursor: grabbing; }
+.zoom-view img { position: absolute; top: 0; left: 0; transform-origin: 0 0; max-width: none; user-select: none; -webkit-user-drag: none; }
+.zv-close { position: absolute; top: 2rem; right: 2rem; width: 4.4rem; height: 4.4rem; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .3); background: rgba(20, 20, 22, .7); color: #fff; font-size: 2.6rem; line-height: 1; cursor: pointer; }
+.zv-hint { position: absolute; bottom: 2rem; left: 50%; translate: -50% 0; padding: .9rem 1.8rem; border-radius: 10rem; background: rgba(20, 20, 22, .75); color: rgba(255, 255, 255, .8); font-size: 1.3rem; pointer-events: none; }

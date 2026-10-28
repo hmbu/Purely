@@ -473,15 +473,16 @@ TEMPLATES.finance = {
 
 /* ---------------------------------------------------------------- business model canvas (the nine blocks) */
 // Standard canvas layout (RTL: partners on the right, customers on the left, costs and revenue below).
-// Blocks appear in the order the model is told: customers, value, channels, relationships, revenue,
-// resources, activities, partners, costs. The value proposition is the one highlighted block.
+// The value proposition is the one highlighted block.
 const BMC = [
   { area: '1 / 1 / 3 / 3', g: 'infra', t: 'الشركاء الرئيسيون' }, { area: '1 / 3 / 2 / 5', g: 'infra', t: 'الأنشطة الرئيسية' },
   { area: '2 / 3 / 3 / 5', g: 'infra', t: 'الموارد الرئيسية' }, { area: '1 / 5 / 3 / 7', g: 'value', t: 'القيمة المقترحة' },
   { area: '1 / 7 / 2 / 9', g: 'cust', t: 'العلاقة مع العملاء' }, { area: '2 / 7 / 3 / 9', g: 'cust', t: 'القنوات' },
   { area: '1 / 9 / 3 / 11', g: 'cust', t: 'شرائح العملاء' }, { area: '3 / 1 / 4 / 6', g: 'fin', t: 'هيكل التكاليف' },
   { area: '3 / 6 / 4 / 11', g: 'fin', t: 'مصادر الإيراد' }];
-const BMC_SEQ = [7, 6, 5, 1, 3, 2, 0, 8, 4]; // by block: segments 0, value 1, channels 2, relationships 3, revenue 4, resources 5, activities 6, partners 7, costs 8
+// Blocks are numbered (and appear) in the order the model is read, as in the steering-committee brief:
+// 1 segments, 2 value, 3 resources, 4 revenue, 5 partners, 6 activities, 7 channels, 8 relationships, 9 costs.
+const BMC_NUM = [5, 6, 3, 2, 8, 7, 1, 9, 4];
 TEMPLATES.canvas = {
   name: 'لوحة نموذج العمل', en: 'Business model canvas', group: 'extra', defaultBg: 'background', suggested: 'نموذج العمل',
   fields: [F.eyebrow, F.title, { key: 'lead', type: 'text', label: 'سطر قصير تحت العنوان' },
@@ -496,8 +497,8 @@ TEMPLATES.canvas = {
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
       <div class="cv-grid">
         ${bl.map((b, i) => `
-          <div class="cv-b g-${BMC[i].g}" style="grid-area:${BMC[i].area}" data-a="extra" data-seq="${BMC_SEQ[i]}">
-            <div class="cv-top"><span class="cv-n latin">${String(i + 1).padStart(2, '0')}</span><h3 class="cv-t">${esc(b.title || BMC[i].t)}</h3></div>
+          <div class="cv-b g-${BMC[i].g}" style="grid-area:${BMC[i].area}" data-a="extra" data-seq="${BMC_NUM[i]}">
+            <div class="cv-top"><span class="cv-n latin">${BMC_NUM[i]}</span><h3 class="cv-t">${esc(b.title || BMC[i].t)}</h3></div>
             ${b.text ? `<p class="cv-x">${escBr(b.text)}</p>` : ''}
             ${b.badge ? `<span class="cv-badge">${esc(b.badge)}</span>` : ''}
           </div>`).join('')}
@@ -506,7 +507,48 @@ TEMPLATES.canvas = {
   },
 };
 
-export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product', 'updates', 'sectors', 'finance', 'canvas'];
+
+/* ---------------------------------------------------------------- operating flow (phases, gates, rework loops) */
+// A process read right to left in phases. Each phase: its steps (one per line; a line starting with # is a
+// small sub-heading, e.g. a parallel track), the teams that own it, and an optional decision gate.
+// The rework loops sit in one strip below. The full original flowchart opens on demand (zoom and pan).
+TEMPLATES.flow = {
+  name: 'نموذج تشغيل (مراحل)', en: 'Operating flow', group: 'extra', defaultBg: 'background', suggested: 'النموذج التشغيلي',
+  fields: [F.eyebrow, F.title, { key: 'lead', type: 'text', label: 'سطر قصير تحت العنوان' },
+    { key: 'phases', type: 'list', label: 'المراحل (الأولى = اليمين)', item: [{ key: 'title', type: 'text', label: 'المرحلة' },
+      { key: 'steps', type: 'textarea', rows: 4, label: 'الخطوات (سطر لكل خطوة، # لعنوان فرعي)' }, { key: 'owners', type: 'text', label: 'الفرق المسؤولة (مفصولة بفاصلة)' },
+      { key: 'gate', type: 'text', label: 'بوابة قرار (اختياري)' }],
+      newItem: { title: 'مرحلة', steps: '', owners: '', gate: '' } },
+    { key: 'loops', type: 'textarea', rows: 2, label: 'حلقات إعادة العمل (مفصولة بـ ·)' },
+    { key: 'color', type: 'color', label: 'لون المشروع (فارغ = لون الهوية)' },
+    { key: 'full', type: 'image', simple: true, label: 'المخطط الكامل (يُفتح بالتكبير)' }],
+  defaults: { eyebrow: 'Operating Model', title: 'النموذج التشغيلي', lead: '', phases: [], loops: '', color: '', full: '' },
+  render: (d, ctx) => {
+    const ph = d.phases || [];
+    const full = typeof d.full === 'string' ? d.full : d.full?.src;
+    const lines = s => String(s || '').split('\n').map(x => x.trim()).filter(Boolean);
+    return `
+    <div class="t t-flow" ${d.color ? `style="--cc:${esc(d.color)}"` : ''}>
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
+      <div class="fl-row" style="--n:${ph.length || 1}">
+        ${ph.map((p, i) => `
+          <div class="fl-ph" data-a="extra" data-seq="${i}">
+            <div class="fl-top"><span class="fl-n latin">${String(i + 1).padStart(2, '0')}</span><span class="fl-roman latin">${ROMAN[i] || i + 1}</span></div>
+            <h3 class="fl-t">${esc(p.title || '')}</h3>
+            <ul class="fl-steps">${lines(p.steps).map(x => (x[0] === '#' ? `<li class="fl-sub">${esc(x.slice(1).trim())}</li>` : `<li>${esc(x)}</li>`)).join('')}</ul>
+            ${p.gate ? `<div class="fl-gate"><i></i><span>${esc(p.gate)}</span></div>` : ''}
+            ${p.owners ? `<div class="fl-own">${String(p.owners).split(/[,،]/).map(x => x.trim()).filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}
+          </div>`).join('')}
+      </div>
+      ${d.loops || full ? `<div class="fl-foot" data-a="body">
+        ${d.loops ? `<div class="fl-loops"><b>إعادة العمل</b>${String(d.loops).split('·').map(x => x.trim()).filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}
+        ${full ? `<button class="fl-full" data-zoom="${esc(ctx.asset(full))}">المخطط الكامل</button>` : ''}
+      </div>` : ''}
+    </div>`;
+  },
+};
+
+export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product', 'updates', 'sectors', 'finance', 'canvas', 'flow'];
 
 export function newSlide(templateId, uidFn) {
   const t = TEMPLATES[templateId];

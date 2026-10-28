@@ -5,6 +5,7 @@ import { $, $$, esc, escBr, clamp, fmtClock, prefersReducedMotion, grainTexture,
 import { projectsOf, sectionsOf, slidesOf, findProject, findSection, slideTheme, locate, isShared, sharedOf } from './core/model.js';
 import { loadContent, logDecision } from './core/store.js';
 import { createEditor, edAttr } from './core/editor.js';
+import { initZoom } from './core/zoom.js';
 import { createSync } from './core/sync.js';
 import { registerFonts, applyTypography, fontsReady } from './core/fonts.js';
 import { BrandTexture } from './core/texture.js';
@@ -1282,6 +1283,7 @@ async function boot() {
   $('#boot').classList.add('done');
   sound.unlock(); // works when Chrome is started with --autoplay-policy=no-user-gesture-required (the launcher does this)
 
+  initZoom();
   if (!PREVIEW) editor = createEditor({
     content: () => S.content,
     views: () => [{ root: L.hub }, S.slideEl && S.slide ? { root: S.slideEl, owner: { kind: 'slide', id: S.slide.id }, data: S.slide.data } : null],
