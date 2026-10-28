@@ -174,3 +174,4 @@
 
 ## Section transitions: the station is the door (2026-10-28)
 - Entering a section from the project page: the station's number and name travel to the middle and become the section title (the rest of the page steps back, the symbol settles faint in the corner), then the title lifts away and the first slide enters. Leaving: the slide closes in a circle into its station's dot while the page returns; the light then moves to the next station. Replaces the separate cover card on section entry (cover cards remain for the 'cover' setting and slide transitions).
+- Follow-up: section entry styles, chosen with one tap in the control panel (global settings): 'merged' (default: the brand cover and symbol as before, with the station's own number and name flying into it), 'cover' (the previous cover card exactly), 'door' (station title alone, slide closes into its station on exit). Merged/cover exit = the previous camera pull-back.

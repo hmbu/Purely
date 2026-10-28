@@ -1432,3 +1432,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .sd-en { font-size: 1.2rem; letter-spacing: .32em; text-transform: uppercase; }
 .sd-mark { position: absolute; right: -12rem; bottom: -20rem; width: 64rem; height: 64rem; background-color: currentColor; opacity: 0; }
 .style-mist .sd-mark { width: 52rem; height: 70rem; right: -10rem; bottom: -26rem; }
+/* merged section entry: only the plate is wiped in, so the title flying from its station stays visible */
+#cover.is-panel.is-flip { background: none; }
+#cover.is-flip::before, #cover.is-flip::after { display: none; }
+#cover .cv-plate { position: absolute; inset: 0; background: var(--cv-bg); }
+#cover .cv-plate::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .12; }

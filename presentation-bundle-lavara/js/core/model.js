@@ -60,7 +60,7 @@ export const SETTING_DEFAULTS = {
   headerLogos: { show: true, corner: 'top-left', size: 1, gap: 2, autoContrast: true, color: '#F3EFE6', items: [] },
   sound: { master: 0.35, muted: false },
   video: { autoplay: true, pauseOnLeave: true },
-  flow: { afterAllProjects: 'decision', sectionTransition: 'hub', afterSection: 'wait', titleCards: true },
+  flow: { afterAllProjects: 'decision', sectionTransition: 'hub', afterSection: 'wait', titleCards: true, sectionStyle: 'merged' },
 };
 function fillMissing(target, defaults) {
   for (const [k, v] of Object.entries(defaults)) {

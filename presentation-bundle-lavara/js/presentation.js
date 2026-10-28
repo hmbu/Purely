@@ -505,7 +505,7 @@ function coverCard(p, number, title, titleEn) {
     ${titleEn ? `<span class="cv-en latin">${esc(titleEn)}</span>` : ''}
   </div>`;
 }
-async function coverTransition({ p, dir = 1, card = null, light = false, swap, after }) {
+async function coverTransition({ p, dir = 1, card = null, light = false, swap, after, flip = null }) {
   const tex = p.brand.texture === 'mist' ? 'mist' : 'bubbles';
   const panel = quiet() || !veil?.ok || reduced();
   const useVeil = !panel;
@@ -515,9 +515,11 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
   // light grounds (the shared frame's paper) take the dark ink, never white on white
   coverEl.style.setProperty('--cv-fg', sceneOf(p) ? sceneOf(p).ink : isDark(cvBg) ? p.brand.colors?.textLight || '#fff' : p.brand.colors?.title || p.brand.colors?.dark || '#1E1B17');
   coverEl.style.setProperty('--cv-bg', cvBg);
-  coverEl.innerHTML = card ? coverCard(p, card.number, card.title, card.titleEn) : '';
+  coverEl.innerHTML = (flip && panel ? '<div class="cv-plate"></div>' : '') + (card ? coverCard(p, card.number, card.title, card.titleEn) : '');
+  coverEl.classList.toggle('is-flip', !!(flip && panel));
+  const wipe = () => (flip && panel ? $('.cv-plate', coverEl) : coverEl); // a flying title must not be clipped by the wipe
   sound.play(light ? 'slide' : 'section', p.id);
-  const inT = light ? 0.65 : 1.1, hold = card ? (p.brand.mark ? 1.25 : 0.75) : 0.1, outT = light ? 0.7 : 1.05; // the symbol's opening needs a beat longer
+  const inT = light ? 0.65 : 1.1, hold = card ? (p.brand.mark ? 1.25 : 0.75) + (flip ? 0.6 : 0) : 0.1, outT = light ? 0.7 : 1.05; // the symbol's opening needs a beat longer
   const tl = gsap.timeline();
   if (useVeil) {
     veil.set({ mode: tex, variant: p.brand.textureStyle, colors: p.brand.textureColors, sweep: dir, progress: 0, alpha: p.brand.textureIntensity ?? 1, seed: Math.random() * 99 });
@@ -525,7 +527,7 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
     tl.to(veil, { progress: 1, duration: inT, ease: 'power2.inOut' }, 0);
   } else {
     coverEl.style.setProperty('--cv-bg', cvBg);
-    tl.fromTo(coverEl, { clipPath: dir > 0 ? 'inset(0% 100% 0% 0%)' : 'inset(0% 0% 0% 100%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: inT, ease: 'expo.inOut' }, 0);
+    tl.fromTo(wipe(), { clipPath: dir > 0 ? 'inset(0% 100% 0% 0%)' : 'inset(0% 0% 0% 100%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: inT, ease: 'expo.inOut' }, 0);
     tl.fromTo(coverEl, { '--lx': dir > 0 ? '20%' : '80%' }, { '--lx': dir > 0 ? '70%' : '30%', duration: inT + 1.8, ease: 'sine.inOut' }, 0);
   }
   coverEl.classList.add('on');
@@ -538,9 +540,24 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
     // …then slides to the bottom-right corner and settles there large and half cut by the edge, a shadow beside the title
     const W = coverEl.offsetWidth, H = coverEl.offsetHeight, M = markEl.offsetWidth * 1.55;
     tl.to(markEl, { opacity: 0.1, scale: 1.55, x: W / 2 - M * 0.22, y: H / 2 - M * 0.12, duration: 1.35, ease: 'expo.inOut' }, t0 + 0.4);
-    tl.fromTo($('.cover-card', coverEl), { clipPath: 'inset(0% 50% 0% 50%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.15, ease: 'expo.inOut' }, t0 + 0.48);
-    tl.fromTo(cardEls, { opacity: 0, y: pxs(14) }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.06 }, t0 + 0.55);
+    if (flip) { // merged: the station's own number and name fly from the line into the cover while it sweeps in
+      const num = $('.cv-num', coverEl), title = $('.cv-title', coverEl), fN = flipFrom(num, flip.num), fT = flipFrom(title, flip.title);
+      gsap.set([flip.num, flip.title].filter(Boolean), { opacity: 0 });
+      tl.fromTo(num, fN, { x: 0, y: 0, scale: 1, opacity: 1, duration: 1.3, ease: 'expo.inOut' }, t0 + 0.35);
+      tl.fromTo(title, fT, { x: 0, y: 0, scale: 1, opacity: 1, duration: 1.3, ease: 'expo.inOut' }, t0 + 0.4);
+      tl.fromTo(cardEls.filter(x => x !== num && x !== title), { opacity: 0, y: pxs(14) }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.06 }, t0 + 0.55);
+    } else {
+      tl.fromTo($('.cover-card', coverEl), { clipPath: 'inset(0% 50% 0% 50%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.15, ease: 'expo.inOut' }, t0 + 0.48);
+      tl.fromTo(cardEls, { opacity: 0, y: pxs(14) }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.06 }, t0 + 0.55);
+    }
     tl.fromTo($('.cv-rule', coverEl), { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: 'expo.inOut' }, t0 + 0.6);
+  } else if (card && flip) {
+    const num = $('.cv-num', coverEl), title = $('.cv-title', coverEl);
+    gsap.set([flip.num, flip.title].filter(Boolean), { opacity: 0 });
+    tl.fromTo(num, flipFrom(num, flip.num), { x: 0, y: 0, scale: 1, opacity: 1, duration: 1.25, ease: 'expo.inOut' }, 0.05);
+    tl.fromTo(title, flipFrom(title, flip.title), { x: 0, y: 0, scale: 1, opacity: 1, duration: 1.25, ease: 'expo.inOut' }, 0.08);
+    tl.fromTo(cardEls.filter(x => x !== num && x !== title), { opacity: 0, y: pxs(24) }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.09 }, inT * 0.7);
+    tl.fromTo($('.cv-rule', coverEl), { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: 'expo.inOut' }, inT * 0.72);
   } else if (card) {
     tl.fromTo(cardEls, { opacity: 0, y: pxs(24) }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.09 }, inT * 0.7);
     tl.fromTo($('.cv-rule', coverEl), { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: 'expo.inOut' }, inT * 0.72);
@@ -552,10 +569,10 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
   // the cover starts leaving while the title fades, and the slide starts entering with it: no empty beat in between
   const leave = card ? outAt - 0.12 : outAt;
   if (useVeil) tl.to(veil, { progress: 0, duration: outT, ease: 'power2.inOut' }, leave);
-  else tl.to(coverEl, { clipPath: dir > 0 ? 'inset(0% 0% 0% 100%)' : 'inset(0% 100% 0% 0%)', duration: outT, ease: 'expo.inOut' }, leave);
+  else tl.to(wipe(), { clipPath: dir > 0 ? 'inset(0% 0% 0% 100%)' : 'inset(0% 100% 0% 0%)', duration: outT, ease: 'expo.inOut' }, leave);
   if (after) tl.add(() => { after(); }, leave + outT * 0.15);
   await tl;
-  coverEl.classList.remove('on', 'is-panel'); coverEl.innerHTML = ''; gsap.set(coverEl, { clearProps: 'backgroundColor,clipPath' });
+  coverEl.classList.remove('on', 'is-panel', 'is-flip'); coverEl.innerHTML = ''; gsap.set(coverEl, { clearProps: 'backgroundColor,clipPath' });
   if (useVeil) veil.stop(), veil.set({ progress: 0 });
 }
 
@@ -948,7 +965,21 @@ async function enterSection(sid, slideIndex = 0) {
     const dir = secs.indexOf(sec) >= secs.findIndex(s => s.id === S.sid) ? 1 : -1;
     return flowSection(sec, slideIndex, dir);
   }
-  if (settings().flow?.titleCards !== false && !reduced()) return stationDoor(p, sec, slideIndex); // the station opens the section
+  // Section entry styles (settings.flow.sectionStyle): 'merged' — the brand cover with the station's own title flying
+  // into it (default) · 'cover' — the brand cover card as before · 'door' — the station title alone, no cover.
+  const style = sectionStyle();
+  if (settings().flow?.titleCards !== false && !reduced() && style === 'door') return stationDoor(p, sec, slideIndex);
+  if (settings().flow?.titleCards !== false && !reduced()) { // the section opens with its title: the project's symbol unveils it
+    const i = secs.indexOf(sec);
+    const st = style === 'merged' ? $(`.h2-station[data-section="${CSS.escape(sid)}"]`, L.hub) : null;
+    S.hubPending = null; S.lastSection[p.id] = i; S.seenSections[p.id] = Math.max(S.seenSections[p.id] ?? -1, i);
+    await coverTransition({ p, dir: 1, card: { number: i + 1, title: sec.title, titleEn: sec.titleEn },
+      flip: st ? { num: $('.h2-num', st), title: $('.h2-title', st) } : null, swap: () => {
+      S.sid = sid; S.li = slideIndex < 0 ? slidesOf(sec).length - 1 : slideIndex; S.step = 0; enterSectionInstant();
+      if (slideIndex < 0) { S.step = stepsOf(S.slideTpl, S.slide); if (S.slideTpl.steps) applyStep(S.slideEl, S.step, true); }
+    }, after: () => { if (S.slideEl) introTL(S.slideEl, 1); } });
+    updateHUD(); broadcastState(); return;
+  }
   const station = $(`.h2-station[data-section="${CSS.escape(sid)}"] .h2-dot`, L.hub);
   const origin = station ? originOf(station, L.hub) : '50% 50%';
   S.sid = sid; S.li = slideIndex; S.step = 0; S.level = 'section'; S.hubPending = null;
@@ -972,6 +1003,13 @@ async function enterSection(sid, slideIndex = 0) {
   updateHUD(); broadcastState();
 }
 
+const sectionStyle = () => settings().flow?.sectionStyle || 'merged';
+// FLIP start values: el starts exactly where (and as large as) src stands, then can tween to its own place
+function flipFrom(el, src) {
+  if (!el || !src) return { opacity: 0 };
+  const a = stageRect(src), b = stageRect(el);
+  return { x: a.x + a.w / 2 - (b.x + b.w / 2), y: a.y + a.h / 2 - (b.y + b.h / 2), scale: Math.max(0.05, a.h / (b.h || 1)), opacity: 1 };
+}
 /* The station is the door. Entering: the station's own number and name travel from the line to the middle of the
    page and become the section's title (the rest of the page steps back, the project's symbol settles as a faint
    shadow in the corner), then the title lifts away and the first slide enters. Leaving (zoomOut) is the same path
@@ -1065,7 +1103,7 @@ async function zoomOut({ strong = false } = {}) {
     const origin = station ? originOf(station, L.hub) : '50% 50%';
     sound.play('zoom', p.id);
     const D = ZOOM() * (strong ? 1.3 : 1); const tl = gsap.timeline();
-    if (settings().flow?.titleCards !== false && !reduced()) {
+    if (settings().flow?.titleCards !== false && !reduced() && sectionStyle() === 'door') {
       // the door in reverse: the slide closes into its station's dot while the page comes back around it
       const at = station ? (() => { const r = stageRect(station); return `${r.x + r.w / 2}px ${r.y + r.h / 2}px`; })() : '50% 50%';
       const far = Math.hypot(stage.clientWidth, stage.clientHeight);

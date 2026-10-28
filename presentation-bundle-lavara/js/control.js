@@ -564,6 +564,13 @@ function renderGlobal() {
       newItem: () => ({ id: uid('logo'), label: 'شعار', src: '', srcDark: '', tint: true, show: true, scale: 1 }) },
   ], st, ctx)));
 
+  { // one tap: how a section opens (and closes)
+    st.flow ||= {}; const cur = st.flow.sectionStyle || 'merged';
+    const pick = v => { st.flow.sectionStyle = v; st.flow.titleCards = true; commit({ key: 'settings.flow.sectionStyle' }); renderGlobal(); };
+    f.append(group('حركة الدخول إلى الأقسام والخروج منها', h('div', { class: 'row', style: 'gap:10px;flex-wrap:wrap' },
+      ...[['merged', 'المدمجة — الغطاء + العنوان يطير من المحطة'], ['cover', 'السابقة — غطاء الهوية والرمز'], ['door', 'المحطة هي الباب — بدون غطاء']]
+        .map(([v, l]) => h('button', { class: 'btn' + (cur === v ? ' primary' : ''), onclick: () => pick(v) }, l)))));
+  }
   f.append(group('الفيديو والتسلسل', ...renderFields([
     { key: 'video.autoplay', type: 'toggle', label: 'تشغيل الفيديو تلقائياً عند الوصول' },
     { key: 'video.pauseOnLeave', type: 'toggle', label: 'إيقاف الفيديو عند المغادرة' },
