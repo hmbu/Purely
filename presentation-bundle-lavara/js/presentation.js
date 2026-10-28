@@ -291,7 +291,7 @@ function outroTL(el, dir = 1) {
 }
 function lightVeil(p, dir) {
   if (!veil?.ok || reduced() || quiet()) return;
-  veil.set({ mode: p.brand.texture, colors: p.brand.textureColors, sweep: dir, progress: 0, alpha: 0.14 * (p.brand.textureIntensity ?? 1), seed: Math.random() * 99 });
+  veil.set({ mode: p.brand.texture, variant: p.brand.textureStyle, colors: p.brand.textureColors, sweep: dir, progress: 0, alpha: 0.14 * (p.brand.textureIntensity ?? 1), seed: Math.random() * 99 });
   veil.start();
   gsap.timeline({ onComplete: () => veil.stop() }).to(veil, { progress: 0.32, duration: 0.5, ease: 'sine.out' }).to(veil, { progress: 0, duration: 0.6, ease: 'sine.in' });
 }
@@ -379,7 +379,7 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
   const inT = light ? 0.65 : 1.1, hold = card ? 0.75 : 0.1, outT = light ? 0.7 : 1.05;
   const tl = gsap.timeline();
   if (useVeil) {
-    veil.set({ mode: tex, colors: p.brand.textureColors, sweep: dir, progress: 0, alpha: p.brand.textureIntensity ?? 1, seed: Math.random() * 99 });
+    veil.set({ mode: tex, variant: p.brand.textureStyle, colors: p.brand.textureColors, sweep: dir, progress: 0, alpha: p.brand.textureIntensity ?? 1, seed: Math.random() * 99 });
     veil.start();
     tl.to(veil, { progress: 1, duration: inT, ease: 'power2.inOut' }, 0);
   } else {
@@ -525,12 +525,12 @@ function renderUniverse() {
     const cv = $('.w-tex', w);
     const fusion = layout === 'fusion';
     if ((!legacy && !fusion) || !cv || (legacy && (p.brand.universe?.visual === 'color' || p.brand.universe?.visual === 'image')) || reduced()) { worldTex.push({ stop() {}, start() {}, set() {} }); return; }
-    const { tex, fresh } = pooledTexture(`world-${layout === 'fusion' ? 'f' : 'l'}-${p.id}`, cv, p.brand.texture === 'mist' ? 0.3 : 0.4);
+    const { tex, fresh } = pooledTexture(`world-${layout === 'fusion' ? 'f' : 'l'}-${p.id}${p.brand.textureStyle || ''}`, cv, p.brand.texture === 'mist' && !crisp(p) ? 0.3 : 0.5);
     const mist = p.brand.texture === 'mist';
     tex._base = fusion ? { progress: mist ? 0.36 : 0.05, speed: 0.4 } : { progress: mist ? 0.36 : 0.3, speed: 0.6 };
     const tc = p.brand.textureColors || [];
     const colors = fusion ? (mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]]) : ambientColors(p);
-    tex.set({ mode: p.brand.texture, colors, progress: tex._base.progress, alpha: fusion ? (mist ? 0.42 : 0.26) : 0.9, speed: tex._base.speed, sweep: 0, ...(fresh ? { seed: i * 7 + 3 } : {}) });
+    tex.set({ mode: p.brand.texture, variant: p.brand.textureStyle, colors, progress: tex._base.progress, alpha: fusion ? (mist ? 0.42 : 0.26) : 0.9, speed: tex._base.speed, sweep: 0, ...(fresh ? { seed: i * 7 + 3 } : {}) });
     worldTex.push(tex);
   });
   $('.u-down', L.universe)?.addEventListener('click', e => { e.stopPropagation(); command('shared'); });
@@ -616,6 +616,8 @@ function applyTone() { stage.classList.toggle('tone-quiet', (settings().tone || 
 const quiet = () => (settings().tone || 'quiet') === 'quiet';
 
 /* ======================================================================= hub (project page) */
+// Lavara's material styles (liquid soap, soap bar, amber light) have defined edges and highlights: they need more pixels than the fog.
+const crisp = p => ['silk', 'soap', 'amber'].includes(p.brand.textureStyle);
 // The project page continues the opening screen: brand colour + calm live texture, and the sections as
 // stations on a line of light. The light rests on the next section; hovering slides it to another station.
 let hubTex = null;
@@ -671,9 +673,9 @@ function renderHub(p) {
   const cv = $('.h2-tex', L.hub);
   if (cv && !reduced()) {
     const tc = p.brand.textureColors || []; const mist = p.brand.texture === 'mist';
-    const { tex, fresh } = pooledTexture('hub-' + p.id, cv, mist ? 0.3 : 0.4);
+    const { tex, fresh } = pooledTexture('hub-' + p.id + (p.brand.textureStyle || ''), cv, mist && !crisp(p) ? 0.3 : 0.5);
     hubTex = tex;
-    hubTex.set({ mode: p.brand.texture, colors: mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]], progress: mist ? 0.34 : 0.05, alpha: mist ? 0.4 : 0.24, speed: 0.4, sweep: 0, ...(fresh ? { seed: 11 } : {}) });
+    hubTex.set({ mode: p.brand.texture, variant: p.brand.textureStyle, colors: mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]], progress: mist ? 0.34 : 0.05, alpha: mist ? 0.4 : 0.24, speed: 0.4, sweep: 0, ...(fresh ? { seed: 11 } : {}) });
     hubTex.start();
   }
 }

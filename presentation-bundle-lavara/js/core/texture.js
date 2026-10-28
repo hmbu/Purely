@@ -1,6 +1,10 @@
 // Brand textures rendered in WebGL2 at reduced internal resolution (invisible on soft shapes, keeps 60fps at 4K).
 //   bubbles → Bundle: gooey metaballs with multi-color gradients + grain.
 //   mist    → Lavara: slow domain-warped fog / foam with soft edges.
+//   Lavara variants (brand.textureStyle), care-product materials instead of fog:
+//     silk  → liquid soap: thick glossy folds with a moving sheen.
+//     soap  → handmade soap bar: slow marbled swirls with fine flecks.
+//     amber → light through perfume / oil: warm caustics in amber glass.
 // One instance per canvas. Drive it with the tweenable fields: progress (coverage 0..1), alpha, speed, sweep.
 import { hexToRgb } from './util.js';
 
@@ -64,6 +68,103 @@ void main(){
   o = vec4(col * a * u_alpha, a * u_alpha);
 }`;
 
+const NOISE = `
+float vnoise(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash(i), hash(i + vec2(1,0)), u.x), mix(hash(i + vec2(0,1)), hash(i + vec2(1,1)), u.x), u.y); }
+float fbm(vec2 p){ float v = 0.0, a = 0.5; mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
+  for (int i = 0; i < 4; i++){ v += a * vnoise(p); p = m * p; a *= 0.5; } return v; }
+// Coverage like the fog: a liquid edge that floods in from the sweep side, crisp (a liquid, not a haze).
+float reveal(float d, vec2 uv, float soft){
+  float cov = u_progress;
+  float lo = 1.0 - cov * 1.6 + u_sweep * (uv.x - 0.5) * 0.8 * (1.0 - cov);
+  return max(smoothstep(lo, lo + soft, d), smoothstep(0.86, 1.0, cov));
+}
+float grain(){ return (hash(gl_FragCoord.xy + fract(u_time * 5.0) * 57.0) - 0.5) * u_grain; }
+`;
+
+// Liquid soap: a slow height field of broad poured folds, lit like a glossy, slightly translucent liquid.
+const SILK = COMMON + NOISE + `
+float H(vec2 p, float t){
+  vec2 w = vec2(fbm(p * 0.45 + vec2(t, -t * 0.5)), fbm(p * 0.45 + vec2(4.3, 1.7) - t * 0.7));
+  float f = sin((p.x * 0.45 + p.y * 1.3) * 3.4 + (w.x + w.y) * 3.0 - t * 1.6);
+  return f * 0.5 + 0.5;
+}
+void main(){
+  vec2 uv = gl_FragCoord.xy / u_res; float asp = u_res.x / u_res.y;
+  vec2 p = vec2(uv.x * asp, uv.y) * 2.0;
+  float t = u_time * 0.05;
+  float e = 0.004, h = H(p, t);
+  vec2 g = vec2(H(p + vec2(e, 0.0), t) - h, H(p + vec2(0.0, e), t) - h) / e;
+  vec3 n = normalize(vec3(-g * 0.55, 1.0));
+  vec3 l = normalize(vec3(-0.5, 0.65, 0.6));
+  float diff = clamp(dot(n, l), 0.0, 1.0);
+  float spec = pow(max(dot(reflect(-l, n), vec3(0.0, 0.0, 1.0)), 0.0), 48.0);
+  float fres = pow(1.0 - n.z, 2.0);
+  vec3 col = mix(u_col[0], u_col[1], smoothstep(0.05, 0.75, h));           // deep in the folds, warm on the crests
+  col = mix(col, u_col[2], smoothstep(0.55, 1.0, h) * 0.6 * (0.4 + diff));  // light passing through the thin crests
+  col *= 0.62 + 0.55 * diff;
+  float glint = pow(max(dot(reflect(-l, n), vec3(0.0, 0.0, 1.0)), 0.0), 220.0);
+  col += u_col[3] * (spec * 0.7 + glint * 0.6 + fres * 0.18);
+  float d = fbm(p * 0.8 + vec2(-t * 2.0, t)) + 0.25 * h;
+  float a = reveal(d, uv, 0.05);
+  col += grain() * 0.5;
+  o = vec4(col * a * u_alpha, a * u_alpha);
+}`;
+
+// Handmade soap bar: soft marbled bands folded into each other, with sparse fine round flecks.
+const SOAP = COMMON + NOISE + `
+void main(){
+  vec2 uv = gl_FragCoord.xy / u_res; float asp = u_res.x / u_res.y;
+  vec2 p = vec2(uv.x * asp, uv.y) * 1.4;
+  float t = u_time * 0.03;
+  vec2 q = vec2(fbm(p + vec2(t, 0.0)), fbm(p + vec2(3.1, 7.4) - t));
+  vec2 r = vec2(fbm(p + 3.0 * q + vec2(1.7, 9.2) + t), fbm(p + 3.0 * q + vec2(8.3, 2.8) - t));
+  float m = fbm(p + 2.2 * r + vec2(t * 0.7, -t));
+  float band = 0.5 + 0.5 * sin(m * 16.0 + r.x * 4.0);
+  vec3 col = mix(u_col[1], u_col[2], smoothstep(0.2, 0.8, m));            // the soap body
+  col = mix(col, u_col[0], smoothstep(0.3, 0.0, band) * 0.45);             // darker folded swirls
+  col = mix(col, u_col[3], smoothstep(0.86, 0.99, band) * 0.45);           // creamy marble streaks
+  vec2 fp = gl_FragCoord.xy / (u_res.y * 0.012);                          // flecks sized to the screen, not the pixel
+  vec2 fc = floor(fp), ff = fract(fp) - 0.5;
+  float rf = hash(fc + 7.0);
+  float fleck = step(0.965, rf) * (1.0 - smoothstep(0.12, 0.28, length(ff - (vec2(hash(fc), hash(fc + 3.0)) - 0.5) * 0.4)));
+  col = mix(col, rf > 0.985 ? u_col[3] : u_col[0], fleck * 0.55);
+  col *= 0.92 + 0.12 * smoothstep(0.2, 0.8, q.x);
+  float a = reveal(m + 0.15 * length(q), uv, 0.05);
+  col += grain() * 0.8;
+  o = vec4(col * a * u_alpha, a * u_alpha);
+}`;
+
+// Light through perfume / oil in amber glass: a moving caustic network over a warm depth gradient.
+const AMBER = COMMON + NOISE + `
+vec2 h2(vec2 p){ return vec2(hash(p), hash(p + 17.3)); }
+float caustic(vec2 p, float t){
+  vec2 i = floor(p), f = fract(p); float f1 = 9.0, f2 = 9.0;
+  for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+    vec2 o = vec2(x, y), c = h2(i + o);
+    c = 0.5 + 0.42 * sin(t + 6.2831 * c);
+    float d = length(o + c - f);
+    if (d < f1) { f2 = f1; f1 = d; } else if (d < f2) f2 = d;
+  }
+  return 1.0 - smoothstep(0.0, 0.3, f2 - f1);
+}
+void main(){
+  vec2 uv = gl_FragCoord.xy / u_res; float asp = u_res.x / u_res.y;
+  vec2 p = vec2(uv.x * asp, uv.y);
+  float t = u_time * 0.18;
+  vec2 w = p * vec2(1.6, 2.6) + 1.3 * vec2(fbm(p * 1.5 + t * 0.1), fbm(p * 1.5 - t * 0.1 + 5.0));
+  float c = pow(caustic(w, t) * 0.6 + caustic(w * 1.5 + 3.0, t * 1.3) * 0.4, 1.6);
+  float depth = smoothstep(0.0, 1.0, uv.y * 0.85 + 0.25 * fbm(p * 2.5 - t * 0.05));
+  vec3 col = mix(u_col[0], u_col[1], depth);
+  col = mix(col, u_col[2], c * (0.35 + 0.4 * depth));
+  col += u_col[3] * pow(c, 3.0) * 0.3 * depth;
+  float a = reveal(fbm(p * 2.0 + t * 0.03) + 0.35 * depth, uv, 0.1);
+  col += grain() * 0.6;
+  o = vec4(col * a * u_alpha, a * u_alpha);
+}`;
+
+const LAVARA_STYLES = ['silk', 'soap', 'amber'];
+
 const BALLS = 14;
 
 export class BrandTexture {
@@ -93,7 +194,7 @@ export class BrandTexture {
     const gl = this.gl;
     const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    for (const [name, src] of [['bubbles', BUBBLES], ['mist', MIST]]) {
+    for (const [name, src] of [['bubbles', BUBBLES], ['mist', MIST], ['silk', SILK], ['soap', SOAP], ['amber', AMBER]]) {
       const prog = gl.createProgram();
       for (const [type, code] of [[gl.VERTEX_SHADER, VERT], [gl.FRAGMENT_SHADER, src]]) {
         const sh = gl.createShader(type); gl.shaderSource(sh, code); gl.compileShader(sh);
@@ -107,7 +208,7 @@ export class BrandTexture {
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
   }
   set(opts = {}) {
-    if (opts.mode) this.mode = opts.mode === 'mist' ? 'mist' : 'bubbles';
+    if (opts.mode) this.mode = opts.mode !== 'mist' ? 'bubbles' : LAVARA_STYLES.includes(opts.variant) ? opts.variant : 'mist';
     if (opts.colors) this.colors = [...opts.colors, ...this.colors].slice(0, 4);
     if (opts.seed != null) this.seedBalls(opts.seed);
     for (const k of ['progress', 'alpha', 'speed', 'sweep', 'grain', 'resScale']) if (opts[k] != null) this[k] = opts[k];

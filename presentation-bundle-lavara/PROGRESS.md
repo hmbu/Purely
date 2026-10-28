@@ -58,3 +58,12 @@
   - Financial: "Money flow".
 - New slide template `diagram`: boxes on a grid with arrows, labels, frames, and step-by-step reveal. Fully editable in the control panel.
 - Show order: Bundle → Lavara → shared area → decisions → closing.
+
+## Lavara background: care-product materials instead of fog
+- Team feedback: the Lavara "mist" texture reads as fog. Foam was suggested and rejected (reads cheap / bath product).
+- Added three styles, chosen per brand in the control panel (Brands › Lavara › "شكل ملمس لافارا"; field `brand.textureStyle`):
+  - `silk` liquid soap: glossy poured folds with a moving sheen.
+  - `soap` handmade soap bar: marbled swirls with fine flecks.
+  - `amber` light through perfume / oil: warm caustics.
+- `mist` stays the default until the user picks one (content.json is untouched).
+- Brand review (Alternative 2): palette is brown #3C2E25, terracotta #AD6243, ivory, paper, ochre #926A28, plus a **sage green** used on bottles, soap and boxes that is not yet in the brand config. Waiting for the user's decision on adding it.
