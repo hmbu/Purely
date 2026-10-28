@@ -418,6 +418,22 @@ function headsRise(old, el) {
   tl.to(clones, { opacity: 0, duration: 0.35, onComplete: () => clones.forEach(c => c.remove()) }, 1.1);
   return tl;
 }
+// Identity section: the wordmark is one object. Between the title slide and the identity board it travels from one
+// place to the other (and changes colour on the way) while everything else changes around it. Both directions.
+const LOGO_PAIRS = [['.t-logo .logo-mask', '.board-logo .logo-mask']];
+function logoMorph(old, el) {
+  let a = null, b = null;
+  for (const [x, y] of LOGO_PAIRS) { a = $(x, old) || $(y, old); b = a && (a.matches(x) ? $(y, el) : $(x, el)); if (a && b) break; }
+  if (!a || !b) return null;
+  const ra = stageRect(a), rb = stageRect(b), ca = getComputedStyle(a).backgroundColor, cb = getComputedStyle(b).backgroundColor;
+  const fly = document.createElement('span'); fly.className = 'logo-mask logo-fly';
+  fly.style.cssText = `position:absolute;z-index:44;margin:0;pointer-events:none;--src:${getComputedStyle(a).getPropertyValue('--src')};left:${ra.x}px;top:${ra.y}px;width:${ra.w}px;height:${ra.h}px;background-color:${ca}`;
+  stage.appendChild(fly);
+  gsap.set(a, { opacity: 0 }); b.style.visibility = 'hidden';
+  return gsap.timeline()
+    .to(fly, { left: rb.x, top: rb.y, width: rb.w, height: rb.h, backgroundColor: cb, duration: 1.35, ease: 'expo.inOut' }, 0.05)
+    .add(() => { b.style.visibility = ''; fly.remove(); });
+}
 function outroTL(el, dir = 1) {
   if (risesIn()) { gsap.to($$('[data-a] .m', el), { scale: 1.05, duration: 0.4, ease: 'power2.in' }); return gsap.to($$('.t, .slide-bg ~ *', el), { y: -pxs(16), opacity: 0, duration: 0.4, ease: 'power2.in' }); }
   const t = $$('.t, .slide-bg ~ *', el);
@@ -484,6 +500,7 @@ async function showSlide(li, { dir = 1, kind, instant = false } = {}) {
       mountSlide(el, tpl, slide);
       lightVeil(p, dir);
       const tl = gsap.timeline();
+      const morph = logoMorph(old, el); if (morph) tl.add(morph, 0);
       const rise = risesIn() && dir > 0 && headsRise(old, el);
       const swap = !rise && risesIn() && tabsSwap(old, el);
       if (rise) { tl.add(rise, 0); tl.add(introTL(el, dir, 'drift'), 0.95); }

@@ -178,3 +178,4 @@
 - Follow-up: shared frame company cards — Al Majed Oud: black logo only on an oud-gold card; Rimthan: white logo on a deep charcoal card.
 - Follow-up: company cards show only the logo (no Arabic name in text) for both Al Majed Oud and Rimthan.
 - Section exit made calm: the slide eases back while the already-built project page settles in; stations rise softly, the line is not redrawn.
+- Identity sections: the wordmark travels between the title slide and the identity board (both directions), changing colour on the way, while the rest of the slide changes around it.
