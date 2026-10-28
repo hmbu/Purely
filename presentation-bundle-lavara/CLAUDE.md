@@ -8,6 +8,11 @@ This folder is a standalone project. The hotel in-room store rules in the reposi
 - Arabic text never gets letter-spacing.
 - Stop and wait for the user's approval after each phase. Track status in `PROGRESS.md`.
 
+## Identity sources (user decision, strict)
+- Bundle: only `brand-source/bundle-brand.pdf` (its palettes, grainy gradient shapes — arches, half/quarter circles, gradient spheres — pills, rounded cards). The gift-products deck follows it.
+- Lavara: only `brand-source/lavara-brand.pdf`, Alternative 2: the LAVARA wordmark, the framed "A" monogram, the round LA·VA·RA seal, hairline frames/lines, its palette, numbering as (001). No shapes, gradients or markers from anywhere else (no diamonds, no Roman numerals, no borrowed Bundle shapes).
+- Never take identity from working files (HTML/PPTX decks the user sends): they give content only.
+
 ## Design rule: every addition wears its project's identity (user decision)
 - Any slide added to any project must look like that project, never one generic style pasted everywhere, and never a copy of the source file's look (PPTX/HTML material is re-composed, not pasted).
 - Templates take colours only from the slide tokens (`--sbg --sfg --stitle --saccent --ssec --ssurf`), never hard-coded brand hex.

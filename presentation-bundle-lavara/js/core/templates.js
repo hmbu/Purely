@@ -405,7 +405,7 @@ TEMPLATES.sectors = {
       <div class="sc-cols">
         ${it.map((x, i) => `
           <div class="sc-col" data-a="extra" data-seq="${i}">
-            <div class="sc-head"><span class="sc-num latin">${String(i + 1).padStart(2, '0')}</span><span class="sc-roman latin">${ROMAN[i] || i + 1}</span><h3 class="sc-title">${escBr(x.title || '')}</h3></div>
+            <div class="sc-head"><span class="sc-num latin">${String(i + 1).padStart(2, '0')}</span><span class="sc-roman latin" data-n="(${String(i + 1).padStart(3, '0')})">${ROMAN[i] || i + 1}</span><h3 class="sc-title">${escBr(x.title || '')}</h3></div>
             ${x.body ? `<p class="sc-body">${escBr(x.body)}</p>` : ''}
             <div class="sc-logos">${(x.logos || []).map(l => { const src = typeof l.logo === 'string' ? l.logo : l.logo?.src;
               return `<div class="sc-logo" title="${esc(l.name || '')}">${src ? `<img src="${esc(ctx.asset(src))}" alt="${esc(l.name || '')}"><i class="sc-mark" style="--src:url('${esc(ctx.asset(src))}')"></i>` : `<span>${esc(l.name || '')}</span>`}</div>`; }).join('')}</div>
@@ -534,7 +534,7 @@ TEMPLATES.flow = {
       <div class="fl-row" style="--n:${ph.length || 1}">
         ${ph.map((p, i) => `
           <div class="fl-ph" data-a="extra" data-seq="${i}">
-            <div class="fl-top"><span class="fl-n latin">${String(i + 1).padStart(2, '0')}</span><span class="fl-roman latin">${ROMAN[i] || i + 1}</span></div>
+            <div class="fl-top"><span class="fl-n latin">${String(i + 1).padStart(2, '0')}</span><span class="fl-roman latin" data-n="(${String(i + 1).padStart(3, '0')})">${ROMAN[i] || i + 1}</span></div>
             <h3 class="fl-t">${esc(p.title || '')}</h3>
             <ul class="fl-steps">${lines(p.steps).map(x => (x[0] === '#' ? `<li class="fl-sub">${esc(x.slice(1).trim())}</li>` : `<li>${esc(x)}</li>`)).join('')}</ul>
             ${p.gate ? `<div class="fl-gate"><i></i><span>${esc(p.gate)}</span></div>` : ''}
@@ -609,7 +609,7 @@ TEMPLATES.sources = {
   fields: [F.eyebrow, F.title, { key: 'items', type: 'list', label: 'البطاقات', item: [{ key: 'pill', type: 'text', label: 'الوسم' }, { key: 'title', type: 'textarea', rows: 2, label: 'الوصف' },
     { key: 'tone', type: 'select', label: 'اللون', options: TONES5 }, { key: 'featured', type: 'toggle', label: 'بطاقة بارزة' }], newItem: { pill: '', title: '', tone: 't1', featured: false } }],
   defaults: { eyebrow: '', title: 'المصادر', items: [] },
-  render: d => `
+  render: (d, ctx) => `
     <div class="t t-sources">
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
       <div class="so-cards" style="--n:${(d.items || []).length || 1}">
@@ -618,6 +618,7 @@ TEMPLATES.sources = {
             ${it.pill ? `<span class="so-pill">${esc(it.pill)}</span>` : ''}
             <h3>${escBr(it.title || '')}</h3>
             <i class="so-shape ${SHAPES[i % SHAPES.length]}"></i>
+            ${ctx?.brand?.mark ? `<span class="so-mark">${logoHTML(ctx.brand.mark, ctx)}</span>` : ''}
           </div>`).join('')}
       </div>
     </div>`,
@@ -697,7 +698,7 @@ TEMPLATES.lineup = {
         ${(d.items || []).map((it, i) => `
           <div class="ln-item" data-a="extra" data-seq="${i}">
             <div class="ln-art">${imgSrc(it.image) ? `<img src="${esc(ctx.asset(imgSrc(it.image)))}" alt="${esc(it.title || '')}">` : ''}</div>
-            <div class="ln-text"><span class="ln-roman latin">${ROMAN[i] || i + 1}</span>
+            <div class="ln-text"><span class="ln-roman latin" data-n="(${String(i + 1).padStart(3, '0')})">${ROMAN[i] || i + 1}</span>
             <h3>${esc(it.title || '')}</h3>
             ${it.body ? `<p>${escBr(it.body)}</p>` : ''}</div>
           </div>`).join('')}
@@ -722,7 +723,7 @@ TEMPLATES.compare = {
       <div class="cp-cols" style="--n:${(d.options || []).length || 1}">
         ${(d.options || []).map((o, i) => `
           <div class="cp-col ${o.featured ? 'feat' : ''}" data-a="extra" data-seq="${i}">
-            <span class="cp-roman latin">${ROMAN[i] || i + 1}</span>
+            <span class="cp-roman latin" data-n="(${String(i + 1).padStart(3, '0')})">${ROMAN[i] || i + 1}</span>
             <h3>${esc(o.title || '')}</h3>${o.sub ? `<p class="cp-sub">${esc(o.sub)}</p>` : ''}
             <ul>${lines(o.points).map(x => (x[0] === '-' ? `<li class="con"><i></i>${esc(x.slice(1).trim())}</li>` : `<li class="pro"><i></i>${esc(x)}</li>`)).join('')}</ul>
           </div>`).join('')}

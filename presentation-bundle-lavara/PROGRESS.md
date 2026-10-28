@@ -122,3 +122,8 @@
 ## Lavara products (lavara-products_2.html + the user's outline)
 - Lavara › المنتجات after its opening statement: product categories (refill as the dark lead panel, single use, diffusers) → refill lineup (five cut-out bottles on one shelf, same width so real proportions show) → perfumes compare (Al Majed vs Lavara, advantages/challenges) → operations numbers (factories, trials, samples, perfumes; values "—" until the user fills them). Earlier slides of the section kept after these.
 - New templates `lineup`, `compare`, `stats`, dressed for all three identities. Bottle images in `assets/lavara/products/` (cutouts were already clean; no external background-removal tool used).
+
+## Identity review against the source files (user)
+- Lavara: removed everything not in its brand file: Bundle's grainy shapes in the categories cards (now its framed monogram), gradient tones (now flat palette colours), diamonds in the business model and the comparison (now typographic + / −), diamond journey dots (now small squares like the monogram frame), Roman numerals (now (001) as in the brand file, including the concepts labels).
+- Bundle: its shapes, gradients, pills and rounded cards are all in bundle-brand.pdf; kept.
+- Flagged to the user (content, not design): the blue line video in both identity sections, the empty video slide in Lavara products, the yellow/black "SCAN ME" photo in Lavara's digital product.

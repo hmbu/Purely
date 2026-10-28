@@ -868,7 +868,6 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="lavara"] .cv-b.g-value { background: var(--sfg); color: var(--sbg); }
 [data-brand="lavara"] .cv-b.g-value::after { opacity: .3; }
 [data-brand="lavara"] .cv-top { gap: 1.2rem; }
-[data-brand="lavara"] .cv-top::before { content: ''; width: .55rem; height: .55rem; rotate: 45deg; border: var(--hair) solid currentColor; opacity: .6; translate: 0 -.2rem; }
 [data-brand="lavara"] .cv-n { display: none; }
 [data-brand="lavara"] .cv-badge { border-radius: 0; background: none; padding: .4rem 0; border-bottom: var(--hair) solid currentColor; }
 
@@ -939,11 +938,11 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="bundle"] .tn-t3 { --tp: #F2A9C2; --tg: linear-gradient(140deg, #EDC6F7 0%, #F2A9C2 45%, #D6673A 100%); --th: #F2A9C2; --thc: #0A1215; --td: #D6673A; --tt: rgba(214, 103, 58, .11); }
 [data-brand="bundle"] .tn-t4 { --tp: #ECC39F; --tg: linear-gradient(180deg, #9F3517 0%, #D6673A 45%, #ECC39F 100%); --th: #ECC39F; --thc: #0A1215; --td: #9F3517; --tt: rgba(159, 53, 23, .1); }
 [data-brand="bundle"] .tn-t5 { --tp: #AEE67F; --tg: linear-gradient(140deg, #DFE392 0%, #AEE67F 45%, #6B8F5A 100%); --th: #AEE67F; --thc: #245845; --td: #6B8F5A; --tt: rgba(107, 143, 90, .12); }
-[data-brand="lavara"] .tn-t1 { --tp: #E4E6D8; --tg: linear-gradient(160deg, #C9CFB8, #929E7A); --th: #929E7A; --thc: #F3F2E0; --td: #5B634A; --tt: rgba(146, 158, 122, .14); }
-[data-brand="lavara"] .tn-t2 { --tp: #EFE3CB; --tg: linear-gradient(160deg, #D9C29A, #926A23); --th: #926A23; --thc: #F3F2E0; --td: #926A23; --tt: rgba(146, 106, 35, .1); }
-[data-brand="lavara"] .tn-t3 { --tp: #F0D9CC; --tg: linear-gradient(160deg, #DDAA92, #AD6243); --th: #AD6243; --thc: #F3F2E0; --td: #AD6243; --tt: rgba(173, 98, 67, .1); }
-[data-brand="lavara"] .tn-t4 { --tp: #DDDFD3; --tg: linear-gradient(160deg, #9AA087, #5B634A); --th: #5B634A; --thc: #F3F2E0; --td: #5B634A; --tt: rgba(91, 99, 74, .12); }
-[data-brand="lavara"] .tn-t5 { --tp: #E9E3CE; --tg: linear-gradient(160deg, #C9C59E, #959163); --th: #3C2E25; --thc: #F3F2E0; --td: #3C2E25; --tt: rgba(60, 46, 37, .08); }
+[data-brand="lavara"] .tn-t1 { --tp: #E4E6D8; --tg: #929E7A; --th: #929E7A; --thc: #F3F2E0; --td: #5B634A; --tt: color-mix(in srgb, #929E7A 12%, transparent); }
+[data-brand="lavara"] .tn-t2 { --tp: #EFE3CB; --tg: #926A23; --th: #926A23; --thc: #F3F2E0; --td: #926A23; --tt: color-mix(in srgb, #926A23 12%, transparent); }
+[data-brand="lavara"] .tn-t3 { --tp: #F0D9CC; --tg: #AD6243; --th: #AD6243; --thc: #F3F2E0; --td: #AD6243; --tt: color-mix(in srgb, #AD6243 12%, transparent); }
+[data-brand="lavara"] .tn-t4 { --tp: #DDDFD3; --tg: #5B634A; --th: #5B634A; --thc: #F3F2E0; --td: #5B634A; --tt: color-mix(in srgb, #5B634A 12%, transparent); }
+[data-brand="lavara"] .tn-t5 { --tp: #E9E3CE; --tg: #959163; --th: #3C2E25; --thc: #F3F2E0; --td: #3C2E25; --tt: color-mix(in srgb, #959163 12%, transparent); }
 [data-brand="shared"] :is(.tn-t1, .tn-t3, .tn-t5) { --tp: rgba(168, 130, 74, .16); --tg: linear-gradient(160deg, #E2CFA9, #A8824A); --th: #1E1B17; --thc: #F7F3EC; --td: #A8824A; --tt: rgba(168, 130, 74, .1); }
 [data-brand="shared"] :is(.tn-t2, .tn-t4) { --tp: rgba(124, 106, 82, .16); --tg: linear-gradient(160deg, #CFC3AF, #7C6A52); --th: #7C6A52; --thc: #F7F3EC; --td: #7C6A52; --tt: rgba(124, 106, 82, .1); }
 /* the deck's soft architecture, with grain */
@@ -1104,12 +1103,25 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="lavara"] .cp-col { background: var(--ssurf); }
 [data-brand="lavara"] .cp-col::before { content: ''; position: absolute; inset: 1.2rem; border: var(--hair) solid currentColor; opacity: .22; pointer-events: none; }
 [data-brand="lavara"] .cp-col.feat { background: var(--sfg); }
-[data-brand="lavara"] .t-compare i { border-radius: 0; rotate: 45deg; width: 1.8rem; height: 1.8rem; margin: 0 .3rem; }
-[data-brand="lavara"] .t-compare i::after { rotate: -45deg !important; }
-[data-brand="lavara"] .t-compare .pro i::after { left: .5rem; top: .15rem; rotate: 0deg !important; transform: rotate(0deg); }
-[data-brand="lavara"] .t-compare .pro i { background: currentColor; }
-[data-brand="lavara"] .t-compare .pro i::after, [data-brand="lavara"] .t-compare .con i::after { display: none; }
 [data-brand="lavara"] .st-cell { position: relative; }
 /* Shared: editorial paper */
 [data-brand="shared"] .cp-col { border: var(--hair) solid color-mix(in srgb, var(--sfg) 14%, transparent); border-radius: .35rem; box-shadow: 0 2.4rem 5rem -3.2rem color-mix(in srgb, var(--sfg) 30%, transparent); }
 [data-brand="shared"] .cp-col::before { content: ''; position: absolute; top: -1px; right: 4.4rem; width: 4.2rem; height: .22rem; background: #A8824A; }
+
+/* ---- Lavara uses only its own brand elements (original brand files, Alternative 2): wordmark, the framed
+   "A" monogram, hairline frames and its palette. No shapes or gradients borrowed from other identities. ---- */
+[data-brand="lavara"] .so-shape { display: none; }
+.so-mark { display: none; }
+[data-brand="lavara"] .so-mark { display: block; position: absolute; left: 3.6rem; bottom: 3.6rem; width: 7rem; height: 9.4rem; opacity: .55; }
+[data-brand="lavara"] .so-mark .logo-mask { display: block; width: 100%; height: 100%; }
+[data-brand="lavara"] .t-compare i { border: 0; border-radius: 0; width: 2.2rem; height: auto; font-style: normal; font-family: var(--f-title); font-size: 2.6rem; line-height: 1; text-align: center; }
+[data-brand="lavara"] .t-compare i::after { content: none; }
+[data-brand="lavara"] .t-compare .pro i::before { content: '+'; }
+[data-brand="lavara"] .t-compare .con i::before { content: '−'; }
+
+/* Lavara numbers its items the way its brand file does: (001), (002)… */
+[data-brand="lavara"] :is(.sc-roman, .ln-roman, .cp-roman, .fl-roman) { font-size: 0 !important; letter-spacing: 0 !important; }
+[data-brand="lavara"] :is(.sc-roman, .ln-roman, .cp-roman, .fl-roman)::after { content: attr(data-n); font-family: var(--f-title); font-size: 1.7rem; letter-spacing: .06em; }
+/* journey dots: a small square, like the monogram's frame (no diamonds) */
+[data-style="mist"] .j-dot { transform: scale(.7); }
+[data-style="mist"] .j-node.on .j-dot { transform: scale(1); }
