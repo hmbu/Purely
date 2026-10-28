@@ -131,15 +131,18 @@ function updateHUD() {
   const h = settings().hud || {};
   const p = project(), s = section();
   const inProject = ['hub', 'section'].includes(S.level) && p;
-  hud.root.classList.toggle('show-crumb', !!h.breadcrumb && !!inProject);
+  hud.root.classList.toggle('show-crumb', !!h.breadcrumb && S.level === 'section' && !!p);
+  stage.classList.toggle('no-eyebrow', settings().eyebrows === false);
   hud.root.classList.toggle('show-bar', !!h.progress && !!inProject);
   hud.root.classList.toggle('show-clock', !!h.timer);
   if (inProject) {
     const secs = sectionsOf(p);
     if (S.level === 'section' && s) {
       const n = slidesOf(s).length;
-      hud.crumb.innerHTML = `<b class="latin">${esc(p.name)}</b><i>›</i>${esc(s.title)}<i>›</i><span class="latin">${S.li + 1}/${n}</span>`;
-    } else hud.crumb.innerHTML = `<b class="latin">${esc(p.name)}</b>`;
+      // only the project's logo, the section and the page number
+      const mark = p.brand.logo ? `<span class="logo-mask cr-logo" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : `<b>${esc(p.nameAr || p.name)}</b>`;
+      hud.crumb.innerHTML = `${mark}<i></i><span>${esc(s.title)}</span><i></i><span class="latin">${S.li + 1}/${n}</span>`;
+    } else hud.crumb.innerHTML = '';
     // progress across this project's slides
     let total = 0, done = 0;
     secs.forEach(sec => { const n = slidesOf(sec).length; if (sec.id === S.sid && S.level === 'section') done = total + S.li + 1; total += n; });

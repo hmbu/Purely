@@ -520,7 +520,8 @@ function renderGlobal() {
     { key: 'startAt', type: 'select', label: 'نقطة البداية', options: slideOptions },
   ], st, ctx)));
   f.append(group('واجهة العرض المصغرة', ...renderFields([
-    { key: 'hud.breadcrumb', type: 'toggle', label: 'مسار التنقل (Breadcrumb)' },
+    { key: 'hud.breadcrumb', type: 'toggle', label: 'سطر أسفل الشرائح (الشعار · القسم · رقم الصفحة)' },
+    { key: 'eyebrows', type: 'toggle', label: 'العناوين الصغيرة فوق عناوين الشرائح' },
     { key: 'hud.progress', type: 'toggle', label: 'شريط التقدم' },
     { key: 'hud.timer', type: 'toggle', label: 'مؤقت على الشاشة' },
   ], st, ctx)));

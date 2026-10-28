@@ -93,3 +93,7 @@
 - Saving: `patchContent()` in `store.js` reloads the latest content.json, changes only that field and commits it with the fresh sha (retries on a concurrent commit), so control-panel or other-device changes are never overwritten. Works on the device where GitHub is connected in the control panel (same site, same browser storage); otherwise the bar says it is not saved.
 - Not editable here: chart number lists, images, layout (control panel).
 - Tested with a mocked GitHub API: one commit, only the edited field changed, a concurrent change elsewhere kept.
+
+## Cleaner slides (user)
+- Small labels above slide titles hidden everywhere (`settings.eyebrows`, default false; toggle in the control panel's global settings).
+- Bottom line on slides: project logo · section · page number only (shared area shows its name, it has no logo). Nothing on the project page.

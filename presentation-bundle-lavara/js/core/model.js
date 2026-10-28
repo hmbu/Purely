@@ -51,6 +51,7 @@ export const SETTING_DEFAULTS = {
   universe: { layout: 'fusion', chooser: false, background: '#0E0C0A', text: '#F3EFE6', hint: '', eyebrow: 'Projects', showLogos: true, logosSize: 1 },
   motion: { speed: 1, reduced: 'auto', textureScale: 0.5 },
   hud: { breadcrumb: true, progress: true, timer: false },
+  eyebrows: false, // the small labels above slide titles (BUSINESS, STRUCTURE…): off by the user's decision
   startAt: 'universe',
   typography: {
     title: { font: 'thmanyah-serif-display', weight: 500, scale: 1, lineHeight: 1.25 },
