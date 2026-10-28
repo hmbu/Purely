@@ -4,6 +4,9 @@
 //   Lavara variants (brand.textureStyle), care-product materials instead of fog:
 //     silk  → liquid soap: thick glossy folds with a moving sheen.
 //     lather → the same liquid soap with a light, creamy lather drifting on its crests.
+//     pour  → thick folds sliding down, as over glass.
+//     drop  → a heavy gel surface with slow, damped rings from drops.
+//     swirl → dark liquid soap and a cream ribbon folded together by a slow stir.
 //     soap  → handmade soap bar: slow marbled swirls with fine flecks.
 //     amber → light through perfume / oil: warm caustics in amber glass.
 // One instance per canvas. Drive it with the tweenable fields: progress (coverage 0..1), alpha, speed, sweep.
@@ -83,39 +86,41 @@ float reveal(float d, vec2 uv, float soft){
 float grain(){ return (hash(gl_FragCoord.xy + fract(u_time * 5.0) * 57.0) - 0.5) * u_grain; }
 `;
 
-// Liquid soap: a slow height field of broad poured folds, lit like a glossy, slightly translucent liquid.
-const SILK_SRC = `
-float H(vec2 p, float t){
-  vec2 w = vec2(fbm(p * 0.45 + vec2(t, -t * 0.5)), fbm(p * 0.45 + vec2(4.3, 1.7) - t * 0.7));
-  float f = sin((p.x * 0.45 + p.y * 1.3) * 3.4 + (w.x + w.y) * 3.0 - t * 1.6);
-  return f * 0.5 + 0.5;
+// Heavy liquid soap. Every liquid style is a slow height field H() lit the way thick glossy liquids read on camera:
+// sharp studio-softbox reflections that slide over the folds (fog has none), a dark body and light passing through
+// the thin crests. Each style only supplies H() and, optionally, the body colour; LIQUID_MAIN does the rest.
+const LIQUID_MAIN = `
+vec3 lo, hi;                                       // the palette's darkest and lightest colours, whatever order the caller passed
+void sortPalette(){
+  lo = u_col[0]; hi = u_col[0];
+  for (int k = 1; k < 4; k++) { float y = dot(u_col[k], vec3(0.3, 0.59, 0.11));
+    if (y < dot(lo, vec3(0.3, 0.59, 0.11))) lo = u_col[k]; if (y > dot(hi, vec3(0.3, 0.59, 0.11))) hi = u_col[k]; }
 }
+float box(vec2 r, vec2 c, vec2 s){ vec2 d = abs(r - c) - s; return 1.0 - smoothstep(0.0, 0.1, length(max(d, 0.0)) + min(max(d.x, d.y), 0.0)); }
 void main(){
+  sortPalette();
   vec2 uv = gl_FragCoord.xy / u_res; float asp = u_res.x / u_res.y;
   vec2 p = vec2(uv.x * asp, uv.y) * 2.0;
-  float t = u_time * 0.05;
-  float e = 0.004, h = H(p, t);
+  float t = u_time * SPEED;
+  float e = 0.003, h = H(p, t);
   vec2 g = vec2(H(p + vec2(e, 0.0), t) - h, H(p + vec2(0.0, e), t) - h) / e;
-  vec3 n = normalize(vec3(-g * 0.55, 1.0));
-  vec3 l = normalize(vec3(-0.5, 0.65, 0.6));
-  float diff = clamp(dot(n, l), 0.0, 1.0);
-  float spec = pow(max(dot(reflect(-l, n), vec3(0.0, 0.0, 1.0)), 0.0), 48.0);
+  vec3 n = normalize(vec3(-g * RELIEF, 1.0));
+  vec3 r = reflect(vec3(0.0, 0.0, -1.0), n);
+  float env = box(r.xy, vec2(-0.32, 0.36), vec2(0.07, 0.2)) + 0.6 * box(r.xy, vec2(0.42, 0.28), vec2(0.18, 0.05))
+            + 0.25 * (1.0 - smoothstep(0.0, 0.7, length(r.xy - vec2(0.0, -0.55))));
   float fres = pow(1.0 - n.z, 2.0);
-  vec3 col = mix(u_col[0], u_col[1], smoothstep(0.05, 0.75, h));           // deep in the folds, warm on the crests
-  col = mix(col, u_col[2], smoothstep(0.55, 1.0, h) * 0.6 * (0.4 + diff));  // light passing through the thin crests
-  col *= 0.62 + 0.55 * diff;
-  float glint = pow(max(dot(reflect(-l, n), vec3(0.0, 0.0, 1.0)), 0.0), 220.0);
-  col += u_col[3] * (spec * 0.7 + glint * 0.6 + fres * 0.18);
+  float diff = clamp(dot(n, normalize(vec3(-0.4, 0.55, 0.75))), 0.0, 1.0);
+  vec3 col = BODY;
+  col *= 0.6 + 0.5 * diff;
+  col += hi * (env * 0.6 + fres * 0.12);
 #ifdef LATHER
-  // a light lather: scattered round bubbles of mixed sizes in soft drifting patches, creamy and translucent
-  float lp = smoothstep(0.58, 0.85, fbm(p * 1.1 + vec2(-t * 2.0, t)) + 0.3 * h);
-  vec3 hi = u_col[0];                                                     // the palette's lightest colour, whatever order the caller passed
-  for (int k = 1; k < 4; k++) if (dot(u_col[k], vec3(0.3, 0.59, 0.11)) > dot(hi, vec3(0.3, 0.59, 0.11))) hi = u_col[k];
+  // a light lather: scattered round bubbles of mixed sizes in soft patches riding the liquid
+  float lp = smoothstep(0.58, 0.85, fbm(p * 1.1 + vec2(-t * 1.5, t)) + 0.3 * h);
   vec3 cream = mix(hi, u_col[2], 0.15);
-  col = mix(col, cream, lp * 0.28);                                       // the thin film under the bubbles
+  col = mix(col, cream, lp * 0.28);
   for (int k = 0; k < 2; k++) {
     float sc = k == 0 ? 7.0 : 15.0;
-    vec2 bp = p * sc + vec2(-t * 3.0, t * 1.2) * (k == 0 ? 1.0 : 1.3) + float(k) * 11.0;
+    vec2 bp = p * sc + vec2(-t * 2.0, t * 0.8) * (k == 0 ? 1.0 : 1.3) + float(k) * 11.0;
     vec2 bi = floor(bp), bf = fract(bp);
     float present = step(0.45, hash(bi + 5.0));
     vec2 c = 0.3 + 0.4 * vec2(hash(bi), hash(bi + 17.3));
@@ -129,14 +134,56 @@ void main(){
     col = mix(col, hi, (rim * 0.55 + glintB * 0.8) * m);
   }
 #endif
-  float d = fbm(p * 0.8 + vec2(-t * 2.0, t)) + 0.25 * h;
-  float a = reveal(d, uv, 0.05);
-  col += grain() * 0.5;
+  float a = reveal(fbm(p * 0.7 + vec2(-t, t * 0.5)) + 0.3 * h, uv, 0.04);
+  col += grain() * 0.4;
   o = vec4(col * a * u_alpha, a * u_alpha);
 }`;
+// dark in the troughs, warm where the liquid is thin on the crests
+const BODY_SOAP = 'mix(mix(lo, u_col[1], smoothstep(0.0, 0.8, h)), u_col[2], smoothstep(0.6, 1.0, h) * 0.55)';
+const liquid = (src, { speed, relief, body = BODY_SOAP, defs = '' }) =>
+  COMMON + defs + `#define SPEED ${speed}\n#define RELIEF ${relief}\n#define BODY (${body})\n` + NOISE + src + LIQUID_MAIN;
 
-const SILK = COMMON + NOISE + SILK_SRC;
-const LATHER = COMMON + '#define LATHER\n' + NOISE + SILK_SRC;
+// silk: broad satin folds that roll slowly across the screen
+const H_SILK = `
+float H(vec2 p, float t){
+  float w = fbm(p * 0.35 + vec2(t * 0.6, -t * 0.3));
+  return 0.5 + 0.5 * sin((p.x * 0.45 + p.y * 1.25) * 3.0 + w * 3.2 - t * 1.4);
+}`;
+// pour: thick vertical folds sliding down as if over glass, each fold wobbling as it goes
+const H_POUR = `
+float H(vec2 p, float t){
+  float y = p.y + t * 0.9;
+  float w = fbm(vec2(p.x * 0.9, y * 0.35));
+  return 0.5 + 0.5 * sin(p.x * 3.4 + 1.3 * sin(y * 1.1 + p.x * 0.7) + w * 3.0);
+}`;
+// drop: a heavy gel surface where slow, strongly damped rings spread from drops that land one after another
+const H_DROP = `
+float H(vec2 p, float t){
+  float h = 0.5 + 0.12 * fbm(p * 0.6 + t * 0.2);
+  for (int k = 0; k < 3; k++) {
+    float ph = t * 0.55 + float(k) / 3.0, cyc = floor(ph), age = fract(ph);
+    vec2 c = vec2(0.6 + 2.4 * hash(vec2(cyc, float(k))), 0.3 + 1.4 * hash(vec2(float(k), cyc + 7.0)));
+    float d = length(p - c);
+    float ring = sin(d * 7.0 - age * 9.0) * exp(-d * 1.4) * smoothstep(age * 3.2 + 0.4, age * 3.2 - 0.6, d) * smoothstep(0.05, 0.45, d);
+    h += ring * 0.45 * (1.0 - age) * smoothstep(0.0, 0.08, age);
+  }
+  return h;
+}`;
+// swirl: dark liquid soap and a cream ribbon folded together by a slow stir
+const H_SWIRL = `
+float H(vec2 p, float t){
+  vec2 c = p - vec2(1.75, 1.0); float r = length(c);
+  float a = t * 0.35 + 1.6 / (r + 0.6);
+  c = mat2(cos(a), -sin(a), sin(a), cos(a)) * c;
+  return 0.5 + 0.5 * sin(c.x * 3.2 + fbm(c * 0.8 + t * 0.1) * 2.4);
+}`;
+const BODY_SWIRL = 'mix(mix(lo, u_col[2], smoothstep(0.2, 0.55, h) * 0.6), mix(hi, u_col[2], 0.2), smoothstep(0.62, 0.8, h))';
+
+const SILK = liquid(H_SILK, { speed: 0.06, relief: 1.1 });
+const LATHER = liquid(H_SILK, { speed: 0.06, relief: 1.1, defs: '#define LATHER\n' });
+const POUR = liquid(H_POUR, { speed: 0.05, relief: 0.45 });
+const DROP = liquid(H_DROP, { speed: 0.12, relief: 0.6 });
+const SWIRL = liquid(H_SWIRL, { speed: 0.07, relief: 0.4, body: BODY_SWIRL });
 
 // Handmade soap bar: soft marbled bands folded into each other, with sparse fine round flecks.
 const SOAP = COMMON + NOISE + `
@@ -190,7 +237,7 @@ void main(){
   o = vec4(col * a * u_alpha, a * u_alpha);
 }`;
 
-const LAVARA_STYLES = ['silk', 'lather', 'soap', 'amber'];
+const LAVARA_STYLES = ['silk', 'lather', 'pour', 'drop', 'swirl', 'soap', 'amber'];
 
 const BALLS = 14;
 
@@ -221,7 +268,7 @@ export class BrandTexture {
     const gl = this.gl;
     const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    for (const [name, src] of [['bubbles', BUBBLES], ['mist', MIST], ['silk', SILK], ['lather', LATHER], ['soap', SOAP], ['amber', AMBER]]) {
+    for (const [name, src] of [['bubbles', BUBBLES], ['mist', MIST], ['silk', SILK], ['lather', LATHER], ['pour', POUR], ['drop', DROP], ['swirl', SWIRL], ['soap', SOAP], ['amber', AMBER]]) {
       const prog = gl.createProgram();
       for (const [type, code] of [[gl.VERTEX_SHADER, VERT], [gl.FRAGMENT_SHADER, src]]) {
         const sh = gl.createShader(type); gl.shaderSource(sh, code); gl.compileShader(sh);

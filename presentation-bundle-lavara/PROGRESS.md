@@ -64,6 +64,7 @@
 - Added three styles, chosen per brand in the control panel (Brands › Lavara › "شكل ملمس لافارا"; field `brand.textureStyle`):
   - `silk` liquid soap: glossy poured folds with a moving sheen.
   - `lather` the liquid soap with a light lather (scattered small bubbles in soft patches), added at the user's request.
+  - Round 2 ("still moves like fog, want heavy liquid soap, more options"): liquid styles rebuilt as a lit height field with sharp softbox reflections; added `pour` (folds sliding down), `drop` (damped rings on thick gel), `swirl` (liquid and cream ribbon stirred). Selector moved to its own group at the top of Lavara's brand settings.
   - `soap` handmade soap bar: marbled swirls with fine flecks.
   - `amber` light through perfume / oil: warm caustics.
 - `mist` stays the default until the user picks one (content.json is untouched).

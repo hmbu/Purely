@@ -453,6 +453,10 @@ function renderBrands() {
   p.brand ||= {}; const b = p.brand; b.colors ||= {}; b.textureColors ||= ['#333333', '#666666', '#999999', '#CCCCCC'];
   const ctx = { path: 'brand-' + p.id, uploadDir: `assets/${p.id}` };
   f.append(group('المشروع', ...renderFields([{ key: 'name', type: 'text', label: 'الاسم (لاتيني)' }, { key: 'nameAr', type: 'text', label: 'الاسم بالعربية' }, { key: 'tagline', type: 'text', label: 'السطر التعريفي' }], p, { ...ctx, onChange: renderTreeSoon })));
+  if (b.texture === 'mist') f.append(group('خلفية لافارا المتحركة', renderField({ key: 'textureStyle', type: 'select', label: 'اختر شكل الخلفية', options: [['mist', 'الضباب (السابق)'],
+    ['silk', '١ · سائل صابون — طيّات حريرية'], ['lather', '٢ · سائل صابون مع رغوة خفيفة'], ['pour', '٣ · سائل صابون ينساب للأسفل'],
+    ['drop', '٤ · قطرات على سائل كثيف'], ['swirl', '٥ · دوامة سائل وكريم'], ['soap', '٦ · صابون طبيعي — رخام'],
+    ['amber', '٧ · ضوء العطر — زجاج كهرماني']] }, b, ctx)));
   f.append(group('الشعارات (SVG أحادي اللون يُلوَّن تلقائياً)', ...renderFields([
     { key: 'logo', type: 'image', simple: true, label: 'الشعار الرئيسي' },
     { key: 'mark', type: 'image', simple: true, label: 'الرمز (Isotype)' },
@@ -462,7 +466,6 @@ function renderBrands() {
   f.append(group('لوحة الألوان (لوحة الهوية)', renderField({ key: 'palette', type: 'list', label: 'الألوان', item: [{ key: 'hex', type: 'color', label: 'اللون' }, { key: 'name', type: 'text', label: 'الاسم' }], newItem: { hex: '#888888', name: '' } }, b, ctx)));
   f.append(group('ملمس الانتقال والحركة', ...renderFields([
     { key: 'texture', type: 'select', label: 'نوع الملمس', options: [['bubbles', 'فقاعات تندمج — Bundle'], ['mist', 'ضباب ونسيم — Lavara']] },
-    ...(b.texture === 'mist' ? [{ key: 'textureStyle', type: 'select', label: 'شكل ملمس لافارا', options: [['mist', 'ضباب (السابق)'], ['silk', 'سائل الصابون — لمعة حريرية'], ['lather', 'سائل الصابون مع رغوة خفيفة'], ['soap', 'صابون طبيعي — رخام وحبيبات'], ['amber', 'ضوء العطر — زجاج كهرماني']] }] : []),
     ...[0, 1, 2, 3].map(i => ({ key: 'textureColors.' + i, type: 'color', label: i === 0 ? 'لون الملمس ١ (لون الغطاء)' : `لون الملمس ${i + 1}` })),
     { key: 'textureIntensity', type: 'range', label: 'الشدة', min: 0, max: 1.5, step: 0.05 },
   ], b, ctx)));
