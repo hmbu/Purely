@@ -2,7 +2,7 @@
   "version": 1,
   "meta": {
     "title": "Bundle × Lavara",
-    "updatedAt": "2026-10-28T18:49:03.365Z"
+    "updatedAt": "2026-10-28T18:58:35.976Z"
   },
   "fonts": [
     {
@@ -1043,30 +1043,6 @@
                 "eyebrow": "A stay to remember",
                 "title": "إقامة لا تُنسى،\nوعطر صُنع لك"
               }
-            },
-            {
-              "id": "sl-00j",
-              "template": "image-text",
-              "transition": "drift",
-              "bg": "auto",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "image": {
-                  "src": "assets/lavara/sample/towels.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 50,
-                    "y": 40
-                  }
-                },
-                "eyebrow": "Purpose",
-                "title": "لا نبيع منتجات فقط،\nنقدّم تجربة",
-                "body": "يزور خبراء العطور لدينا فنادق الخمس نجوم بأطقم عطور خاصة، ويعرضون فن العطر حضورياً. يشعر بها الضيف في غرفته، وفي السبا، وفي كل تفصيل صغير من إقامته.",
-                "imageSide": "left",
-                "imageWidth": 46,
-                "framed": true
-              }
             }
           ],
           "desc": "الاسم والشعار والألوان"
@@ -1146,20 +1122,6 @@
           "titleEn": "Products",
           "hidden": false,
           "slides": [
-            {
-              "id": "sl-00l",
-              "template": "statement",
-              "transition": "drift",
-              "bg": "auto",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "Luxury · Experimental · Made for 5-Stars",
-                "statement": "فخامة تُشمّ\nفي كل تفصيل.",
-                "attribution": "",
-                "size": "xl"
-              }
-            },
             {
               "id": "sl-lp-cats",
               "template": "concepts",
@@ -1317,103 +1279,6 @@
                   }
                 ]
               }
-            },
-            {
-              "id": "sl-00m",
-              "template": "image-text",
-              "transition": "drift",
-              "bg": "auto",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "image": {
-                  "src": "assets/lavara/sample/soap.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 60,
-                    "y": 45
-                  }
-                },
-                "eyebrow": "Fragrance & Care",
-                "title": "عطور وعناية",
-                "body": "أصول نباتية · خلاصات زهرية · أزهار نادرة · طقوس حسّية · فن صناعة العطر",
-                "imageSide": "left",
-                "imageWidth": 50,
-                "framed": true
-              }
-            },
-            {
-              "id": "sl-00n",
-              "template": "video",
-              "transition": "fade",
-              "bg": "auto",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "video": {
-                  "src": "",
-                  "poster": "",
-                  "autoplay": true,
-                  "muted": true,
-                  "loop": true
-                },
-                "mode": "full",
-                "eyebrow": "",
-                "title": ""
-              }
-            },
-            {
-              "id": "sl-00r",
-              "template": "concepts",
-              "transition": "drift",
-              "bg": "auto",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "Concepts",
-                "title": "ثلاثة مفاهيم",
-                "items": [
-                  {
-                    "label": "(001)",
-                    "title": "المفهوم الأول",
-                    "body": "وصف مختصر للمفهوم.",
-                    "image": {
-                      "src": "assets/lavara/sample/emboss.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "label": "(002)",
-                    "title": "المفهوم الثاني",
-                    "body": "وصف مختصر للمفهوم.",
-                    "image": {
-                      "src": "assets/lavara/sample/card.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "label": "(003)",
-                    "title": "المفهوم الثالث",
-                    "body": "وصف مختصر للمفهوم.",
-                    "image": {
-                      "src": "assets/lavara/sample/tray.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  }
-                ]
-              }
             }
           ],
           "desc": "العطور ومنتجات العناية"
@@ -1554,120 +1419,22 @@
           "slides": [
             {
               "id": "sl-00p",
-              "template": "image-text",
+              "template": "title",
               "transition": "drift",
               "bg": "auto",
               "notes": "",
               "hidden": false,
               "data": {
-                "image": {
-                  "src": "assets/lavara/uploads/mvnu0ykt-images _2_.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 46,
-                    "y": 37
-                  }
-                },
                 "eyebrow": "Digital Product",
-                "title": "تجربة المنتج الرقمي",
-                "body": "امسح الباركود الذي على الطاولة",
-                "imageSide": "left",
-                "imageWidth": 50,
-                "framed": false
+                "title": "تجربـة المنتـج الرقمـي",
+                "subtitle": "",
+                "align": "center",
+                "showLogo": false,
+                "showMark": true
               }
             }
           ],
           "desc": "تجربة الطلب أونلاين"
-        },
-        {
-          "id": "sec-00v",
-          "title": "قصة التجربة الكاملة",
-          "titleEn": "Complete Experience Story",
-          "hidden": true,
-          "slides": [
-            {
-              "id": "sl-00t",
-              "template": "journey",
-              "transition": "drift",
-              "bg": "auto",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "Experience Story",
-                "title": "رحلة الضيف",
-                "stepped": true,
-                "stages": [
-                  {
-                    "label": "الوصول",
-                    "title": "الوصول",
-                    "body": "أول انطباع يبدأ بالعطر.",
-                    "image": {
-                      "src": "assets/lavara/sample/room.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "label": "الغرفة",
-                    "title": "في الغرفة",
-                    "body": "تفاصيل العناية حاضرة في كل زاوية.",
-                    "image": {
-                      "src": "assets/lavara/sample/tray.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "label": "السبا",
-                    "title": "في السبا",
-                    "body": "طقوس حسّية تكمل الإقامة.",
-                    "image": {
-                      "src": "assets/lavara/sample/towels.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  },
-                  {
-                    "label": "الذكرى",
-                    "title": "ذكرى تبقى",
-                    "body": "عطر يذكّر الضيف بإقامته.",
-                    "image": {
-                      "src": "assets/lavara/sample/emboss.jpg",
-                      "fit": "cover",
-                      "focal": {
-                        "x": 50,
-                        "y": 50
-                      }
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "id": "sl-00u",
-              "template": "title",
-              "transition": "veil",
-              "bg": "primary",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "Lavara",
-                "title": "إقامة لا تُنسى",
-                "subtitle": "by Al Majed Oud",
-                "align": "center",
-                "showMark": true
-              }
-            }
-          ]
         }
       ]
     },
