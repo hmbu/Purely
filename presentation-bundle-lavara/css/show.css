@@ -1391,11 +1391,3 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .sc-frame { width: 100%; height: 100%; }
 .sc-frame .m { width: 100% !important; height: 100% !important; max-width: none; max-height: none; object-fit: cover !important; object-position: 50% 90% !important; }
 [data-brand="bundle"] .sc-item { justify-content: flex-start; }
-
-/* Bundle product photos: a slow, light zoom while the page is shown (separate from the entrance), each photo out of
-   step with the others; anchored low so the gift and its logo stay in view */
-@keyframes scBreath { from { scale: 1; } to { scale: 1.07; } }
-[data-brand="bundle"] .sc-frame .m { transform-origin: 50% 85%; animation: scBreath 9s ease-in-out infinite alternate; }
-[data-brand="bundle"] .sc-item:nth-child(2) .sc-frame .m { animation-delay: -3s; }
-[data-brand="bundle"] .sc-item:nth-child(3) .sc-frame .m { animation-delay: -6s; }
-@media (prefers-reduced-motion: reduce) { [data-brand="bundle"] .sc-frame .m { animation: none; } }

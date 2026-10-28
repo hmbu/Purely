@@ -165,3 +165,4 @@
 - Follow-up: product pages show each photo whole (own shape, never cropped, tag on the photo); tabs and products moved a little lower.
 - Follow-up: shared-frame cards for Al Majed Oud and Rimthan carry their logos and party colours (gold, indigo; entity teal); revenue bars rise slowly year after year; Lavara lineup entrance slower; Bundle product photos back to one size, whole product visible, crop from the top.
 - Follow-up: Bundle product photos breathe with a slow light zoom.
+- Follow-up: product photo zoom only on entry (settles and holds) and a light zoom on exit; no continuous zoom.

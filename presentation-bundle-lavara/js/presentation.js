@@ -372,7 +372,7 @@ function riseTL(el, tl, q) {
   tl.fromTo(q('[data-a="media"]'), { opacity: 0, y: Y }, { opacity: 1, y: 0, duration: 0.95, ease: RISE }, 0.1);
   tl.fromTo(q('[data-a="eyebrow"], [data-a="title"], [data-a="body"]'), { opacity: 0, y: Y }, { opacity: 1, y: 0, duration: 0.85, ease: RISE, stagger: 0.09 }, 0.12);
   if (extra.length) tl.fromTo(extra, { opacity: 0, y: Y * 1.4 }, { opacity: 1, y: 0, duration: 0.85, ease: RISE, stagger: 0.09 }, 0.3);
-  tl.fromTo(q('[data-a] .m, [data-a] .ph'), { scale: 1.06 }, { scale: 1, duration: 1.6, ease: RISE }, 0.3);
+  tl.fromTo(q('[data-a] .m, [data-a] .ph'), { scale: 1.1 }, { scale: 1, duration: 1.8, ease: RISE }, 0.3); // a light zoom that settles, then holds
   const grow = q('[data-grow]');
   if (grow.length) tl.fromTo(grow, { scaleY: 0, transformOrigin: '50% 100%' }, { scaleY: 1, duration: 1.1, ease: RISE, stagger: 0.09 }, 0.45);
   return tl;
@@ -388,6 +388,7 @@ function tabsSwap(old, el) {
   b.append(slider); // above the pills, under their words
   gsap.set(slider, { left: from.offsetLeft, width: from.offsetWidth });
   tl.to($$('.sc-item', old), { opacity: 0, y: -pxs(30), duration: 0.4, ease: 'power2.in', stagger: 0.05 }, 0);
+  tl.to($$('.sc-item .m', old), { scale: 1.06, duration: 0.45, ease: 'power2.in', stagger: 0.05 }, 0); // a light zoom on the way out
   tl.to(slider, { left: to.offsetLeft, width: to.offsetWidth, duration: 0.75, ease: RISE }, 0.1);
   tl.add(() => { to.classList.add('on'); slider.remove(); }, 0.85);
   return tl;
@@ -414,7 +415,7 @@ function headsRise(old, el) {
   return tl;
 }
 function outroTL(el, dir = 1) {
-  if (risesIn()) return gsap.to($$('.t, .slide-bg ~ *', el), { y: -pxs(16), opacity: 0, duration: 0.4, ease: 'power2.in' });
+  if (risesIn()) { gsap.to($$('[data-a] .m', el), { scale: 1.05, duration: 0.4, ease: 'power2.in' }); return gsap.to($$('.t, .slide-bg ~ *', el), { y: -pxs(16), opacity: 0, duration: 0.4, ease: 'power2.in' }); }
   const t = $$('.t, .slide-bg ~ *', el);
   return gsap.to(t, { x: dir * pxs(50), opacity: 0, duration: 0.5, ease: 'power2.in', force3D: true });
 }
