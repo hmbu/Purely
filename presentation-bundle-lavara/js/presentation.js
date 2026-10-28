@@ -657,7 +657,7 @@ function renderHub(p) {
           </button>`).join('')}
         ${decI >= 0 ? `<button class="h2-station is-final ${decI === nextI ? 'is-next' : ''}" data-special="decision" data-i="${decI}">
             <span class="h2-num latin">${String(decI + 1).padStart(2, '0')}</span><span class="h2-dot"><i></i></span>
-            <span class="h2-title">${esc(S.content.decision?.title || 'القرارات')}</span><span class="h2-en latin">Decisions</span></button>` : ''}
+            <span class="h2-title">${esc(S.content.decision?.title || 'القرارات')}</span><span class="h2-en latin">${esc(S.content.decision?.titleEn || 'Decisions')}</span></button>` : ''}
       </div>
     </div>`;
   fixAspects(L.hub);

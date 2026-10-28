@@ -284,61 +284,32 @@
           ]
         },
         {
-          "id": "sec-008",
-          "title": "المنتج الرقمي",
-          "titleEn": "Digital Product",
+          "id": "sec-b-model",
+          "title": "نموذج العمل",
+          "titleEn": "Business Model",
           "hidden": false,
           "slides": [
             {
-              "id": "sl-006",
-              "template": "device",
+              "id": "sl-b-model",
+              "template": "title",
               "transition": "drift",
               "bg": "auto",
-              "notes": "",
+              "notes": "Placeholder for the agenda item: add this section's content.",
               "hidden": false,
               "data": {
-                "device": "laptop",
-                "screens": [
-                  {
-                    "src": ""
-                  }
-                ],
-                "laptop": "assets/bundle/sample/product-page.jpg",
-                "interval": 3.5,
-                "eyebrow": "Digital Product",
-                "title": "تجربة طلب\nبلا عناء",
-                "body": "من اختيار الهدية إلى استلامها، في مكان واحد."
-              }
-            },
-            {
-              "id": "sl-007",
-              "template": "full-image",
-              "transition": "mask",
-              "bg": "auto",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "image": {
-                  "src": "assets/bundle/sample/product-page.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 50,
-                    "y": 50
-                  }
-                },
-                "eyebrow": "",
-                "title": "",
-                "body": "",
-                "textPosition": "none",
-                "shade": false
+                "eyebrow": "Bundle",
+                "title": "نموذج العمل",
+                "subtitle": "",
+                "align": "center",
+                "showMark": true
               }
             }
           ]
         },
         {
           "id": "sec-00a",
-          "title": "المفاهيم",
-          "titleEn": "Concepts",
+          "title": "المنتجات والعلامات",
+          "titleEn": "Products & Brands",
           "hidden": false,
           "slides": [
             {
@@ -706,15 +677,7 @@
                 ],
                 "codes": "P41"
               }
-            }
-          ]
-        },
-        {
-          "id": "sec-00c",
-          "title": "اختيار العلامات",
-          "titleEn": "Brands Selection",
-          "hidden": false,
-          "slides": [
+            },
             {
               "id": "sl-00b",
               "template": "brand-grid",
@@ -773,10 +736,62 @@
           ]
         },
         {
+          "id": "sec-008",
+          "title": "ديمو المنتج الرقمي",
+          "titleEn": "Digital Product Demo",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-006",
+              "template": "device",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "device": "laptop",
+                "screens": [
+                  {
+                    "src": ""
+                  }
+                ],
+                "laptop": "assets/bundle/sample/product-page.jpg",
+                "interval": 3.5,
+                "eyebrow": "Digital Product",
+                "title": "تجربة طلب\nبلا عناء",
+                "body": "من اختيار الهدية إلى استلامها، في مكان واحد."
+              }
+            },
+            {
+              "id": "sl-007",
+              "template": "full-image",
+              "transition": "mask",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "image": {
+                  "src": "assets/bundle/sample/product-page.jpg",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 50,
+                    "y": 50
+                  }
+                },
+                "eyebrow": "",
+                "title": "",
+                "body": "",
+                "textPosition": "none",
+                "shade": false
+              }
+            }
+          ]
+        },
+        {
           "id": "sec-00f",
           "title": "قصة التجربة الكاملة",
           "titleEn": "Complete Experience Story",
-          "hidden": false,
+          "hidden": true,
           "slides": [
             {
               "id": "sl-00d",
@@ -1046,9 +1061,32 @@
           ]
         },
         {
+          "id": "sec-l-model",
+          "title": "نموذج العمل",
+          "titleEn": "Business Model",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-l-model",
+              "template": "title",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "Placeholder for the agenda item: add this section's content.",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Lavara",
+                "title": "نموذج العمل",
+                "subtitle": "",
+                "align": "center",
+                "showMark": true
+              }
+            }
+          ]
+        },
+        {
           "id": "sec-00o",
-          "title": "العطور — تجربة فاخرة",
-          "titleEn": "Fragrances — Luxury Experience",
+          "title": "المنتجات والعطور",
+          "titleEn": "Products & Fragrances",
           "hidden": false,
           "slides": [
             {
@@ -1108,47 +1146,7 @@
                 "eyebrow": "",
                 "title": ""
               }
-            }
-          ]
-        },
-        {
-          "id": "sec-00q",
-          "title": "المنتج الرقمي",
-          "titleEn": "Digital Product",
-          "hidden": false,
-          "slides": [
-            {
-              "id": "sl-00p",
-              "template": "image-text",
-              "transition": "drift",
-              "bg": "auto",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "image": {
-                  "src": "assets/lavara/uploads/mvnu0ykt-images _2_.jpg",
-                  "fit": "cover",
-                  "focal": {
-                    "x": 46,
-                    "y": 37
-                  }
-                },
-                "eyebrow": "Digital Product",
-                "title": "تجربة المنتج الرقمي",
-                "body": "امسح الباركود الذي على الطاولة",
-                "imageSide": "left",
-                "imageWidth": 50,
-                "framed": false
-              }
-            }
-          ]
-        },
-        {
-          "id": "sec-00s",
-          "title": "المفاهيم",
-          "titleEn": "Concepts",
-          "hidden": false,
-          "slides": [
+            },
             {
               "id": "sl-00r",
               "template": "concepts",
@@ -1205,10 +1203,65 @@
           ]
         },
         {
+          "id": "sec-l-commercial",
+          "title": "التحديث التجاري",
+          "titleEn": "Commercial Update",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-l-commercial",
+              "template": "title",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "Placeholder for the agenda item: add this section's content.",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Lavara",
+                "title": "التحديث التجاري",
+                "subtitle": "",
+                "align": "center",
+                "showMark": true
+              }
+            }
+          ]
+        },
+        {
+          "id": "sec-00q",
+          "title": "ديمو المنتج الرقمي",
+          "titleEn": "Digital Product Demo",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-00p",
+              "template": "image-text",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "image": {
+                  "src": "assets/lavara/uploads/mvnu0ykt-images _2_.jpg",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 46,
+                    "y": 37
+                  }
+                },
+                "eyebrow": "Digital Product",
+                "title": "تجربة المنتج الرقمي",
+                "body": "امسح الباركود الذي على الطاولة",
+                "imageSide": "left",
+                "imageWidth": 50,
+                "framed": false
+              }
+            }
+          ]
+        },
+        {
           "id": "sec-00v",
           "title": "قصة التجربة الكاملة",
           "titleEn": "Complete Experience Story",
-          "hidden": false,
+          "hidden": true,
           "slides": [
             {
               "id": "sl-00t",
@@ -1356,9 +1409,211 @@
       },
       "sections": [
         {
+          "id": "sec-sh-ops",
+          "title": "مراجعة النموذج التشغيلي",
+          "titleEn": "Operating Model Review",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-sh-ops",
+              "template": "title",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "Placeholder for the agenda item: add this section's content.",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Shared",
+                "title": "مراجعة النموذج التشغيلي",
+                "subtitle": "",
+                "align": "center",
+                "showMark": true
+              }
+            }
+          ]
+        },
+        {
+          "id": "sec-sh-finance",
+          "title": "مراجعة النموذج المالي",
+          "titleEn": "Financial Model Review",
+          "hidden": false,
+          "slides": [
+            {
+              "id": "sl-sh-money",
+              "template": "diagram",
+              "transition": "drift",
+              "bg": "background",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "Money Flow",
+                "title": "مسار الأموال",
+                "cols": 3,
+                "gap": 9,
+                "rowGap": 2.4,
+                "body": "بعد جاهزية الكيان، تدخل الأموال إلى حسابه من مصدرين، ومنه تخرج إلى جميع الاستخدامات.",
+                "frames": [],
+                "nodes": [
+                  {
+                    "id": "majed",
+                    "title": "الماجد للعود",
+                    "sub": "رأس المال والتمويل",
+                    "tone": "gold",
+                    "shape": "box",
+                    "col": 1,
+                    "colSpan": 1,
+                    "row": 1,
+                    "rowSpan": 2,
+                    "step": 0
+                  },
+                  {
+                    "id": "cust",
+                    "title": "العملاء",
+                    "sub": "متحصلات المبيعات",
+                    "tone": "neutral",
+                    "shape": "box",
+                    "col": 1,
+                    "colSpan": 1,
+                    "row": 3,
+                    "rowSpan": 2,
+                    "step": 0
+                  },
+                  {
+                    "id": "acc",
+                    "title": "حساب الكيان",
+                    "sub": "رأس المال العامل",
+                    "tone": "teal",
+                    "shape": "box",
+                    "col": 2,
+                    "colSpan": 1,
+                    "row": 1,
+                    "rowSpan": 4,
+                    "step": 0
+                  },
+                  {
+                    "id": "u1",
+                    "title": "الموردون والمخزون",
+                    "sub": "",
+                    "tone": "neutral",
+                    "shape": "box",
+                    "col": 3,
+                    "colSpan": 1,
+                    "row": 1,
+                    "rowSpan": 1,
+                    "step": 0
+                  },
+                  {
+                    "id": "u2",
+                    "title": "فواتير رمثان",
+                    "sub": "",
+                    "tone": "indigo",
+                    "shape": "box",
+                    "col": 3,
+                    "colSpan": 1,
+                    "row": 2,
+                    "rowSpan": 1,
+                    "step": 0
+                  },
+                  {
+                    "id": "u3",
+                    "title": "الرواتب والتشغيل",
+                    "sub": "",
+                    "tone": "neutral",
+                    "shape": "box",
+                    "col": 3,
+                    "colSpan": 1,
+                    "row": 3,
+                    "rowSpan": 1,
+                    "step": 0
+                  },
+                  {
+                    "id": "u4",
+                    "title": "التسويق",
+                    "sub": "",
+                    "tone": "neutral",
+                    "shape": "box",
+                    "col": 3,
+                    "colSpan": 1,
+                    "row": 4,
+                    "rowSpan": 1,
+                    "step": 0
+                  },
+                  {
+                    "id": "note",
+                    "title": "لا تمر أموال نشاط Bundle عبر رمثان، عدا أتعابها.",
+                    "sub": "",
+                    "tone": "indigo",
+                    "shape": "note",
+                    "col": 2,
+                    "colSpan": 1,
+                    "row": 5,
+                    "rowSpan": 1,
+                    "step": 0
+                  }
+                ],
+                "edges": [
+                  {
+                    "from": "majed",
+                    "to": "acc",
+                    "label": "",
+                    "tone": "gold",
+                    "style": "solid",
+                    "lane": "0",
+                    "step": 0
+                  },
+                  {
+                    "from": "cust",
+                    "to": "acc",
+                    "label": "",
+                    "tone": "neutral",
+                    "style": "solid",
+                    "lane": "0",
+                    "step": 0
+                  },
+                  {
+                    "from": "acc",
+                    "to": "u1",
+                    "label": "",
+                    "tone": "teal",
+                    "style": "solid",
+                    "lane": "0",
+                    "step": 0
+                  },
+                  {
+                    "from": "acc",
+                    "to": "u2",
+                    "label": "",
+                    "tone": "teal",
+                    "style": "solid",
+                    "lane": "0",
+                    "step": 0
+                  },
+                  {
+                    "from": "acc",
+                    "to": "u3",
+                    "label": "",
+                    "tone": "teal",
+                    "style": "solid",
+                    "lane": "0",
+                    "step": 0
+                  },
+                  {
+                    "from": "acc",
+                    "to": "u4",
+                    "label": "",
+                    "tone": "teal",
+                    "style": "solid",
+                    "lane": "0",
+                    "step": 0
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
           "id": "sec-sh-legal",
-          "title": "الإطار القانوني",
-          "titleEn": "Legal",
+          "title": "التحديث القانوني",
+          "titleEn": "Legal Update",
           "hidden": false,
           "slides": [
             {
@@ -1600,185 +1855,6 @@
               }
             }
           ]
-        },
-        {
-          "id": "sec-sh-finance",
-          "title": "الإطار المالي",
-          "titleEn": "Financial",
-          "hidden": false,
-          "slides": [
-            {
-              "id": "sl-sh-money",
-              "template": "diagram",
-              "transition": "drift",
-              "bg": "background",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "Money Flow",
-                "title": "مسار الأموال",
-                "cols": 3,
-                "gap": 9,
-                "rowGap": 2.4,
-                "body": "بعد جاهزية الكيان، تدخل الأموال إلى حسابه من مصدرين، ومنه تخرج إلى جميع الاستخدامات.",
-                "frames": [],
-                "nodes": [
-                  {
-                    "id": "majed",
-                    "title": "الماجد للعود",
-                    "sub": "رأس المال والتمويل",
-                    "tone": "gold",
-                    "shape": "box",
-                    "col": 1,
-                    "colSpan": 1,
-                    "row": 1,
-                    "rowSpan": 2,
-                    "step": 0
-                  },
-                  {
-                    "id": "cust",
-                    "title": "العملاء",
-                    "sub": "متحصلات المبيعات",
-                    "tone": "neutral",
-                    "shape": "box",
-                    "col": 1,
-                    "colSpan": 1,
-                    "row": 3,
-                    "rowSpan": 2,
-                    "step": 0
-                  },
-                  {
-                    "id": "acc",
-                    "title": "حساب الكيان",
-                    "sub": "رأس المال العامل",
-                    "tone": "teal",
-                    "shape": "box",
-                    "col": 2,
-                    "colSpan": 1,
-                    "row": 1,
-                    "rowSpan": 4,
-                    "step": 0
-                  },
-                  {
-                    "id": "u1",
-                    "title": "الموردون والمخزون",
-                    "sub": "",
-                    "tone": "neutral",
-                    "shape": "box",
-                    "col": 3,
-                    "colSpan": 1,
-                    "row": 1,
-                    "rowSpan": 1,
-                    "step": 0
-                  },
-                  {
-                    "id": "u2",
-                    "title": "فواتير رمثان",
-                    "sub": "",
-                    "tone": "indigo",
-                    "shape": "box",
-                    "col": 3,
-                    "colSpan": 1,
-                    "row": 2,
-                    "rowSpan": 1,
-                    "step": 0
-                  },
-                  {
-                    "id": "u3",
-                    "title": "الرواتب والتشغيل",
-                    "sub": "",
-                    "tone": "neutral",
-                    "shape": "box",
-                    "col": 3,
-                    "colSpan": 1,
-                    "row": 3,
-                    "rowSpan": 1,
-                    "step": 0
-                  },
-                  {
-                    "id": "u4",
-                    "title": "التسويق",
-                    "sub": "",
-                    "tone": "neutral",
-                    "shape": "box",
-                    "col": 3,
-                    "colSpan": 1,
-                    "row": 4,
-                    "rowSpan": 1,
-                    "step": 0
-                  },
-                  {
-                    "id": "note",
-                    "title": "لا تمر أموال نشاط Bundle عبر رمثان، عدا أتعابها.",
-                    "sub": "",
-                    "tone": "indigo",
-                    "shape": "note",
-                    "col": 2,
-                    "colSpan": 1,
-                    "row": 5,
-                    "rowSpan": 1,
-                    "step": 0
-                  }
-                ],
-                "edges": [
-                  {
-                    "from": "majed",
-                    "to": "acc",
-                    "label": "",
-                    "tone": "gold",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  },
-                  {
-                    "from": "cust",
-                    "to": "acc",
-                    "label": "",
-                    "tone": "neutral",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  },
-                  {
-                    "from": "acc",
-                    "to": "u1",
-                    "label": "",
-                    "tone": "teal",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  },
-                  {
-                    "from": "acc",
-                    "to": "u2",
-                    "label": "",
-                    "tone": "teal",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  },
-                  {
-                    "from": "acc",
-                    "to": "u3",
-                    "label": "",
-                    "tone": "teal",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  },
-                  {
-                    "from": "acc",
-                    "to": "u4",
-                    "label": "",
-                    "tone": "teal",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  }
-                ]
-              }
-            }
-          ]
         }
       ]
     }
@@ -1845,7 +1921,9 @@
           }
         ]
       }
-    ]
+    ],
+    "title": "الاعتماد",
+    "titleEn": "Approval"
   },
   "closing": {
     "layout": "logos",

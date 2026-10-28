@@ -69,3 +69,10 @@
   - `amber` light through perfume / oil: warm caustics.
 - `mist` stays the default until the user picks one (content.json is untouched).
 - Brand review (Alternative 2): palette is brown #3C2E25, terracotta #AD6243, ivory, paper, ochre #926A28, plus a **sage green** used on bottles, soap and boxes that is not yet in the brand config. Waiting for the user's decision on adding it.
+
+## Agenda update (user request, content.json edited with permission)
+- Bundle: الهوية · نموذج العمل (new, placeholder) · المنتجات والعلامات (concepts + brands selection merged) · ديمو المنتج الرقمي.
+- Lavara: الهوية · نموذج العمل (new) · المنتجات والعطور (fragrances + concepts merged) · التحديث التجاري (new) · ديمو المنتج الرقمي.
+- Shared: مراجعة النموذج التشغيلي (new) · مراجعة النموذج المالي · التحديث القانوني · الاعتماد (decision station renamed; `decision.title/titleEn`, editable in the control panel).
+- "قصة التجربة الكاملة" is hidden in both projects (not deleted).
+- Opening section (welcome + Q1 review) postponed; approach proposed to the user, waiting for content.

@@ -581,6 +581,8 @@ function renderDecisionTab() {
   C.decision ||= { question: '', groups: [] }; C.closing ||= { layout: 'logos', line: 'شكراً' };
   const projOpts = () => [['', '— بدون (بند مخصص) —'], ...C.projects.map(p => [p.id, p.name])];
   f.append(group('نقطة القرار', ...renderFields([
+    { key: 'title', type: 'text', label: 'اسم المحطة في الإطار المشترك' },
+    { key: 'titleEn', type: 'text', label: 'اسم المحطة بالإنجليزية' },
     { key: 'eyebrow', type: 'text', label: 'عنوان صغير' },
     { key: 'question', type: 'textarea', rows: 2, label: 'السؤال' },
     { key: 'groups', type: 'list', label: 'بنود القرار', item: [
