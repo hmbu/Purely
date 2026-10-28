@@ -103,3 +103,4 @@
 - Bundle › نموذج العمل: the workshop's main screen (each block's question + its status: decision needed / linked / numbers in the financial model).
 - Lavara › نموذج العمل: Purely's model, the headline of each block only.
 - Design rule written into this folder's CLAUDE.md so every future addition follows its project's identity.
+- Canvases revised (user): block titles larger (the question), a short answer under each. Bundle answers = the workshop's leaning options and proposed inputs (badge "الاتجاه المرجّح" until the workshop decides); Purely answers = each block's headline plus its key facts.
