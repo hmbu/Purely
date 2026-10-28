@@ -97,3 +97,9 @@
 ## Cleaner slides (user)
 - Small labels above slide titles hidden everywhere (`settings.eyebrows`, default false; toggle in the control panel's global settings).
 - Bottom line on slides: project logo · section · page number only (shared area shows its name, it has no logo). Nothing on the project page.
+
+## Business model canvases (Bundle_BM_Workshop v10, Purely_business_model v4.1)
+- New `canvas` template: the nine blocks in the standard layout (RTL), one line per block, value proposition as the single solid block, blocks reveal in storytelling order (segments → value → channels → relationships → revenue → resources → activities → partners → costs). Dressed for Bundle, Lavara and shared.
+- Bundle › نموذج العمل: the workshop's main screen (each block's question + its status: decision needed / linked / numbers in the financial model).
+- Lavara › نموذج العمل: Purely's model, the headline of each block only.
+- Design rule written into this folder's CLAUDE.md so every future addition follows its project's identity.

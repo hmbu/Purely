@@ -470,7 +470,43 @@ TEMPLATES.finance = {
   },
 };
 
-export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product', 'updates', 'sectors', 'finance'];
+
+/* ---------------------------------------------------------------- business model canvas (the nine blocks) */
+// Standard canvas layout (RTL: partners on the right, customers on the left, costs and revenue below).
+// Blocks appear in the order the model is told: customers, value, channels, relationships, revenue,
+// resources, activities, partners, costs. The value proposition is the one highlighted block.
+const BMC = [
+  { area: '1 / 1 / 3 / 3', g: 'infra', t: 'الشركاء الرئيسيون' }, { area: '1 / 3 / 2 / 5', g: 'infra', t: 'الأنشطة الرئيسية' },
+  { area: '2 / 3 / 3 / 5', g: 'infra', t: 'الموارد الرئيسية' }, { area: '1 / 5 / 3 / 7', g: 'value', t: 'القيمة المقترحة' },
+  { area: '1 / 7 / 2 / 9', g: 'cust', t: 'العلاقة مع العملاء' }, { area: '2 / 7 / 3 / 9', g: 'cust', t: 'القنوات' },
+  { area: '1 / 9 / 3 / 11', g: 'cust', t: 'شرائح العملاء' }, { area: '3 / 1 / 4 / 6', g: 'fin', t: 'هيكل التكاليف' },
+  { area: '3 / 6 / 4 / 11', g: 'fin', t: 'مصادر الإيراد' }];
+const BMC_SEQ = [7, 6, 5, 1, 3, 2, 0, 8, 4]; // by block: segments 0, value 1, channels 2, relationships 3, revenue 4, resources 5, activities 6, partners 7, costs 8
+TEMPLATES.canvas = {
+  name: 'لوحة نموذج العمل', en: 'Business model canvas', group: 'extra', defaultBg: 'background', suggested: 'نموذج العمل',
+  fields: [F.eyebrow, F.title, { key: 'lead', type: 'text', label: 'سطر قصير تحت العنوان' },
+    { key: 'blocks', type: 'list', label: 'الخانات التسع بالترتيب: الشركاء، الأنشطة، الموارد، القيمة، العلاقة، القنوات، الشرائح، التكاليف، الإيراد',
+      item: [{ key: 'title', type: 'text', label: 'اسم الخانة' }, { key: 'text', type: 'textarea', rows: 2, label: 'السطر الرئيسي' }, { key: 'badge', type: 'text', label: 'حالة صغيرة (اختياري)' }],
+      newItem: { title: '', text: '', badge: '' } }],
+  defaults: { eyebrow: 'Business Model', title: 'نموذج العمل', lead: '', blocks: BMC.map(b => ({ title: b.t, text: '', badge: '' })) },
+  render: d => {
+    const bl = (d.blocks || []).slice(0, 9);
+    return `
+    <div class="t t-canvas">
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
+      <div class="cv-grid">
+        ${bl.map((b, i) => `
+          <div class="cv-b g-${BMC[i].g}" style="grid-area:${BMC[i].area}" data-a="extra" data-seq="${BMC_SEQ[i]}">
+            <div class="cv-top"><span class="cv-n latin">${String(i + 1).padStart(2, '0')}</span><h3 class="cv-t">${esc(b.title || BMC[i].t)}</h3></div>
+            ${b.text ? `<p class="cv-x">${escBr(b.text)}</p>` : ''}
+            ${b.badge ? `<span class="cv-badge">${esc(b.badge)}</span>` : ''}
+          </div>`).join('')}
+      </div>
+    </div>`;
+  },
+};
+
+export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product', 'updates', 'sectors', 'finance', 'canvas'];
 
 export function newSlide(templateId, uidFn) {
   const t = TEMPLATES[templateId];

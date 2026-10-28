@@ -8,6 +8,16 @@ This folder is a standalone project. The hotel in-room store rules in the reposi
 - Arabic text never gets letter-spacing.
 - Stop and wait for the user's approval after each phase. Track status in `PROGRESS.md`.
 
+## Design rule: every addition wears its project's identity (user decision)
+- Any slide added to any project must look like that project, never one generic style pasted everywhere, and never a copy of the source file's look (PPTX/HTML material is re-composed, not pasted).
+- Templates take colours only from the slide tokens (`--sbg --sfg --stitle --saccent --ssec --ssurf`), never hard-coded brand hex.
+- Every new template gets a dressing for each identity in `css/show.css`:
+  - Bundle (`[data-style="bubbles"]`): soft rounded shapes (≈2rem radius), pills, gentle lift.
+  - Lavara (`[data-brand="lavara"]`): panels on its ivory surface with a hairline inset frame, one dark lead panel, Roman numerals or a small diamond, status as an underline, logos tinted in its ink.
+  - Shared (`[data-brand="shared"]`): editorial paper cards like its diagrams (inset hairline, short brass rule on top), no pills.
+- Restrained: one highlighted element per slide at most, motion = the existing stagger. Check every new slide in all identities it can appear in before pushing.
+- No small eyebrow labels above titles (`settings.eyebrows` false); the slide footer is logo · section · page only.
+
 ## Content safety (the user edits content online)
 - `content.json` is owned by the user: they edit it in the control panel, which commits it to this branch. NEVER modify or commit `content.json` from a session (a local pre-commit hook blocks it; override only if the user explicitly asks: `ALLOW_CONTENT=1 git commit …`).
 - Always `git pull --rebase origin <branch>` before pushing, so control-panel commits are kept.
