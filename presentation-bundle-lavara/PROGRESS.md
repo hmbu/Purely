@@ -118,3 +118,7 @@
 - Assets: `assets/bundle/gifts/`, `assets/bundle/partners/`. Not added: the deck's cover and thank-you pages.
 - Operating model (user): phases slide, then the full flowchart as its own next slide (new `figure` template) instead of a button. The flowcharts were recoloured from black to a transparent base (`assets/shared/opmodel-*-light.png`): white boxes kept with a fine outline, grey lines and labels turned to ink, coloured chips and loop lines kept; the slide's paper shows through. Clicking the figure still zooms.
 - Financial model: sides swapped (screenshots panel first on the right, charts after).
+
+## Lavara products (lavara-products_2.html + the user's outline)
+- Lavara › المنتجات after its opening statement: product categories (refill as the dark lead panel, single use, diffusers) → refill lineup (five cut-out bottles on one shelf, same width so real proportions show) → perfumes compare (Al Majed vs Lavara, advantages/challenges) → operations numbers (factories, trials, samples, perfumes; values "—" until the user fills them). Earlier slides of the section kept after these.
+- New templates `lineup`, `compare`, `stats`, dressed for all three identities. Bottle images in `assets/lavara/products/` (cutouts were already clean; no external background-removal tool used).

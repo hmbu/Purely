@@ -1055,3 +1055,61 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .fg-art { position: absolute; top: 19rem; bottom: 6.6rem; right: 6rem; left: 6rem; display: grid; place-items: center; }
 .fg-art img { max-width: 100%; max-height: 100%; object-fit: contain; }
 .fg-art img[data-zoom] { cursor: zoom-in; }
+
+/* =====================================================================
+   LINEUP · COMPARE · STATS
+   ===================================================================== */
+/* lineup: cut-out products on one shelf line */
+.t-lineup .board-head { top: 6.4rem; }
+.ln-row { position: absolute; top: 18rem; bottom: 7rem; right: 10rem; left: 10rem; display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 2rem; }
+.ln-item { display: grid; grid-template-rows: 1fr 13rem; justify-items: center; text-align: center; min-height: 0; }
+.ln-text { display: flex; flex-direction: column; align-items: center; }
+.ln-art { position: relative; min-height: 0; width: 100%; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2.2rem; }
+.ln-art::after { content: ''; position: absolute; bottom: 0; left: -1.1rem; right: -1.1rem; height: var(--hair); background: currentColor; opacity: .3; }
+.ln-art::before { content: ''; position: absolute; bottom: 1.4rem; left: 18%; right: 18%; height: 2.4rem; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--sfg) 22%, transparent), transparent); }
+.ln-art img { position: relative; z-index: 1; width: min(17rem, 62%); height: auto; max-height: 100%; object-fit: contain; } /* one width for all, so the bottles keep their real proportions */
+.ln-roman { margin-top: 2rem; font-family: var(--f-title); font-size: 1.6rem; letter-spacing: .12em; opacity: .55; }
+.ln-item h3 { margin: .8rem 0 .6rem; font-family: var(--f-title); font-weight: var(--w-title); font-size: 2.8rem; color: var(--stitle); }
+.ln-item p { margin: 0; max-width: 28rem; font-size: 1.55rem; line-height: 1.65; opacity: .68; }
+[data-style="bubbles"] .ln-roman { display: none; }
+
+/* compare: two options side by side, quiet marks for advantages and challenges */
+.cp-legend { position: absolute; top: 9.6rem; left: 8rem; display: flex; gap: 3rem; font-size: 1.6rem; opacity: .75; }
+.cp-legend span { display: flex; align-items: center; gap: 1rem; }
+.cp-cols { position: absolute; top: 22rem; bottom: 8rem; right: 8rem; left: 8rem; display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 3rem; }
+.cp-col { position: relative; display: flex; flex-direction: column; padding: 4rem 4.4rem; background: color-mix(in srgb, var(--sbg) 45%, #fff); }
+.cp-roman { font-family: var(--f-title); font-size: 1.8rem; letter-spacing: .12em; opacity: .55; }
+.cp-col h3 { margin: 1rem 0 0; font-family: var(--f-title); font-weight: var(--w-title); font-size: 4rem; color: var(--stitle); }
+.cp-sub { margin: .8rem 0 0; font-size: 1.6rem; opacity: .65; }
+.cp-col ul { margin: 3.2rem 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; }
+.cp-col li { display: flex; align-items: center; gap: 1.6rem; padding: 1.8rem 0; font-size: 2.3rem; border-top: var(--hair) solid color-mix(in srgb, currentColor 16%, transparent); }
+.cp-col li.con { opacity: .7; }
+.t-compare i { flex: none; position: relative; width: 2.4rem; height: 2.4rem; border-radius: 50%; border: var(--hair) solid currentColor; }
+.t-compare .pro i::after { content: ''; position: absolute; left: .75rem; top: .35rem; width: .55rem; height: 1rem; border: solid currentColor; border-width: 0 .18rem .18rem 0; rotate: 45deg; }
+.t-compare .con i::after { content: ''; position: absolute; left: .55rem; right: .55rem; top: 50%; height: .18rem; translate: 0 -50%; background: currentColor; }
+.cp-col.feat { background: var(--saccent); color: var(--sbg); --stitle: var(--sbg); }
+
+/* stats: big numbers on a hairline row */
+.st-row { position: absolute; top: 50%; translate: 0 -40%; right: 8rem; left: 8rem; display: grid; grid-template-columns: repeat(var(--n), 1fr); }
+.st-cell { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1.2rem; padding: 3rem 2rem; }
+.st-cell + .st-cell { border-right: var(--hair) solid color-mix(in srgb, var(--sfg) 18%, transparent); }
+.st-v { font-family: var(--f-title); font-weight: 300; font-size: 12rem; line-height: 1; color: var(--stitle); }
+.st-l { font-size: 2.4rem; font-weight: 600; }
+.st-n { font-size: 1.5rem; opacity: .6; }
+
+/* Bundle: rounded panels */
+[data-style="bubbles"] .cp-col { border-radius: 3.2rem; }
+[data-style="bubbles"] .st-v { color: var(--saccent); }
+/* Lavara: framed ivory panels, Roman numerals */
+[data-brand="lavara"] .cp-col { background: var(--ssurf); }
+[data-brand="lavara"] .cp-col::before { content: ''; position: absolute; inset: 1.2rem; border: var(--hair) solid currentColor; opacity: .22; pointer-events: none; }
+[data-brand="lavara"] .cp-col.feat { background: var(--sfg); }
+[data-brand="lavara"] .t-compare i { border-radius: 0; rotate: 45deg; width: 1.8rem; height: 1.8rem; margin: 0 .3rem; }
+[data-brand="lavara"] .t-compare i::after { rotate: -45deg !important; }
+[data-brand="lavara"] .t-compare .pro i::after { left: .5rem; top: .15rem; rotate: 0deg !important; transform: rotate(0deg); }
+[data-brand="lavara"] .t-compare .pro i { background: currentColor; }
+[data-brand="lavara"] .t-compare .pro i::after, [data-brand="lavara"] .t-compare .con i::after { display: none; }
+[data-brand="lavara"] .st-cell { position: relative; }
+/* Shared: editorial paper */
+[data-brand="shared"] .cp-col { border: var(--hair) solid color-mix(in srgb, var(--sfg) 14%, transparent); border-radius: .35rem; box-shadow: 0 2.4rem 5rem -3.2rem color-mix(in srgb, var(--sfg) 30%, transparent); }
+[data-brand="shared"] .cp-col::before { content: ''; position: absolute; top: -1px; right: 4.4rem; width: 4.2rem; height: .22rem; background: #A8824A; }

@@ -1182,6 +1182,142 @@
               }
             },
             {
+              "id": "sl-lp-cats",
+              "template": "sources",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "",
+                "title": "فئات المنتجات",
+                "items": [
+                  {
+                    "pill": "",
+                    "title": "منتجات الريفيل",
+                    "tone": "t3",
+                    "featured": true
+                  },
+                  {
+                    "pill": "",
+                    "title": "منتجات الاستخدام الواحد",
+                    "tone": "t1",
+                    "featured": false
+                  },
+                  {
+                    "pill": "",
+                    "title": "موزعات العطور",
+                    "tone": "t2",
+                    "featured": false
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sl-lp-refill",
+              "template": "lineup",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "",
+                "title": "منتجات الريفيل",
+                "lead": "",
+                "items": [
+                  {
+                    "image": "assets/lavara/products/shampoo.webp",
+                    "title": "شامبو",
+                    "body": "ينظّف الشعر بلطف، برائحة متميزة."
+                  },
+                  {
+                    "image": "assets/lavara/products/conditioner.webp",
+                    "title": "بلسم",
+                    "body": "ينعّم الشعر ويسهّل تمشيطه، برائحة متميزة."
+                  },
+                  {
+                    "image": "assets/lavara/products/shower-gel.webp",
+                    "title": "جل استحمام",
+                    "body": "ينظّف البشرة برغوة ناعمة، برائحة متميزة."
+                  },
+                  {
+                    "image": "assets/lavara/products/body-lotion.webp",
+                    "title": "لوشن الجسم",
+                    "body": "يرطّب البشرة ويحافظ على نعومتها، برائحة متميزة."
+                  },
+                  {
+                    "image": "assets/lavara/products/hand-wash.webp",
+                    "title": "صابون يدين",
+                    "body": "ينظّف اليدين بلطف، برائحة متميزة."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sl-lp-perfumes",
+              "template": "compare",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "",
+                "title": "العطور",
+                "lead": "",
+                "proLabel": "ميزة",
+                "conLabel": "تحدٍّ",
+                "options": [
+                  {
+                    "title": "عطور الماجد",
+                    "sub": "",
+                    "points": "متوافق استراتيجياً\nيرفع المبيعات\n- الإنتاج يحتاج بعض الوقت\n- السعر مرتفع",
+                    "featured": false
+                  },
+                  {
+                    "title": "عطور لافارا",
+                    "sub": "",
+                    "points": "خيارات أكثر\nالسعر متوسط\nالإنتاج أسرع\n- ما نقدر نبيع من خلاله",
+                    "featured": false
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sl-lp-ops",
+              "template": "stats",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "الأرقام تُعبّأ من العرض مباشرة (حرف E) أو من لوحة التحكم.",
+              "hidden": false,
+              "data": {
+                "eyebrow": "",
+                "title": "التشغيل",
+                "lead": "",
+                "items": [
+                  {
+                    "value": "—",
+                    "label": "عدد المصانع",
+                    "note": ""
+                  },
+                  {
+                    "value": "—",
+                    "label": "عدد التجارب",
+                    "note": ""
+                  },
+                  {
+                    "value": "—",
+                    "label": "عدد العينات",
+                    "note": ""
+                  },
+                  {
+                    "value": "—",
+                    "label": "عدد العطور",
+                    "note": ""
+                  }
+                ]
+              }
+            },
+            {
               "id": "sl-00m",
               "template": "image-text",
               "transition": "drift",

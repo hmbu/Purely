@@ -680,7 +680,78 @@ TEMPLATES.figure = {
   },
 };
 
-export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product', 'updates', 'sectors', 'finance', 'canvas', 'flow', 'occasions', 'showcase', 'sources', 'categories', 'partners', 'figure'];
+
+/* ---------------------------------------------------------------- lineup (products standing side by side) */
+// For cut-out product shots (transparent bottles, boxes): they stand on one fine shelf line, each with its
+// name and a line below, and rise one after another.
+TEMPLATES.lineup = {
+  name: 'تشكيلة منتجات (صف)', en: 'Product lineup', group: 'extra', defaultBg: 'background', suggested: 'المنتجات',
+  fields: [F.eyebrow, F.title, { key: 'lead', type: 'text', label: 'سطر قصير تحت العنوان' },
+    { key: 'items', type: 'list', label: 'المنتجات (الأول = اليمين)', item: [{ key: 'image', type: 'image', simple: true, label: 'صورة مفرّغة' }, { key: 'title', type: 'text', label: 'الاسم' }, { key: 'body', type: 'textarea', rows: 2, label: 'سطر وصف' }],
+      newItem: { image: '', title: 'منتج', body: '' } }],
+  defaults: { eyebrow: '', title: 'التشكيلة', lead: '', items: [] },
+  render: (d, ctx) => `
+    <div class="t t-lineup" style="--n:${(d.items || []).length || 1}">
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
+      <div class="ln-row">
+        ${(d.items || []).map((it, i) => `
+          <div class="ln-item" data-a="extra" data-seq="${i}">
+            <div class="ln-art">${imgSrc(it.image) ? `<img src="${esc(ctx.asset(imgSrc(it.image)))}" alt="${esc(it.title || '')}">` : ''}</div>
+            <div class="ln-text"><span class="ln-roman latin">${ROMAN[i] || i + 1}</span>
+            <h3>${esc(it.title || '')}</h3>
+            ${it.body ? `<p>${escBr(it.body)}</p>` : ''}</div>
+          </div>`).join('')}
+      </div>
+    </div>`,
+};
+
+/* ---------------------------------------------------------------- compare (two options, advantages and challenges) */
+// Points starting with "-" are challenges, all others advantages; each gets a quiet mark, never red/green alarms.
+TEMPLATES.compare = {
+  name: 'مقارنة خيارين', en: 'Compare', group: 'extra', defaultBg: 'background', suggested: 'العطور',
+  fields: [F.eyebrow, F.title, { key: 'lead', type: 'text', label: 'سطر قصير تحت العنوان' },
+    { key: 'options', type: 'list', label: 'الخيارات', item: [{ key: 'title', type: 'text', label: 'الخيار' }, { key: 'sub', type: 'text', label: 'سطر تحته (اختياري)' },
+      { key: 'points', type: 'textarea', rows: 5, label: 'النقاط (سطر لكل نقطة، - في البداية = تحدٍّ)' }, { key: 'featured', type: 'toggle', label: 'بارز' }],
+      newItem: { title: 'خيار', sub: '', points: '', featured: false } },
+    { key: 'proLabel', type: 'text', label: 'اسم المزايا' }, { key: 'conLabel', type: 'text', label: 'اسم التحديات' }],
+  defaults: { eyebrow: '', title: 'المقارنة', lead: '', options: [], proLabel: 'ميزة', conLabel: 'تحدٍّ' },
+  render: d => `
+    <div class="t t-compare">
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
+      <div class="cp-legend" data-a="body"><span class="pro"><i></i>${esc(d.proLabel || '')}</span><span class="con"><i></i>${esc(d.conLabel || '')}</span></div>
+      <div class="cp-cols" style="--n:${(d.options || []).length || 1}">
+        ${(d.options || []).map((o, i) => `
+          <div class="cp-col ${o.featured ? 'feat' : ''}" data-a="extra" data-seq="${i}">
+            <span class="cp-roman latin">${ROMAN[i] || i + 1}</span>
+            <h3>${esc(o.title || '')}</h3>${o.sub ? `<p class="cp-sub">${esc(o.sub)}</p>` : ''}
+            <ul>${lines(o.points).map(x => (x[0] === '-' ? `<li class="con"><i></i>${esc(x.slice(1).trim())}</li>` : `<li class="pro"><i></i>${esc(x)}</li>`)).join('')}</ul>
+          </div>`).join('')}
+      </div>
+    </div>`,
+};
+
+/* ---------------------------------------------------------------- stats (a few big numbers) */
+TEMPLATES.stats = {
+  name: 'أرقام', en: 'Stats', group: 'extra', defaultBg: 'background', suggested: 'التشغيل',
+  fields: [F.eyebrow, F.title, { key: 'lead', type: 'text', label: 'سطر قصير تحت العنوان' },
+    { key: 'items', type: 'list', label: 'الأرقام', item: [{ key: 'value', type: 'text', label: 'الرقم' }, { key: 'label', type: 'text', label: 'الوصف' }, { key: 'note', type: 'text', label: 'ملاحظة صغيرة (اختياري)' }],
+      newItem: { value: '0', label: '', note: '' } }],
+  defaults: { eyebrow: '', title: 'بالأرقام', lead: '', items: [] },
+  render: d => `
+    <div class="t t-stats">
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
+      <div class="st-row" style="--n:${(d.items || []).length || 1}">
+        ${(d.items || []).map((it, i) => `
+          <div class="st-cell" data-a="extra" data-seq="${i}">
+            <b class="st-v latin">${esc(it.value || '')}</b>
+            <span class="st-l">${esc(it.label || '')}</span>
+            ${it.note ? `<span class="st-n">${esc(it.note)}</span>` : ''}
+          </div>`).join('')}
+      </div>
+    </div>`,
+};
+
+export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product', 'updates', 'sectors', 'finance', 'canvas', 'flow', 'occasions', 'showcase', 'sources', 'categories', 'partners', 'figure', 'lineup', 'compare', 'stats'];
 
 export function newSlide(templateId, uidFn) {
   const t = TEMPLATES[templateId];
