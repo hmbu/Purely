@@ -812,3 +812,17 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="shared"] .up-card.kind-decision .up-badge { border: 0; border-bottom: var(--hair) solid #D2AE72; color: #D2AE72; }
 [data-brand="shared"] .fn-ptitle i { border-color: #A8824A; } [data-brand="shared"] .fn-ptitle i::after { border-color: #A8824A; }
 [data-brand="shared"] .fn-points li::before { background: none; width: .55rem; height: .55rem; border: var(--hair) solid #A8824A; border-radius: 0; rotate: 45deg; }
+
+/* ---- edit text on the show (key E) ---- */
+.ed-bar { position: fixed; top: 1.6rem; left: 50%; translate: -50% 0; z-index: 200; display: flex; align-items: center; gap: 1.6rem; padding: 1rem 2rem; border-radius: 10rem; background: rgba(20, 18, 16, .88); color: #F5F1E8; font: 500 1.35rem/1.2 var(--f-body, system-ui); box-shadow: 0 1.2rem 3rem -1.2rem rgba(0, 0, 0, .5); backdrop-filter: blur(8px); white-space: nowrap; }
+.ed-bar[hidden] { display: none; }
+.ed-bar b { font-weight: 700; }
+.ed-bar .ed-hint { opacity: .65; }
+.ed-bar .ed-state:empty { display: none; }
+.ed-bar .ed-state { padding-right: 1.6rem; border-right: 1px solid rgba(255, 255, 255, .25); }
+.ed-bar .ed-state.ok { color: #AEE67F; }
+.ed-bar .ed-state.err { color: #F2A9C2; }
+.is-editing .ed-on { outline: 1.5px dashed color-mix(in srgb, currentColor 45%, transparent); outline-offset: .5rem; cursor: text; border-radius: .2rem; transition: outline-color .2s; }
+.is-editing .ed-on:hover { outline-color: color-mix(in srgb, currentColor 80%, transparent); }
+.is-editing .ed-on:focus { outline: 2px solid currentColor; background: color-mix(in srgb, currentColor 7%, transparent); }
+.is-editing .h2-station { cursor: default; }

@@ -87,3 +87,9 @@
 - Not added: the deck cover, the "المالية" divider (each section has its own cover) and the second revenue layout (same content, sides swapped).
 - Placeholders kept from the deck for the user to fill: revenue headline "[الخلاصة الرئيسية…]", the three agreement points, and the tripartite agreement duration "[__]".
 - Themed per project (user: same theme per project, not copy-paste): Lavara sectors use framed panels on its ivory surface, Roman numerals, a dark lead panel and logos tinted in its ink; shared slides use the editorial paper cards of its diagrams (inset hairline, brass rule, no pills); revenue bars take each project's colour (Bundle green, Lavara terracotta; chart `color` field); Bundle gets rounded cards.
+
+## Edit text on the show (key E)
+- `js/core/editor.js`: E toggles edit mode (any keyboard layout, `e.code`). Slide texts are bound to the slide-data string they show (exact match, in order); hub titles/descriptions, project tagline and the approval station are marked with `edAttr()`. Enter saves, Shift+Enter new line, Esc reverts; clicks on editable text never navigate.
+- Saving: `patchContent()` in `store.js` reloads the latest content.json, changes only that field and commits it with the fresh sha (retries on a concurrent commit), so control-panel or other-device changes are never overwritten. Works on the device where GitHub is connected in the control panel (same site, same browser storage); otherwise the bar says it is not saved.
+- Not editable here: chart number lists, images, layout (control panel).
+- Tested with a mocked GitHub API: one commit, only the edited field changed, a concurrent change elsewhere kept.

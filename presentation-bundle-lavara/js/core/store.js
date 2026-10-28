@@ -93,6 +93,28 @@ export async function saveContent(c, { backup = false, reason = 'auto', publish 
   return { ok: false, mode: 'local' };
 }
 
+// One small change made on the show (text edited in place): reload the latest content.json, apply only that
+// change and save it. Nothing the control panel or another device saved in between is overwritten; if someone
+// commits at the same moment, GitHub rejects the stale write and the change is re-applied on the newer file.
+export async function patchContent(mutate) {
+  if (window.__BXL_CONTENT__) return { ok: false, mode: 'single' };
+  if (isServer) {
+    const c = await (await fetch('/api/content', { cache: 'no-store' })).json();
+    if (mutate(c) === false) throw new Error('النص غير موجود في آخر نسخة من المحتوى');
+    await saveContent(c, { reason: 'edit in show' }); return { ok: true, mode: 'server' };
+  }
+  if (!hasGithub()) return { ok: false, mode: 'local' };
+  for (let i = 0; ; i++) {
+    const f = await ghGetFile('content.json');
+    const c = JSON.parse(utf8b64(f.content));
+    if (mutate(c) === false) throw new Error('النص غير موجود في آخر نسخة من المحتوى');
+    try {
+      await gh('PUT', `/contents/${encodeURI(ghPath('content.json'))}`, { message: 'Edit text in the show', content: b64utf8(JSON.stringify(c, null, 2)), branch: githubConfig().branch || 'main', sha: f.sha });
+      return { ok: true, mode: 'github' };
+    } catch (e) { if ((e.status === 409 || e.status === 422) && i < 2) continue; throw e; }
+  }
+}
+
 /* ---------------------------------------------------------------- history / backups */
 export async function listBackups() {
   if (isServer) { const r = await fetch('/api/backups'); return r.ok ? r.json() : []; }

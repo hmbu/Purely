@@ -4,6 +4,7 @@
 import { $, $$, esc, escBr, clamp, fmtClock, prefersReducedMotion, grainTexture, rgba, fixAspects } from './core/util.js';
 import { projectsOf, sectionsOf, slidesOf, findProject, findSection, slideTheme, locate, isShared, sharedOf } from './core/model.js';
 import { loadContent, logDecision } from './core/store.js';
+import { createEditor, edAttr } from './core/editor.js';
 import { createSync } from './core/sync.js';
 import { registerFonts, applyTypography, fontsReady } from './core/fonts.js';
 import { BrandTexture } from './core/texture.js';
@@ -27,6 +28,7 @@ const hud = { root: $('#hud'), crumb: $('#hud .crumb'), bar: $('#hud .bar i'), c
 const sound = { cfg: { muted: false }, ready: false, play() {}, configure() {},
   unlock() { if (!this.cfg.muted) $$('video.m').forEach(v => { if (v.dataset.muted === 'false' && v.muted) { v.muted = false; if (v.paused && v.dataset.autoplay !== 'false') v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }); } }); }, setMuted(m) { this.cfg.muted = m; $$('video').forEach(v => { v.muted = m || v.dataset.muted === 'true'; }); } };
 let veil = null;
+let editor = { toggle() {}, refresh() {} }; // text editing on the show (key E), created after load
 const worldTex = [];
 
 const S = {
@@ -646,7 +648,7 @@ function renderHub(p) {
       <div class="h2-bg"><canvas class="h2-tex"></canvas></div><div class="h2-shade"></div>
       <div class="h2-head">
         ${p.brand.logo ? `<span class="logo-mask h2-logo" data-ar-src="${esc(asset(p.brand.logo))}" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : `<h1 class="h2-name">${esc(isShared(p) ? (p.nameAr || p.name) : p.name)}</h1>`}
-        ${p.tagline ? `<p class="h2-tag">${esc(p.tagline)}</p>` : ''}
+        ${p.tagline ? `<p class="h2-tag" ${edAttr('project', p.id, 'tagline')}>${esc(p.tagline)}</p>` : ''}
       </div>
       <div class="h2-line"><i class="h2-light"></i></div>
       <div class="h2-stations">
@@ -654,12 +656,12 @@ function renderHub(p) {
           <button class="h2-station ${i <= seen ? 'is-visited' : ''} ${i === nextI ? 'is-next' : ''}" data-section="${esc(s.id)}" data-i="${i}">
             <span class="h2-num latin">${String(i + 1).padStart(2, '0')}</span>
             <span class="h2-dot"><i></i></span>
-            <span class="h2-title">${escBr(s.title)}</span>
-            ${s.desc ? `<span class="h2-desc">${esc(s.desc)}</span>` : s.titleEn ? `<span class="h2-en latin">${esc(s.titleEn)}</span>` : ''}
+            <span class="h2-title" ${edAttr('section', s.id, 'title')}>${escBr(s.title)}</span>
+            ${s.desc ? `<span class="h2-desc" ${edAttr('section', s.id, 'desc')}>${esc(s.desc)}</span>` : s.titleEn ? `<span class="h2-en latin">${esc(s.titleEn)}</span>` : ''}
           </button>`).join('')}
         ${decI >= 0 ? `<button class="h2-station is-final ${decI === nextI ? 'is-next' : ''}" data-special="decision" data-i="${decI}">
             <span class="h2-num latin">${String(decI + 1).padStart(2, '0')}</span><span class="h2-dot"><i></i></span>
-            <span class="h2-title">${esc(S.content.decision?.title || 'القرارات')}</span>${S.content.decision?.desc ? `<span class="h2-desc">${esc(S.content.decision.desc)}</span>` : `<span class="h2-en latin">${esc(S.content.decision?.titleEn || 'Decisions')}</span>`}</button>` : ''}
+            <span class="h2-title" ${edAttr('decision', '', 'title')}>${esc(S.content.decision?.title || 'القرارات')}</span>${S.content.decision?.desc ? `<span class="h2-desc" ${edAttr('decision', '', 'desc')}>${esc(S.content.decision.desc)}</span>` : `<span class="h2-en latin">${esc(S.content.decision?.titleEn || 'Decisions')}</span>`}</button>` : ''}
       </div>
     </div>`;
   fixAspects(L.hub);
@@ -1116,7 +1118,7 @@ async function run(fn, args) {
   if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur?.();
   try { await fn(args); } catch (e) { console.error(e); }
   S.busy = false; stage.classList.remove('is-moving'); BrandTexture.moving = false;
-  broadcastState();
+  broadcastState(); editor.refresh();
   const n = S.queue.shift(); S.queue = [];
   if (n && Date.now() - n[2] < 900) command(n[0], n[1]); // stale presses made during a long transition are ignored
 }
@@ -1231,7 +1233,8 @@ function previewShow(target = {}, animate = false) {
 
 /* ======================================================================= input */
 function onKey(e) {
-  if (e.target.closest && e.target.closest('input, textarea, select')) return;
+  if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
+  if (e.code === 'KeyE' && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); editor.toggle(); return; } // any keyboard layout
   sound.unlock();
   const k = e.key;
   if (k === 'ArrowLeft' || k === ' ' || k === 'PageDown' || k === 'Enter') { e.preventDefault(); command(e.shiftKey ? 'nextSection' : 'next'); }
@@ -1275,6 +1278,10 @@ async function boot() {
   $('#boot').classList.add('done');
   sound.unlock(); // works when Chrome is started with --autoplay-policy=no-user-gesture-required (the launcher does this)
 
+  if (!PREVIEW) editor = createEditor({
+    content: () => S.content,
+    views: () => [{ root: L.hub }, S.slideEl && S.slide ? { root: S.slideEl, owner: { kind: 'slide', id: S.slide.id }, data: S.slide.data } : null],
+  });
   if (PREVIEW) {
     stage.classList.add('is-preview');
     addEventListener('message', ev => {
