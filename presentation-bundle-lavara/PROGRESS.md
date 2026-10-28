@@ -150,3 +150,9 @@
 - Shared frame: its own identity ("the dossier"): ivory sheets, square corners, no shadows, a solid top rule in the party's colour, copper index and copper-square labels; the decision is the ink sheet.
 - Section title cards pick dark text on light grounds (the shared frame's titles were white on white).
 - Waiting: the decision content from the user.
+
+## Lavara products motion, canvas parts, numbers (2026-10-28)
+- Product categories (sl-lp-cats) now use the concepts template with a new "stepFocus" option: the arrow moves the focus refill → single use → perfume dispensers (focused grows a little, others step back); each has its own image (placeholders from the brand samples until the user picks).
+- Entrances: refill lineup "dives" (blur + zoom settle, bottles rise from the middle outwards, shelf line draws); operations tiles open from the floor and count up; perfume cards open like curtains with points line by line.
+- Business model canvas in three colour-coded parts with a small legend: feasibility (right), desirability with the value at its centre (left), viability (bottom). Legend names editable.
+- Operations numbers: 3 factories, +50 trials, +40 samples, +30 perfumes. Sectors: hotels block in dark brown.

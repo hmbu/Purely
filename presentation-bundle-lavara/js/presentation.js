@@ -247,6 +247,10 @@ function unmountSlide(el) {
 function focusConcept(i) {
   const box = S.slideEl && $('.concepts', S.slideEl); if (!box) return false;
   const items = $$('.concept', box);
+  if (box.classList.contains('is-stepped')) { // stepped: a click moves the focus like the arrow does
+    if (i < 0 || i >= items.length) return false;
+    S.step = i; applyStep(S.slideEl, i); sound.play('ui', S.pid); broadcastState(); return true;
+  }
   if (i < 0 || i >= items.length || S.focus === i) { S.focus = -1; box.classList.remove('has-focus'); items.forEach(x => x.classList.remove('is-focus')); }
   else { S.focus = i; box.classList.add('has-focus'); items.forEach((x, k) => x.classList.toggle('is-focus', k === i)); }
   sound.play('ui', S.pid);
@@ -298,8 +302,51 @@ function introTL(el, dir = 1, kind = 'drift') {
   tl.fromTo(q('[data-a="eyebrow"]'), { opacity: 0, x: sx }, { opacity: 1, x: 0, duration: 1.1, ease: 'expo.out' }, 0.2);
   tl.fromTo(q('[data-a="title"]'), { opacity: 0, x: sx }, { opacity: 1, x: 0, duration: 1.1, ease: 'expo.out' }, 0.3);
   tl.fromTo(q('[data-a="body"]'), { opacity: 0, x: sx }, { opacity: 1, x: 0, duration: 1.1, ease: 'expo.out' }, 0.4);
-  if (extra.length) tl.fromTo(extra, { opacity: 0, x: sx * 0.6, y: pxs(14) }, { opacity: 1, x: 0, y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.09 }, 0.45);
+  if (extra.length && !specialIntro(el, tl, extra)) tl.fromTo(extra, { opacity: 0, x: sx * 0.6, y: pxs(14) }, { opacity: 1, x: 0, y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.09 }, 0.45);
   return tl;
+}
+// Entrances that belong to one kind of slide (any identity):
+//   lineup  — the camera dives into the shelf, then the bottles come up one by one from the middle outwards
+//   stats   — the tiles open from the floor and the figures count up to their value
+//   compare — the two cards open like curtains, then their points come in line by line
+function specialIntro(el, tl, extra) {
+  const t = $('.t', el); if (!t) return false;
+  if (t.classList.contains('t-lineup')) {
+    const row = $('.ln-row', el), n = extra.length, mid = (n - 1) / 2;
+    const order = extra.map((x, i) => [x, Math.abs(i - mid)]).sort((a, b) => a[1] - b[1]);
+    gsap.set(extra, { opacity: 1 });
+    tl.fromTo(row, { scale: 1.22, filter: 'blur(1.2rem)', opacity: 0, transformOrigin: '50% 70%' }, { scale: 1, filter: 'blur(0rem)', opacity: 1, duration: 2, ease: 'power3.out', clearProps: 'filter' }, 0.2);
+    tl.fromTo($$('.ln-art', el), { '--shelf': 0 }, { '--shelf': 1, duration: 1.4, ease: 'power2.out' }, 0.6);
+    order.forEach(([x, d]) => {
+      const at = 0.75 + d * 0.22;
+      tl.fromTo($('.ln-art img', x), { opacity: 0, y: pxs(140), scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 1.5, ease: 'expo.out' }, at);
+      tl.fromTo($('.ln-text', x), { opacity: 0, y: pxs(30) }, { opacity: 1, y: 0, duration: 1.1, ease: 'expo.out' }, at + 0.35);
+    });
+    return true;
+  }
+  if (t.classList.contains('t-stats')) {
+    tl.fromTo(extra, { opacity: 1, clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.2, ease: 'expo.inOut', stagger: 0.12, clearProps: 'clipPath' }, 0.35);
+    extra.forEach((cell, i) => {
+      const v = $('.st-v', cell); if (!v) return;
+      const m = v.textContent.trim().match(/^(\D*?)(\d[\d,.]*)(.*)$/);
+      tl.fromTo($$('.st-l, .st-n', cell), { opacity: 0, y: pxs(24) }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out' }, 0.95 + i * 0.12);
+      if (!m) { tl.fromTo(v, { opacity: 0 }, { opacity: 1, duration: 0.8 }, 0.9 + i * 0.12); return; }
+      const [, pre, num, post] = m, end = parseFloat(num.replace(/,/g, '')), o = { n: 0 };
+      v.textContent = pre + '0' + post;
+      tl.fromTo(v, { opacity: 0, y: pxs(40) }, { opacity: 1, y: 0, duration: 1, ease: 'expo.out' }, 0.8 + i * 0.12);
+      tl.to(o, { n: end, duration: 1.8, ease: 'power3.out', onUpdate: () => { v.textContent = pre + Math.round(o.n) + post; } }, 0.85 + i * 0.12);
+    });
+    return true;
+  }
+  if (t.classList.contains('t-compare')) {
+    tl.fromTo(extra, { opacity: 1, clipPath: 'inset(50% 0% 50% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.3, ease: 'expo.inOut', stagger: 0.18, clearProps: 'clipPath' }, 0.35);
+    extra.forEach((col, i) => {
+      tl.fromTo($$('.cp-roman, h3, .cp-sub', col), { opacity: 0, y: pxs(40) }, { opacity: 1, y: 0, duration: 1, ease: 'expo.out', stagger: 0.08 }, 1 + i * 0.18);
+      tl.fromTo($$('li', col), { opacity: 0, x: -pxs(50) }, { opacity: 1, x: 0, duration: 0.9, ease: 'expo.out', stagger: 0.1 }, 1.3 + i * 0.18);
+    });
+    return true;
+  }
+  return false;
 }
 function riseTL(el, tl, q) {
   const extra = q('[data-a="extra"]').sort((a, b) => (+a.dataset.seq || 0) - (+b.dataset.seq || 0));

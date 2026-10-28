@@ -158,13 +158,20 @@ export const TEMPLATES = {
   concepts: {
     name: 'ثلاثة مفاهيم', en: 'Three concepts', group: 'extra', defaultBg: 'background', suggested: 'المفاهيم',
     fields: [F.eyebrow, F.title,
-      { key: 'items', type: 'list', label: 'المفاهيم', item: [{ key: 'label', type: 'text', label: 'الرقم/التسمية' }, { key: 'title', type: 'text', label: 'العنوان' }, { key: 'body', type: 'textarea', rows: 2, label: 'الوصف' }, { key: 'image', type: 'image', label: 'الصورة' }], newItem: { label: '', title: 'مفهوم', body: '', image: { src: '' } } }],
+      { key: 'items', type: 'list', label: 'المفاهيم', item: [{ key: 'label', type: 'text', label: 'الرقم/التسمية' }, { key: 'title', type: 'text', label: 'العنوان' }, { key: 'body', type: 'textarea', rows: 2, label: 'الوصف' }, { key: 'image', type: 'image', label: 'الصورة' }], newItem: { label: '', title: 'مفهوم', body: '', image: { src: '' } } },
+      { key: 'stepFocus', type: 'toggle', label: 'التنقل بالسهم بينها (يكبر واحد في كل مرة)' }],
     defaults: { eyebrow: 'Concepts', title: 'ثلاثة مفاهيم', items: [1, 2, 3].map(n => ({ label: `0${n}`, title: `المفهوم ${n}`, body: '', image: { src: '' } })) },
     interactive: true,
+    // stepFocus: a slide inside the slide — the arrow moves the focus from one item to the next (the first starts focused)
+    steps: d => (d.stepFocus ? Math.max(0, (d.items || []).length - 1) : 0),
+    applyStep: (el, step) => {
+      const box = el.querySelector('.concepts.is-stepped'); if (!box) return;
+      box.querySelectorAll('.concept').forEach((x, k) => x.classList.toggle('is-focus', k === step));
+    },
     render: (d, ctx) => `
       <div class="t t-concepts">
         <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
-        <div class="concepts n-${(d.items || []).length}">
+        <div class="concepts n-${(d.items || []).length}${d.stepFocus ? ' is-stepped has-focus' : ''}">
           ${(d.items || []).map((it, i) => `
             <button class="concept" data-a="extra" data-seq="${i}" data-focus="${i}">
               <div class="c-media">${mediaHTML(it.image, ctx, { label: it.title || 'مفهوم' })}</div>
@@ -474,7 +481,9 @@ TEMPLATES.finance = {
 
 /* ---------------------------------------------------------------- business model canvas (the nine blocks) */
 // Standard canvas layout (RTL: partners on the right, customers on the left, costs and revenue below).
-// The value proposition is the one highlighted block.
+// The value proposition is the one highlighted block. The canvas reads in three parts, each with its own colour:
+// feasibility (partners, activities, resources), desirability (value with relationships, channels, segments),
+// viability (costs and revenue).
 const BMC = [
   { area: '1 / 1 / 3 / 3', g: 'infra', t: 'الشركاء الرئيسيون' }, { area: '1 / 3 / 2 / 5', g: 'infra', t: 'الأنشطة الرئيسية' },
   { area: '2 / 3 / 3 / 5', g: 'infra', t: 'الموارد الرئيسية' }, { area: '1 / 5 / 3 / 7', g: 'value', t: 'القيمة المقترحة' },
@@ -487,6 +496,9 @@ const BMC_NUM = [5, 6, 3, 2, 8, 7, 1, 9, 4];
 TEMPLATES.canvas = {
   name: 'لوحة نموذج العمل', en: 'Business model canvas', group: 'extra', defaultBg: 'background', suggested: 'نموذج العمل',
   fields: [F.eyebrow, F.title, { key: 'lead', type: 'text', label: 'سطر قصير تحت العنوان' },
+    { key: 'legendInfra', type: 'text', label: 'اسم الجزء الأيمن (الشركاء، الأنشطة، الموارد)' },
+    { key: 'legendCust', type: 'text', label: 'اسم الجزء الأيسر مع القيمة (العلاقة، القنوات، الشرائح)' },
+    { key: 'legendFin', type: 'text', label: 'اسم الجزء السفلي (التكاليف، الإيراد)' },
     { key: 'blocks', type: 'list', label: 'الخانات التسع بالترتيب: الشركاء، الأنشطة، الموارد، القيمة، العلاقة، القنوات، الشرائح، التكاليف، الإيراد',
       item: [{ key: 'title', type: 'text', label: 'اسم الخانة' }, { key: 'text', type: 'textarea', rows: 2, label: 'السطر الرئيسي' }, { key: 'badge', type: 'text', label: 'حالة صغيرة (اختياري)' }],
       newItem: { title: '', text: '', badge: '' } }],
@@ -496,6 +508,7 @@ TEMPLATES.canvas = {
     return `
     <div class="t t-canvas">
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
+      <div class="cv-legend" data-a="body"><span class="g-infra"><i></i>${esc(d.legendInfra || 'قابلية التنفيذ')}</span><span class="g-cust"><i></i>${esc(d.legendCust || 'رغبة العميل')}</span><span class="g-fin"><i></i>${esc(d.legendFin || 'الجدوى المالية')}</span></div>
       <div class="cv-grid">
         ${bl.map((b, i) => `
           <div class="cv-b g-${BMC[i].g}" style="grid-area:${BMC[i].area}" data-a="extra" data-seq="${BMC_NUM[i]}">

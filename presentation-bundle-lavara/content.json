@@ -1162,7 +1162,7 @@
             },
             {
               "id": "sl-lp-cats",
-              "template": "sources",
+              "template": "concepts",
               "transition": "drift",
               "bg": "auto",
               "notes": "",
@@ -1170,24 +1170,46 @@
               "data": {
                 "eyebrow": "",
                 "title": "فئات المنتجات",
+                "stepFocus": true,
                 "items": [
                   {
-                    "pill": "",
+                    "label": "(001)",
                     "title": "منتجات الريفيل",
-                    "tone": "t3",
-                    "featured": true
+                    "body": "",
+                    "image": {
+                      "src": "assets/lavara/sample/tray.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
                   },
                   {
-                    "pill": "",
+                    "label": "(002)",
                     "title": "منتجات الاستخدام الواحد",
-                    "tone": "t1",
-                    "featured": false
+                    "body": "",
+                    "image": {
+                      "src": "assets/lavara/sample/soap.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
                   },
                   {
-                    "pill": "",
+                    "label": "(003)",
                     "title": "موزعات العطور",
-                    "tone": "t2",
-                    "featured": false
+                    "body": "",
+                    "image": {
+                      "src": "assets/lavara/sample/room.jpg",
+                      "fit": "cover",
+                      "focal": {
+                        "x": 50,
+                        "y": 50
+                      }
+                    }
                   }
                 ]
               }
@@ -1274,22 +1296,22 @@
                 "lead": "",
                 "items": [
                   {
-                    "value": "—",
+                    "value": "3",
                     "label": "عدد المصانع",
                     "note": ""
                   },
                   {
-                    "value": "—",
+                    "value": "+50",
                     "label": "عدد التجارب",
                     "note": ""
                   },
                   {
-                    "value": "—",
+                    "value": "+40",
                     "label": "عدد العينات",
                     "note": ""
                   },
                   {
-                    "value": "—",
+                    "value": "+30",
                     "label": "عدد العطور",
                     "note": ""
                   }

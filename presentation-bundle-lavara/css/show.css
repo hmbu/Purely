@@ -1305,3 +1305,36 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 /* canvas, compare and the catalogue boxes if they ever appear here */
 [data-brand="shared"] .cv-b.g-value, [data-brand="shared"] .cp-col.feat, [data-brand="shared"] .so-card.feat { background: var(--sh-ink); color: var(--sh-paper); --stitle: var(--sh-paper); --rule: var(--sh-copper); }
 [data-brand="shared"] :is(.sc-pill, .so-pill, .cv-badge) { border-radius: 0; }
+
+/* concepts stepped by the arrow: the focused one grows a little, the others step back a little (never collapse) */
+.concepts.is-stepped.has-focus .concept { flex-grow: .78; opacity: .62; }
+.concepts.is-stepped.has-focus .concept.is-focus { flex-grow: 1.55; opacity: 1; }
+.concepts.is-stepped .concept .c-media .m { transition: transform 1.6s cubic-bezier(.16, 1, .3, 1); }
+.concepts.is-stepped .concept.is-focus .c-media .m { transform: scale(1.04); }
+/* lineup shelf line draws open from the middle on entry */
+.ln-art::after { transform: scaleX(var(--shelf, 1)); }
+
+/* ======================================================================= business model: three parts, three colours
+   feasibility (right: partners, activities, resources) · desirability (left, with the value at the centre as its
+   deepest shade) · viability (bottom: costs, revenue). A small legend names the parts. */
+.cv-legend { position: absolute; top: 10.4rem; left: 8rem; display: flex; gap: 3rem; font-size: 1.6rem; }
+.cv-legend span { display: inline-flex; align-items: center; gap: 1rem; }
+.cv-legend i { width: 1.6rem; height: 1.6rem; background: var(--pc); }
+[data-brand="bundle"] { --cv-infra: #3B7BE0; --cv-infra-bg: #DCEAF6; --cv-cust: #245845; --cv-cust-bg: #E1F2CF; --cv-fin: #C9532A; --cv-fin-bg: #F8DCCB; }
+[data-brand="lavara"] { --cv-infra: #5B634A; --cv-infra-bg: #DFE2D2; --cv-cust: #926A23; --cv-cust-bg: #EFE2C6; --cv-fin: #AD6243; --cv-fin-bg: #F1DACD; }
+[data-brand="shared"] { --cv-infra: #4A5687; --cv-infra-bg: #E3E3EA; --cv-cust: #2F6A5B; --cv-cust-bg: #DCE8E2; --cv-fin: #A8824A; --cv-fin-bg: #F0E5D3; }
+.cv-legend .g-infra, :is([data-brand]) .cv-b.g-infra { --pc: var(--cv-infra); --pbg: var(--cv-infra-bg); }
+.cv-legend .g-cust, :is([data-brand]) .cv-b.g-cust, :is([data-brand]) .cv-b.g-value { --pc: var(--cv-cust); --pbg: var(--cv-cust-bg); }
+.cv-legend .g-fin, :is([data-brand]) .cv-b.g-fin { --pc: var(--cv-fin); --pbg: var(--cv-fin-bg); }
+[data-brand] .cv-b.cv-b { background: var(--pbg); --gc: var(--pc); }
+[data-brand] .cv-b.cv-b .cv-t { color: var(--pc); }
+[data-brand] .cv-b.cv-b .cv-x { color: #1E1B17; }
+[data-brand] .cv-b.cv-b.g-value { background: var(--pc); color: #fff; --stitle: #fff; }
+[data-brand] .cv-b.cv-b.g-value :is(.cv-t, .cv-x) { color: inherit; }
+[data-brand="lavara"] .cv-b.cv-b.g-value { color: var(--lv-ivory); }
+[data-brand="lavara"] .cv-legend i { width: 1.4rem; height: 1.4rem; }
+[data-brand="bundle"] .cv-legend i { border-radius: 50%; }
+[data-brand="bundle"] .cv-b.cv-b.g-value { background: linear-gradient(140deg, #3C8A5E, #245845 70%); }
+[data-brand="lavara"] .cv-x { font-size: 1.55rem; line-height: 1.6; }
+/* sectors: the lead sector (hotels) is the dark brown block */
+[data-brand="lavara"] .sc-col:first-child { background: var(--lv-brown); border-top-color: var(--lv-brown); }
