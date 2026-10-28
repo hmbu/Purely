@@ -1437,3 +1437,13 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 #cover.is-flip::before, #cover.is-flip::after { display: none; }
 #cover .cv-plate { position: absolute; inset: 0; background: var(--cv-bg); }
 #cover .cv-plate::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .12; }
+
+/* shared frame: the two companies as themselves — Al Majed Oud: its black logo (no repeated name) on a warm oud-gold
+   card; Rimthan: its white logo on a deep charcoal card (dark, not flat black) */
+[data-brand="shared"] .dg-node.party-majed { background: #E2CCA3 !important; --rule: #8C6A3A; }
+[data-brand="shared"] .dg-node.party-majed .dg-logo { background-color: #1E1B17; }
+[data-brand="shared"] .dg-node.party-majed span:not(.dg-logo) { color: #1E1B17; opacity: .72; }
+[data-brand="shared"] .dg-node.party-rimthan { background: #26272D !important; --rule: #4A5687; color: #F7F3EC; }
+[data-brand="shared"] .dg-node.party-rimthan .dg-logo { background-color: #FFFFFF; }
+[data-brand="shared"] .dg-node.party-rimthan b { color: #F7F3EC !important; }
+[data-brand="shared"] .dg-node.party-rimthan span:not(.dg-logo) { color: #F7F3EC; opacity: .7; }

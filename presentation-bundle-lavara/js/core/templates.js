@@ -248,7 +248,8 @@ const area = n => `grid-column:${Number(n.col) || 1} / span ${Number(n.colSpan) 
 const stepAttr = (x, a) => (stepOf(x) ? `data-step="${stepOf(x)}"` : `data-a="${a}"`);
 
 // The two companies always carry their own logo on their cards (in their party colour); matched by the card's name.
-const PARTIES = [[/الماجد/, 'assets/logos/almajed-oud.png', 3.43, 5], [/^رمثان$|^Rimthan$/i, 'assets/logos/rimthan.png', 5.71, 3.2]];
+const PARTIES = [[/الماجد/, 'assets/logos/almajed-oud.png', 3.43, 5, 'majed'], [/^رمثان$|^Rimthan$/i, 'assets/logos/rimthan.png', 5.71, 3.2, 'rimthan']];
+const partyOf = n => ((n.shape || 'box') === 'box' ? PARTIES.find(([re]) => re.test(String(n.title || '').trim()))?.[4] || '' : '');
 function partyLogo(n, ctx) {
   if ((n.shape || 'box') !== 'box' || !ctx?.asset) return '';
   const hit = PARTIES.find(([re]) => re.test(String(n.title || '').trim())); if (!hit) return '';
@@ -289,7 +290,7 @@ TEMPLATES.diagram = {
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
       <div class="dg" style="--cols:${Number(d.cols) || 2};--cgap:${Number(d.gap) || 20}rem;--rgap:${Number(d.rowGap) || 7.5}rem">
         ${frames.map(f => `<div class="dg-frame tone-${esc(f.tone || 'neutral')}" ${stepAttr(f, 'media')} style="${area(f)}"><span class="dg-flabel">${esc(f.label || '')}</span></div>`).join('')}
-        ${nodes.map((n, i) => `<div class="dg-node shape-${esc(n.shape || 'box')} tone-${esc(n.tone || 'neutral')}" data-node="${esc(n.id || '')}" ${stepAttr(n, 'extra')} data-seq="${i}" style="${area(n)}">
+        ${nodes.map((n, i) => `<div class="dg-node shape-${esc(n.shape || 'box')} tone-${esc(n.tone || 'neutral')}${partyOf(n) ? ' party-' + partyOf(n) : ''}" data-node="${esc(n.id || '')}" ${stepAttr(n, 'extra')} data-seq="${i}" style="${area(n)}">
           ${partyLogo(n, ctx)}<b>${escBr(n.title || '')}</b>${n.sub ? `<span>${escBr(n.sub)}</span>` : ''}</div>`).join('')}
         <svg class="dg-wires" data-a="body"></svg>
       </div>
