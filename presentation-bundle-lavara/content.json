@@ -2,7 +2,7 @@
   "version": 1,
   "meta": {
     "title": "Bundle × Lavara",
-    "updatedAt": "2026-10-28T19:30:57.155Z"
+    "updatedAt": "2026-10-28T20:01:58.597Z"
   },
   "fonts": [
     {
@@ -252,9 +252,9 @@
                 "video": {
                   "src": "assets/bundle/video/bundle-identity-film.mp4",
                   "poster": "",
-                  "autoplay": true,
+                  "autoplay": false,
                   "muted": false,
-                  "loop": true
+                  "loop": false
                 },
                 "mode": "full",
                 "eyebrow": "Purpose",
@@ -1035,9 +1035,9 @@
                 "video": {
                   "src": "assets/lavara/video/lavara-noir-reveal.mp4",
                   "poster": "",
-                  "autoplay": true,
+                  "autoplay": false,
                   "muted": false,
-                  "loop": true
+                  "loop": false
                 },
                 "mode": "full",
                 "eyebrow": "A stay to remember",
