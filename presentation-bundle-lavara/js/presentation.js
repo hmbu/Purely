@@ -404,7 +404,9 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
     // the symbol appears small and solid, then opens: it grows into a faint shadow while the title is unveiled from its centre
     const t0 = inT * 0.6;
     tl.fromTo(markEl, { opacity: 0, scale: 0.32 }, { opacity: 0.95, scale: 0.42, duration: 0.45, ease: 'power3.out' }, t0);
-    tl.to(markEl, { opacity: 0.1, scale: 1.55, duration: 1.25, ease: 'expo.inOut' }, t0 + 0.4);
+    // …then slides to the bottom-right corner and settles there large and half cut by the edge, a shadow beside the title
+    const W = coverEl.offsetWidth, H = coverEl.offsetHeight, M = markEl.offsetWidth * 1.55;
+    tl.to(markEl, { opacity: 0.1, scale: 1.55, x: W / 2 - M * 0.22, y: H / 2 - M * 0.12, duration: 1.35, ease: 'expo.inOut' }, t0 + 0.4);
     tl.fromTo($('.cover-card', coverEl), { clipPath: 'inset(0% 50% 0% 50%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.15, ease: 'expo.inOut' }, t0 + 0.48);
     tl.fromTo(cardEls, { opacity: 0, y: pxs(14) }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.06 }, t0 + 0.55);
     tl.fromTo($('.cv-rule', coverEl), { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: 'expo.inOut' }, t0 + 0.6);
@@ -415,7 +417,7 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
   tl.call(() => swap && swap(), null, inT + 0.02);
   const outAt = inT + hold + (card ? 0.4 : 0);
   if (card) tl.to(cardEls, { opacity: 0, y: -pxs(16), duration: 0.5, ease: 'power2.in', stagger: 0.04 }, outAt - 0.25);
-  if (markEl) tl.to(markEl, { opacity: 0, scale: 1.75, duration: 0.6, ease: 'power2.in' }, outAt - 0.25);
+  if (markEl) tl.to(markEl, { opacity: 0, duration: 0.6, ease: 'power2.in' }, outAt - 0.25);
   if (useVeil) tl.to(veil, { progress: 0, duration: outT, ease: 'power2.inOut' }, outAt);
   else tl.to(coverEl, { clipPath: dir > 0 ? 'inset(0% 0% 0% 100%)' : 'inset(0% 100% 0% 0%)', duration: outT, ease: 'expo.inOut' }, outAt);
   if (after) tl.add(() => { after(); }, outAt + outT * 0.25);
