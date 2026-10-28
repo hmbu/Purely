@@ -1133,12 +1133,15 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 /* a grainy gradient sphere, as the brand's icons */
 [data-brand="bundle"] :is(.oc-col li:not(.later) i, .ca-list li i, .b-sphere) { background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .7), transparent 45%), var(--tg); }
 
-/* occasions: three soft panels, each a stack of white pills (like Plan · Design · Choose) under a solid pill title */
-[data-brand="bundle"] .oc-col { overflow: visible; padding: 2.6rem 2.6rem 3rem; border-radius: 3.2rem; background: color-mix(in srgb, var(--tp) 35%, var(--sbg)); }
-[data-brand="bundle"] .oc-head { display: inline-flex; align-items: center; gap: 1.2rem; padding: 1.1rem 2.6rem 1.1rem 2.2rem; border-radius: 10rem; margin-bottom: 2.2rem; }
-[data-brand="bundle"] .oc-head::after { display: none; }
-[data-brand="bundle"] .oc-head h3 { font-size: 2.5rem; }
-[data-brand="bundle"] .oc-col ul { padding: 0; gap: 1.1rem; }
+/* occasions: each group's title is the same gradient pill as the product pages' tabs, on the same columns, so moving
+   on the pills rise into the tabs; under each pill a soft panel holds a stack of white pills (like Plan · Design · Choose) */
+[data-brand="bundle"] .oc-cols { gap: 2rem; }
+[data-brand="bundle"] .oc-col { overflow: visible; padding: 0; border-radius: 0; background: none; }
+[data-brand="bundle"] .oc-head { display: flex; align-items: center; gap: 1.4rem; height: 6.6rem; padding: 0 2.8rem; margin-bottom: 1.6rem; overflow: hidden; border-radius: 10rem; background: var(--tg); color: #fff; }
+[data-brand="bundle"] .oc-head::before { content: ''; flex: none; width: 2.2rem; height: 2.2rem; border-radius: 50%; background: #fff; position: relative; z-index: 1; }
+[data-brand="bundle"] .oc-head::after { border-radius: inherit; }
+[data-brand="bundle"] .oc-head h3 { font-size: 2.3rem; }
+[data-brand="bundle"] .oc-col ul { padding: 2.4rem 2.2rem 2.6rem; gap: 1.1rem; border-radius: 3.2rem; background: color-mix(in srgb, var(--tp) 35%, var(--sbg)); }
 [data-brand="bundle"] .oc-col li { background: var(--b-card); border-radius: 1.8rem; padding: 1.3rem 1.8rem; box-shadow: var(--b-shadow); font-weight: 500; color: #0A1215; }
 [data-brand="bundle"] .oc-col li i { width: 2rem; height: 2rem; }
 [data-brand="bundle"] .oc-col li.later { background: none; box-shadow: none; padding-block: .8rem; }

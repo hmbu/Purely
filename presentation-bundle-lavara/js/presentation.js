@@ -329,6 +329,27 @@ function tabsSwap(old, el) {
   tl.add(() => { to.classList.add('on'); slider.remove(); }, 0.85);
   return tl;
 }
+// occasions → first product page: the group pills rise into the tabs, then the examples come up
+function headsRise(old, el) {
+  const heads = $$('.oc-head', old), b = $('.sc-tabs', el); if (!heads.length || !b) return null;
+  const tabs = $$('.sc-tab', b); if (tabs.length !== heads.length) return null;
+  const br = b.getBoundingClientRect(), k = br.width / (b.offsetWidth || 1);
+  const tl = gsap.timeline();
+  b.removeAttribute('data-a'); gsap.set(b, { opacity: 1 }); gsap.set(tabs, { opacity: 0 });
+  const clones = heads.map((h, i) => {
+    const r = h.getBoundingClientRect(), c = tabs[i].cloneNode(true);
+    c.classList.add('on', ...[...h.closest('.oc-col').classList].filter(x => x.startsWith('tn-')));
+    Object.assign(c.style, { position: 'absolute', margin: 0, zIndex: 2 });
+    gsap.set(c, { left: (r.left - br.left) / k, top: (r.top - br.top) / k, width: r.width / k, height: r.height / k, opacity: 1 });
+    b.append(c); return c;
+  });
+  gsap.set(heads, { opacity: 0 });
+  tl.to($$('.oc-col ul, .board-head, .oc-legend', old), { opacity: 0, y: pxs(30), duration: 0.45, ease: 'power2.in', stagger: 0.04 }, 0);
+  clones.forEach((c, i) => tl.to(c, { left: tabs[i].offsetLeft, top: tabs[i].offsetTop, width: tabs[i].offsetWidth, height: tabs[i].offsetHeight, duration: 0.95, ease: RISE }, 0.15 + i * 0.06));
+  tl.to(tabs, { opacity: 1, duration: 0.3 }, 1.05);
+  tl.to(clones, { opacity: 0, duration: 0.35, onComplete: () => clones.forEach(c => c.remove()) }, 1.1);
+  return tl;
+}
 function outroTL(el, dir = 1) {
   if (risesIn()) return gsap.to($$('.t, .slide-bg ~ *', el), { y: -pxs(16), opacity: 0, duration: 0.4, ease: 'power2.in' });
   const t = $$('.t, .slide-bg ~ *', el);
@@ -395,8 +416,10 @@ async function showSlide(li, { dir = 1, kind, instant = false } = {}) {
       mountSlide(el, tpl, slide);
       lightVeil(p, dir);
       const tl = gsap.timeline();
-      const swap = risesIn() && tabsSwap(old, el);
-      if (swap) { tl.add(swap, 0); tl.add(introTL(el, dir, 'drift'), 0.3); }
+      const rise = risesIn() && dir > 0 && headsRise(old, el);
+      const swap = !rise && risesIn() && tabsSwap(old, el);
+      if (rise) { tl.add(rise, 0); tl.add(introTL(el, dir, 'drift'), 0.95); }
+      else if (swap) { tl.add(swap, 0); tl.add(introTL(el, dir, 'drift'), 0.3); }
       else { tl.add(outroTL(old, dir), 0); tl.add(introTL(el, dir, 'drift'), 0.3); }
       await tl; unmountSlide(old); old.remove();
     }

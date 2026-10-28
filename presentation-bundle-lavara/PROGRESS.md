@@ -142,3 +142,4 @@
 - Motion for Bundle slides follows its gift catalogue: elements rise into place (cubic-bezier .2,.7,.2,1, staggered); columns grow from the floor; between product pages the group pills stay and the highlight slides to the next group.
 - Waiting: user review.
 - Follow-up: sources back to the original card idea (pill, words, one brand shape rising from the card floor: column, cut circle, half circle, slim column; green card for Bundle's line). Partners placed as in the gift catalogue (right under the title, green band with white tiles, white band with cream tiles), logos no longer cropped.
+- Follow-up: occasion group titles are now the same gradient pills as the product-page tabs, on the same columns; moving on from occasions they rise into the tabs, then the examples come up.
