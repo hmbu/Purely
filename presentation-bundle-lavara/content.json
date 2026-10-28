@@ -1433,6 +1433,25 @@
                 "showLogo": false,
                 "showMark": true
               }
+            },
+            {
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "id": "sl-lp-dash",
+              "template": "screens",
+              "data": {
+                "eyebrow": "",
+                "title": "لوحة التحكم للفندق",
+                "points": "إدارة الطلبات\nمتابعة المخزون\nمتابعة الطلبات\nتفويض الطلبات",
+                "back": {
+                  "src": ""
+                },
+                "front": {
+                  "src": ""
+                }
+              }
             }
           ],
           "desc": "تجربة الطلب أونلاين"

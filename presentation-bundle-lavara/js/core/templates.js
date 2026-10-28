@@ -778,7 +778,27 @@ TEMPLATES.stats = {
     </div>`,
 };
 
-export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product', 'updates', 'sectors', 'finance', 'canvas', 'flow', 'occasions', 'showcase', 'sources', 'categories', 'partners', 'figure', 'lineup', 'compare', 'stats'];
+/* ---------------------------------------------------------------- screens (two screenshots, offset, beside a title and points) */
+// The two screens overlap like sheets on a desk (the back one higher and to the edge, the front one lower and inward);
+// the words sit beside them. Points are numbered in the project's own way.
+TEMPLATES.screens = {
+  name: 'شاشتان + نقاط', en: 'Screens', group: 'extra', defaultBg: 'background', suggested: 'المنتج الرقمي',
+  fields: [F.eyebrow, F.title, { key: 'points', type: 'textarea', rows: 5, label: 'النقاط (سطر لكل نقطة)' },
+    { key: 'back', type: 'image', label: 'الشاشة الخلفية' }, { key: 'front', type: 'image', label: 'الشاشة الأمامية' }],
+  defaults: { eyebrow: '', title: 'لوحة التحكم', points: '', back: { src: '' }, front: { src: '' } },
+  render: (d, ctx) => `
+    <div class="t t-screens">
+      <div class="scr-copy">${eyebrow(d.eyebrow)}${title(d.title)}
+        <ol class="scr-points">${lines(d.points).map((x, i) => `<li data-a="extra" data-seq="${i + 2}"><span class="scr-n latin">(${String(i + 1).padStart(3, '0')})</span>${esc(x)}</li>`).join('')}</ol>
+      </div>
+      <div class="scr-stack">
+        <figure class="scr scr-back" data-a="extra" data-seq="0">${mediaHTML(d.back, ctx, { label: 'الشاشة الخلفية' })}</figure>
+        <figure class="scr scr-front" data-a="extra" data-seq="1">${mediaHTML(d.front, ctx, { label: 'الشاشة الأمامية' })}</figure>
+      </div>
+    </div>`,
+};
+
+export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product', 'updates', 'sectors', 'finance', 'canvas', 'flow', 'occasions', 'showcase', 'sources', 'categories', 'partners', 'figure', 'lineup', 'compare', 'stats', 'screens'];
 
 export function newSlide(templateId, uidFn) {
   const t = TEMPLATES[templateId];
