@@ -1,5 +1,9 @@
 // Brand textures rendered in WebGL2 at reduced internal resolution (invisible on soft shapes, keeps 60fps at 4K).
 //   bubbles → Bundle: gooey metaballs with multi-color gradients + grain.
+//   Bundle variants (brand.textureStyle), drawn from bundle-brand.pdf:
+//     orbs   → separate grainy gradient spheres (the brand's icons) drifting and bouncing off each other, never merging.
+//     strips → vertical colour strips with circles, half circles and rounded columns sliding (its Purpose page).
+//     stacks → columns of touching grainy circles moving up and down (its website page).
 //   mist    → Lavara: slow domain-warped fog / foam with soft edges.
 //   Lavara variants (brand.textureStyle), care-product materials instead of fog:
 //     silk  → liquid soap: thick glossy folds with a moving sheen.
@@ -239,6 +243,82 @@ void main(){
 
 const LAVARA_STYLES = ['silk', 'lather', 'pour', 'drop', 'swirl', 'soap', 'amber'];
 
+// Bundle: separate spheres, painted one over another (never blended into each other); positions come from a
+// small collision simulation in JS so they also never overlap while they drift.
+const ORB_N = 9;
+const SPHERE = `
+// The brand's gradient circles are flat, vivid two-colour gradients with heavy grain, not shaded balls.
+// Bundle-only modes, so the pairs are bundle-brand.pdf's own: pink→coral, lime→green, sky→deep blue, peach→orange.
+vec3 sphereCol(vec3 base, vec2 o){
+  float k = 0.0; float best = 9.0;
+  vec3 keys[4] = vec3[4](vec3(0.949,0.663,0.761), vec3(0.682,0.902,0.498), vec3(0.8,0.886,0.949), vec3(0.141,0.345,0.271));
+  for (int i = 0; i < 4; i++) { float dd = distance(base, keys[i]); if (dd < best) { best = dd; k = float(i); } }
+  vec3 a1, a2;
+  if (k < 0.5)      { a1 = vec3(0.929,0.776,0.969); a2 = vec3(0.91,0.45,0.373); }   // lilac → pink → coral
+  else if (k < 1.5) { a1 = vec3(0.875,0.89,0.573);  a2 = vec3(0.235,0.541,0.369); } // lime → green
+  else if (k < 2.5) { a1 = vec3(0.8,0.886,0.949);   a2 = vec3(0.231,0.482,0.878); } // sky → deep blue
+  else              { a1 = vec3(0.925,0.765,0.624); a2 = vec3(0.839,0.325,0.122); } // peach → orange
+  float t = clamp(dot(o, normalize(vec2(0.55, -0.83))) * 0.5 + 0.5, 0.0, 1.0);
+  return mix(a1, a2, smoothstep(0.05, 0.95, t));
+}
+float coarseGrain(){ return hash(floor(gl_FragCoord.xy / 1.4) + fract(u_time * 3.0) * 37.0) - 0.5; }`;
+const ORBS = COMMON + SPHERE + `
+uniform vec3 u_balls[${ORB_N}];
+uniform float u_tone[${ORB_N}];
+void main(){
+  vec2 uv = gl_FragCoord.xy / u_res; float asp = u_res.x / u_res.y;
+  vec2 p = vec2(uv.x * asp, uv.y);
+  vec3 col = vec3(0.0); float a = 0.0; float px = 1.5 / u_res.y;
+  for (int i = 0; i < ${ORB_N}; i++) {
+    vec3 b = u_balls[i]; if (b.z <= 0.0) continue;
+    vec2 d = (p - vec2(b.x * asp, b.y)) / b.z;
+    float r = length(d);
+    float m = 1.0 - smoothstep(1.0 - px / b.z * 1.5, 1.0, r);
+    if (m <= 0.0) continue;
+    vec3 base = u_col[int(mod(u_tone[i], 4.0))];
+    col = mix(col, sphereCol(base, d), m); a = max(a, m);
+  }
+  float flood = smoothstep(0.82, 1.0, u_progress);
+  col = mix(col, u_col[0], flood * (1.0 - a * 0.0)); a = max(a, flood);
+  col += coarseGrain() * 0.16 * a;
+  o = vec4(col * a * u_alpha, a * u_alpha);
+}`;
+// Bundle: the Purpose page — vertical strips, each sliding a column of circles, half circles and rounded columns.
+const STRIP_SRC = `
+float shapeD(vec2 q, float k){               // q in the cell 0..1; k picks the shape
+  if (k < 0.5) return length(q - 0.5) - 0.44;                                   // circle
+  if (k < 1.5) { vec2 c = vec2(0.5, 0.06); return max(length(q - c) - 0.44, c.y - q.y); } // half circle
+  vec2 c = vec2(0.5, 0.5); float d = q.y < 0.5 ? length(q - c) - 0.44 : abs(q.x - 0.5) - 0.44; // column with a rounded end
+  return d;
+}
+void main(){
+  vec2 uv = gl_FragCoord.xy / u_res;
+  float n = STRIPS_N; float si = floor(uv.x * n);
+  float cellH = (u_res.x / n) / u_res.y;                 // one cell is as tall as a strip is wide
+  float dir = mod(si, 2.0) < 0.5 ? 1.0 : -1.0;
+  float yy = uv.y / cellH + u_time * (0.05 + 0.04 * hash(vec2(si, 3.0))) * dir + hash(vec2(si, 9.0)) * 4.0;
+  float ci = floor(yy); vec2 q = vec2(fract(uv.x * n), fract(yy));
+  float k = mod(ci + si * 2.0, 3.0);
+  float present = step(STRIPS_EMPTY, hash(vec2(si, ci)));
+  vec3 bg = STRIPS_BG;
+  vec3 base = u_col[int(mod(si + ci, 4.0))];
+  float d = shapeD(q, k); float px = 1.5 / (u_res.x / n);
+  float m = (1.0 - smoothstep(-px, px, d)) * present;
+  vec3 sc = sphereCol(base, (q - 0.5) * 2.2);
+  vec3 col = mix(bg, sc, m);
+  float sa = STRIPS_ALPHA_BG;
+  // reveal: strips rise in turn from the sweep side
+  float order = u_sweep >= 0.0 ? si / n : 1.0 - (si + 1.0) / n;
+  float rv = clamp(u_progress * 1.6 - order * 0.6, 0.0, 1.0);
+  float a = (uv.y < rv * 1.02 ? 1.0 : 0.0) * max(sa, m);
+  col += coarseGrain() * 0.16;
+  o = vec4(col * a * u_alpha, a * u_alpha);
+}`;
+const STRIPS = COMMON + SPHERE + '\n#define STRIPS_N 6.0\n#define STRIPS_EMPTY 0.18\n#define STRIPS_BG (u_col[int(mod(si, 4.0))] * 0.82)\n#define STRIPS_ALPHA_BG 1.0\n' + STRIP_SRC;
+// Bundle: the website page — columns of touching circles on the background, moving up and down.
+const STACKS = COMMON + SPHERE + '\n#define STRIPS_N 7.0\n#define STRIPS_EMPTY -1.0\n#define STRIPS_BG vec3(0.0)\n#define STRIPS_ALPHA_BG 0.0\n' + STRIP_SRC.replace('float k = mod(ci + si * 2.0, 3.0);', 'float k = 0.0; if (hash(vec2(si, 1.0)) < 0.42) { o = vec4(0.0); return; }');
+const BUNDLE_STYLES = ['orbs', 'strips', 'stacks'];
+
 const BALLS = 14;
 
 export class BrandTexture {
@@ -268,7 +348,7 @@ export class BrandTexture {
     const gl = this.gl;
     const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    for (const [name, src] of [['bubbles', BUBBLES], ['mist', MIST], ['silk', SILK], ['lather', LATHER], ['pour', POUR], ['drop', DROP], ['swirl', SWIRL], ['soap', SOAP], ['amber', AMBER]]) {
+    for (const [name, src] of [['bubbles', BUBBLES], ['mist', MIST], ['orbs', ORBS], ['strips', STRIPS], ['stacks', STACKS], ['silk', SILK], ['lather', LATHER], ['pour', POUR], ['drop', DROP], ['swirl', SWIRL], ['soap', SOAP], ['amber', AMBER]]) {
       const prog = gl.createProgram();
       for (const [type, code] of [[gl.VERTEX_SHADER, VERT], [gl.FRAGMENT_SHADER, src]]) {
         const sh = gl.createShader(type); gl.shaderSource(sh, code); gl.compileShader(sh);
@@ -277,12 +357,12 @@ export class BrandTexture {
       }
       gl.bindAttribLocation(prog, 0, 'a'); gl.linkProgram(prog);
       const u = n => gl.getUniformLocation(prog, n);
-      this.programs[name] = { prog, u: { res: u('u_res'), time: u('u_time'), progress: u('u_progress'), alpha: u('u_alpha'), grain: u('u_grain'), sweep: u('u_sweep'), col: u('u_col'), balls: u('u_balls') } };
+      this.programs[name] = { prog, u: { res: u('u_res'), time: u('u_time'), progress: u('u_progress'), alpha: u('u_alpha'), grain: u('u_grain'), sweep: u('u_sweep'), col: u('u_col'), balls: u('u_balls'), tone: u('u_tone') } };
     }
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
   }
   set(opts = {}) {
-    if (opts.mode) this.mode = opts.mode !== 'mist' ? 'bubbles' : LAVARA_STYLES.includes(opts.variant) ? opts.variant : 'mist';
+    if (opts.mode) this.mode = opts.mode !== 'mist' ? (BUNDLE_STYLES.includes(opts.variant) ? opts.variant : 'bubbles') : LAVARA_STYLES.includes(opts.variant) ? opts.variant : 'mist';
     if (opts.colors) this.colors = [...opts.colors, ...this.colors].slice(0, 4);
     if (opts.seed != null) this.seedBalls(opts.seed);
     for (const k of ['progress', 'alpha', 'speed', 'sweep', 'grain', 'resScale']) if (opts[k] != null) this[k] = opts[k];
@@ -329,6 +409,34 @@ export class BrandTexture {
       });
       gl.uniform3fv(P.u.balls, this.ballData);
     }
+    if (this.mode === 'orbs') { this.stepOrbs(); gl.uniform3fv(P.u.balls, this.orbData); gl.uniform1fv(P.u.tone, this.orbTone); }
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  // Orbs: slow drift with elastic bounces off the edges and off each other, so they never overlap or merge.
+  stepOrbs() {
+    const asp = (this.canvas.width || 16) / (this.canvas.height || 9), p = this.progress;
+    if (!this.orbs) { // start spread across the width
+      let s = 7; const rnd = () => ((s = (s * 9301 + 49297) % 233280) / 233280);
+      this.orbs = Array.from({ length: ORB_N }, (_, i) => ({ x: (i + 0.25 + rnd() * 0.5) / ORB_N, y: 0.15 + rnd() * 0.7, vx: (rnd() - 0.5) * 0.05, vy: (rnd() - 0.5) * 0.05, r: 0.07 + rnd() * 0.07 + (i < 2 ? 0.05 : 0), tone: i % 4 }));
+      this.orbData = new Float32Array(ORB_N * 3); this.orbTone = new Float32Array(ORB_N);
+      this.orbT = this.t;
+    }
+    const dt = Math.min(0.05, Math.max(0, this.t - this.orbT)); this.orbT = this.t;
+    const scale = 0.4 + Math.min(1, p * 1.25) * 0.75, O = this.orbs;
+    for (const o of O) {
+      o.x += o.vx * dt; o.y += o.vy * dt; const r = o.r * scale;
+      if (o.x * asp < r) { o.x = r / asp; o.vx = Math.abs(o.vx); } if (o.x * asp > asp - r) { o.x = 1 - r / asp; o.vx = -Math.abs(o.vx); }
+      if (o.y < r) { o.y = r; o.vy = Math.abs(o.vy); } if (o.y > 1 - r) { o.y = 1 - r; o.vy = -Math.abs(o.vy); }
+    }
+    for (let i = 0; i < O.length; i++) for (let j = i + 1; j < O.length; j++) {
+      const a = O[i], b = O[j]; const dx = (b.x - a.x) * asp, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1e-6, min = (a.r + b.r) * scale + 0.012;
+      if (d < min) { // push apart and exchange the velocity along the line between them
+        const nx = dx / d, ny = dy / d, push = (min - d) / 2;
+        a.x -= nx * push / asp; a.y -= ny * push; b.x += nx * push / asp; b.y += ny * push;
+        const va = a.vx * asp * nx + a.vy * ny, vb = b.vx * asp * nx + b.vy * ny;
+        if (va - vb > 0) { const k = va - vb; a.vx -= k * nx / asp; a.vy -= k * ny; b.vx += k * nx / asp; b.vy += k * ny; }
+      }
+    }
+    O.forEach((o, i) => { this.orbData[i * 3] = o.x; this.orbData[i * 3 + 1] = o.y; this.orbData[i * 3 + 2] = o.r * scale; this.orbTone[i] = o.tone; });
   }
 }

@@ -1039,7 +1039,6 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="bundle"] .t-mosaic i:nth-child(2) { background: linear-gradient(90deg, #3B7BE0, #7FA8EF 55%, #CCE2F2); }
 [data-brand="bundle"] .t-mosaic i:nth-child(3) { background: linear-gradient(90deg, #D6531F, #E8836A 55%, #EDC6F7); }
 [data-brand="bundle"] .t-mosaic i:nth-child(n+4) { display: none; }
-[data-brand="bundle"] .t-title .s-watermark { display: none; }
 /* business model: the value block in the deck's green gradient, with grain */
 [data-brand="bundle"] .cv-b.g-value { background: linear-gradient(140deg, #3C8A5E 0%, #245845 70%); }
 [data-brand="bundle"] .cv-b.g-value::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .4; pointer-events: none; }
@@ -1180,3 +1179,10 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="bundle"] .pa-band h3::before { content: ''; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .7), transparent 45%), linear-gradient(140deg, #AEE67F, #3C8A5E 55%, #245845); }
 [data-brand="bundle"] .pa-logo { background: var(--b-card) !important; border-radius: 2rem; box-shadow: var(--b-shadow); }
 [data-brand="bundle"] .pa-more { border-radius: 2rem; }
+
+/* section titles: the project's symbol opens the title and stays behind it as a large faint shadow */
+#cover .cv-mark { position: absolute; left: 50%; top: 50%; width: 56rem; height: 56rem; margin: -28rem 0 0 -28rem; opacity: 0; pointer-events: none; z-index: 0; background-color: currentColor; }
+#cover .cover-card { position: relative; z-index: 1; }
+/* Bundle title slides: its symbol as a large faint shadow behind the logo (the stacked circles stay at the side) */
+[data-brand="bundle"] .t-title .s-watermark { display: grid; place-items: center; }
+[data-brand="bundle"] .t-title .s-watermark .logo-mask { width: 64rem; height: 64rem; margin: 0; opacity: .07; }

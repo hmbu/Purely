@@ -128,3 +128,8 @@
 - Bundle: its shapes, gradients, pills and rounded cards are all in bundle-brand.pdf; kept.
 - Flagged to the user (content, not design): the blue line video in both identity sections, the empty video slide in Lavara products, the yellow/black "SCAN ME" photo in Lavara's digital product.
 - Bundle (user: the products pages had been copied from the working deck): title-slide decoration is now the brand file's stacked grainy circles (the mosaic and leaf shapes were from the deck, removed); the six product pages are redrawn in the brand file's application language: white floating cards with soft shadows, gradient-sphere icons, stacked white pills with sphere bullets, solid/gradient pills for group titles and tabs. Content unchanged.
+
+## Symbol-led section titles · Bundle backgrounds
+- Section titles: every section now opens with its title card (`settings.flow.titleCards`, default on; off = the previous zoom from the project page). The project's symbol (Bundle's B, Lavara's framed A) appears small and solid, grows into a large faint shadow and the title opens from its centre. Bundle title slides show the B as a large faint shadow behind the logo (Lavara's already had its A).
+- Bundle backgrounds (control panel › الهويات › بندل › «خلفية بندل المتحركة»): `orbs` separate grainy gradient spheres that drift and bounce, never merging (set as Bundle's choice); `strips` the Purpose page's strips with circles/half circles/rounded columns; `stacks` columns of touching circles (website page); `bubbles` the previous merging bubbles. Gradients are bundle-brand.pdf's pairs, flat and grainy.
+- A shader that fails to compile disables every background: each new mode was compiled and rendered in a browser before pushing.

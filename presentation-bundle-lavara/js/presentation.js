@@ -367,7 +367,9 @@ async function showSlide(li, { dir = 1, kind, instant = false } = {}) {
 
 /* ======================================================================= section cover (brand transition) */
 function coverCard(p, number, title, titleEn) {
-  return `<div class="cover-card">
+  // the project's symbol (Bundle's B, Lavara's framed A) opens the title, then stays behind it as a large faint shadow
+  const mark = p.brand.mark ? `<span class="logo-mask cv-mark" style="--src:url('${esc(asset(p.brand.mark))}')"></span>` : '';
+  return `${mark}<div class="cover-card">
     <span class="cv-num latin">${String(number).padStart(2, '0')}</span>
     <span class="cv-rule"></span>
     <h2 class="cv-title">${escBr(title || '')}</h2>
@@ -384,7 +386,7 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
   coverEl.style.setProperty('--cv-bg', (p.brand.textureColors || [])[0] || p.brand.colors.primary);
   coverEl.innerHTML = card ? coverCard(p, card.number, card.title, card.titleEn) : '';
   sound.play(light ? 'slide' : 'section', p.id);
-  const inT = light ? 0.65 : 1.1, hold = card ? 0.75 : 0.1, outT = light ? 0.7 : 1.05;
+  const inT = light ? 0.65 : 1.1, hold = card ? (p.brand.mark ? 1.25 : 0.75) : 0.1, outT = light ? 0.7 : 1.05; // the symbol's opening needs a beat longer
   const tl = gsap.timeline();
   if (useVeil) {
     veil.set({ mode: tex, variant: p.brand.textureStyle, colors: p.brand.textureColors, sweep: dir, progress: 0, alpha: p.brand.textureIntensity ?? 1, seed: Math.random() * 99 });
@@ -397,13 +399,23 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
   }
   coverEl.classList.add('on');
   const cardEls = card ? $$('.cover-card > *', coverEl) : [];
-  if (card) {
+  const markEl = card ? $('.cv-mark', coverEl) : null;
+  if (card && markEl) {
+    // the symbol appears small and solid, then opens: it grows into a faint shadow while the title is unveiled from its centre
+    const t0 = inT * 0.6;
+    tl.fromTo(markEl, { opacity: 0, scale: 0.32 }, { opacity: 0.95, scale: 0.42, duration: 0.45, ease: 'power3.out' }, t0);
+    tl.to(markEl, { opacity: 0.1, scale: 1.55, duration: 1.25, ease: 'expo.inOut' }, t0 + 0.4);
+    tl.fromTo($('.cover-card', coverEl), { clipPath: 'inset(0% 50% 0% 50%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.15, ease: 'expo.inOut' }, t0 + 0.48);
+    tl.fromTo(cardEls, { opacity: 0, y: pxs(14) }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.06 }, t0 + 0.55);
+    tl.fromTo($('.cv-rule', coverEl), { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: 'expo.inOut' }, t0 + 0.6);
+  } else if (card) {
     tl.fromTo(cardEls, { opacity: 0, y: pxs(24) }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.09 }, inT * 0.7);
     tl.fromTo($('.cv-rule', coverEl), { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: 'expo.inOut' }, inT * 0.72);
   }
   tl.call(() => swap && swap(), null, inT + 0.02);
   const outAt = inT + hold + (card ? 0.4 : 0);
   if (card) tl.to(cardEls, { opacity: 0, y: -pxs(16), duration: 0.5, ease: 'power2.in', stagger: 0.04 }, outAt - 0.25);
+  if (markEl) tl.to(markEl, { opacity: 0, scale: 1.75, duration: 0.6, ease: 'power2.in' }, outAt - 0.25);
   if (useVeil) tl.to(veil, { progress: 0, duration: outT, ease: 'power2.inOut' }, outAt);
   else tl.to(coverEl, { clipPath: dir > 0 ? 'inset(0% 0% 0% 100%)' : 'inset(0% 100% 0% 0%)', duration: outT, ease: 'expo.inOut' }, outAt);
   if (after) tl.add(() => { after(); }, outAt + outT * 0.25);
@@ -625,7 +637,7 @@ const quiet = () => (settings().tone || 'quiet') === 'quiet';
 
 /* ======================================================================= hub (project page) */
 // Lavara's material styles (liquid soap, soap bar, amber light) have defined edges and highlights: they need more pixels than the fog.
-const crisp = p => ['silk', 'lather', 'pour', 'drop', 'swirl', 'soap', 'amber'].includes(p.brand.textureStyle);
+const crisp = p => ['silk', 'lather', 'pour', 'drop', 'swirl', 'soap', 'amber', 'orbs', 'strips', 'stacks'].includes(p.brand.textureStyle);
 // The project page continues the opening screen: brand colour + calm live texture, and the sections as
 // stations on a line of light. The light rests on the next section; hovering slides it to another station.
 let hubTex = null;
@@ -797,6 +809,15 @@ async function enterSection(sid, slideIndex = 0) {
   if (S.level === 'section') { // section → section inside the project
     const dir = secs.indexOf(sec) >= secs.findIndex(s => s.id === S.sid) ? 1 : -1;
     return flowSection(sec, slideIndex, dir);
+  }
+  if (settings().flow?.titleCards !== false && !reduced()) { // the section opens with its title: the project's symbol unveils it
+    const i = secs.indexOf(sec);
+    S.hubPending = null; S.lastSection[p.id] = i; S.seenSections[p.id] = Math.max(S.seenSections[p.id] ?? -1, i);
+    await coverTransition({ p, dir: 1, card: { number: i + 1, title: sec.title, titleEn: sec.titleEn }, swap: () => {
+      S.sid = sid; S.li = slideIndex < 0 ? slidesOf(sec).length - 1 : slideIndex; S.step = 0; enterSectionInstant();
+      if (slideIndex < 0) { S.step = stepsOf(S.slideTpl, S.slide); if (S.slideTpl.steps) applyStep(S.slideEl, S.step, true); }
+    }, after: () => { if (S.slideEl) introTL(S.slideEl, 1); } });
+    updateHUD(); broadcastState(); return;
   }
   const station = $(`.h2-station[data-section="${CSS.escape(sid)}"] .h2-dot`, L.hub);
   const origin = station ? originOf(station, L.hub) : '50% 50%';

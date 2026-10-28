@@ -454,6 +454,8 @@ function renderBrands() {
   p.brand ||= {}; const b = p.brand; b.colors ||= {}; b.textureColors ||= ['#333333', '#666666', '#999999', '#CCCCCC'];
   const ctx = { path: 'brand-' + p.id, uploadDir: `assets/${p.id}` };
   f.append(group('المشروع', ...renderFields([{ key: 'name', type: 'text', label: 'الاسم (لاتيني)' }, { key: 'nameAr', type: 'text', label: 'الاسم بالعربية' }, { key: 'tagline', type: 'text', label: 'السطر التعريفي' }], p, { ...ctx, onChange: renderTreeSoon })));
+  if (b.texture !== 'mist') f.append(group('خلفية بندل المتحركة', renderField({ key: 'textureStyle', type: 'select', label: 'اختر شكل الخلفية', options: [['bubbles', 'فقاعات تندمج (السابق)'],
+    ['orbs', '١ · كرات منفصلة تطفو ولا تندمج'], ['strips', '٢ · شرائط بأشكال الهوية'], ['stacks', '٣ · أعمدة دوائر متحركة']] }, b, ctx)));
   if (b.texture === 'mist') f.append(group('خلفية لافارا المتحركة', renderField({ key: 'textureStyle', type: 'select', label: 'اختر شكل الخلفية', options: [['mist', 'الضباب (السابق)'],
     ['silk', '١ · سائل صابون — طيّات حريرية'], ['lather', '٢ · سائل صابون مع رغوة خفيفة'], ['pour', '٣ · سائل صابون ينساب للأسفل'],
     ['drop', '٤ · قطرات على سائل كثيف'], ['swirl', '٥ · دوامة سائل وكريم'], ['soap', '٦ · صابون طبيعي — رخام'],
@@ -557,6 +559,7 @@ function renderGlobal() {
     { key: 'video.pauseOnLeave', type: 'toggle', label: 'إيقاف الفيديو عند المغادرة' },
     { key: 'flow.afterAllProjects', type: 'select', label: 'بعد إنهاء كل المشاريع', options: [['decision', 'الانتقال إلى نقطة القرار'], ['none', 'البقاء في البداية']] },
     { key: 'flow.sectionTransition', type: 'select', label: 'الانتقال بين الأقسام', options: [['hub', 'زوم أوت إلى صفحة المشروع ثم القسم التالي'], ['cover', 'بطاقة الهوية مباشرة']] },
+    { key: 'flow.titleCards', type: 'toggle', label: 'افتتاح كل قسم بعنوانه (رمز المشروع يكشف العنوان)' },
     { key: 'flow.afterSection', type: 'select', label: 'بعد الرجوع لصفحة المشروع', options: [['wait', 'انتظر ضغطة المقدّم (التالي)'], ['auto', 'ادخل القسم التالي تلقائياً']] },
   ], st, ctx)));
 }

@@ -17,10 +17,10 @@ This folder is a standalone project. The hotel in-room store rules in the reposi
 - Any slide added to any project must look like that project, never one generic style pasted everywhere, and never a copy of the source file's look (PPTX/HTML material is re-composed, not pasted).
 - Templates take colours only from the slide tokens (`--sbg --sfg --stitle --saccent --ssec --ssurf`), never hard-coded brand hex.
 - Every new template gets a dressing for each identity in `css/show.css`:
-  - Bundle (`[data-style="bubbles"]`): soft rounded shapes (≈2rem radius), pills, gentle lift.
-  - Lavara (`[data-brand="lavara"]`): panels on its ivory surface with a hairline inset frame, one dark lead panel, Roman numerals or a small diamond, status as an underline, logos tinted in its ink.
+  - Bundle (`[data-brand="bundle"]`): the brand file's application language: white floating cards with soft shadows, pills, gradient spheres.
+  - Lavara (`[data-brand="lavara"]`): panels on its ivory surface with a hairline inset frame, one dark lead panel, numbering as (001), its framed monogram, status as an underline, logos tinted in its ink.
   - Shared (`[data-brand="shared"]`): editorial paper cards like its diagrams (inset hairline, short brass rule on top), no pills.
-- Colour sets for multi-item slides come from the tone layer (`.tn-t1…t5` in `css/show.css`), defined per identity from its own palette; Bundle's tones are the grainy gradients of its gift-products deck (lime-green, sky-blue, lilac-pink, sunset, lime).
+- Colour sets for multi-item slides come from the tone layer (`.tn-t1…t5` in `css/show.css`), defined per identity from its own palette; Bundle's tones are the grainy gradients of bundle-brand.pdf.
 - Restrained: one highlighted element per slide at most, motion = the existing stagger. Check every new slide in all identities it can appear in before pushing.
 - No small eyebrow labels above titles (`settings.eyebrows` false); the slide footer is logo · section · page only.
 
