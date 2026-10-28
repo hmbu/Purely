@@ -253,8 +253,8 @@ const partyOf = n => ((n.shape || 'box') === 'box' ? PARTIES.find(([re]) => re.t
 function partyLogo(n, ctx) {
   if ((n.shape || 'box') !== 'box' || !ctx?.asset) return '';
   const hit = PARTIES.find(([re]) => re.test(String(n.title || '').trim())); if (!hit) return '';
-  // Al Majed's logo already spells its Arabic name, so the card shows the logo instead of repeating the name
-  return `<span class="logo-mask dg-logo${/الماجد/.test(hit[0].source) ? ' is-named' : ''}" style="--src:url('${esc(ctx.asset(hit[1]))}');aspect-ratio:${hit[2]};height:${hit[3]}rem"></span>`;
+  // the logo is the company's name: the card shows the logo instead of repeating the name in text
+  return `<span class="logo-mask dg-logo is-named" style="--src:url('${esc(ctx.asset(hit[1]))}');aspect-ratio:${hit[2]};height:${hit[3]}rem"></span>`;
 }
 TEMPLATES.diagram = {
   name: 'مخطط (صناديق وأسهم)', en: 'Diagram', group: 'extra', defaultBg: 'background', suggested: 'الهيكل',

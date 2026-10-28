@@ -1447,3 +1447,4 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="shared"] .dg-node.party-rimthan .dg-logo { background-color: #FFFFFF; }
 [data-brand="shared"] .dg-node.party-rimthan b { color: #F7F3EC !important; }
 [data-brand="shared"] .dg-node.party-rimthan span:not(.dg-logo) { color: #F7F3EC; opacity: .7; }
+[data-brand="shared"] .dg-node.party-rimthan .dg-logo.is-named { height: 4.4rem !important; }
