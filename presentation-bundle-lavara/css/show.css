@@ -1635,3 +1635,10 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .d-done { font-size: 2.3rem; padding: 1.3rem 3.4rem 1.3rem 1.5rem; }
 .d-check { width: 3.8rem; height: 3.8rem; }
 .is-approved .d-gtitle { color: #2E6B47; }
+/* a box for one of the brands: its logo alone, in its own colours */
+[data-brand="shared"] .dg-node.party-bundle { background: #245845 !important; --rule: #AEE67F; color: #F9FAFC; }
+[data-brand="shared"] .dg-node.party-lavara { background: #3C2E25 !important; --rule: #AD6243; color: #F3F2E0; }
+[data-brand="shared"] .dg-node:is(.party-bundle, .party-lavara) .dg-logo { background-color: currentColor; margin: 0; }
+.dg-logo.dg-proj.is-bundle { aspect-ratio: 3.8; height: 6.2rem !important; }
+.dg-logo.dg-proj.is-lavara { aspect-ratio: 5.2; height: 4.4rem !important; }
+[data-brand="shared"] .dg-node:is(.party-bundle, .party-lavara) .dg-logo { opacity: 1 !important; }

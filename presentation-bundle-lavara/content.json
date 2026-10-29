@@ -1422,7 +1422,7 @@
                     ]
                   }
                 ],
-                "note": "الشعارات أمثلة من الجهات التي تواصلنا معها"
+                "note": ""
               }
             }
           ],
@@ -1946,13 +1946,13 @@
                 "cols": 2,
                 "gap": 22,
                 "rowGap": 11,
-                "body": "تملك الماجد للعود الكيان وتموله، وتضمن سداد مستحقات رمثان عليه. ويتعاقد الكيان مع رمثان على خدمات البناء والتشغيل ويسدد فواتيرها، ويتعامل مع الموردين والعملاء باسمه.",
+                "body": "",
                 "frames": [],
                 "nodes": [
                   {
                     "id": "majed",
                     "title": "الماجد للعود",
-                    "sub": "تملك الكيان وتموله",
+                    "sub": "تملك الكيانين وتمولهما",
                     "tone": "gold",
                     "shape": "box",
                     "col": 1,
@@ -1962,12 +1962,24 @@
                     "step": 0
                   },
                   {
-                    "id": "ent",
-                    "title": "الكيان الجديد",
-                    "sub": "يستورد ويبيع ويتعاقد باسمه",
+                    "id": "bundle",
+                    "title": "Bundle",
+                    "sub": "",
                     "tone": "teal",
                     "shape": "box",
                     "col": 1,
+                    "colSpan": 1,
+                    "row": 2,
+                    "rowSpan": 1,
+                    "step": 0
+                  },
+                  {
+                    "id": "lavara",
+                    "title": "Lavara",
+                    "sub": "",
+                    "tone": "teal",
+                    "shape": "box",
+                    "col": 2,
                     "colSpan": 1,
                     "row": 2,
                     "rowSpan": 1,
@@ -1979,9 +1991,9 @@
                     "sub": "البناء والتشغيل حتى الشهر 17",
                     "tone": "indigo",
                     "shape": "box",
-                    "col": 2,
-                    "colSpan": 1,
-                    "row": 2,
+                    "col": 1,
+                    "colSpan": 2,
+                    "row": 3,
                     "rowSpan": 1,
                     "step": 0
                   }
@@ -1989,7 +2001,7 @@
                 "edges": [
                   {
                     "from": "majed",
-                    "to": "ent",
+                    "to": "bundle",
                     "label": "ملكية 100% وتمويل",
                     "tone": "gold",
                     "style": "solid",
@@ -1998,29 +2010,29 @@
                   },
                   {
                     "from": "majed",
-                    "to": "rim",
-                    "label": "ضمان السداد",
+                    "to": "lavara",
+                    "label": "ملكية 100% وتمويل",
                     "tone": "gold",
-                    "style": "dashed",
+                    "style": "solid",
                     "lane": "0",
                     "step": 0
                   },
                   {
                     "from": "rim",
-                    "to": "ent",
+                    "to": "bundle",
                     "label": "خدمات البناء والتشغيل",
                     "tone": "indigo",
                     "style": "solid",
-                    "lane": "-1",
+                    "lane": "0",
                     "step": 0
                   },
                   {
-                    "from": "ent",
-                    "to": "rim",
-                    "label": "سداد الفواتير",
-                    "tone": "teal",
+                    "from": "rim",
+                    "to": "lavara",
+                    "label": "خدمات البناء والتشغيل",
+                    "tone": "indigo",
                     "style": "solid",
-                    "lane": "1",
+                    "lane": "0",
                     "step": 0
                   }
                 ]

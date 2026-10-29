@@ -249,9 +249,14 @@ const stepAttr = (x, a) => (stepOf(x) ? `data-step="${stepOf(x)}"` : `data-a="${
 
 // The two companies always carry their own logo on their cards (in their party colour); matched by the card's name.
 const PARTIES = [[/الماجد/, 'assets/logos/almajed-oud.png', 3.43, 5, 'majed'], [/^رمثان$|^Rimthan$/i, 'assets/logos/rimthan.png', 5.71, 3.2, 'rimthan']];
-const partyOf = n => ((n.shape || 'box') === 'box' ? PARTIES.find(([re]) => re.test(String(n.title || '').trim()))?.[4] || '' : '');
+// a box named after one of the show's projects (بندل / لافارا) is that brand: its logo and its colours
+const projOf = (n, ctx) => ((n.shape || 'box') === 'box' && ctx?.projects ? ctx.projects.find(p => p.kind !== 'shared' && p.brand?.logo && [p.name, p.nameAr].some(x => x && String(x).trim() === String(n.title || '').trim())) : null);
+const partyOf = (n, ctx) => { if ((n.shape || 'box') !== 'box') return ''; const pp = projOf(n, ctx); if (pp) return pp.id;
+  return PARTIES.find(([re]) => re.test(String(n.title || '').trim()))?.[4] || ''; };
 function partyLogo(n, ctx) {
   if ((n.shape || 'box') !== 'box' || !ctx?.asset) return '';
+  const pp = projOf(n, ctx);
+  if (pp) return `<span class="logo-mask dg-logo is-named dg-proj is-${esc(pp.id)}" style="--src:url('${esc(ctx.asset(pp.brand.logo))}')"></span>`;
   // the new entity carries the two brands it holds: their logos sit above its name
   if (/الكيان|الكيانات/.test(String(n.title || '')) && ctx.projects) {
     const ps = ctx.projects.filter(p => p.kind !== 'shared' && p.brand?.logo);
@@ -295,7 +300,7 @@ TEMPLATES.diagram = {
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
       <div class="dg" style="--cols:${Number(d.cols) || 2};--cgap:${Number(d.gap) || 20}rem;--rgap:${Number(d.rowGap) || 7.5}rem">
         ${frames.map(f => `<div class="dg-frame tone-${esc(f.tone || 'neutral')}" ${stepAttr(f, 'media')} style="${area(f)}"><span class="dg-flabel">${esc(f.label || '')}</span></div>`).join('')}
-        ${nodes.map((n, i) => `<div class="dg-node shape-${esc(n.shape || 'box')} tone-${esc(n.tone || 'neutral')}${partyOf(n) ? ' party-' + partyOf(n) : ''}" data-node="${esc(n.id || '')}" ${stepAttr(n, 'extra')} data-seq="${i}" style="${area(n)}">
+        ${nodes.map((n, i) => `<div class="dg-node shape-${esc(n.shape || 'box')} tone-${esc(n.tone || 'neutral')}${partyOf(n, ctx) ? ' party-' + partyOf(n, ctx) : ''}" data-node="${esc(n.id || '')}" ${stepAttr(n, 'extra')} data-seq="${i}" style="${area(n)}">
           ${partyLogo(n, ctx)}<b>${escBr(n.title || '')}</b>${n.sub ? `<span>${escBr(n.sub)}</span>` : ''}</div>`).join('')}
         <svg class="dg-wires" data-a="body"></svg>
       </div>
