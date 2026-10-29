@@ -38,6 +38,7 @@ const S = {
   level: 'boot', pid: null, sid: null, li: 0, step: 0,
   slideEl: null, slideTpl: null, slide: null,
   visitedProjects: new Set(), lastSection: {}, seenSections: {},
+  revealed: new Set(), // projects whose identity has been shown: until then their logos stay hidden
   hubTarget: 0, hubPending: null, // the station the light rests on, and the section waiting for the presenter's press
   busy: false, queue: [],
   black: false, startedAt: Date.now(),
@@ -51,7 +52,12 @@ const section = () => findSection(project(), S.sid);
 const settings = () => S.content.settings || {};
 const reduced = () => { const r = settings().motion?.reduced; return r === 'on' || (r !== 'off' && prefersReducedMotion()); };
 const asset = p => (p ? new URL(p, location.href).href : ''); // absolute: url() inside CSS variables resolves against the stylesheet otherwise
-const ctxFor = p => ({ brand: p?.brand || {}, project: p, asset });
+// A project's logos (wordmark and symbol) stay hidden until its identity is revealed in the show: the identity film
+// comes first, then the title that brings in the logo. Until then the project is named by its line (brand.descriptor),
+// e.g. «الهدايا المؤسسية». Once revealed, the logo stays everywhere for the rest of the show.
+const idShown = p => !p || isShared(p) || PREVIEW || !p.brand?.descriptor || S.revealed.has(p.id);
+const descOf = p => p.brand?.descriptor || p.nameAr || p.name;
+const ctxFor = p => ({ brand: p?.brand || {}, project: p, asset, idShown: idShown(p), projects: S.content?.projects || [] });
 const pxs = n => (stage.clientWidth / 3840) * n; // design px at 4K → current px
 
 /* ======================================================================= layout */
@@ -157,7 +163,7 @@ function updateHUD() {
     if (S.level === 'section' && s) {
       const n = slidesOf(s).length;
       // only the project's logo, the section and the page number
-      const mark = p.brand.logo ? `<span class="logo-mask cr-logo" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : `<b>${esc(p.nameAr || p.name)}</b>`;
+      const mark = p.brand.logo && idShown(p) ? `<span class="logo-mask cr-logo" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : `<b>${esc(idShown(p) ? (p.nameAr || p.name) : descOf(p))}</b>`;
       hud.crumb.innerHTML = `${mark}<i></i><span>${esc(s.title)}</span><i></i><span class="latin">${S.li + 1}/${n}</span>`;
     } else hud.crumb.innerHTML = '';
     // progress across this project's slides
@@ -214,6 +220,7 @@ function adoptVideos(el) {
 /* ======================================================================= slides */
 function buildSlide(p, slide) {
   const tpl = TEMPLATES[slide.template] || TEMPLATES.title;
+  if ((slide.template === 'title' && slide.data?.showLogo) || slide.template === 'brand-board') S.revealed.add(p.id);
   const theme = slideTheme(p, slide, tpl);
   const c = p.brand.colors || {};
   const el = document.createElement('div');
@@ -322,7 +329,7 @@ function introTL(el, dir = 1, kind = 'drift') {
   tl.fromTo(q('[data-a="eyebrow"]'), { opacity: 0, x: sx }, { opacity: 1, x: 0, duration: 1.1, ease: 'expo.out' }, 0.2);
   tl.fromTo(q('[data-a="title"]'), { opacity: 0, x: sx }, { opacity: 1, x: 0, duration: 1.1, ease: 'expo.out' }, 0.3);
   tl.fromTo(q('[data-a="body"]'), { opacity: 0, x: sx }, { opacity: 1, x: 0, duration: 1.1, ease: 'expo.out' }, 0.4);
-  if (extra.length && !specialIntro(el, tl, extra)) tl.fromTo(extra, { opacity: 0, x: sx * 0.6, y: pxs(14) }, { opacity: 1, x: 0, y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.09 }, 0.45);
+  if (extra.length && !slowSeq(el, tl, extra, false) && !specialIntro(el, tl, extra)) tl.fromTo(extra, { opacity: 0, x: sx * 0.6, y: pxs(14) }, { opacity: 1, x: 0, y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.09 }, 0.45);
   return tl;
 }
 // Entrances that belong to one kind of slide (any identity):
@@ -331,6 +338,16 @@ function introTL(el, dir = 1, kind = 'drift') {
 //   compare — the two cards open like curtains, then their points come in line by line
 function specialIntro(el, tl, extra) {
   const t = $('.t', el); if (!t) return false;
+  if (t.classList.contains('t-lineup') && t.classList.contains('is-spot')) {
+    // a dark stage: the products stand in silhouette against a warm glow, then each is lit in turn from above
+    t.classList.add('is-unlit');
+    gsap.set(extra, { opacity: 1 });
+    tl.fromTo($('.ln-row', el), { opacity: 0, y: pxs(50) }, { opacity: 1, y: 0, duration: 2.2, ease: 'power3.out' }, 0.25);
+    tl.fromTo($('.ln-back', el), { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 2.6, ease: 'power2.out' }, 0.2);
+    extra.forEach((x, i) => tl.add(() => x.classList.add('is-lit'), 1.5 + i * 1.2));
+    tl.add(() => t.classList.add('all-lit'), 1.5 + extra.length * 1.2 + 0.3);
+    return true;
+  }
   if (t.classList.contains('t-lineup')) {
     const row = $('.ln-row', el), n = extra.length, mid = (n - 1) / 2;
     const order = extra.map((x, i) => [x, Math.abs(i - mid)]).sort((a, b) => a[1] - b[1]);
@@ -368,6 +385,14 @@ function specialIntro(el, tl, extra) {
   }
   return false;
 }
+// Slides read part by part: each part comes in on its own, slowly, with no press (business model, finance, occasions).
+const SLOW = { 't-canvas': 0.8, 't-finance': 1.1, 't-occasions': 1.25 };
+function slowSeq(el, tl, extra, rise) {
+  const t = $('.t', el); const k = t && Object.keys(SLOW).find(c => t.classList.contains(c)); if (!k) return false;
+  const gap = SLOW[k], Y = pxs(rise ? 70 : 44);
+  extra.forEach((x, i) => tl.fromTo(x, { opacity: 0, y: Y }, { opacity: 1, y: 0, duration: 1.7, ease: rise ? RISE : 'expo.out' }, 0.8 + i * gap));
+  return true;
+}
 function riseTL(el, tl, q) {
   const extra = q('[data-a="extra"]').sort((a, b) => (+a.dataset.seq || 0) - (+b.dataset.seq || 0));
   const Y = pxs(60);
@@ -375,7 +400,7 @@ function riseTL(el, tl, q) {
   tl.fromTo(q('[data-a="bg"]:not(.slide-bg)'), { opacity: 0 }, { opacity: 1, duration: 1.2, ease: 'power2.out' }, 0.05);
   tl.fromTo(q('[data-a="media"]'), { opacity: 0, y: Y }, { opacity: 1, y: 0, duration: 0.95, ease: RISE }, 0.1);
   tl.fromTo(q('[data-a="eyebrow"], [data-a="title"], [data-a="body"]'), { opacity: 0, y: Y }, { opacity: 1, y: 0, duration: 0.85, ease: RISE, stagger: 0.09 }, 0.12);
-  if (extra.length) tl.fromTo(extra, { opacity: 0, y: Y * 1.4 }, { opacity: 1, y: 0, duration: 0.85, ease: RISE, stagger: 0.09 }, 0.3);
+  if (extra.length && !slowSeq(el, tl, extra, true)) tl.fromTo(extra, { opacity: 0, y: Y * 1.4 }, { opacity: 1, y: 0, duration: 0.85, ease: RISE, stagger: 0.09 }, 0.3);
   tl.fromTo(q('[data-a] .m, [data-a] .ph'), { scale: 1.1 }, { scale: 1, duration: 1.8, ease: RISE }, 0.3); // a light zoom that settles, then holds
   const grow = q('[data-grow]');
   if (grow.length) tl.fromTo(grow, { scaleY: 0, transformOrigin: '50% 100%' }, { scaleY: 1, duration: 1.1, ease: RISE, stagger: 0.09 }, 0.45);
@@ -514,7 +539,7 @@ async function showSlide(li, { dir = 1, kind, instant = false } = {}) {
 /* ======================================================================= section cover (brand transition) */
 function coverCard(p, number, title, titleEn) {
   // the project's symbol (Bundle's B, Lavara's framed A) opens the title, then stays behind it as a large faint shadow
-  const mark = p.brand.mark ? `<span class="logo-mask cv-mark" style="--src:url('${esc(asset(p.brand.mark))}')"></span>` : '';
+  const mark = p.brand.mark && idShown(p) ? `<span class="logo-mask cv-mark" style="--src:url('${esc(asset(p.brand.mark))}')"></span>` : '';
   return `${mark}<div class="cover-card">
     <span class="cv-num latin">${String(number).padStart(2, '0')}</span>
     <span class="cv-rule"></span>
@@ -536,7 +561,7 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
   coverEl.classList.toggle('is-flip', !!(flip && panel));
   const wipe = () => (flip && panel ? $('.cv-plate', coverEl) : coverEl); // a flying title must not be clipped by the wipe
   sound.play(light ? 'slide' : 'section', p.id);
-  const inT = light ? 0.65 : 1.1, hold = card ? (p.brand.mark ? 1.25 : 0.75) + (flip ? 0.6 : 0) : 0.1, outT = light ? 0.7 : 1.05; // the symbol's opening needs a beat longer
+  const inT = light ? 0.65 : 1.1, hold = card ? (p.brand.mark && idShown(p) ? 1.25 : 0.75) + (flip ? 0.6 : 0) : 0.1, outT = light ? 0.7 : 1.05; // the symbol's opening needs a beat longer
   const tl = gsap.timeline();
   if (useVeil) {
     veil.set({ mode: tex, variant: p.brand.textureStyle, colors: p.brand.textureColors, sweep: dir, progress: 0, alpha: p.brand.textureIntensity ?? 1, seed: Math.random() * 99 });
@@ -603,12 +628,13 @@ function coverImg(p, cls = 'w-img') {
   return `${src ? `<img class="${cls}" src="${esc(asset(src))}" alt="" style="object-position:${fp.x}% ${fp.y}%">` : `<span class="${cls} w-img-ph" style="background:${c.primary}"></span>`}<span class="w-tint" style="--tc:${c.primary};--tint:${p.brand.coverTint ?? 0.4}"></span>`;
 }
 function logoTint(p, cls) {
+  if (!idShown(p)) return `<span class="${cls} w-desc">${esc(descOf(p))}</span>`;
   const src = p.brand.logo; if (!src) return `<span class="${cls} w-fallback">${esc(p.name)}</span>`;
   const u = esc(asset(src));
   return `<span class="logo-mask ${cls}" data-ar-src="${u}" style="--src:url('${u}')"></span>`;
 }
 function markTint(p, cls) {
-  const src = p.brand.mark || p.brand.logo; if (!src) return '';
+  const src = p.brand.mark || p.brand.logo; if (!src || !idShown(p)) return '';
   const u = esc(asset(src));
   return `<span class="logo-mask ${cls}" data-ar-src="${u}" style="--src:url('${u}')"></span>`;
 }
@@ -836,7 +862,7 @@ function renderHub(p) {
     <div class="hub2 style-${p.brand.texture === 'mist' ? 'mist' : 'bubbles'} ${hubDark(p) ? '' : 'is-light'}" style="--n:${secs.length + (decI >= 0 ? 1 : 0)};--hbg:${hubGround(p)};--hfg:${hubFg(p)};--glow:${c.secondary || '#fff'}">
       <div class="h2-bg"><canvas class="h2-tex"></canvas></div><div class="h2-shade"></div>
       <div class="h2-head">
-        ${p.brand.logo ? `<span class="logo-mask h2-logo" data-ar-src="${esc(asset(p.brand.logo))}" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : `<h1 class="h2-name">${esc(isShared(p) ? (p.nameAr || p.name) : p.name)}</h1>`}
+        ${!idShown(p) ? `<h1 class="h2-name h2-pre">${esc(descOf(p))}</h1>` : p.brand.logo ? `<span class="logo-mask h2-logo" data-ar-src="${esc(asset(p.brand.logo))}" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : `<h1 class="h2-name">${esc(isShared(p) ? (p.nameAr || p.name) : p.name)}</h1>`}
         ${p.tagline ? `<p class="h2-tag" ${edAttr('project', p.id, 'tagline')}>${esc(p.tagline)}</p>` : ''}
       </div>
       <div class="h2-line"><i class="h2-light"></i></div>
@@ -1040,7 +1066,7 @@ async function stationDoor(p, sec, slideIndex = 0) {
   const secs = sectionsOf(p), i = secs.indexOf(sec);
   const st = $(`.h2-station[data-section="${CSS.escape(sec.id)}"]`, L.hub), root = $('.hub2', L.hub);
   S.hubPending = null; S.lastSection[p.id] = i; S.seenSections[p.id] = Math.max(S.seenSections[p.id] ?? -1, i);
-  const mark = p.brand.mark ? `<span class="logo-mask sd-mark" style="--src:url('${esc(asset(p.brand.mark))}')"></span>` : '';
+  const mark = p.brand.mark && idShown(p) ? `<span class="logo-mask sd-mark" style="--src:url('${esc(asset(p.brand.mark))}')"></span>` : '';
   const card = document.createElement('div'); card.className = 'sd-card';
   card.innerHTML = `${mark}<div class="sd-c"><span class="sd-num latin">${String(i + 1).padStart(2, '0')}</span><span class="sd-rule"></span>
     <h2 class="sd-title">${escBr(sec.title || '')}</h2>${sec.titleEn ? `<span class="sd-en latin">${esc(sec.titleEn)}</span>` : ''}</div>`;
@@ -1207,8 +1233,13 @@ function renderDecision() {
       <div class="d-breath"></div>
       <div class="d-head">${d.eyebrow ? `<div class="tx-eyebrow latin">${esc(d.eyebrow)}</div>` : ''}<h1 class="d-q">${escBr(d.question || '')}</h1></div>
       <div class="d-groups ${(d.groups || []).length > 3 ? 'is-rows' : ''}" style="--g:${(d.groups || []).length}">
-        ${(d.groups || []).map(g => {
+        ${[...(d.groups || [])].sort((a, b) => (b.approved ? 1 : 0) - (a.approved ? 1 : 0)).map(g => {
           const p = g.projectId ? findProject(S.content, g.projectId) : null;
+          // an approved item is settled: shown as approved, nothing to choose; the open ones come last
+          if (g.approved) return `<div class="d-group is-approved" data-group="${esc(g.id)}">
+            <div class="d-gtitle"><span>${esc(g.title)}</span></div>
+            <div class="d-done"><span class="d-check"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>${esc(g.approvedLabel || 'معتمد')}</span></div>
+          </div>`;
           return `<div class="d-group" data-group="${esc(g.id)}">
             <div class="d-gtitle">${p?.brand?.logo ? `<span class="logo-mask d-glogo" style="--src:url('${esc(asset(p.brand.logo))}')" title="${esc(g.title)}"></span>` : `<span>${esc(g.title)}</span>`}</div>
             <div class="d-options">${(g.options || []).map(o => `<button class="d-opt ${sel[g.id] === o.id ? 'is-on' : ''}" data-group="${esc(g.id)}" data-option="${esc(o.id)}"><span class="d-ring"></span><span class="d-label">${escBr(o.label)}</span></button>`).join('')}</div>

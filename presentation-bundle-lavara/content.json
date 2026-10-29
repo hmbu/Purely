@@ -84,15 +84,6 @@
       "color": "#F3EFE6",
       "items": [
         {
-          "id": "logo-rimthan",
-          "label": "Rimthan",
-          "src": "assets/logos/rimthan.png",
-          "srcDark": "",
-          "tint": true,
-          "show": true,
-          "scale": 0.86
-        },
-        {
           "id": "logo-almajed",
           "label": "Al Majed Oud",
           "src": "assets/logos/almajed-oud.png",
@@ -100,6 +91,15 @@
           "tint": true,
           "show": true,
           "scale": 1
+        },
+        {
+          "id": "logo-rimthan",
+          "label": "Rimthan",
+          "src": "assets/logos/rimthan.png",
+          "srcDark": "",
+          "tint": true,
+          "show": true,
+          "scale": 0.86
         }
       ]
     },
@@ -200,7 +200,8 @@
           "x": 50,
           "y": 50
         },
-        "textureStyle": "orbs"
+        "textureStyle": "orbs",
+        "descriptor": "الهدايـا المؤسسيـة"
       },
       "sections": [
         {
@@ -209,6 +210,26 @@
           "titleEn": "Brand",
           "hidden": false,
           "slides": [
+            {
+              "id": "sl-003",
+              "template": "video",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "video": {
+                  "src": "assets/bundle/video/bundle-identity-film.mp4",
+                  "poster": "",
+                  "autoplay": false,
+                  "muted": false,
+                  "loop": false
+                },
+                "mode": "full",
+                "eyebrow": "Purpose",
+                "title": ""
+              }
+            },
             {
               "id": "sl-001",
               "template": "title",
@@ -240,26 +261,6 @@
                 "palette": [],
                 "typeTitle": "هدايا الشركات، بإحساس إنساني",
                 "typeBody": "نتولى اختيار الهدايا وفحص جودتها وتغليفها وشحنها، لتصل في وقتها وبشكل يرغب الناس في الاحتفاظ به."
-              }
-            },
-            {
-              "id": "sl-003",
-              "template": "video",
-              "transition": "drift",
-              "bg": "auto",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "video": {
-                  "src": "assets/bundle/video/bundle-identity-film.mp4",
-                  "poster": "",
-                  "autoplay": false,
-                  "muted": false,
-                  "loop": false
-                },
-                "mode": "full",
-                "eyebrow": "Purpose",
-                "title": ""
               }
             }
           ],
@@ -328,7 +329,8 @@
                     "text": "مبيعات الهدايا بعقود موقعة وسعر شامل لكل طلب، ومصادر مستقلة: التصميم والنموذج الأولي، الحصرية، التخزين والتسليم، ورصيد سنوي مقدم",
                     "badge": ""
                   }
-                ]
+                ],
+                "valueBranches": "كل احتياجات الإهداء في مكان واحد\nرحلة كاملة من التخطيط إلى الاحتفال\nهدايا تستحق أن تبقى مع الموظف"
               }
             }
           ],
@@ -678,7 +680,17 @@
                   }
                 ]
               }
-            },
+            }
+          ],
+          "desc": "الهدايا والعلامات المختارة"
+        },
+        {
+          "id": "sec-b-brands",
+          "title": "العلامات",
+          "titleEn": "Brands",
+          "hidden": false,
+          "desc": "الشركاء والموردون",
+          "slides": [
             {
               "id": "sl-gp-partners",
               "template": "partners",
@@ -769,8 +781,7 @@
                 ]
               }
             }
-          ],
-          "desc": "الهدايا والعلامات المختارة"
+          ]
         },
         {
           "id": "sec-008",
@@ -983,7 +994,8 @@
         "coverFocal": {
           "x": 40,
           "y": 50
-        }
+        },
+        "descriptor": "مستلزمـات العنايـة الفندقيـة"
       },
       "sections": [
         {
@@ -992,6 +1004,26 @@
           "titleEn": "Brand",
           "hidden": false,
           "slides": [
+            {
+              "id": "sl-00i",
+              "template": "video",
+              "transition": "veil",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "video": {
+                  "src": "assets/lavara/video/lavara-noir-reveal.mp4",
+                  "poster": "",
+                  "autoplay": false,
+                  "muted": false,
+                  "loop": false
+                },
+                "mode": "full",
+                "eyebrow": "A stay to remember",
+                "title": "إقامة لا تُنسى،\nوعطر صُنع لك"
+              }
+            },
             {
               "id": "sl-00g",
               "template": "title",
@@ -1023,26 +1055,6 @@
                 "palette": [],
                 "typeTitle": "إقامة لا تُنسى، وعطر صُنع لك",
                 "typeBody": "أول دار عطور سعودية صُممت حصرياً للفنادق الفاخرة."
-              }
-            },
-            {
-              "id": "sl-00i",
-              "template": "video",
-              "transition": "veil",
-              "bg": "auto",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "video": {
-                  "src": "assets/lavara/video/lavara-noir-reveal.mp4",
-                  "poster": "",
-                  "autoplay": false,
-                  "muted": false,
-                  "loop": false
-                },
-                "mode": "full",
-                "eyebrow": "A stay to remember",
-                "title": "إقامة لا تُنسى،\nوعطر صُنع لك"
               }
             }
           ],
@@ -1111,7 +1123,8 @@
                     "text": "توريد متكرر مسعّر على الليلة الغرفية المشغولة، ورسوم التخصيص، وطبقة العطر المميزة، وتوسع بتعطير المنشآت والبيع للنزلاء",
                     "badge": ""
                   }
-                ]
+                ],
+                "valueBranches": "إنتاج وجودة الماجد\nطبقة عطر مميزة\nقناة رقمية للبيع المباشر للنزلاء"
               }
             }
           ],
@@ -1181,7 +1194,7 @@
               "id": "sl-lp-refill",
               "template": "lineup",
               "transition": "drift",
-              "bg": "auto",
+              "bg": "#140F0C",
               "notes": "",
               "hidden": false,
               "data": {
@@ -1214,7 +1227,8 @@
                     "title": "صابون يدين",
                     "body": "ينظّف اليدين بلطف، برائحة متميزة."
                   }
-                ]
+                ],
+                "spotlight": true
               }
             },
             {
@@ -1243,7 +1257,9 @@
                     "points": "خيارات أكثر\nالسعر متوسط\nالإنتاج أسرع\n- ما نقدر نبيع من خلاله",
                     "featured": false
                   }
-                ]
+                ],
+                "discuss": "للنقاش: العطور / الزيوت العطرية",
+                "discussOptions": "عطور الماجد فقط · عطور لافارا فقط · العطران معاً"
               }
             },
             {
@@ -1753,177 +1769,6 @@
                   }
                 ]
               }
-            },
-            {
-              "id": "sl-sh-money",
-              "template": "diagram",
-              "transition": "drift",
-              "bg": "background",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "Money Flow",
-                "title": "مسار الأموال",
-                "cols": 3,
-                "gap": 9,
-                "rowGap": 2.4,
-                "body": "بعد جاهزية الكيان، تدخل الأموال إلى حسابه من مصدرين، ومنه تخرج إلى جميع الاستخدامات.",
-                "frames": [],
-                "nodes": [
-                  {
-                    "id": "majed",
-                    "title": "الماجد للعود",
-                    "sub": "رأس المال والتمويل",
-                    "tone": "gold",
-                    "shape": "box",
-                    "col": 1,
-                    "colSpan": 1,
-                    "row": 1,
-                    "rowSpan": 2,
-                    "step": 0
-                  },
-                  {
-                    "id": "cust",
-                    "title": "العملاء",
-                    "sub": "متحصلات المبيعات",
-                    "tone": "neutral",
-                    "shape": "box",
-                    "col": 1,
-                    "colSpan": 1,
-                    "row": 3,
-                    "rowSpan": 2,
-                    "step": 0
-                  },
-                  {
-                    "id": "acc",
-                    "title": "حساب الكيان",
-                    "sub": "رأس المال العامل",
-                    "tone": "teal",
-                    "shape": "box",
-                    "col": 2,
-                    "colSpan": 1,
-                    "row": 1,
-                    "rowSpan": 4,
-                    "step": 0
-                  },
-                  {
-                    "id": "u1",
-                    "title": "الموردون والمخزون",
-                    "sub": "",
-                    "tone": "neutral",
-                    "shape": "box",
-                    "col": 3,
-                    "colSpan": 1,
-                    "row": 1,
-                    "rowSpan": 1,
-                    "step": 0
-                  },
-                  {
-                    "id": "u2",
-                    "title": "فواتير رمثان",
-                    "sub": "",
-                    "tone": "indigo",
-                    "shape": "box",
-                    "col": 3,
-                    "colSpan": 1,
-                    "row": 2,
-                    "rowSpan": 1,
-                    "step": 0
-                  },
-                  {
-                    "id": "u3",
-                    "title": "الرواتب والتشغيل",
-                    "sub": "",
-                    "tone": "neutral",
-                    "shape": "box",
-                    "col": 3,
-                    "colSpan": 1,
-                    "row": 3,
-                    "rowSpan": 1,
-                    "step": 0
-                  },
-                  {
-                    "id": "u4",
-                    "title": "التسويق",
-                    "sub": "",
-                    "tone": "neutral",
-                    "shape": "box",
-                    "col": 3,
-                    "colSpan": 1,
-                    "row": 4,
-                    "rowSpan": 1,
-                    "step": 0
-                  },
-                  {
-                    "id": "note",
-                    "title": "لا تمر أموال نشاط Bundle عبر رمثان، عدا أتعابها.",
-                    "sub": "",
-                    "tone": "indigo",
-                    "shape": "note",
-                    "col": 2,
-                    "colSpan": 1,
-                    "row": 5,
-                    "rowSpan": 1,
-                    "step": 0
-                  }
-                ],
-                "edges": [
-                  {
-                    "from": "majed",
-                    "to": "acc",
-                    "label": "",
-                    "tone": "gold",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  },
-                  {
-                    "from": "cust",
-                    "to": "acc",
-                    "label": "",
-                    "tone": "neutral",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  },
-                  {
-                    "from": "acc",
-                    "to": "u1",
-                    "label": "",
-                    "tone": "teal",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  },
-                  {
-                    "from": "acc",
-                    "to": "u2",
-                    "label": "",
-                    "tone": "teal",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  },
-                  {
-                    "from": "acc",
-                    "to": "u3",
-                    "label": "",
-                    "tone": "teal",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  },
-                  {
-                    "from": "acc",
-                    "to": "u4",
-                    "label": "",
-                    "tone": "teal",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  }
-                ]
-              }
             }
           ],
           "desc": "التكاليف والإيرادات والتوقعات"
@@ -2195,8 +2040,8 @@
                   {
                     "title": "الاتفاقية الثلاثية",
                     "body": "بدأنا صياغة الاتفاقية بين الماجد للعود والكيانات الجديدة ورمثان",
-                    "badge": "المدة المتوقعة: [__]",
-                    "kind": "progress",
+                    "badge": "للنقاش",
+                    "kind": "decision",
                     "tags": ""
                   },
                   {
@@ -2214,9 +2059,9 @@
                     "tags": "Bundle · Lavara · Pearla · Ovanta"
                   },
                   {
-                    "title": "للنقاش: الرئيس التنفيذي",
+                    "title": "الرئيس التنفيذي",
                     "body": "من سيتولى منصب الرئيس التنفيذي للكيان الجديد؟",
-                    "badge": "قرار مطلوب",
+                    "badge": "للنقاش",
                     "kind": "decision",
                     "tags": ""
                   }
@@ -2235,42 +2080,24 @@
     "showTimer": false,
     "groups": [
       {
-        "id": "dg-perfume",
-        "title": "العطور / الزيوت العطرية",
+        "id": "dg-bm",
+        "title": "نموذج العمل",
         "projectId": "",
         "options": [
           {
-            "id": "pf-1",
-            "label": "عطور الماجد فقط"
-          },
-          {
-            "id": "pf-2",
-            "label": "عطور لافارا فقط"
-          },
-          {
-            "id": "pf-3",
-            "label": "العطران معاً"
-          }
-        ]
-      },
-      {
-        "id": "dg-fin",
-        "title": "النموذج المالي",
-        "projectId": "",
-        "options": [
-          {
-            "id": "dg-fin-1",
+            "id": "dg-bm-1",
             "label": "اعتماد"
           },
           {
-            "id": "dg-fin-2",
+            "id": "dg-bm-2",
             "label": "اعتماد مع تعديل"
           },
           {
-            "id": "dg-fin-3",
+            "id": "dg-bm-3",
             "label": "تأجيل"
           }
-        ]
+        ],
+        "approved": true
       },
       {
         "id": "dg-ops",
@@ -2289,7 +2116,28 @@
             "id": "dg-ops-3",
             "label": "تأجيل"
           }
-        ]
+        ],
+        "approved": true
+      },
+      {
+        "id": "dg-fin",
+        "title": "النموذج المالي",
+        "projectId": "",
+        "options": [
+          {
+            "id": "dg-fin-1",
+            "label": "اعتماد"
+          },
+          {
+            "id": "dg-fin-2",
+            "label": "اعتماد مع تعديل"
+          },
+          {
+            "id": "dg-fin-3",
+            "label": "تأجيل"
+          }
+        ],
+        "approved": true
       },
       {
         "id": "dg-legal",
@@ -2306,63 +2154,6 @@
           },
           {
             "id": "dg-legal-3",
-            "label": "تأجيل"
-          }
-        ]
-      },
-      {
-        "id": "dg-bm",
-        "title": "نموذج العمل",
-        "projectId": "",
-        "options": [
-          {
-            "id": "dg-bm-1",
-            "label": "اعتماد"
-          },
-          {
-            "id": "dg-bm-2",
-            "label": "اعتماد مع تعديل"
-          },
-          {
-            "id": "dg-bm-3",
-            "label": "تأجيل"
-          }
-        ]
-      },
-      {
-        "id": "dg-tri",
-        "title": "الاتفاقية الثلاثية",
-        "projectId": "",
-        "options": [
-          {
-            "id": "dg-tri-1",
-            "label": "اعتماد"
-          },
-          {
-            "id": "dg-tri-2",
-            "label": "اعتماد مع تعديل"
-          },
-          {
-            "id": "dg-tri-3",
-            "label": "تأجيل"
-          }
-        ]
-      },
-      {
-        "id": "dg-ceo",
-        "title": "الرئيس التنفيذي",
-        "projectId": "",
-        "options": [
-          {
-            "id": "dg-ceo-1",
-            "label": "اعتماد"
-          },
-          {
-            "id": "dg-ceo-2",
-            "label": "اعتماد مع تعديل"
-          },
-          {
-            "id": "dg-ceo-3",
             "label": "تأجيل"
           }
         ]
@@ -2386,8 +2177,13 @@
     "subtitle": "",
     "items": [
       {
+        "title": "مرحلة الفحص والتحقق",
+        "body": "اختبار الفكرتين مع السوق والعملاء قبل البناء",
+        "status": "مكتمل"
+      },
+      {
         "title": "نموذج العمل",
-        "body": "بندل ولافارا",
+        "body": "العملاء والقيمة والقنوات ومصادر الإيراد",
         "status": "مكتمل"
       },
       {
@@ -2406,18 +2202,18 @@
         "status": "مكتمل"
       },
       {
+        "title": "تصميم المنتجات",
+        "body": "الفئات والتشكيلات والعينات",
+        "status": "مكتمل"
+      },
+      {
+        "title": "المنتج الرقمي",
+        "body": "تجربة الطلب ولوحة تحكم للفندق",
+        "status": "مكتمل"
+      },
+      {
         "title": "الهوية البصرية",
-        "body": "بندل ولافارا",
-        "status": "مكتمل"
-      },
-      {
-        "title": "المنتجات",
-        "body": "الرقمية والمادية",
-        "status": "مكتمل"
-      },
-      {
-        "title": "مرحلة الفحص والتحقق",
-        "body": "",
+        "body": "الشعار والألوان والتطبيقات",
         "status": "مكتمل"
       }
     ]

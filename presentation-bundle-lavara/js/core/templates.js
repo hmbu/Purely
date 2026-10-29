@@ -101,7 +101,7 @@ export const TEMPLATES = {
     render: (d, ctx) => `
       <div class="t t-title align-${esc(d.align || 'center')}">
         <div class="t-mosaic" aria-hidden="true" data-a="bg"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        ${d.showMark && ctx.brand.mark ? `<div class="s-watermark" data-a="bg">${logoHTML(ctx.brand.mark, ctx)}</div>` : ''}
+        ${d.showMark && ctx.brand.mark && ctx.idShown !== false ? `<div class="s-watermark" data-a="bg">${logoHTML(ctx.brand.mark, ctx)}</div>` : ''}
         <div class="s-copy">${eyebrow(d.eyebrow)}${d.showLogo && ctx.brand.logo ? `<h1 class="t-logo" data-a="title" aria-label="${esc(d.title || '')}">${logoHTML(ctx.brand.logo, ctx)}</h1>` : title(d.title, 'is-xl')}${body(d.subtitle, 'is-lead')}</div>
       </div>`,
   },
@@ -252,6 +252,11 @@ const PARTIES = [[/الماجد/, 'assets/logos/almajed-oud.png', 3.43, 5, 'maje
 const partyOf = n => ((n.shape || 'box') === 'box' ? PARTIES.find(([re]) => re.test(String(n.title || '').trim()))?.[4] || '' : '');
 function partyLogo(n, ctx) {
   if ((n.shape || 'box') !== 'box' || !ctx?.asset) return '';
+  // the new entity carries the two brands it holds: their logos sit above its name
+  if (/الكيان|الكيانات/.test(String(n.title || '')) && ctx.projects) {
+    const ps = ctx.projects.filter(p => p.kind !== 'shared' && p.brand?.logo);
+    return ps.length ? `<span class="dg-ents">${ps.map(p => `<span class="logo-mask dg-ent is-${esc(p.id)}" style="--src:url('${esc(ctx.asset(p.brand.logo))}')" title="${esc(p.name)}"></span>`).join('')}</span>` : '';
+  }
   const hit = PARTIES.find(([re]) => re.test(String(n.title || '').trim())); if (!hit) return '';
   // the logo is the company's name: the card shows the logo instead of repeating the name in text
   return `<span class="logo-mask dg-logo is-named" style="--src:url('${esc(ctx.asset(hit[1]))}');aspect-ratio:${hit[2]};height:${hit[3]}rem"></span>`;
@@ -468,7 +473,7 @@ TEMPLATES.finance = {
         <div class="fn-charts">
           ${ch.map((c, k) => { const ys = nums(c.years), a = nums(c.a), b = nums(c.b), m = nums(c.m);
             return `
-            <div class="fn-chart" data-a="extra" data-seq="${k}" ${c.color ? `style="--cc:${esc(c.color)}"` : ''}>
+            <div class="fn-chart" data-a="extra" data-seq="${k}" style="--k:${k}${c.color ? `;--cc:${esc(c.color)}` : ''}">
               <div class="fn-head"><h3>${esc(c.name || '')}</h3>
                 <div class="fn-legend"><span class="is-a">${esc(c.aName || '')}</span><span class="is-b">${esc(c.bName || '')}</span>${c.mName ? `<span class="is-m">${esc(c.mName)}</span>` : ''}<span class="fn-unit">${esc(c.unit || '')}</span></div></div>
               <div class="fn-plot" style="--n:${ys.length || a.length || 1}">
@@ -482,7 +487,7 @@ TEMPLATES.finance = {
             </div>`; }).join('')}
         </div>
         ${d.panelTitle || shots.length || (d.points || []).length ? `
-        <aside class="fn-panel" data-a="media">
+        <aside class="fn-panel" data-a="extra" data-seq="9">
           ${d.panelTitle ? `<div class="fn-ptitle"><i></i><b>${esc(d.panelTitle)}</b>${d.panelSub ? `<span>${esc(d.panelSub)}</span>` : ''}</div>` : ''}
           ${shots.length ? `<div class="fn-shots n-${Math.min(shots.length, 3)}">${shots.slice(0, 3).map(x => `<div class="fn-shot">${mediaHTML(x.image, ctx)}</div>`).join('')}</div>` : ''}
           ${(d.points || []).length ? `<div class="fn-points">${d.pointsTitle ? `<h4>${esc(d.pointsTitle)}</h4>` : ''}<ul>${d.points.map(p => `<li>${escBr(p.text || '')}</li>`).join('')}</ul></div>` : ''}
@@ -513,14 +518,25 @@ TEMPLATES.canvas = {
     { key: 'legendInfra', type: 'text', label: 'اسم الجزء الأيمن (الشركاء، الأنشطة، الموارد)' },
     { key: 'legendCust', type: 'text', label: 'اسم الجزء الأيسر مع القيمة (العلاقة، القنوات، الشرائح)' },
     { key: 'legendFin', type: 'text', label: 'اسم الجزء السفلي (التكاليف، الإيراد)' },
+    { key: 'valueBranches', type: 'textarea', rows: 3, label: 'تفرّع القيمة المضافة بعد اللوحة (سطر لكل فرع، 3 أسطر)' },
     { key: 'blocks', type: 'list', label: 'الخانات التسع بالترتيب: الشركاء، الأنشطة، الموارد، القيمة، العلاقة، القنوات، الشرائح، التكاليف، الإيراد',
       item: [{ key: 'title', type: 'text', label: 'اسم الخانة' }, { key: 'text', type: 'textarea', rows: 2, label: 'السطر الرئيسي' }, { key: 'badge', type: 'text', label: 'حالة صغيرة (اختياري)' }],
       newItem: { title: '', text: '', badge: '' } }],
   defaults: { eyebrow: 'Business Model', title: 'نموذج العمل', lead: '', blocks: BMC.map(b => ({ title: b.t, text: '', badge: '' })) },
+  // after the nine blocks, one press: the value proposition gathers into a small card and branches into its parts
+  steps: d => (String(d.valueBranches || '').trim() ? 1 : 0),
+  applyStep(el, step, instant) {
+    const t = el.querySelector('.t-canvas'); if (!t) return;
+    t.classList.toggle('cvb-instant', !!instant);
+    t.classList.toggle('is-branched', step >= 1);
+  },
   render: d => {
     const bl = (d.blocks || []).slice(0, 9);
+    const br = String(d.valueBranches || '').split('\n').map(x => x.trim()).filter(Boolean).slice(0, 4);
+    const vt = (bl[3] && bl[3].title) || BMC[3].t;
+    const xs = br.map((_, i) => ((i + 0.5) / br.length) * 1000);
     return `
-    <div class="t t-canvas">
+    <div class="t t-canvas ${br.length ? 'has-branches' : ''}">
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
       <div class="cv-legend" data-a="body"><span class="g-infra"><i></i>${esc(d.legendInfra || 'قابلية التنفيذ')}</span><span class="g-cust"><i></i>${esc(d.legendCust || 'رغبة العميل')}</span><span class="g-fin"><i></i>${esc(d.legendFin || 'الجدوى المالية')}</span></div>
       <div class="cv-grid">
@@ -531,6 +547,11 @@ TEMPLATES.canvas = {
             ${b.badge ? `<span class="cv-badge">${esc(b.badge)}</span>` : ''}
           </div>`).join('')}
       </div>
+      ${br.length ? `<div class="cv-branch" aria-hidden="true" style="--bn:${br.length}">
+        <div class="cvb-hub"><span class="cvb-title">${esc(vt)}</span></div>
+        <svg class="cvb-lines" viewBox="0 0 1000 1000" preserveAspectRatio="none">${xs.map((x, i) => `<path pathLength="1" style="--i:${i}" d="M500 250 C500 420 ${1000 - x} 400 ${1000 - x} 560"/>`).join('')}</svg>
+        <div class="cvb-items">${br.map((x, i) => `<div class="cvb-item" style="--i:${i}"><span class="cvb-n latin">(${String(i + 1).padStart(3, '0')})</span><p>${esc(x)}</p></div>`).join('')}</div>
+      </div>` : ''}
     </div>`;
   },
 };
@@ -644,7 +665,7 @@ TEMPLATES.sources = {
             ${it.pill ? `<span class="so-pill">${esc(it.pill)}</span>` : ''}
             <h3>${escBr(it.title || '')}</h3>
             <i class="so-shape ${SHAPES[i % SHAPES.length]}" data-grow></i>
-            ${ctx?.brand?.mark ? `<span class="so-mark">${logoHTML(ctx.brand.mark, ctx)}</span>` : ''}
+            ${ctx?.brand?.mark && ctx.idShown !== false ? `<span class="so-mark">${logoHTML(ctx.brand.mark, ctx)}</span>` : ''}
           </div>`).join('')}
       </div>
     </div>`,
@@ -715,15 +736,17 @@ TEMPLATES.lineup = {
   name: 'تشكيلة منتجات (صف)', en: 'Product lineup', group: 'extra', defaultBg: 'background', suggested: 'المنتجات',
   fields: [F.eyebrow, F.title, { key: 'lead', type: 'text', label: 'سطر قصير تحت العنوان' },
     { key: 'items', type: 'list', label: 'المنتجات (الأول = اليمين)', item: [{ key: 'image', type: 'image', simple: true, label: 'صورة مفرّغة' }, { key: 'title', type: 'text', label: 'الاسم' }, { key: 'body', type: 'textarea', rows: 2, label: 'سطر وصف' }],
-      newItem: { image: '', title: 'منتج', body: '' } }],
-  defaults: { eyebrow: '', title: 'التشكيلة', lead: '', items: [] },
+      newItem: { image: '', title: 'منتج', body: '' } },
+    { key: 'spotlight', type: 'toggle', label: 'مسرح مظلم: يُضاء كل منتج بدوره' }],
+  defaults: { eyebrow: '', title: 'التشكيلة', lead: '', items: [], spotlight: false },
   render: (d, ctx) => `
-    <div class="t t-lineup" style="--n:${(d.items || []).length || 1}">
+    <div class="t t-lineup ${d.spotlight ? 'is-spot' : ''}" style="--n:${(d.items || []).length || 1}">
+      ${d.spotlight ? '<div class="ln-stage" data-a="bg"><i class="ln-back"></i><i class="ln-floor"></i></div>' : ''}
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
       <div class="ln-row">
         ${(d.items || []).map((it, i) => `
           <div class="ln-item" data-a="extra" data-seq="${i}">
-            <div class="ln-art">${imgSrc(it.image) ? `<img src="${esc(ctx.asset(imgSrc(it.image)))}" alt="${esc(it.title || '')}">` : ''}</div>
+            <div class="ln-art">${d.spotlight ? '<i class="ln-beam"></i><i class="ln-pool"></i>' : ''}${imgSrc(it.image) ? `<img src="${esc(ctx.asset(imgSrc(it.image)))}" alt="${esc(it.title || '')}">` : ''}</div>
             <div class="ln-text"><span class="ln-roman latin" data-n="(${String(i + 1).padStart(3, '0')})">${ROMAN[i] || i + 1}</span>
             <h3>${esc(it.title || '')}</h3>
             ${it.body ? `<p>${escBr(it.body)}</p>` : ''}</div>
@@ -740,10 +763,11 @@ TEMPLATES.compare = {
     { key: 'options', type: 'list', label: 'الخيارات', item: [{ key: 'title', type: 'text', label: 'الخيار' }, { key: 'sub', type: 'text', label: 'سطر تحته (اختياري)' },
       { key: 'points', type: 'textarea', rows: 5, label: 'النقاط (سطر لكل نقطة، - في البداية = تحدٍّ)' }, { key: 'featured', type: 'toggle', label: 'بارز' }],
       newItem: { title: 'خيار', sub: '', points: '', featured: false } },
-    { key: 'proLabel', type: 'text', label: 'اسم المزايا' }, { key: 'conLabel', type: 'text', label: 'اسم التحديات' }],
-  defaults: { eyebrow: '', title: 'المقارنة', lead: '', options: [], proLabel: 'ميزة', conLabel: 'تحدٍّ' },
+    { key: 'proLabel', type: 'text', label: 'اسم المزايا' }, { key: 'conLabel', type: 'text', label: 'اسم التحديات' },
+    { key: 'discuss', type: 'text', label: 'نقطة للنقاش أسفل الشريحة (اختياري)' }, { key: 'discussOptions', type: 'text', label: 'خيارات النقاش (مفصولة بـ ·)' }],
+  defaults: { eyebrow: '', title: 'المقارنة', lead: '', options: [], proLabel: 'ميزة', conLabel: 'تحدٍّ', discuss: '', discussOptions: '' },
   render: (d, ctx) => `
-    <div class="t t-compare" style="${ctx?.brand?.mark ? `--lv-mark:url('${esc(ctx.asset(ctx.brand.mark))}')` : ''}">
+    <div class="t t-compare" style="${ctx?.brand?.mark && ctx.idShown !== false ? `--lv-mark:url('${esc(ctx.asset(ctx.brand.mark))}')` : ''}">
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
       <div class="cp-legend" data-a="body"><span class="pro"><i></i>${esc(d.proLabel || '')}</span><span class="con"><i></i>${esc(d.conLabel || '')}</span></div>
       <div class="cp-cols" style="--n:${(d.options || []).length || 1}">
@@ -754,6 +778,8 @@ TEMPLATES.compare = {
             <ul>${lines(o.points).map(x => (x[0] === '-' ? `<li class="con"><i></i>${esc(x.slice(1).trim())}</li>` : `<li class="pro"><i></i>${esc(x)}</li>`)).join('')}</ul>
           </div>`).join('')}
       </div>
+      ${d.discuss ? `<div class="cp-discuss" data-a="extra" data-seq="9"><span class="cp-dtag">${esc(d.discuss)}</span>
+        <span class="cp-dopts">${String(d.discussOptions || '').split('·').map(x => x.trim()).filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('')}</span></div>` : ''}
     </div>`,
 };
 

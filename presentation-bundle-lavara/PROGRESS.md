@@ -193,3 +193,14 @@
 ## Recovery (29 Oct)
 - A control-panel save (commit b708aa5) overwrote content.json with an old copy (lost review, SAR, dashboard slide, approvals, op-model titles, chooser). Restored content from 2127cc7 and added the new diffuser photo.
 - store.js: a panel that never read the published file can no longer publish over it without the conflict prompt.
+
+## Feedback round (29 Oct, evening)
+- Review page: verification first, then the models, product design, digital product, identity; short descriptions.
+- Identity first: the identity film opens each identity section; until the title brings the logo, the project is named by its line (brand.descriptor: «الهدايا المؤسسية» / «مستلزمات العناية الفندقية») on the opening screen, hub, footer and covers; afterwards the logo stays everywhere.
+- Business model: blocks come in one by one on their own; text black/white; one press then gathers the value proposition and branches it into three (data.valueBranches, editable). Finance and occasions also come in part by part.
+- Lavara refill lineup: dark stage, amber backlight, each product lit in turn from above (data.spotlight).
+- Bundle: partners & suppliers moved to its own section «العلامات».
+- Shared: money flow removed; the new entity shows the Bundle and Lavara logos; updates are four cards, open points (tripartite, CEO) in the discussion colour.
+- Approvals: business, operating and financial models approved (green, fixed); legal framework open, last. Perfumes discussion moved to the perfumes slide.
+- Numbers use Manrope (assets/fonts/manrope, OFL); Al Majed logo first.
+- Pending from the user: factories number, operations explanations and photos, SAR statistics, «جسر» logo, choice of Lavara bubble background.
