@@ -8,7 +8,7 @@ import { createEditor, edAttr } from './core/editor.js';
 import { initZoom } from './core/zoom.js';
 import { createSync } from './core/sync.js';
 import { registerFonts, applyTypography, fontsReady } from './core/fonts.js';
-import { BrandTexture, BUNDLE_SCENES } from './core/texture.js';
+import { BrandTexture, BUNDLE_SCENES, LAVARA_SCENES } from './core/texture.js';
 import { watchForUpdates } from './core/fresh.js';
 import { TEMPLATES, slideLabel, slideMedia, mediaHTML } from './core/templates.js';
 
@@ -127,7 +127,7 @@ function placeLogos(mode, animate = true) {
   }, { x: 0, y: 0, scale: 1, duration: 1.4, ease: 'power3.inOut', clearProps: 'transform' });
 }
 // a Bundle scene brings its own ground and ink for the main screen
-const sceneOf = p => (p?.brand?.texture !== 'mist' && BUNDLE_SCENES[p?.brand?.textureStyle]) || null;
+const sceneOf = p => (p?.brand?.texture !== 'mist' ? BUNDLE_SCENES : LAVARA_SCENES)[p?.brand?.textureStyle] || null;
 const hubGround = p => sceneOf(p)?.ground || p?.brand?.colors?.primary || '#222';
 const hubFg = p => { const sc = sceneOf(p); if (sc) return sc.ink; const c = p?.brand?.colors || {}; return isDarkHex(c.primary || '#222') ? (c.textLight || '#fff') : (c.text || '#111'); };
 const hubDark = p => isDarkHex(hubGround(p));
@@ -836,7 +836,7 @@ const quiet = () => (settings().tone || 'quiet') === 'quiet';
 
 /* ======================================================================= hub (project page) */
 // Lavara's material styles (liquid soap, soap bar, amber light) have defined edges and highlights: they need more pixels than the fog.
-const crisp = p => ['silk', 'lather', 'pour', 'drop', 'swirl', 'soap', 'amber', 'orbs', 'strips', 'stacks', ...Object.keys(BUNDLE_SCENES)].includes(p.brand.textureStyle);
+const crisp = p => ['silk', 'lather', 'pour', 'drop', 'swirl', 'soap', 'amber', 'orbs', 'strips', 'stacks', ...Object.keys(BUNDLE_SCENES), ...Object.keys(LAVARA_SCENES)].includes(p.brand.textureStyle);
 // The project page continues the opening screen: brand colour + calm live texture, and the sections as
 // stations on a line of light. The light rests on the next section; hovering slides it to another station.
 let hubTex = null;

@@ -241,7 +241,73 @@ void main(){
   o = vec4(col * a * u_alpha, a * u_alpha);
 }`;
 
-const LAVARA_STYLES = ['silk', 'lather', 'pour', 'drop', 'swirl', 'soap', 'amber'];
+// Lavara scenes for the opening screen and the hub: their own ground and ink, full coverage, a calm middle.
+//   spa → the bath at dusk: Lavara's brown wall with slow ripples of light passing through bath water, and clear soap
+//         bubbles drifting up whose skins catch the palette (ochre, terracotta, sage) at the rim.
+export const LAVARA_SCENES = { spa: { ground: '#3C2E25', ink: '#F3F2E0' } };
+const SPA = COMMON + NOISE + `
+const vec3 LV_BROWN = vec3(0.235, 0.180, 0.145), LV_IVORY = vec3(0.953, 0.949, 0.878), LV_TERRA = vec3(0.678, 0.384, 0.263);
+const vec3 LV_SAGE = vec3(0.573, 0.620, 0.478), LV_OCHRE = vec3(0.573, 0.416, 0.137);
+float h1(float a, float b){ return hash(vec2(a, b * 1.37 + 0.11)); }
+vec2 h2(vec2 p){ return vec2(hash(p), hash(p + 17.3)); }
+vec3 screen(vec3 a, vec3 b){ return 1.0 - (1.0 - a) * (1.0 - clamp(b, 0.0, 1.0)); }
+float calmAt(vec2 c, float asp){ return 1.0 - smoothstep(0.45, 1.0, length((c - vec2(asp * 0.5, 0.56)) / vec2(asp * 0.3, 0.3))); }
+float caustic(vec2 p, float t){
+  vec2 i = floor(p), f = fract(p); float f1 = 9.0, f2 = 9.0;
+  for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+    vec2 o2 = vec2(x, y), c = h2(i + o2); c = 0.5 + 0.42 * sin(t + 6.2831 * c);
+    float d = length(o2 + c - f); if (d < f1) { f2 = f1; f1 = d; } else if (d < f2) f2 = d;
+  }
+  return 1.0 - smoothstep(0.0, 0.3, f2 - f1);
+}
+vec3 filmTint(float th){ float x = fract(th);
+  vec3 c = mix(LV_OCHRE, LV_TERRA, smoothstep(0.0, 0.33, x)); c = mix(c, LV_SAGE, smoothstep(0.33, 0.66, x)); return mix(c, LV_OCHRE, smoothstep(0.66, 1.0, x)); }
+void bubble(inout vec3 col, vec2 d, float r, float k, float id, float t){
+  float l = length(d); float aa = 1.5 / (u_res.y * r);
+  float cov = 1.0 - smoothstep(1.0 - aa, 1.0 + aa * 0.5, l); if (cov <= 0.0 || k <= 0.0) return;
+  float lc = min(l, 1.0), z = sqrt(max(0.0, 1.0 - lc * lc));
+  float film = pow(smoothstep(0.35, 1.0, lc), 2.4);
+  float a = t * 0.15 + id; vec2 q = mat2(cos(a), -sin(a), sin(a), cos(a)) * d;
+  vec3 tint = mix(filmTint(fbm(q * 1.8 + id) * 1.4 - d.y * 0.45 + t * 0.03), LV_IVORY, 0.35);
+  vec2 rr = 2.0 * z * d;
+  float win = 1.0 - smoothstep(0.0, 0.06, length(max(abs(rr - vec2(-0.45, 0.55)) - vec2(0.14, 0.09), 0.0)));
+  float win2 = 1.0 - smoothstep(0.0, 0.05, length(max(abs(rr - vec2(0.5, -0.52)) - vec2(0.06, 0.035), 0.0)));
+  float kk = cov * k;
+  col = screen(col, tint * film * 0.55 * kk);                    // the skin glows faintly in its colours
+  col = screen(col, LV_IVORY * pow(smoothstep(0.88, 1.0, lc), 3.0) * 0.35 * kk);
+  col = screen(col, vec3(1.0, 0.98, 0.93) * (win * 0.85 + win2 * 0.45) * kk);
+}
+void main(){
+  vec2 uv = gl_FragCoord.xy / u_res; float asp = u_res.x / u_res.y;
+  vec2 p = vec2(uv.x * asp, uv.y); float t = u_time;
+  vec3 col = mix(LV_BROWN * 0.72, LV_BROWN * 1.06, smoothstep(0.0, 1.0, uv.y));
+  float v = fbm(vec2(p.x * 0.9, p.y * 7.0) + vec2(fbm(p * 1.5) * 1.2, 0.0));
+  col *= 0.96 + 0.08 * (v - 0.5);                                   // soft veins in the stone
+  float sun = exp(-length((p - vec2(asp * 0.9, 1.1)) * vec2(0.75, 1.0)) * 1.5);
+  vec2 cw = p * 2.6 + 0.7 * vec2(fbm(p * 1.4 + t * 0.03), fbm(p * 1.4 - t * 0.03 + 7.0));
+  float c = pow(caustic(cw, t * 0.22) * 0.65 + caustic(cw * 1.7 + 3.0, t * 0.3) * 0.35, 1.8);
+  float m = 0.3 + 0.7 * smoothstep(0.0, 0.9, sun * 1.6);
+  col = screen(col, mix(LV_OCHRE, LV_IVORY, 0.45) * c * 0.11 * m);   // light through the bath water
+  col = screen(col, LV_OCHRE * sun * 0.2);
+  // only the clear bubbles, drifting up with a slow sway
+  float n = 9.0, w = asp / n, ci = floor(p.x / w);
+  for (int j = -1; j <= 1; j++) {
+    float i = ci + float(j), id = i + 41.0;
+    if (h1(id, 9.0) < 0.25) continue;
+    float r = mix(0.028, 0.06, h1(id, 1.0)), span = 1.24;
+    float y = fract(h1(id, 3.0) + t * 0.022 * (0.7 + 0.6 * h1(id, 2.0)) / span) * span - 0.12;
+    float x = (i + 0.5) * w + (h1(id, 4.0) - 0.5) * w * 0.4 + sin(t * (0.12 + 0.12 * h1(id, 5.0)) + id * 3.1) * w * 0.3;
+    vec2 cc = vec2(x, y);
+    float fade = smoothstep(-0.1, 0.1, y) * (1.0 - smoothstep(0.9, 1.05, y));
+    bubble(col, (p - cc) / r, r, fade * (1.0 - calmAt(cc, asp) * 0.6), id, t);
+  }
+  col *= 1.0 - 0.25 * pow(length((uv - vec2(0.5, 0.55)) * vec2(1.1, 1.0)), 2.0);
+  col += grain() * 0.5;
+  float order = u_sweep >= 0.0 ? uv.x : 1.0 - uv.x;
+  float rv = smoothstep(order * 0.7, order * 0.7 + 0.3, u_progress * 1.0001);
+  o = vec4(col * rv * u_alpha, rv * u_alpha);
+}`;
+const LAVARA_STYLES = ['silk', 'lather', 'pour', 'drop', 'swirl', 'soap', 'amber', ...Object.keys(LAVARA_SCENES)];
 
 // Bundle: separate spheres, painted one over another (never blended into each other); positions come from a
 // small collision simulation in JS so they also never overlap while they drift.
@@ -464,7 +530,7 @@ export class BrandTexture {
     const gl = this.gl;
     const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    for (const [name, src] of [['bubbles', BUBBLES], ['mist', MIST], ['orbs', ORBS], ['strips', STRIPS], ['stacks', STACKS], ['silk', SILK], ['lather', LATHER], ['pour', POUR], ['drop', DROP], ['swirl', SWIRL], ['soap', SOAP], ['amber', AMBER], ...SCENE_PROGS]) {
+    for (const [name, src] of [['bubbles', BUBBLES], ['mist', MIST], ['orbs', ORBS], ['strips', STRIPS], ['stacks', STACKS], ['silk', SILK], ['lather', LATHER], ['pour', POUR], ['drop', DROP], ['swirl', SWIRL], ['soap', SOAP], ['amber', AMBER], ['spa', SPA], ...SCENE_PROGS]) {
       const prog = gl.createProgram();
       for (const [type, code] of [[gl.VERTEX_SHADER, VERT], [gl.FRAGMENT_SHADER, src]]) {
         const sh = gl.createShader(type); gl.shaderSource(sh, code); gl.compileShader(sh);
