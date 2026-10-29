@@ -1750,3 +1750,7 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="lavara"] .cvb-items { gap: 4.8rem; }
 .cvb-items.n-2 { left: 25%; right: 25%; }
 [data-brand="bundle"] .cvb-items.n-2 { left: 13%; right: 13%; }
+/* section exit 6: the brand's symbol rises on a panel in the brand's colour and closes the section */
+.ex-curtain { position: absolute; inset: 0; z-index: 31; display: grid; place-items: center; pointer-events: none; background: var(--g); }
+.ex-curtain::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .12; }
+.ex-curtain .ex-mark { position: relative; z-index: 1; display: block; width: 14rem; height: 18rem; background-color: currentColor; }

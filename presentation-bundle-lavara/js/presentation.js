@@ -1074,7 +1074,7 @@ async function enterSection(sid, slideIndex = 0) {
 }
 
 const sectionStyle = () => settings().flow?.sectionStyle || 'merged';
-const EXIT_STYLES = ['sweep', 'zoom', 'fade', 'drop', 'iris'];
+const EXIT_STYLES = ['sweep', 'zoom', 'fade', 'drop', 'iris', 'mark'];
 const exitStyle = () => { const q = QS.get('exit'); return EXIT_STYLES.includes(q) ? q : EXIT_STYLES.includes(settings().flow?.exitStyle) ? settings().flow.exitStyle : 'sweep'; };
 // FLIP start values: el starts exactly where (and as large as) src stands, then can tween to its own place
 function flipFrom(el, src) {
@@ -1184,6 +1184,21 @@ async function zoomOut({ strong = false } = {}) {
         gsap.set(L.hub, { opacity: 0 });
         await coverTransition({ p, dir: -1, light: true, swap: () => { done(); gsap.set(L.hub, { opacity: 1 }); atHub(); } });
         broadcastState(); return;
+      }
+      if (ex === 'mark') {
+        // the brand's own symbol closes the section: it rises from the foot of the screen on a panel in the brand's
+        // colour, rests a beat in the middle, then carries on up and off, leaving the project page behind it
+        const sc = sceneOf(p), ground = sc?.ground || p.brand.colors?.primary || '#222', ink = sc?.ink || p.brand.colors?.textLight || '#fff';
+        const cur = document.createElement('div'); cur.className = 'ex-curtain'; cur.style.setProperty('--g', ground); cur.style.color = ink;
+        cur.innerHTML = p.brand.mark && idShown(p) ? `<span class="logo-mask ex-mark" style="--src:url('${esc(asset(p.brand.mark))}')"></span>` : '';
+        coverEl.after(cur); sound.play('section', p.id);
+        const m = $('.ex-mark', cur), tl = gsap.timeline();
+        tl.fromTo(cur, { yPercent: 100 }, { yPercent: 0, duration: 0.6, ease: 'power3.in' }, 0);
+        if (m) tl.fromTo(m, { y: pxs(260), scale: 0.8, opacity: 0.4 }, { y: 0, scale: 1, opacity: 1, duration: 0.75, ease: 'power3.out' }, 0.15);
+        tl.call(() => { done(); gsap.set(L.hub, { opacity: 1 }); atHub(); }, null, 0.62);
+        tl.to(cur, { yPercent: -100, duration: 0.7, ease: 'power3.inOut' }, 0.95);
+        if (m) tl.to(m, { y: -pxs(120), opacity: 0, duration: 0.6, ease: 'power2.in' }, 0.95);
+        await tl; cur.remove(); broadcastState(); return;
       }
       sound.play('zoom', p.id);
       const tl = gsap.timeline();

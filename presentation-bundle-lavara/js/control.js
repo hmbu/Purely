@@ -576,7 +576,7 @@ function renderGlobal() {
     const cur = st.flow?.exitStyle || 'sweep';
     const pick = v => { st.flow ||= {}; st.flow.exitStyle = v; commit({ key: 'settings.flow.exitStyle' }); renderGlobal(); };
     f.append(group('حركة الخروج من القسم (بدون عنوان)', h('div', { class: 'row', style: 'gap:10px;flex-wrap:wrap' },
-      ...[['sweep', '1 · مسحة الهوية'], ['zoom', '2 · تصغير إلى المحطة'], ['fade', '3 · تلاشٍ سريع'], ['drop', '4 · الشريحة تنزل'], ['iris', '5 · دائرة تنغلق على المحطة']]
+      ...[['sweep', '1 · مسحة الهوية'], ['zoom', '2 · تصغير إلى المحطة'], ['fade', '3 · تلاشٍ سريع'], ['drop', '4 · الشريحة تنزل'], ['iris', '5 · دائرة تنغلق على المحطة'], ['mark', '6 · رمز الهوية يغلق القسم']]
         .map(([v, l]) => h('button', { class: 'btn' + (cur === v ? ' primary' : ''), onclick: () => pick(v) }, l)))));
   }
   f.append(group('الفيديو والتسلسل', ...renderFields([
