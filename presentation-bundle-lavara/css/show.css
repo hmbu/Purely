@@ -1655,3 +1655,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .uf-world::after, .hub2::after, .uo-world::after { opacity: .04; }
 /* business model: the blocks come in right to left, then the bottom row; no numbers */
 .t-canvas .cv-n { display: none; }
+/* Lavara's branches: dark cards, each marked with its framed A instead of a number */
+[data-brand="lavara"] .cvb-item { background: var(--lv-brown); color: var(--lv-ivory); }
+[data-brand="lavara"] .cvb-item p { color: var(--lv-ivory); }
+[data-brand="lavara"] .cvb-item::after { opacity: .35; }
+[data-brand="lavara"] .cvb-n { font-size: 0; width: 4.4rem; height: 5.4rem; opacity: 1; background: var(--lv-ivory); -webkit-mask: var(--lv-mark) center / contain no-repeat; mask: var(--lv-mark) center / contain no-repeat; }

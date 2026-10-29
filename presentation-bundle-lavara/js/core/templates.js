@@ -543,7 +543,7 @@ TEMPLATES.canvas = {
     t.classList.toggle('cvb-instant', !!instant);
     t.classList.toggle('is-branched', step >= 1);
   },
-  render: d => {
+  render: (d, ctx) => {
     const bl = (d.blocks || []).slice(0, 9);
     const br = String(d.valueBranches || '').split('\n').map(x => x.trim()).filter(Boolean).slice(0, 4);
     const vt = (bl[3] && bl[3].title) || BMC[3].t;
@@ -551,7 +551,7 @@ TEMPLATES.canvas = {
     const inner = (b, i) => `<div class="cv-top"><span class="cv-n latin">${BMC_NUM[i]}</span><h3 class="cv-t">${esc(b.title || BMC[i].t)}</h3></div>
             ${b.text ? `<p class="cv-x">${escBr(b.text)}</p>` : ''}${b.badge ? `<span class="cv-badge">${esc(b.badge)}</span>` : ''}`;
     return `
-    <div class="t t-canvas ${br.length ? 'has-branches' : ''}">
+    <div class="t t-canvas ${br.length ? 'has-branches' : ''}" style="${ctx?.brand?.mark && ctx.idShown !== false ? `--lv-mark:url('${esc(ctx.asset(ctx.brand.mark))}')` : ''}">
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
       <div class="cv-legend" data-a="body"><span class="g-infra"><i></i>${esc(d.legendInfra || 'قابلية التنفيذ')}</span><span class="g-cust"><i></i>${esc(d.legendCust || 'رغبة العميل')}</span><span class="g-fin"><i></i>${esc(d.legendFin || 'الجدوى المالية')}</span></div>
       <div class="cv-grid">
