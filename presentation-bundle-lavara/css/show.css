@@ -1678,3 +1678,6 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="lavara"] .cvb-item p { color: var(--lv-ivory); }
 [data-brand="lavara"] .cvb-item::after { opacity: .35; }
 [data-brand="lavara"] .cvb-item .wm { opacity: .12; }
+/* the framed A behind Lavara's cards: very light, a background only */
+[data-brand="lavara"] .wm { opacity: .045 !important; }
+[data-brand="lavara"] :is(.st-cell, .cp-col, .cvb-item, .sc-col:first-child) .wm { opacity: .06 !important; }
