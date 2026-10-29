@@ -1739,3 +1739,9 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 /* the branch lines: a longer dash, so the whole path is drawn even where the browser scales the dash with the box */
 .cvb-lines path, [data-brand="bundle"] .cvb-lines path { stroke-dasharray: 1.6; stroke-dashoffset: 1.6; }
 .t-canvas.is-branched .cvb-lines path { stroke-dashoffset: 0; }
+/* the value block reads like the other blocks: its icon, name and text start at the top, on the reading side
+   (once it branches out, the small box above the branches keeps its name in the middle) */
+.t-canvas .cv-b.g-value, .t-canvas .cv-b.g-value.cvb-hub { justify-content: flex-start; align-items: stretch; text-align: start; }
+.t-canvas .cv-b.g-value .cv-top { justify-content: flex-start; }
+.t-canvas.is-branched .cv-b.g-value.cvb-hub { justify-content: center; align-items: center; text-align: center; }
+.t-canvas.is-branched .cvb-hub .cv-top { justify-content: center; }
