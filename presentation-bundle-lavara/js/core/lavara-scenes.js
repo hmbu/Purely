@@ -205,62 +205,45 @@ S2.c5 = W('وانعكاسه', WM + `
   col = press(col, qr, c, 0.56, 0.0, 0.55, lp, L, warm);
   col += warm * 0.02 * exp(-pow((p.y - y0) / 0.006, 2.0)) * smoothstep(0.35, 0.0, abs(p.x - c.x) / asp);
   col = caustic(col, q, t, calm, L, warm, 0.6);`);
-// ---- the chosen directions carried further: the two A's trade sides in turn and keep drifting, and water drops rest
-// on the page above them: each drop magnifies what is under it, holds a highlight from the room's light and casts a
-// soft shadow; a ring spreads where it lands. Drops stay on the sides, never over the words.
-const DROPS = `
-float dIn, dRr, dShd; vec2 dN, dL;
-vec2 drops(vec2 p, vec2 q, float t, float asp, float calm, vec2 lp, vec3 warm, inout vec3 col){
-  dIn = 0.0; dRr = 0.0; dShd = 0.0; dN = vec2(0.0); dL = vec2(0.0, 1.0); vec2 qd = q;
-  for (int i = 0; i < 5; i++) {
-    float fi = float(i), life = 11.0 + 5.0 * h1(fi, 1.0), pp = t / life + h1(fi, 2.0), cyc = floor(pp), lf = fract(pp), k = fi + cyc * 7.13;
-    float x = h1(k, 3.0) < 0.5 ? asp * (0.04 + 0.22 * h1(k, 4.0)) : asp * (0.74 + 0.22 * h1(k, 4.0));
-    vec2 dc = vec2(x, 0.14 + 0.72 * h1(k, 5.0) - 0.06 * lf * lf);                    // a drop slides down a little as it rests
-    float r = (0.045 + 0.05 * h1(k, 6.0)) * smoothstep(0.0, 0.05, lf) * (1.0 - smoothstep(0.9, 1.0, lf));
-    vec2 d = p - dc; float dist = length(d);
-    float R = lf * 2.2, ring = exp(-pow((dist - R) / 0.035, 2.0)) * (1.0 - smoothstep(0.0, 0.3, lf)) * smoothstep(0.0, 0.01, lf);
-    q += d / max(dist, 1e-3) * ring * 0.014 * sin((dist - R) * 70.0);
-    col += warm * 0.03 * ring * (1.0 - 0.8 * calm);
-    vec2 l = normalize(lp - dc + vec2(1e-4, 0.0));
-    dShd = max(dShd, smoothstep(r * 1.12, r * 0.5, length(p - (dc - l * r * 0.4))) * step(0.001, r));
-    if (dist < r) { dIn = 1.0; dRr = dist / r; dN = d / r; dL = l; qd = dc + d * mix(0.5, 1.0, dRr * dRr); }
+// ---- the chosen directions carried further: the two A's trade sides in turn and keep drifting, and the page moves
+// the way option 2 does: drops fall on it in turn (on each A, and now and then on the sides) and their rings spread
+// over the page, bending the pressed A's as they pass. No water layer over everything, no drawn drops.
+const RIPPLE = `
+vec2 ripple(vec2 p, vec2 a, vec2 b, float t, float asp, float calm, vec3 warm, inout vec3 col){
+  vec2 q = p;
+  for (int k = 0; k < 3; k++) {
+    float fk = float(k), ph = fract(t / 6.5 + fk / 3.0), n = floor(t / 6.5 + fk / 3.0);
+    vec2 c = k == 0 ? a : k == 1 ? b
+      : vec2(asp * (h1(n, 3.0) < 0.5 ? 0.06 + 0.18 * h1(n, 4.0) : 0.76 + 0.18 * h1(n, 4.0)), 0.15 + 0.7 * h1(n, 5.0));
+    vec2 d = p - c; float r = length(d), R = ph * 1.3;
+    float ring = exp(-pow((r - R) / 0.045, 2.0)) * (1.0 - ph) * smoothstep(0.0, 0.05, ph);
+    q += d / max(r, 1e-3) * ring * 0.022 * sin((r - R) * 60.0);
+    col += warm * 0.035 * ring * (1.0 - 0.7 * calm);
   }
-  return dIn > 0.5 ? qd + (q - p) : q;                                                     // seen through the drop: magnified
-}
-vec3 dropShade(vec3 col, vec3 warm){
-  col *= 1.0 - 0.2 * dShd * (1.0 - dIn);
-  if (dIn < 0.5) return col;
-  col *= 1.08 - 0.34 * smoothstep(0.6, 1.0, dRr);                                          // the dome: a darker rim
-  col += warm * 0.18 * smoothstep(0.5, 0.95, dRr) * max(dot(dN, -dL), 0.0);                 // light gathered on the far side
-  vec2 h = dN - dL * 0.45;
-  return col + LV_IVORY * 0.6 * exp(-dot(h, h) / 0.02) + LV_IVORY * 0.1 * exp(-dot(h, h) / 0.12);   // the highlight
+  return q;
 }
 `;
-const WD = (name, code) => { const w = W(name, code); return { ...w, body: DROPS + w.body }; };
+const WR = (name, code) => { const w = W(name, code); return { ...w, body: RIPPLE + w.body }; };
 // 11 — direction 9: the large and the small A trade sides in turn
-S2.duo = WD('كبير وصغير بقطرات ماء', `
+S2.duo = WR('كبير وصغير بتموّج القطرات', `
   float P = 16.0, f = fract(t / P), s = mod(floor(t / P), 2.0) < 0.5 ? 1.0 : -1.0;
   float dB = smoothstep(0.0, 0.14, f) * (1.0 - smoothstep(0.82, 0.96, f));                // pressed, held, let go: then they trade sides
   float dS = smoothstep(0.05, 0.19, f) * (1.0 - smoothstep(0.86, 1.0, f));
   vec2 bigC = vec2(asp * (0.5 + 0.45 * s) + 0.03 * sin(t * 0.21), 0.5 + 0.04 * sin(t * 0.17));
   vec2 smC = vec2(asp * (0.5 - 0.39 * s) + 0.025 * sin(t * 0.27 + 1.0), 0.42 + 0.05 * sin(t * 0.23 + 2.0) + 0.03 * (1.0 - dS));
-  vec2 q = drops(p, p + water(p, t) * 0.018, t, asp, calm, lp, warm, col);
+  vec2 q = ripple(p, vec2(bigC.x - 0.25 * s, bigC.y), smC, t, asp, calm, warm, col);
   col = press(col, q, bigC, 2.2, 0.03 * sin(t * 0.15), 0.7 * dB, lp, L, warm);
-  col = press(col, q, smC, 0.72, 0.06 * sin(t * 0.2), dS, lp, L, warm);
-  col = caustic(col, q, t, calm, L, warm, 0.6);
-  col = dropShade(col, warm);`);
-// 12 — direction 10: an A and its reflection in the water, crossing to the other side in turn
-S2.mirror = WD('وانعكاسه بقطرات ماء', `
+  col = press(col, q, smC, 0.72, 0.06 * sin(t * 0.2), dS, lp, L, warm);`);
+// 12 — direction 10: an A and its reflection, crossing to the other side in turn
+S2.mirror = WR('وانعكاسه بتموّج القطرات', `
   float P = 16.0, f = fract(t / P), s = mod(floor(t / P), 2.0) < 0.5 ? 1.0 : -1.0;
   float dp = smoothstep(0.0, 0.14, f) * (1.0 - smoothstep(0.84, 1.0, f));
   vec2 c = vec2(asp * (0.5 + 0.37 * s) + 0.03 * sin(t * 0.2), 0.69 + 0.015 * sin(t * 0.3) + 0.03 * (1.0 - dp)); float y0 = 0.37;
-  vec2 q = drops(p, p + water(p, t) * 0.018, t, asp, calm, lp, warm, col);
+  vec2 q = ripple(p, c, vec2(c.x, 2.0 * y0 - c.y + 0.1), t, asp, calm, warm, col);
   col = press(col, q, c, 0.56, 0.03 * sin(t * 0.17), dp, lp, L, warm);
   vec2 qr = vec2(q.x + 0.012 * sin(q.y * 40.0 - t * 1.2) * smoothstep(y0, y0 - 0.3, q.y), 2.0 * y0 - q.y);
   col = press(col, qr, c, 0.56, 0.03 * sin(t * 0.17), 0.55 * dp, lp, L, warm);
-  col += warm * 0.02 * dp * exp(-pow((p.y - y0) / 0.006, 2.0)) * smoothstep(0.35, 0.0, abs(p.x - c.x) / asp);
-  col = caustic(col, q, t, calm, L, warm, 0.6);
-  col = dropShade(col, warm);`);
+  col += warm * 0.02 * dp * exp(-pow((p.y - y0) / 0.006, 2.0)) * smoothstep(0.35, 0.0, abs(p.x - c.x) / asp);`);
 Object.entries(S2).forEach(([k, v], i) => { S[k] = { ...v, num: i + 1 }; });
 S.press.num = 0;   // the current one stays first, as 0
 
