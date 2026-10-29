@@ -1425,7 +1425,7 @@ async function toSar(step = 0) {
   if (!hasSar() || S.level === 'sar') return;
   const fromShared = S.level === 'hub' && isShared(project());
   if (!fromShared && S.level !== 'universe') await toUniverse();
-  const from = fromShared ? L.hub : L.universe, dir = fromShared ? 1 : -1;
+  const from = fromShared ? L.hub : L.universe, dir = fromShared ? -1 : 1; // down from the opening screen (like the shared frame), up from the shared frame
   S.sarSeen = true;
   if (fromShared) S.visitedProjects.add(S.pid);
   renderSar(); show(L.special, true); gsap.set(L.special, { yPercent: 0 }); sarStep(step, true);
