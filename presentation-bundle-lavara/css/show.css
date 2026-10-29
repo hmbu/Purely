@@ -1673,3 +1673,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .oc-col { transition: opacity 1.1s ease, translate 1.3s cubic-bezier(.16, 1, .3, 1); }
 .oc-col.is-wait { opacity: 0 !important; translate: 0 4rem; }
 .oc-col.oc-instant { transition: none; }
+/* Lavara's value branches: dark cards like the value block, the framed A faint in their background */
+[data-brand="lavara"] .cvb-item { background: var(--lv-brown); color: var(--lv-ivory); }
+[data-brand="lavara"] .cvb-item p { color: var(--lv-ivory); }
+[data-brand="lavara"] .cvb-item::after { opacity: .35; }
+[data-brand="lavara"] .cvb-item .wm { opacity: .12; }
