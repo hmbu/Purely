@@ -1690,3 +1690,5 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .h2-bgs button { appearance: none; border: var(--hair) solid color-mix(in srgb, currentColor 40%, transparent); background: transparent; color: inherit; border-radius: 99rem; min-width: 2.6rem; height: 2.6rem; padding: 0 1rem; font: 500 .95rem/1 var(--f-num, sans-serif); cursor: pointer; }
 .h2-bgs button.on { background: currentColor; }
 .h2-bgs button.on { color: var(--hbg); background: var(--hfg); border-color: transparent; }
+/* Lavara: its background shows its brown exactly — no darkening shades over the opening world and the hub */
+.uf-world.style-mist .uf-shade, .hub2.style-mist .h2-shade { display: none; }
