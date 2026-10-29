@@ -66,18 +66,18 @@ S.press = { name: 'حرف A مضغوط', ground: '#3C2E25', ink: '#F3F2E0', tex:
 void main(){ SETUP
   vec3 col = LV_BROWN * 0.93;   // with the room light added on top, the page reads as Lavara's brown (#3C2E25)
   col *= 1.0 + 0.016 * (vnoise(gl_FragCoord.xy * 0.45) - 0.5) + 0.012 * (fbm(p * 6.0) - 0.5);   // the paper's tooth
-  vec2 lp = vec2(asp * (0.5 + 0.35 * sin(t * 0.05)), 0.62 + 0.2 * sin(t * 0.07 + 1.3));            // the room's light, drifting
+  vec2 lp = vec2(asp * (0.5 + 0.35 * sin(t * 0.08)), 0.62 + 0.2 * sin(t * 0.11 + 1.3));            // the room's light, drifting
   float L = exp(-dot(p - lp, p - lp) / 0.4);
   vec3 warm = mix(LV_OCHRE, LV_IVORY, 0.35);
   col += (col * 0.1 + warm * 0.03) * L;
   // the A: pressed on one side, held while it floats, let go, pressed again on the other side
-  float P = 15.0, ph = t / P, f = fract(ph);
+  float P = 10.0, ph = t / P, f = fract(ph);
   float side = mod(floor(ph), 2.0);
   float depth = smoothstep(0.0, 0.18, f) * (1.0 - smoothstep(0.82, 1.0, f));
   float x = side < 0.5 ? asp * 0.85 : asp * 0.15;
-  vec2 c = vec2(x + 0.04 * sin(t * 0.1), 0.47 + 0.06 * sin(t * 0.16) + 0.04 * (1.0 - depth));
-  float h = 1.1 * (1.0 + 0.03 * sin(t * 0.09));
-  vec2 pa = c + rot(0.05 * sin(t * 0.13)) * (p - c);
+  vec2 c = vec2(x + 0.04 * sin(t * 0.16), 0.47 + 0.06 * sin(t * 0.26) + 0.04 * (1.0 - depth));
+  float h = 1.1 * (1.0 + 0.03 * sin(t * 0.14));
+  vec2 pa = c + rot(0.05 * sin(t * 0.21)) * (p - c);
   float e = 0.0055;
   vec2 gr = vec2(img(pa + vec2(e, 0.0), c, h, 0.746) - img(pa - vec2(e, 0.0), c, h, 0.746),
                  img(pa + vec2(0.0, e), c, h, 0.746) - img(pa - vec2(0.0, e), c, h, 0.746));
