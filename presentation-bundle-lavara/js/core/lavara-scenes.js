@@ -153,9 +153,9 @@ S2.w2 = W('قطرة وتموّج', `
     float fk = float(k), ph = fract(t / 7.0 + fk * 0.5);
     vec2 c = vec2(asp * (fk < 0.5 ? 0.12 : 0.88), 0.5);
     vec2 d = p - c; float r = length(d), R = ph * 1.3;
-    float ring = exp(-pow((r - R) / 0.045, 2.0)) * (1.0 - ph) * smoothstep(0.0, 0.05, ph);
-    q += d / max(r, 1e-3) * ring * 0.022 * sin((r - R) * 60.0);
-    col += warm * 0.035 * ring * (1.0 - 0.7 * calm);
+    float ring = exp(-pow((r - R) / 0.06, 2.0)) * (1.0 - ph) * smoothstep(0.0, 0.08, ph);
+    q += d / max(r, 1e-3) * ring * amp * 0.022 * sin((r - R) * 45.0);
+    col += warm * amp * 0.035 * ring * (1.0 - 0.85 * calm);
   }
   col = press(col, q, vec2(asp * 0.12, 0.5), 1.0, 0.0, 1.0, lp, L, warm);
   col = press(col, q, vec2(asp * 0.88, 0.5), 1.0, 0.0, 1.0, lp, L, warm);`);
@@ -209,16 +209,16 @@ S2.c5 = W('وانعكاسه', WM + `
 // the way option 2 does: drops fall on it in turn (on each A, and now and then on the sides) and their rings spread
 // over the page, bending the pressed A's as they pass. No water layer over everything, no drawn drops.
 const RIPPLE = `
-vec2 ripple(vec2 p, vec2 a, vec2 b, float t, float asp, float calm, vec3 warm, inout vec3 col){
+vec2 ripple(vec2 p, vec2 a, vec2 b, float t, float asp, float calm, vec3 warm, float amp, inout vec3 col){
   vec2 q = p;
   for (int k = 0; k < 3; k++) {
-    float fk = float(k), ph = fract(t / 6.5 + fk / 3.0), n = floor(t / 6.5 + fk / 3.0);
+    float fk = float(k), ph = fract(t / 10.0 + fk / 3.0), n = floor(t / 10.0 + fk / 3.0);
     vec2 c = k == 0 ? a : k == 1 ? b
       : vec2(asp * (h1(n, 3.0) < 0.5 ? 0.06 + 0.18 * h1(n, 4.0) : 0.76 + 0.18 * h1(n, 4.0)), 0.15 + 0.7 * h1(n, 5.0));
     vec2 d = p - c; float r = length(d), R = ph * 1.3;
-    float ring = exp(-pow((r - R) / 0.045, 2.0)) * (1.0 - ph) * smoothstep(0.0, 0.05, ph);
-    q += d / max(r, 1e-3) * ring * 0.022 * sin((r - R) * 60.0);
-    col += warm * 0.035 * ring * (1.0 - 0.7 * calm);
+    float ring = exp(-pow((r - R) / 0.06, 2.0)) * (1.0 - ph) * smoothstep(0.0, 0.08, ph);
+    q += d / max(r, 1e-3) * ring * amp * 0.022 * sin((r - R) * 45.0);
+    col += warm * amp * 0.035 * ring * (1.0 - 0.85 * calm);
   }
   return q;
 }
@@ -226,20 +226,20 @@ vec2 ripple(vec2 p, vec2 a, vec2 b, float t, float asp, float calm, vec3 warm, i
 const WR = (name, code) => { const w = W(name, code); return { ...w, body: RIPPLE + w.body }; };
 // 11 — direction 9: the large and the small A trade sides in turn
 S2.duo = WR('كبير وصغير بتموّج القطرات', `
-  float P = 16.0, f = fract(t / P), s = mod(floor(t / P), 2.0) < 0.5 ? 1.0 : -1.0;
+  float P = 24.0, f = fract(t / P), s = mod(floor(t / P), 2.0) < 0.5 ? 1.0 : -1.0;
   float dB = smoothstep(0.0, 0.14, f) * (1.0 - smoothstep(0.82, 0.96, f));                // pressed, held, let go: then they trade sides
   float dS = smoothstep(0.05, 0.19, f) * (1.0 - smoothstep(0.86, 1.0, f));
-  vec2 bigC = vec2(asp * (0.5 + 0.45 * s) + 0.03 * sin(t * 0.21), 0.5 + 0.04 * sin(t * 0.17));
-  vec2 smC = vec2(asp * (0.5 - 0.39 * s) + 0.025 * sin(t * 0.27 + 1.0), 0.42 + 0.05 * sin(t * 0.23 + 2.0) + 0.03 * (1.0 - dS));
-  vec2 q = ripple(p, vec2(bigC.x - 0.25 * s, bigC.y), smC, t, asp, calm, warm, col);
-  col = press(col, q, bigC, 2.2, 0.03 * sin(t * 0.15), 0.7 * dB, lp, L, warm);
-  col = press(col, q, smC, 0.72, 0.06 * sin(t * 0.2), dS, lp, L, warm);`);
+  vec2 bigC = vec2(asp * (0.5 + 0.45 * s) + 0.012 * sin(t * 0.15), 0.5 + 0.015 * sin(t * 0.12));
+  vec2 smC = vec2(asp * (0.5 - 0.39 * s) + 0.01 * sin(t * 0.19 + 1.0), 0.42 + 0.018 * sin(t * 0.16 + 2.0) + 0.015 * (1.0 - dS));
+  vec2 q = ripple(p, vec2(bigC.x - 0.25 * s, bigC.y), smC, t, asp, calm, warm, 0.3, col);   // kept very light (user)
+  col = press(col, q, bigC, 2.2, 0.012 * sin(t * 0.11), 0.7 * dB, lp, L, warm);
+  col = press(col, q, smC, 0.72, 0.025 * sin(t * 0.14), dS, lp, L, warm);`);
 // 12 — direction 10: an A and its reflection, crossing to the other side in turn
 S2.mirror = WR('وانعكاسه بتموّج القطرات', `
   float P = 16.0, f = fract(t / P), s = mod(floor(t / P), 2.0) < 0.5 ? 1.0 : -1.0;
   float dp = smoothstep(0.0, 0.14, f) * (1.0 - smoothstep(0.84, 1.0, f));
   vec2 c = vec2(asp * (0.5 + 0.37 * s) + 0.03 * sin(t * 0.2), 0.69 + 0.015 * sin(t * 0.3) + 0.03 * (1.0 - dp)); float y0 = 0.37;
-  vec2 q = ripple(p, c, vec2(c.x, 2.0 * y0 - c.y + 0.1), t, asp, calm, warm, col);
+  vec2 q = ripple(p, c, vec2(c.x, 2.0 * y0 - c.y + 0.1), t, asp, calm, warm, 1.0, col);
   col = press(col, q, c, 0.56, 0.03 * sin(t * 0.17), dp, lp, L, warm);
   vec2 qr = vec2(q.x + 0.012 * sin(q.y * 40.0 - t * 1.2) * smoothstep(y0, y0 - 0.3, q.y), 2.0 * y0 - q.y);
   col = press(col, qr, c, 0.56, 0.03 * sin(t * 0.17), 0.55 * dp, lp, L, warm);
