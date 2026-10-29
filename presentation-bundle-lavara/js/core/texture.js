@@ -15,7 +15,7 @@
 //     amber → light through perfume / oil: warm caustics in amber glass.
 // One instance per canvas. Drive it with the tweenable fields: progress (coverage 0..1), alpha, speed, sweep.
 import { hexToRgb } from './util.js';
-import { LAVARA_SCENES, LAVARA_SCENE_SRC } from './lavara-scenes.js';
+import { LAVARA_SCENES, LAVARA_SCENE_SRC, LAVARA_TEX } from './lavara-scenes.js';
 
 const VERT = `#version 300 es
 in vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }`;
@@ -477,7 +477,7 @@ export class BrandTexture {
       }
       gl.bindAttribLocation(prog, 0, 'a'); gl.linkProgram(prog);
       const u = n => gl.getUniformLocation(prog, n);
-      this.programs[name] = { prog, u: { res: u('u_res'), time: u('u_time'), progress: u('u_progress'), alpha: u('u_alpha'), grain: u('u_grain'), sweep: u('u_sweep'), col: u('u_col'), balls: u('u_balls'), tone: u('u_tone') } };
+      this.programs[name] = { prog, u: { res: u('u_res'), time: u('u_time'), progress: u('u_progress'), alpha: u('u_alpha'), grain: u('u_grain'), sweep: u('u_sweep'), col: u('u_col'), balls: u('u_balls'), tone: u('u_tone'), tex: u('u_tex') } };
     }
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
   }
@@ -519,6 +519,8 @@ export class BrandTexture {
     gl.uniform1f(P.u.time, this.t); gl.uniform1f(P.u.progress, this.progress);
     gl.uniform1f(P.u.alpha, this.alpha); gl.uniform1f(P.u.grain, this.grain); gl.uniform1f(P.u.sweep, this.sweep);
     gl.uniform3fv(P.u.col, new Float32Array(this.colors.flatMap(c => hexToRgb(c).map(v => v / 255))));
+    const img = LAVARA_TEX[this.mode];
+    if (img && P.u.tex) { const tx = this.image(img); if (!tx) return; gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tx); gl.uniform1i(P.u.tex, 0); }
     if (this.mode === 'bubbles') {
       const p = this.progress, t = this.t;
       this.balls.forEach((b, i) => {
@@ -531,6 +533,33 @@ export class BrandTexture {
     }
     if (this.mode === 'orbs') { this.stepOrbs(); gl.uniform3fv(P.u.balls, this.orbData); gl.uniform1fv(P.u.tone, this.orbTone); }
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  // A brand image (the framed A, the wordmark) as a mask texture for the scenes that draw it; loaded once, drawn when ready.
+  image(src) {
+    this.texs ||= {};
+    const e = this.texs[src]; if (e) return e.tex;
+    const rec = this.texs[src] = { tex: null };
+    const im = new Image(); let w = 1024, h = 1024;
+    im.onload = () => {
+      const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(im, 0, 0, w, h);
+      const gl = this.gl, tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      gl.generateMipmap(gl.TEXTURE_2D);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      rec.tex = tex; if (!this.running) this.draw();
+    };
+    // an SVG without a pixel size draws at a default size in some browsers: give it one from its viewBox first
+    fetch(src).then(r => r.text()).then(txt => {
+      const vb = (txt.match(/viewBox="([^"]+)"/) || [])[1]?.trim().split(/[\s,]+/).map(Number);
+      if (vb && vb[2] > 0) h = Math.max(2, Math.round(w * vb[3] / vb[2]));
+      const svg = txt.replace(/<svg\b([^>]*)>/, (m, at) => `<svg${at.replace(/\s(width|height)="[^"]*"/g, '')} width="${w}" height="${h}">`);
+      im.src = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+    }).catch(() => {});
+    return null;
   }
   // Orbs: slow drift with elastic bounces off the edges and off each other, so they never overlap or merge.
   stepOrbs() {
