@@ -1166,11 +1166,11 @@
                     "title": "موزعات العطور",
                     "body": "",
                     "image": {
-                      "src": "assets/lavara/sample/room.jpg",
+                      "src": "assets/lavara/sample/diffuser.webp",
                       "fit": "cover",
                       "focal": {
                         "x": 50,
-                        "y": 50
+                        "y": 45
                       }
                     }
                   }
