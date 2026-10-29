@@ -84,163 +84,39 @@ void main(){ SETUP
   finish(col, uv);
 }` };
 
-// The second set: graphic ideas built from Lavara's own identity (its colour pages, hairline frames, the framed A,
-// the wordmark, the line-drawn bottles of its product film) rather than more soft atmospheres.
-
-// pages: on each side a tall page of the palette turns slowly into the next colour; the brown middle holds the words
-S.pages = { name: 'صفحات الألوان', ground: '#3C2E25', ink: '#F3F2E0', body: `
-vec3 pal(float k){ k = mod(k, 5.0); return k < 1.0 ? LV_TERRA : k < 2.0 ? LV_SAGE : k < 3.0 ? LV_OCHRE : k < 4.0 ? LV_OLIVE : LV_RUST; }
+// Pressed A: Lavara's answer to Bundle's floating spheres. Bundle's background is its own motif drifting on its own
+// colour; Lavara's is its framed A pressed into the page (as in the brand book's embossed paper), on one of its page
+// colours, with the warm light of a hotel room passing slowly over it. One material, one light, nothing else.
+const PRESS = (ground, light, strength) => `
 void main(){ SETUP
-  vec3 col = mix(LV_BROWN * 0.9, LV_BROWN * 1.04, uv.y);
-  float side = uv.x < 0.22 ? 0.0 : uv.x > 0.78 ? 1.0 : -1.0;
-  if (side >= 0.0) {
-    float ph = t * 0.045 + side * 0.5, k = floor(ph), f = fract(ph);
-    float e = smoothstep(0.0, 0.6, f);
-    float edge = side < 0.5 ? e : 1.0 - e;
-    bool newer = side < 0.5 ? uv.y < e : uv.y > 1.0 - e;
-    col = newer ? pal(k + 1.0 + side * 2.0) : pal(k + side * 2.0);
-    float x0 = side < 0.5 ? 0.0 : 0.78;
-    vec2 q = vec2((uv.x - x0 - 0.11) * asp, uv.y - 0.5);
-    col = mix(col, LV_IVORY, hair(sdBox(q, vec2(0.11 * asp - 0.035, 0.465), 0.0), 0.8) * 0.4);
-    col = mix(col, LV_IVORY, hair(uv.y - edge, 0.6) * 0.5 * step(0.002, f) * step(f, 0.6));
-  }
-  col = mix(col, LV_IVORY, (hair((uv.x - 0.22) * asp, 0.8) + hair((uv.x - 0.78) * asp, 0.8)) * 0.3);
+  vec3 g = ${ground};
+  vec3 col = g * mix(0.86, 1.03, uv.y);
+  col *= 0.99 + 0.018 * (vnoise(gl_FragCoord.xy * 0.45) - 0.5) + 0.014 * (fbm(p * 6.0) - 0.5);   // the paper's tooth
+  vec2 lp = vec2(asp * (0.6 + 0.3 * sin(t * 0.045)), 0.6 + 0.2 * sin(t * 0.06 + 1.3));            // the room's light, drifting
+  float L = exp(-dot(p - lp, p - lp) / 0.42);
+  col = mix(col, col * 1.16 + ${light} * 0.05, L);
+  vec2 c = vec2(asp * 0.82, 0.47); float h = 1.1;
+  float e = 0.0055;
+  vec2 gr = vec2(img(p + vec2(e, 0.0), c, h, 0.746) - img(p - vec2(e, 0.0), c, h, 0.746),
+                 img(p + vec2(0.0, e), c, h, 0.746) - img(p - vec2(0.0, e), c, h, 0.746));
+  e = 0.011;
+  gr += 0.6 * vec2(img(p + vec2(e, 0.0), c, h, 0.746) - img(p - vec2(e, 0.0), c, h, 0.746),
+                   img(p + vec2(0.0, e), c, h, 0.746) - img(p - vec2(0.0, e), c, h, 0.746));
+  vec2 ld = normalize(lp - p + vec2(1e-4, 0.0));
+  float sh = dot(gr, ld);                                     // pressed in: the edge toward the light falls in shadow
+  float k = ${strength} * (0.55 + 0.9 * L);
+  col *= 1.0 - 0.2 * clamp(sh, 0.0, 1.0) * k;
+  col += ${light} * 0.09 * clamp(-sh, 0.0, 1.0) * k;
+  col *= 1.0 - img(p, c, h, 0.746) * 0.035;
+  col *= 1.0 - 0.22 * pow(length((uv - vec2(0.5, 0.52)) * vec2(1.1, 1.0)), 2.0);
   finish(col, uv);
-}` };
-
-// frames: Lavara's hairline frames nested around the words, breathing slowly, a point of light travelling round the outer one
-S.frames = { name: 'الإطارات الرفيعة', ground: '#3C2E25', ink: '#F3F2E0', body: `
-void main(){ SETUP
-  vec3 col = mix(LV_BROWN * 0.85, LV_BROWN * 1.05, uv.y);
-  vec2 q = p - vec2(asp * 0.5, 0.5);
-  float acc = 0.0;
-  for (int k = 0; k < 7; k++) { float fk = float(k);
-    float br = 1.0 + 0.022 * sin(t * 0.35 - fk * 0.7);
-    vec2 b = vec2(asp * 0.5 - 0.06 - fk * 0.055, 0.44 - fk * 0.035) * br;
-    acc += hair(sdBox(q, b, 0.0), 0.8) * (0.42 - fk * 0.045);
-  }
-  vec2 bo = vec2(asp * 0.5 - 0.06, 0.44) * (1.0 + 0.022 * sin(t * 0.35));
-  float ang = atan(q.y / bo.y, q.x / bo.x);
-  float run = exp(-pow(mod(ang - t * 0.25 + 3.1416, 6.2832) - 3.1416, 2.0) * 5.0);
-  col = mix(col, LV_IVORY, clamp(acc, 0.0, 1.0));
-  col = screen(col, mix(LV_OCHRE, LV_IVORY, 0.4) * run * hair(sdBox(q, bo, 0.0), 2.4));
-  finish(col, uv);
-}` };
-
-// monogram: the framed A as a tone-on-tone wallpaper drifting slowly, a sheen passing across it
-S.monogram = { name: 'نقش حرف A', ground: '#3C2E25', ink: '#F3F2E0', tex: 'mark', body: `
-void main(){ SETUP
-  vec3 col = mix(LV_BROWN * 0.86, LV_BROWN * 1.04, uv.y);
-  vec2 q = p + vec2(t * 0.012, t * 0.008);
-  float s = 0.24;
-  vec2 cell = floor(q / s), f = fract(q / s);
-  if (mod(cell.y, 2.0) > 0.5) f.x = fract(q.x / s + 0.5);
-  float a = img(f * s, vec2(0.5 * s), s * 0.62, 0.746);
-  float sheen = exp(-pow((p.x + p.y * 0.6 - mod(t * 0.08, asp + 2.0) + 0.5) / 0.4, 2.0));
-  col = mix(col, mix(LV_BROWN, LV_OCHRE, 0.6), a * (0.32 + 0.4 * sheen) * (1.0 - calm * 0.5));
-  finish(col, uv);
-}` };
-
-// emboss: a giant framed A pressed into ivory paper, a raking light turning slowly over it
-S.emboss = { name: 'حرف A بارز على الورق (فاتح)', ground: '#F3F2E0', ink: '#3C2E25', tex: 'mark', body: `
-void main(){ SETUP
-  vec3 col = mix(LV_PAPER, LV_IVORY, uv.y);
-  col *= 0.985 + 0.02 * (vnoise(gl_FragCoord.xy * 0.35) - 0.5) + 0.02 * (fbm(p * 8.0) - 0.5);
-  vec2 c = vec2(asp * 0.8, 0.46); float h = 1.25, e = 0.0035;
-  float gx = img(p + vec2(e, 0.0), c, h, 0.746) - img(p - vec2(e, 0.0), c, h, 0.746);
-  float gy = img(p + vec2(0.0, e), c, h, 0.746) - img(p - vec2(0.0, e), c, h, 0.746);
-  vec2 L = normalize(vec2(cos(t * 0.12), 0.7 + 0.3 * sin(t * 0.12)));
-  float sh = dot(vec2(gx, gy), L);
-  col += vec3(0.07) * clamp(sh, 0.0, 1.0);
-  col -= vec3(0.11, 0.1, 0.08) * clamp(-sh, 0.0, 1.0);
-  finish(col, uv);
-}` };
-
-// bottles: the five refills drawn in ochre lines on a dark shelf, each line drawing brightening in its turn (as in the product film)
-S.bottles = { name: 'رسم العبوات بالخط', ground: '#3C2E25', ink: '#F3F2E0', body: `
-float bottle(vec2 q){
-  float body = sdBox(q - vec2(0.0, 0.34), vec2(0.15, 0.34), 0.07);
-  float neck = sdBox(q - vec2(0.0, 0.73), vec2(0.05, 0.05), 0.015);
-  float collar = sdBox(q - vec2(0.0, 0.79), vec2(0.065, 0.012), 0.004);
-  float pump = sdBox(q - vec2(0.0, 0.85), vec2(0.03, 0.06), 0.01);
-  float head = sdBox(q - vec2(0.055, 0.93), vec2(0.085, 0.022), 0.01);
-  return min(min(body, neck), min(collar, min(pump, head)));
-}
-void main(){ SETUP
-  vec3 col = mix(LV_BROWN * 0.55, LV_BROWN * 0.95, uv.y);
-  col = screen(col, LV_OCHRE * 0.14 * exp(-length((p - vec2(asp * 0.5, 0.3)) * vec2(0.6, 1.4)) * 1.2));
-  float H = 0.3, base = 0.07, lines = 0.0;
-  for (int k = 0; k < 5; k++) { float fk = float(k);
-    vec2 q = (p - vec2(asp * (0.14 + fk * 0.18), base + sin(t * 0.4 + fk * 1.3) * 0.005)) / H;
-    float on = smoothstep(0.2, 0.9, sin(t * 0.22 - fk * 0.9) * 0.5 + 0.5);
-    lines += hair(bottle(q) * H, 1.0) * (0.3 + 0.7 * on);
-  }
-  col = mix(col, mix(LV_OCHRE, LV_IVORY, 0.25), clamp(lines, 0.0, 1.0) * 0.9);
-  col = mix(col, LV_IVORY, hair(p.y - base, 0.6) * smoothstep(0.0, 0.12, uv.x) * smoothstep(1.0, 0.88, uv.x) * 0.3);
-  finish(col, uv);
-}` };
-
-// foil: brushed ochre-gold foil, as on Lavara's gift box, with a slow gleam passing over it
-S.foil = { name: 'رقائق ذهبية', ground: '#6B4F24', ink: '#F3F2E0', body: `
-void main(){ SETUP
-  vec3 base = mix(LV_BROWN, LV_OCHRE, 0.55);
-  float brushed = fbm(vec2(p.x * 2.0, p.y * 140.0));
-  vec3 col = base * (0.82 + 0.28 * brushed);
-  float sweep = exp(-pow((p.x - p.y * 0.8 - mod(t * 0.06, asp + 2.4) + 1.0) / 0.35, 2.0));
-  col = screen(col, mix(LV_OCHRE, LV_IVORY, 0.5) * sweep * (0.3 + 0.3 * brushed));
-  col *= 1.0 - 0.35 * pow(length((uv - vec2(0.5)) * vec2(1.1, 1.0)), 2.0);
-  col = mix(col, col * 0.78, calm * 0.45);
-  finish(col, uv);
-}` };
-
-// pinstripe: fine vertical hairlines on brown, swaying slightly, a soft brightness wave moving along them
-S.pinstripe = { name: 'خطوط رفيعة متموّجة', ground: '#3C2E25', ink: '#F3F2E0', body: `
-void main(){ SETUP
-  vec3 col = mix(LV_BROWN * 0.82, LV_BROWN * 1.05, uv.y);
-  float xw = p.x + sin(p.y * 2.5 + t * 0.3) * 0.012 + sin(p.y * 7.0 - t * 0.2) * 0.004;
-  float d = (fract(xw * 30.0) - 0.5) / 30.0;
-  float wv = 0.5 + 0.5 * sin(p.x * 3.0 - t * 0.4 + p.y * 1.5);
-  col = mix(col, mix(LV_OCHRE, LV_IVORY, 0.4), hair(d, 0.6) * (0.08 + 0.3 * wv) * (1.0 - calm * 0.6));
-  finish(col, uv);
-}` };
-
-// wordmark: the LAVARA letters very large and tone-on-tone, sliding slowly along the bottom of the screen
-S.wordmark = { name: 'الاسم الكبير', ground: '#3C2E25', ink: '#F3F2E0', tex: 'logo', body: `
-void main(){ SETUP
-  vec3 col = mix(LV_BROWN * 0.84, LV_BROWN * 1.04, uv.y);
-  float h = 0.5, ar = 5.18, wl = h * ar, period = wl + 0.5;
-  float u = mod(p.x + t * 0.03, period);
-  float a = img(vec2(u, p.y), vec2(wl * 0.5, 0.17), h, ar);
-  col = mix(col, mix(LV_BROWN, LV_IVORY, 0.14), a);
-  col = mix(col, LV_IVORY, hair(p.y - 0.46, 0.6) * 0.18);
-  finish(col, uv);
-}` };
-
-// split: brown and terracotta divided by a slow diagonal, a hairline riding the edge
-S.split = { name: 'قطري بلونين', ground: '#3C2E25', ink: '#F3F2E0', body: `
-void main(){ SETUP
-  float ang = 0.35 + 0.08 * sin(t * 0.07);
-  vec2 n = vec2(cos(ang), sin(ang));
-  float d = dot(p - vec2(asp * (0.5 + 0.18 * sin(t * 0.05)), 0.5), n);
-  vec3 a = mix(LV_BROWN * 0.86, LV_BROWN * 1.04, uv.y), b = mix(LV_TERRA * 0.72, LV_TERRA * 0.92, uv.y);
-  vec3 col = mix(a, b, smoothstep(-0.0015, 0.0015, d));
-  col = mix(col, LV_IVORY, hair(d - 0.012, 0.6) * 0.45);
-  finish(col, uv);
-}` };
-
-// rings: the seal's rings in hairlines, off to one side, with fine ticks on two of them turning opposite ways
-S.rings = { name: 'حلقات الختم', ground: '#3C2E25', ink: '#F3F2E0', body: `
-void main(){ SETUP
-  vec3 col = mix(LV_BROWN * 0.82, LV_BROWN * 1.05, uv.y);
-  vec2 q = p - vec2(asp * 0.82, 0.3); float r = length(q), a = atan(q.y, q.x);
-  float acc = 0.0;
-  for (int k = 0; k < 6; k++) { float fk = float(k); acc += hair(r - (0.18 + fk * 0.13), 0.7) * (0.36 - fk * 0.04); }
-  float t1 = smoothstep(0.75, 0.8, fract((a + t * 0.05) / 6.2832 * 120.0)) * (1.0 - smoothstep(0.009, 0.013, abs(r - 0.44)));
-  float t2 = smoothstep(0.86, 0.9, fract((a - t * 0.035) / 6.2832 * 60.0)) * (1.0 - smoothstep(0.015, 0.02, abs(r - 0.7)));
-  col = mix(col, LV_IVORY, clamp(acc + (t1 + t2) * 0.22, 0.0, 1.0) * (1.0 - calm * 0.5));
-  col = screen(col, LV_OCHRE * 0.12 * exp(-r * 2.0));
-  finish(col, uv);
-}` };
+}`;
+const WARM = 'mix(LV_OCHRE, LV_IVORY, 0.35)';
+S.press = { name: 'حرف A مضغوط — البني', ground: '#3C2E25', ink: '#F3F2E0', tex: 'mark', body: PRESS('LV_BROWN', WARM, '1.0') };
+S['press-terra'] = { name: 'حرف A مضغوط — التيراكوتا', ground: '#AD6243', ink: '#F3F2E0', tex: 'mark', body: PRESS('LV_TERRA * 0.86', WARM, '0.9') };
+S['press-olive'] = { name: 'حرف A مضغوط — الزيتي', ground: '#5B634A', ink: '#F3F2E0', tex: 'mark', body: PRESS('LV_OLIVE', WARM, '0.95') };
+S['press-ochre'] = { name: 'حرف A مضغوط — الأوكر', ground: '#926A23', ink: '#F3F2E0', tex: 'mark', body: PRESS('LV_OCHRE * 0.92', WARM, '0.9') };
+S['press-paper'] = { name: 'حرف A مضغوط — الورق العاجي', ground: '#F3F2E0', ink: '#3C2E25', tex: 'mark', body: PRESS('mix(LV_PAPER, LV_IVORY, 0.5)', 'LV_OCHRE', '0.8') };
 
 export const LAVARA_SCENES = Object.fromEntries(Object.entries(S).map(([k, v]) => [k, { name: v.name, ground: v.ground, ink: v.ink }]));
 // the brand images some scenes draw (relative to the page): the framed A and the wordmark
