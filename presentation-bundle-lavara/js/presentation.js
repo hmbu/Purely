@@ -919,7 +919,7 @@ function renderHub(p) {
 function bgChooserHTML(p) {
   if (PREVIEW || p.brand.texture !== 'mist' || settings().universe?.chooser === false || Object.keys(LAVARA_SCENES).length < 2) return '';
   const keys = Object.keys(LAVARA_SCENES);
-  return `<div class="h2-bgs" title="خلفيات لافارا">${keys.map((k, i) => `<button data-bg="${k}" class="${p.brand.textureStyle === k ? 'on' : ''}" title="${esc(LAVARA_SCENES[k].name)}">${i + 1}</button>`).join('')}</div>`;
+  return `<div class="h2-bgs" title="خلفيات لافارا">${keys.map((k, i) => `<button data-bg="${k}" class="${p.brand.textureStyle === k ? 'on' : ''}" title="${esc(LAVARA_SCENES[k].name)}">${LAVARA_SCENES[k].num ?? i + 1}</button>`).join('')}</div>`;
 }
 // Measured in layout pixels (offsetLeft), never getBoundingClientRect(): the line is scaled during its intro
 // and the whole page is scaled during camera moves, which used to throw the light off its station.
@@ -1171,6 +1171,23 @@ async function zoomOut({ strong = false } = {}) {
     renderHub(p); show(L.hub, true);
     const station = $(`.h2-station[data-section="${CSS.escape(S.sid)}"] .h2-dot`, L.hub);
     const origin = station ? originOf(station, L.hub) : '50% 50%';
+    if (settings().flow?.titleCards !== false && !reduced() && sectionStyle() !== 'door') {
+      // leaving is the entry played back: the brand's texture sweeps over the slide (the other way), the section's
+      // title and the project's symbol come up on it, then the cover lifts and the project page rises underneath
+      const secs = sectionsOf(p), i = secs.findIndex(x => x.id === S.sid), sec = secs[i];
+      gsap.set(L.hub, { opacity: 0 });
+      await coverTransition({ p, dir: -1, card: sec ? { number: i + 1, title: sec.title, titleEn: sec.titleEn } : null, swap: () => {
+        unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
+        show(L.section, false); gsap.set(L.section, { clearProps: 'all' });
+        gsap.set(L.hub, { opacity: 1, scale: 1 }); S.level = 'hub'; logosColor(hubFg(p), hubDark(p)); updateHUD();
+        gsap.set($$('.h2-head > *, .h2-station', L.hub), { opacity: 0 });
+      }, after: () => {
+        gsap.fromTo($$('.h2-head > *', L.hub), { opacity: 0, y: pxs(20) }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.08 });
+        gsap.fromTo($$('.h2-station', L.hub), { opacity: 0, y: pxs(20) }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.06, delay: 0.15 });
+      } });
+      gsap.set(L.hub, { clearProps: 'filter' });
+      broadcastState(); return;
+    }
     sound.play('zoom', p.id);
     const D = ZOOM() * (strong ? 1.3 : 1); const tl = gsap.timeline();
     if (settings().flow?.titleCards !== false && !reduced() && sectionStyle() === 'door') {

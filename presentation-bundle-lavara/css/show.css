@@ -1718,3 +1718,24 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .slide.is-light .is-spot.is-unlit .ln-item:not(.is-lit) .ln-art img { filter: brightness(0) drop-shadow(0 1.6rem 2rem rgba(60, 46, 37, 0)); opacity: .09; }
 .is-spot.is-unlit .ln-item:not(.is-lit) .ln-shade { opacity: 0; }
 .slide.is-light .is-spot .ln-item p { opacity: .7; }
+
+/* Bundle: the value branches look like its product sources: tall white cards, words at the top, a grainy shape
+   rising from the foot, the middle card in the brand green */
+[data-brand="bundle"] .cvb-items { top: 45%; bottom: 5%; left: 17%; right: 17%; gap: 2.4rem; }
+[data-brand="bundle"] .cvb-item { position: relative; overflow: hidden; justify-content: flex-start; align-items: flex-start; text-align: start; gap: 2rem; padding: 3.4rem 3.2rem;
+  background: var(--b-card, #fff); border-radius: 3.2rem; box-shadow: none; }
+[data-brand="bundle"] .cvb-item .cvb-n { display: none; }
+[data-brand="bundle"] .cvb-item .so-pill { border-radius: 10rem; }
+[data-brand="bundle"] .cvb-item p { position: relative; z-index: 1; font-size: 3rem; color: #245845; text-wrap: balance; }
+[data-brand="bundle"] .cvb-item.feat { background: #245845; }
+[data-brand="bundle"] .cvb-item.feat p { color: #fff; }
+/* product categories: the list stands at the top, under the title, beside the photos */
+[data-brand="bundle"] .t-categories .ca-list { top: 20rem; translate: none; }
+[data-brand="bundle"] .cvb-items { top: 39%; bottom: 4%; }
+[data-brand="bundle"] .cvb-item .so-shape { left: 3rem; width: 12rem; }
+[data-brand="bundle"] .cvb-item .so-shape.sh-column { height: 12rem !important; border-radius: 6rem 6rem 0 0; }
+[data-brand="bundle"] .cvb-item .so-shape.sh-circle { height: 12rem !important; bottom: -4rem; }
+[data-brand="bundle"] .cvb-item .so-shape.sh-half { width: 15rem; height: 7.5rem !important; border-radius: 7.5rem 7.5rem 0 0; }
+/* the branch lines: a longer dash, so the whole path is drawn even where the browser scales the dash with the box */
+.cvb-lines path, [data-brand="bundle"] .cvb-lines path { stroke-dasharray: 1.6; stroke-dashoffset: 1.6; }
+.t-canvas.is-branched .cvb-lines path { stroke-dashoffset: 0; }

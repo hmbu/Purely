@@ -93,7 +93,122 @@ void main(){ SETUP
   finish(col, uv);
 }` };
 
-export const LAVARA_SCENES = Object.fromEntries(Object.entries(S).map(([k, v]) => [k, { name: v.name, ground: v.ground, ink: v.ink }]));
+
+// ----- two framed A's on the same page, seen as if through a thin layer of water --------------------------------
+// Options 1–5 keep one layout (an A on each side) and change the motion; 6–10 keep one gentle water motion and
+// change where the two A's stand. Same brown, same pressed look as above.
+const WATER = `
+float aMask(vec2 q, vec2 c, float h, float ang){ vec2 pa = c + rot(ang) * (q - c); return img(pa, c, h, 0.746); }
+// one A pressed into the page at c (height h, turned by ang), depth 0..1: the edge toward the light falls in shade,
+// the far edge catches a little warm light
+vec3 press(vec3 col, vec2 q, vec2 c, float h, float ang, float depth, vec2 lp, float L, vec3 warm){
+  if (depth <= 0.001 || abs(q.x - c.x) > h * 0.5 || abs(q.y - c.y) > h * 0.62) return col;
+  float e = 0.005 * h;
+  vec2 gr = vec2(aMask(q + vec2(e, 0.0), c, h, ang) - aMask(q - vec2(e, 0.0), c, h, ang),
+                 aMask(q + vec2(0.0, e), c, h, ang) - aMask(q - vec2(0.0, e), c, h, ang));
+  e *= 2.0;
+  gr += 0.6 * vec2(aMask(q + vec2(e, 0.0), c, h, ang) - aMask(q - vec2(e, 0.0), c, h, ang),
+                   aMask(q + vec2(0.0, e), c, h, ang) - aMask(q - vec2(0.0, e), c, h, ang));
+  float sh = dot(gr, normalize(lp - q + vec2(1e-4, 0.0)));
+  float k = depth * (0.7 + 0.8 * L);
+  col *= 1.0 - 0.26 * clamp(sh, 0.0, 1.0) * k;
+  col += warm * 0.12 * clamp(-sh, 0.0, 1.0) * k;
+  return col * (1.0 - aMask(q, c, h, ang) * 0.04 * depth);
+}
+// the brown page under a drifting warm light (Lavara's #3C2E25 on average)
+vec3 page(vec2 p, float t, float asp, out vec2 lp, out float L, out vec3 warm){
+  vec3 col = LV_BROWN * 0.93;
+  col *= 1.0 + 0.016 * (vnoise(gl_FragCoord.xy * 0.45) - 0.5) + 0.012 * (fbm(p * 6.0) - 0.5);
+  lp = vec2(asp * (0.5 + 0.35 * sin(t * 0.08)), 0.62 + 0.2 * sin(t * 0.11 + 1.3));
+  L = exp(-dot(p - lp, p - lp) / 0.4);
+  warm = mix(LV_OCHRE, LV_IVORY, 0.35);
+  return col + (col * 0.1 + warm * 0.03) * L;
+}
+// a thin water layer: a slow two-way drift of the surface, -0.5..0.5
+vec2 water(vec2 p, float t){
+  return vec2(fbm(p * 2.2 + vec2(t * 0.07, -t * 0.05)), fbm(p * 2.2 + vec2(-t * 0.06, t * 0.07) + 7.3)) - 0.5;
+}
+// light through the water: thin bright lines of a caustic net, kept off the middle
+vec3 caustic(vec3 col, vec2 q, float t, float calm, float L, vec3 warm, float a){
+  float cs = cells(q * 2.6 + vec2(t * 0.015, 0.0), t * 0.32, 0.1);
+  return col * (1.0 - 0.012 * a) + warm * a * 0.03 * cs * (1.0 - 0.75 * calm) * (0.5 + L);
+}
+`;
+const W = (name, code) => ({ name, ground: '#3C2E25', ink: '#F3F2E0', tex: 'mark', body: WATER + `
+void main(){ SETUP
+  vec2 lp; float L; vec3 warm; vec3 col = page(p, t, asp, lp, L, warm);
+${code}
+  finish(col, uv);
+}` });
+const S2 = {};
+// ---- five motions, one layout (an A on each side)
+S2.w1 = W('سطح ماء', `
+  vec2 q = p + water(p, t) * 0.03;
+  col = press(col, q, vec2(asp * 0.12, 0.5), 1.0, 0.0, 1.0, lp, L, warm);
+  col = press(col, q, vec2(asp * 0.88, 0.5), 1.0, 0.0, 1.0, lp, L, warm);
+  col = caustic(col, q, t, calm, L, warm, 1.0);`);
+S2.w2 = W('قطرة وتموّج', `
+  vec2 q = p + water(p, t) * 0.012;
+  for (int k = 0; k < 2; k++) {                       // a drop falls on each A in turn; its ring spreads over the page
+    float fk = float(k), ph = fract(t / 7.0 + fk * 0.5);
+    vec2 c = vec2(asp * (fk < 0.5 ? 0.12 : 0.88), 0.5);
+    vec2 d = p - c; float r = length(d), R = ph * 1.3;
+    float ring = exp(-pow((r - R) / 0.045, 2.0)) * (1.0 - ph) * smoothstep(0.0, 0.05, ph);
+    q += d / max(r, 1e-3) * ring * 0.022 * sin((r - R) * 60.0);
+    col += warm * 0.035 * ring * (1.0 - 0.7 * calm);
+  }
+  col = press(col, q, vec2(asp * 0.12, 0.5), 1.0, 0.0, 1.0, lp, L, warm);
+  col = press(col, q, vec2(asp * 0.88, 0.5), 1.0, 0.0, 1.0, lp, L, warm);`);
+S2.w3 = W('تنفّس متبادل', `
+  vec2 q = p + water(p, t) * 0.015;
+  float b = 0.5 + 0.5 * sin(t * 0.55);                // one A presses in as the other lets go
+  float d1 = 0.15 + 0.85 * smoothstep(0.1, 0.9, b), d2 = 0.15 + 0.85 * smoothstep(0.1, 0.9, 1.0 - b);
+  col = press(col, q, vec2(asp * 0.12, 0.5 + 0.02 * b), 1.0 * (0.97 + 0.03 * b), 0.0, d1, lp, L, warm);
+  col = press(col, q, vec2(asp * 0.88, 0.5 + 0.02 * (1.0 - b)), 1.0 * (1.0 - 0.03 * b), 0.0, d2, lp, L, warm);
+  col = caustic(col, q, t, calm, L, warm, 0.5);`);
+S2.w4 = W('طافيان', `
+  vec2 q = p + water(p, t) * 0.012;
+  float y1 = 0.5 + 0.045 * sin(t * 0.5), y2 = 0.5 + 0.045 * sin(t * 0.5 + 2.6);   // bobbing on the surface, out of step
+  col = press(col, q, vec2(asp * 0.12 + 0.015 * sin(t * 0.31), y1), 1.0, 0.07 * sin(t * 0.43), 1.0, lp, L, warm);
+  col = press(col, q, vec2(asp * 0.88 + 0.015 * sin(t * 0.29 + 1.0), y2), 1.0, 0.07 * sin(t * 0.43 + 2.2), 1.0, lp, L, warm);
+  float band = sin(p.y * 16.0 + 3.0 * fbm(p * 1.6 + t * 0.08) - t * 0.9);            // light rocking on the surface
+  col += warm * 0.018 * smoothstep(0.75, 1.0, band) * (1.0 - 0.8 * calm) * (0.4 + L);`);
+S2.w5 = W('تيار', `
+  float f = fbm(vec2(p.x * 1.2 - t * 0.12, p.y * 3.0));                               // the water flows across the page
+  vec2 q = p + vec2(0.022 * sin(p.y * 9.0 + t * 0.8 + 5.0 * f), 0.008 * sin(p.x * 5.0 - t * 0.6 + 3.0 * f));
+  col = press(col, q, vec2(asp * 0.12, 0.5), 1.0, 0.0, 1.0, lp, L, warm);
+  col = press(col, q, vec2(asp * 0.88, 0.5), 1.0, 0.0, 1.0, lp, L, warm);
+  float streak = smoothstep(0.82, 1.0, sin(p.y * 22.0 + 4.0 * f + sin(p.x * 2.0 - t * 0.7) * 1.5));
+  col += warm * 0.016 * streak * (1.0 - 0.8 * calm) * (0.4 + L);`);
+// ---- five layouts, one gentle water motion
+const WM = `  vec2 q = p + water(p, t) * 0.018;`;
+S2.c1 = W('متقابلان', WM + `
+  col = press(col, q, vec2(asp * 0.1, 0.47 + 0.02 * sin(t * 0.3)), 1.05, -0.16, 1.0, lp, L, warm);
+  col = press(col, q, vec2(asp * 0.9, 0.47 + 0.02 * sin(t * 0.3 + 1.5)), 1.05, 0.16, 1.0, lp, L, warm);
+  col = caustic(col, q, t, calm, L, warm, 0.6);`);
+S2.c2 = W('قُطري', WM + `
+  col = press(col, q, vec2(asp * 0.9, 0.8 + 0.02 * sin(t * 0.3)), 1.5, 0.0, 1.0, lp, L, warm);
+  col = press(col, q, vec2(asp * 0.1, 0.24 + 0.02 * sin(t * 0.3 + 2.0)), 0.62, 0.0, 1.0, lp, L, warm);
+  col = caustic(col, q, t, calm, L, warm, 0.6);`);
+S2.c3 = W('في الزاويتين', WM + `
+  col = press(col, q, vec2(asp * 0.03, 0.08 + 0.015 * sin(t * 0.3)), 1.55, 0.0, 1.0, lp, L, warm);
+  col = press(col, q, vec2(asp * 0.97, 0.08 + 0.015 * sin(t * 0.3 + 1.7)), 1.55, 0.0, 1.0, lp, L, warm);
+  col = caustic(col, q, t, calm, L, warm, 0.6);`);
+S2.c4 = W('كبير وصغير', WM + `
+  col = press(col, q, vec2(asp * 0.95, 0.5 + 0.015 * sin(t * 0.25)), 2.2, 0.0, 0.7, lp, L, warm);
+  col = press(col, q, vec2(asp * 0.11, 0.42 + 0.02 * sin(t * 0.3 + 1.0)), 0.72, 0.0, 1.0, lp, L, warm);
+  col = caustic(col, q, t, calm, L, warm, 0.6);`);
+S2.c5 = W('وانعكاسه', WM + `
+  vec2 c = vec2(asp * 0.87, 0.69 + 0.012 * sin(t * 0.3)); float y0 = 0.37;          // an A and its reflection in the water below it
+  col = press(col, q, c, 0.56, 0.0, 1.0, lp, L, warm);
+  vec2 qr = vec2(q.x + 0.012 * sin(q.y * 40.0 - t * 1.2) * smoothstep(y0, y0 - 0.3, q.y), 2.0 * y0 - q.y);
+  col = press(col, qr, c, 0.56, 0.0, 0.55, lp, L, warm);
+  col += warm * 0.02 * exp(-pow((p.y - y0) / 0.006, 2.0)) * smoothstep(0.35, 0.0, abs(p.x - c.x) / asp);
+  col = caustic(col, q, t, calm, L, warm, 0.6);`);
+Object.entries(S2).forEach(([k, v], i) => { S[k] = { ...v, num: i + 1 }; });
+S.press.num = 0;   // the current one stays first, as 0
+
+export const LAVARA_SCENES = Object.fromEntries(Object.entries(S).map(([k, v]) => [k, { name: v.name, ground: v.ground, ink: v.ink, num: v.num }]));
 // the brand images some scenes draw (relative to the page): the framed A and the wordmark
 export const LAVARA_IMAGES = { mark: 'assets/lavara/lavara-monogram.svg', logo: 'assets/lavara/lavara-wordmark.svg' };
 export const LAVARA_TEX = Object.fromEntries(Object.entries(S).filter(([, v]) => v.tex).map(([k, v]) => [k, LAVARA_IMAGES[v.tex]]));
