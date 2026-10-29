@@ -801,24 +801,39 @@ TEMPLATES.compare = {
     { key: 'options', type: 'list', label: 'الخيارات', item: [{ key: 'title', type: 'text', label: 'الخيار' }, { key: 'sub', type: 'text', label: 'سطر تحته (اختياري)' },
       { key: 'points', type: 'textarea', rows: 5, label: 'النقاط (سطر لكل نقطة، - في البداية = تحدٍّ)' }, { key: 'featured', type: 'toggle', label: 'بارز' }],
       newItem: { title: 'خيار', sub: '', points: '', featured: false } },
+    { key: 'layout', type: 'select', label: 'طريقة العرض', options: [['compare', 'مقارنة: مزايا وتحديات'], ['offer', '1 · بطاقتا عرض بنقاط مرقّمة'], ['sheet', '2 · ورقة مواصفات لكل خيار'], ['tags', '3 · سمات كل خيار'], ['stage', '4 · خيار ثم الآخر بالنقر']] },
     { key: 'proLabel', type: 'text', label: 'اسم المزايا' }, { key: 'conLabel', type: 'text', label: 'اسم التحديات' },
     { key: 'discuss', type: 'text', label: 'نقطة للنقاش أسفل الشريحة (اختياري)' }, { key: 'discussOptions', type: 'text', label: 'خيارات النقاش (مفصولة بـ ·)' }],
-  defaults: { eyebrow: '', title: 'المقارنة', lead: '', options: [], proLabel: 'ميزة', conLabel: 'تحدٍّ', discuss: '', discussOptions: '' },
-  render: (d, ctx) => `
-    <div class="t t-compare" style="${ctx?.brand?.mark && ctx.idShown !== false ? `--lv-mark:url('${esc(ctx.asset(ctx.brand.mark))}')` : ''}">
+  defaults: { eyebrow: '', title: 'المقارنة', lead: '', options: [], layout: 'compare', proLabel: 'ميزة', conLabel: 'تحدٍّ', discuss: '', discussOptions: '' },
+  // 'compare' marks each point as an advantage or a challenge; the other layouts present each option on its own, its
+  // points plain (a leading "-" is simply dropped), so the slide shows two kinds rather than a contest
+  steps: d => (d.layout === 'stage' ? Math.max(0, (d.options || []).length - 1) : 0),
+  applyStep(el, step, instant) {
+    if (!el.querySelector('.t-compare.ly-stage')) return;
+    el.querySelectorAll('.cp-col').forEach((c, i) => { c.classList.toggle('cp-instant', !!instant); c.classList.toggle('is-wait', i > step); });
+  },
+  render: (d, ctx) => {
+    const ly = ['offer', 'sheet', 'tags', 'stage'].includes(d.layout) ? d.layout : 'compare', plain = ly !== 'compare';
+    const pt = x => (x[0] === '-' ? x.slice(1).trim() : x);
+    const list = o => plain
+      ? `<ul class="cp-pts">${lines(o.points).map((x, k) => `<li><span class="cp-k latin">${String(k + 1).padStart(2, '0')}</span><span>${esc(pt(x))}</span></li>`).join('')}</ul>`
+      : `<ul>${lines(o.points).map(x => (x[0] === '-' ? `<li class="con"><i></i>${esc(x.slice(1).trim())}</li>` : `<li class="pro"><i></i>${esc(x)}</li>`)).join('')}</ul>`;
+    return `
+    <div class="t t-compare ly-${ly}" style="${ctx?.brand?.mark && ctx.idShown !== false ? `--lv-mark:url('${esc(ctx.asset(ctx.brand.mark))}')` : ''}">
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
-      <div class="cp-legend" data-a="body"><span class="pro"><i></i>${esc(d.proLabel || '')}</span><span class="con"><i></i>${esc(d.conLabel || '')}</span></div>
+      ${plain ? '' : `<div class="cp-legend" data-a="body"><span class="pro"><i></i>${esc(d.proLabel || '')}</span><span class="con"><i></i>${esc(d.conLabel || '')}</span></div>`}
       <div class="cp-cols" style="--n:${(d.options || []).length || 1}">
         ${(d.options || []).map((o, i) => `
           <div class="cp-col ${o.featured ? 'feat' : ''}" data-a="extra" data-seq="${i}">
-            <span class="cp-roman latin" data-n="(${String(i + 1).padStart(3, '0')})">${ROMAN[i] || i + 1}</span>
-            <h3>${esc(o.title || '')}</h3>${o.sub ? `<p class="cp-sub">${esc(o.sub)}</p>` : ''}
-            <ul>${lines(o.points).map(x => (x[0] === '-' ? `<li class="con"><i></i>${esc(x.slice(1).trim())}</li>` : `<li class="pro"><i></i>${esc(x)}</li>`)).join('')}</ul>
+            <div class="cp-hd"><span class="cp-roman latin" data-n="(${String(i + 1).padStart(3, '0')})">${ROMAN[i] || i + 1}</span>
+            <h3>${esc(o.title || '')}</h3>${o.sub ? `<p class="cp-sub">${esc(o.sub)}</p>` : ''}</div>
+            ${list(o)}
           </div>`).join('')}
       </div>
       ${d.discuss ? `<div class="cp-discuss" data-a="extra" data-seq="9"><span class="cp-dtag">${esc(d.discuss)}</span>
         <span class="cp-dopts">${String(d.discussOptions || '').split('·').map(x => x.trim()).filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('')}</span></div>` : ''}
-    </div>`,
+    </div>`;
+  },
 };
 
 /* ---------------------------------------------------------------- stats (a few big numbers) */
