@@ -1645,3 +1645,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .dg-logo.dg-proj.is-bundle { aspect-ratio: 3.8; height: 6.2rem !important; }
 .dg-logo.dg-proj.is-lavara { aspect-ratio: 5.2; height: 4.4rem !important; }
 [data-brand="shared"] .dg-node:is(.party-bundle, .party-lavara) .dg-logo { opacity: 1 !important; }
+/* the value block, its card and its branches keep their words in the middle of the box */
+.t-canvas .cv-b.g-value { align-items: center; text-align: center; }
+.t-canvas .cv-b.g-value .cv-top { justify-content: center; }
+.cvb-item { align-items: center; text-align: center; }
+.cvb-item p { text-wrap: balance; }
