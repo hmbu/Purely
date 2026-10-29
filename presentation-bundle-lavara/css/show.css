@@ -1681,3 +1681,5 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 /* the framed A behind Lavara's cards: very light, a background only */
 [data-brand="lavara"] .wm { opacity: .045 !important; }
 [data-brand="lavara"] :is(.st-cell, .cp-col, .cvb-item, .sc-col:first-child) .wm { opacity: .06 !important; }
+/* refill lineup: no light cones from above; the products still light up in turn */
+.ln-beam { display: none; }
