@@ -1446,10 +1446,20 @@
                 "title": "لوحة التحكم للفندق",
                 "points": "إدارة الطلبات\nمتابعة المخزون\nمتابعة الطلبات\nتفويض الطلبات",
                 "back": {
-                  "src": ""
+                  "src": "assets/lavara/digital/dashboard-products.webp",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 0,
+                    "y": 0
+                  }
                 },
                 "front": {
-                  "src": ""
+                  "src": "assets/lavara/digital/dashboard-overview.webp",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 0,
+                    "y": 0
+                  }
                 }
               }
             }
