@@ -1513,7 +1513,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .sar-cover { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 .sar-title { position: absolute; top: 9rem; right: 10rem; margin: 0; font-family: var(--f-title); font-weight: var(--w-title); font-size: calc(4.6rem * var(--s-title, 1)); line-height: 1.25; color: #141414; text-align: right; }
 .sar-lockup { display: flex; align-items: center; gap: 7.5rem; direction: ltr; }
-.sar-mark { display: block; height: 19rem; width: auto; overflow: visible; fill: #141414; }
+.sar-mark { display: block; height: 19rem; width: auto; overflow: visible; fill: #3D3935; }
+.sar-road { fill: #007891; }
 .sar-x { position: relative; width: 4.4rem; height: 4.4rem; flex: none; }
 .sar-x::before, .sar-x::after { content: ''; position: absolute; left: 50%; top: 50%; width: 5.4rem; height: .22rem; margin: -.11rem 0 0 -2.7rem; background: #141414; transform: rotate(45deg); }
 .sar-x::after { transform: rotate(-45deg); }

@@ -1378,7 +1378,7 @@ function sarRoadWide() {
   const fx = (r.left - L0.left) * k + (SAR_ROAD.x - SAR_VB.x) * u, fy = (r.top - L0.top) * k + (SAR_ROAD.y - SAR_VB.y) * u;
   return { x: (W / 2 - fx) / u, y: (H + 2 - fy) / u, scale: (H * 1.25) / (149 * u) };
 }
-const SAR_BLUE = '#007891', SAR_INK = '#141414';
+const SAR_BLUE = '#007891', SAR_INK = SAR_BLUE; // the mark keeps its own colours; the road stays blue
 function sarStep(n, instant) {
   S.sarStep = n;
   const f = $('.sar-file', L.special), cover = $('.sar-cover', L.special), road = $('.sar-road', L.special); if (!f) return;
