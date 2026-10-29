@@ -1650,3 +1650,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .t-canvas .cv-b.g-value .cv-top { justify-content: center; }
 .cvb-item { align-items: center; text-align: center; }
 .cvb-item p { text-wrap: balance; }
+
+/* clearer backgrounds: the film grain over the opening screen and the hubs is kept very light */
+.uf-world::after, .hub2::after, .uo-world::after { opacity: .04; }
+/* business model: the blocks come in right to left, then the bottom row; no numbers */
+.t-canvas .cv-n { display: none; }

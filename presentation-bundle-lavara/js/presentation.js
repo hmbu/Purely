@@ -742,13 +742,13 @@ function renderUniverse() {
     const cv = $('.w-tex', w);
     const fusion = layout === 'fusion';
     if ((!legacy && !fusion) || !cv || (legacy && (p.brand.universe?.visual === 'color' || p.brand.universe?.visual === 'image')) || reduced()) { worldTex.push({ stop() {}, start() {}, set() {} }); return; }
-    const { tex, fresh } = pooledTexture(`world-${layout === 'fusion' ? 'f' : 'l'}-${p.id}${p.brand.textureStyle || ''}`, cv, p.brand.texture === 'mist' && !crisp(p) ? 0.3 : 0.5);
+    const { tex, fresh } = pooledTexture(`world-${layout === 'fusion' ? 'f' : 'l'}-${p.id}${p.brand.textureStyle || ''}`, cv, texScale(p));
     const mist = p.brand.texture === 'mist';
     const scene = !!sceneOf(p);
     tex._base = scene ? { progress: 1, speed: 1 } : fusion ? { progress: mist ? 0.36 : 0.05, speed: 0.4 } : { progress: mist ? 0.36 : 0.3, speed: 0.6 };
     const tc = p.brand.textureColors || [];
     const colors = fusion ? (mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]]) : ambientColors(p);
-    tex.set({ mode: p.brand.texture, variant: p.brand.textureStyle, colors, progress: tex._base.progress, alpha: scene ? 1 : fusion ? (mist ? 0.42 : 0.26) : 0.9, speed: tex._base.speed, sweep: 0, ...(fresh ? { seed: i * 7 + 3 } : {}) });
+    tex.set({ mode: p.brand.texture, variant: p.brand.textureStyle, colors, progress: tex._base.progress, alpha: scene ? 1 : fusion ? (mist ? 0.42 : p.brand.textureStyle === 'orbs' ? 0.62 : 0.26) : 0.9, speed: tex._base.speed, sweep: 0, ...(fresh ? { seed: i * 7 + 3 } : {}) });
     worldTex.push(tex);
   });
   $('.u-down', L.universe)?.addEventListener('click', e => { e.stopPropagation(); command('shared'); });
@@ -837,6 +837,8 @@ const quiet = () => (settings().tone || 'quiet') === 'quiet';
 /* ======================================================================= hub (project page) */
 // Lavara's material styles (liquid soap, soap bar, amber light) have defined edges and highlights: they need more pixels than the fog.
 const crisp = p => ['silk', 'lather', 'pour', 'drop', 'swirl', 'soap', 'amber', 'orbs', 'strips', 'stacks', ...Object.keys(BUNDLE_SCENES), ...Object.keys(LAVARA_SCENES)].includes(p.brand.textureStyle);
+// soft fog renders light (0.3); liquids 0.5; the scenes and orbs at 0.7 so their edges and the water's light stay sharp
+const texScale = p => (sceneOf(p) || p.brand.textureStyle === 'orbs' ? 0.7 : p.brand.texture === 'mist' && !crisp(p) ? 0.3 : 0.5);
 // The project page continues the opening screen: brand colour + calm live texture, and the sections as
 // stations on a line of light. The light rests on the next section; hovering slides it to another station.
 let hubTex = null;
@@ -892,10 +894,10 @@ function renderHub(p) {
   const cv = $('.h2-tex', L.hub);
   if (cv && !reduced()) {
     const tc = p.brand.textureColors || []; const mist = p.brand.texture === 'mist';
-    const { tex, fresh } = pooledTexture('hub-' + p.id + (p.brand.textureStyle || ''), cv, mist && !crisp(p) ? 0.3 : 0.5);
+    const { tex, fresh } = pooledTexture('hub-' + p.id + (p.brand.textureStyle || ''), cv, texScale(p));
     hubTex = tex;
     const scene = !!sceneOf(p);
-    hubTex.set({ mode: p.brand.texture, variant: p.brand.textureStyle, colors: mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]], progress: scene ? 1 : mist ? 0.34 : 0.05, alpha: scene ? 1 : mist ? 0.4 : 0.24, speed: scene ? 1 : 0.4, sweep: 0, ...(fresh ? { seed: 11 } : {}) });
+    hubTex.set({ mode: p.brand.texture, variant: p.brand.textureStyle, colors: mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]], progress: scene ? 1 : mist ? 0.34 : 0.05, alpha: scene ? 1 : mist ? 0.4 : p.brand.textureStyle === 'orbs' ? 0.55 : 0.24, speed: scene ? 1 : 0.4, sweep: 0, ...(fresh ? { seed: 11 } : {}) });
     hubTex.start();
   }
 }

@@ -556,7 +556,7 @@ TEMPLATES.canvas = {
       <div class="cv-legend" data-a="body"><span class="g-infra"><i></i>${esc(d.legendInfra || 'قابلية التنفيذ')}</span><span class="g-cust"><i></i>${esc(d.legendCust || 'رغبة العميل')}</span><span class="g-fin"><i></i>${esc(d.legendFin || 'الجدوى المالية')}</span></div>
       <div class="cv-grid">
         ${bl.map((b, i) => `
-          <div class="cv-b g-${BMC[i].g}" style="grid-area:${BMC[i].area}" data-a="extra" data-seq="${BMC_NUM[i]}">${inner(b, i)}</div>`).join('')}
+          <div class="cv-b g-${BMC[i].g}" style="grid-area:${BMC[i].area}" data-a="extra" data-seq="${i}">${inner(b, i)}</div>`).join('')}
       </div>
       ${br.length ? `<div class="cv-branch" aria-hidden="true" style="--bn:${br.length}">
         <div class="cv-b g-value cvb-hub">${inner(bl[3] || { title: vt }, 3)}</div>

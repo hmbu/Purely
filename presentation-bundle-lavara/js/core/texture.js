@@ -260,6 +260,14 @@ float caustic(vec2 p, float t){
   }
   return 1.0 - smoothstep(0.0, 0.3, f2 - f1);
 }
+float causticSharp(vec2 p, float t){
+  vec2 i = floor(p), f = fract(p); float f1 = 9.0, f2 = 9.0;
+  for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+    vec2 o2 = vec2(x, y), c = h2(i + o2); c = 0.5 + 0.42 * sin(t + 6.2831 * c);
+    float d = length(o2 + c - f); if (d < f1) { f2 = f1; f1 = d; } else if (d < f2) f2 = d;
+  }
+  return 1.0 - smoothstep(0.0, 0.085, f2 - f1);
+}
 vec3 filmTint(float th){ float x = fract(th);
   vec3 c = mix(LV_OCHRE, LV_TERRA, smoothstep(0.0, 0.33, x)); c = mix(c, LV_SAGE, smoothstep(0.33, 0.66, x)); return mix(c, LV_OCHRE, smoothstep(0.66, 1.0, x)); }
 void bubble(inout vec3 col, vec2 d, float r, float k, float id, float t){
@@ -282,12 +290,12 @@ void main(){
   vec2 p = vec2(uv.x * asp, uv.y); float t = u_time;
   vec3 col = mix(LV_BROWN * 0.72, LV_BROWN * 1.06, smoothstep(0.0, 1.0, uv.y));
   float v = fbm(vec2(p.x * 0.9, p.y * 7.0) + vec2(fbm(p * 1.5) * 1.2, 0.0));
-  col *= 0.96 + 0.08 * (v - 0.5);                                   // soft veins in the stone
+  col *= 0.98 + 0.04 * (v - 0.5);                                   // soft veins in the stone
   float sun = exp(-length((p - vec2(asp * 0.9, 1.1)) * vec2(0.75, 1.0)) * 1.5);
-  vec2 cw = p * 2.6 + 0.7 * vec2(fbm(p * 1.4 + t * 0.03), fbm(p * 1.4 - t * 0.03 + 7.0));
-  float c = pow(caustic(cw, t * 0.22) * 0.65 + caustic(cw * 1.7 + 3.0, t * 0.3) * 0.35, 1.8);
-  float m = 0.3 + 0.7 * smoothstep(0.0, 0.9, sun * 1.6);
-  col = screen(col, mix(LV_OCHRE, LV_IVORY, 0.45) * c * 0.11 * m);   // light through the bath water
+  vec2 cw = p * 3.4 + 1.0 * vec2(fbm(p * 1.6 + t * 0.03), fbm(p * 1.6 - t * 0.03 + 7.0));
+  float c = pow(causticSharp(cw, t * 0.22) * 0.6 + causticSharp(cw * 1.7 + 3.0, t * 0.3) * 0.4, 1.3);
+  float m = 0.45 + 0.55 * smoothstep(0.0, 0.9, sun * 1.6);
+  col = screen(col, mix(LV_OCHRE, LV_IVORY, 0.55) * c * 0.17 * m);    // light through the bath water: clear, thin lines
   col = screen(col, LV_OCHRE * sun * 0.2);
   // only the clear bubbles, drifting up with a slow sway
   float n = 9.0, w = asp / n, ci = floor(p.x / w);
@@ -302,7 +310,7 @@ void main(){
     bubble(col, (p - cc) / r, r, fade * (1.0 - calmAt(cc, asp) * 0.6), id, t);
   }
   col *= 1.0 - 0.25 * pow(length((uv - vec2(0.5, 0.55)) * vec2(1.1, 1.0)), 2.0);
-  col += grain() * 0.5;
+  col += grain() * 0.2;
   float order = u_sweep >= 0.0 ? uv.x : 1.0 - uv.x;
   float rv = smoothstep(order * 0.7, order * 0.7 + 0.3, u_progress * 1.0001);
   o = vec4(col * rv * u_alpha, rv * u_alpha);
@@ -349,7 +357,7 @@ void main(){
   a *= 1.0 - calm * 0.8;
   float flood = smoothstep(0.82, 1.0, u_progress);
   col = mix(col, u_col[0], flood * (1.0 - a * 0.0)); a = max(a, flood);
-  col += coarseGrain() * 0.16 * a;
+  col += coarseGrain() * 0.08 * a;
   o = vec4(col * a * u_alpha, a * u_alpha);
 }`;
 // Bundle: the Purpose page — vertical strips, each sliding a column of circles, half circles and rounded columns.
