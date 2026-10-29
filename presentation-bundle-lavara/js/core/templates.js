@@ -517,6 +517,18 @@ const BMC = [
 // Blocks are numbered (and appear) in the order the model is read, as in the steering-committee brief:
 // 1 segments, 2 value, 3 resources, 4 revenue, 5 partners, 6 activities, 7 channels, 8 relationships, 9 costs.
 const BMC_NUM = [5, 6, 3, 2, 8, 7, 1, 9, 4];
+// one line icon per block, drawn in the block's ink: partners, activities, resources, value, relationships,
+// channels, segments, costs, revenue
+const BMC_ICON = [
+  '<circle cx="9" cy="12" r="5"/><circle cx="15" cy="12" r="5"/>',
+  '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',
+  '<path d="M12 3l9 4.5-9 4.5-9-4.5z"/><path d="M3 12l9 4.5 9-4.5"/><path d="M3 16.5l9 4.5 9-4.5"/>',
+  '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
+  '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+  '<circle cx="5" cy="12" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M7 11l10-5M7 13l10 5"/>',
+  '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',
+  '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+  '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>'];
 TEMPLATES.canvas = {
   name: 'لوحة نموذج العمل', en: 'Business model canvas', group: 'extra', defaultBg: 'background', suggested: 'نموذج العمل',
   fields: [F.eyebrow, F.title, { key: 'lead', type: 'text', label: 'سطر قصير تحت العنوان' },
@@ -548,7 +560,7 @@ TEMPLATES.canvas = {
     const br = String(d.valueBranches || '').split('\n').map(x => x.trim()).filter(Boolean).slice(0, 4);
     const vt = (bl[3] && bl[3].title) || BMC[3].t;
     const xs = br.map((_, i) => 150 + ((i + 0.5) / br.length) * 700); // the cards sit in the middle 70%
-    const inner = (b, i) => `<div class="cv-top"><span class="cv-n latin">${BMC_NUM[i]}</span><h3 class="cv-t">${esc(b.title || BMC[i].t)}</h3></div>
+    const inner = (b, i) => `<div class="cv-top"><svg class="cv-ic" viewBox="0 0 24 24" aria-hidden="true">${BMC_ICON[i]}</svg><span class="cv-n latin">${BMC_NUM[i]}</span><h3 class="cv-t">${esc(b.title || BMC[i].t)}</h3></div>
             ${b.text ? `<p class="cv-x">${escBr(b.text)}</p>` : ''}${b.badge ? `<span class="cv-badge">${esc(b.badge)}</span>` : ''}`;
     return `
     <div class="t t-canvas ${br.length ? 'has-branches' : ''}" style="${ctx?.brand?.mark && ctx.idShown !== false ? `--lv-mark:url('${esc(ctx.asset(ctx.brand.mark))}')` : ''}">
@@ -560,7 +572,7 @@ TEMPLATES.canvas = {
       </div>
       ${br.length ? `<div class="cv-branch" aria-hidden="true" style="--bn:${br.length}">
         <div class="cv-b g-value cvb-hub">${inner(bl[3] || { title: vt }, 3)}</div>
-        <svg class="cvb-lines" viewBox="0 0 1000 1000" preserveAspectRatio="none">${xs.map((x, i) => `<path pathLength="1" style="--i:${i}" d="M500 290 C500 440 ${1000 - x} 400 ${1000 - x} 560"/>`).join('')}</svg>
+        <svg class="cvb-lines" viewBox="0 0 1000 1000" preserveAspectRatio="none">${xs.map((x, i) => `<path pathLength="1" style="--i:${i}" d="M500 290 V425 H${1000 - x} V560"/>`).join('')}</svg>
         <div class="cvb-items">${br.map((x, i) => `<div class="cvb-item" style="--i:${i}"><span class="cvb-n latin">(${String(i + 1).padStart(3, '0')})</span><p>${esc(x)}</p></div>`).join('')}</div>
       </div>` : ''}
     </div>`;
@@ -624,6 +636,11 @@ TEMPLATES.occasions = {
     { key: 'groups', type: 'list', label: 'الأعمدة', item: [{ key: 'title', type: 'text', label: 'العنوان' }, { key: 'tone', type: 'select', label: 'اللون', options: TONES5 },
       { key: 'items', type: 'textarea', rows: 6, label: 'البنود (سطر لكل بند، ~ في البداية = لاحقاً)' }], newItem: { title: 'مجموعة', tone: 't1', items: '' } }],
   defaults: { eyebrow: '', title: 'المناسبات', legendNow: 'نركّز عليها الآن', legendLater: 'لاحقاً', groups: [] },
+  // the first occasion comes in with the page; each press brings the next one
+  steps: d => Math.max(0, (d.groups || []).length - 1),
+  applyStep(el, step, instant) {
+    el.querySelectorAll('.oc-col').forEach((c, i) => { c.classList.toggle('oc-instant', !!instant); c.classList.toggle('is-wait', i > step); });
+  },
   render: d => `
     <div class="t t-occasions">
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>

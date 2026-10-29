@@ -236,6 +236,12 @@ function buildSlide(p, slide) {
   let inner = '';
   try { inner = tpl.render(slide.data || {}, ctxFor(p)); } catch (e) { inner = `<div class="t"><p class="tx-body">Template error: ${esc(e.message)}</p></div>`; }
   el.innerHTML = `<div class="slide-bg" data-a="bg"></div>${inner}`;
+  // the project's symbol sits faintly in the background of every card, in the card's own ink (shown where the identity
+  // asks for it in CSS: Lavara's framed A)
+  if (p.brand.mark && idShown(p)) {
+    el.style.setProperty('--wm', `url('${asset(p.brand.mark)}')`);
+    $$('.cv-b, .cvb-item, .cp-col, .st-cell, .sc-col', el).forEach(c => c.insertAdjacentHTML('afterbegin', '<i class="wm" aria-hidden="true"></i>'));
+  }
   return { el, tpl, theme };
 }
 function mountSlide(el, tpl, slide) {
@@ -386,7 +392,7 @@ function specialIntro(el, tl, extra) {
   return false;
 }
 // Slides read part by part: each part comes in on its own, slowly, with no press (business model, finance, occasions).
-const SLOW = { 't-canvas': 0.8, 't-finance': 1.1, 't-occasions': 1.25 };
+const SLOW = { 't-canvas': 0.8, 't-finance': 1.1 };
 function slowSeq(el, tl, extra, rise) {
   const t = $('.t', el); const k = t && Object.keys(SLOW).find(c => t.classList.contains(c)); if (!k) return false;
   const gap = SLOW[k], Y = pxs(rise ? 70 : 44);
