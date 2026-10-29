@@ -1074,6 +1074,8 @@ async function enterSection(sid, slideIndex = 0) {
 }
 
 const sectionStyle = () => settings().flow?.sectionStyle || 'merged';
+const EXIT_STYLES = ['sweep', 'zoom', 'fade', 'drop', 'iris'];
+const exitStyle = () => { const q = QS.get('exit'); return EXIT_STYLES.includes(q) ? q : EXIT_STYLES.includes(settings().flow?.exitStyle) ? settings().flow.exitStyle : 'sweep'; };
 // FLIP start values: el starts exactly where (and as large as) src stands, then can tween to its own place
 function flipFrom(el, src) {
   if (!el || !src) return { opacity: 0 };
@@ -1171,22 +1173,38 @@ async function zoomOut({ strong = false } = {}) {
     renderHub(p); show(L.hub, true);
     const station = $(`.h2-station[data-section="${CSS.escape(S.sid)}"] .h2-dot`, L.hub);
     const origin = station ? originOf(station, L.hub) : '50% 50%';
-    if (settings().flow?.titleCards !== false && !reduced() && sectionStyle() !== 'door') {
-      // leaving is the entry played back: the brand's texture sweeps over the slide (the other way), the section's
-      // title and the project's symbol come up on it, then the cover lifts and the project page rises underneath
-      const secs = sectionsOf(p), i = secs.findIndex(x => x.id === S.sid), sec = secs[i];
-      gsap.set(L.hub, { opacity: 0 });
-      await coverTransition({ p, dir: -1, card: sec ? { number: i + 1, title: sec.title, titleEn: sec.titleEn } : null, swap: () => {
-        unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null;
-        show(L.section, false); gsap.set(L.section, { clearProps: 'all' });
-        gsap.set(L.hub, { opacity: 1, scale: 1 }); S.level = 'hub'; logosColor(hubFg(p), hubDark(p)); updateHUD();
-        gsap.set($$('.h2-head > *, .h2-station', L.hub), { opacity: 0 });
-      }, after: () => {
-        gsap.fromTo($$('.h2-head > *', L.hub), { opacity: 0, y: pxs(20) }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.08 });
-        gsap.fromTo($$('.h2-station', L.hub), { opacity: 0, y: pxs(20) }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.06, delay: 0.15 });
-      } });
-      gsap.set(L.hub, { clearProps: 'filter' });
-      broadcastState(); return;
+    if (!reduced() && sectionStyle() !== 'door') {
+      // leaving a section: one short move back to the project page, no title (settings.flow.exitStyle, or ?exit= to try):
+      //   sweep — the brand's texture passes once over the slide · zoom — the slide shrinks into its station
+      //   fade — a quick cross-fade · drop — the slide falls away, the page is under it · iris — the slide closes into its station
+      const ex = exitStyle();
+      const done = () => { unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null; show(L.section, false); gsap.set(L.section, { clearProps: 'all' }); gsap.set(L.hub, { clearProps: 'filter,scale,transform' }); };
+      const atHub = () => { S.level = 'hub'; logosColor(hubFg(p), hubDark(p)); updateHUD(); };
+      if (ex === 'sweep') {
+        gsap.set(L.hub, { opacity: 0 });
+        await coverTransition({ p, dir: -1, light: true, swap: () => { done(); gsap.set(L.hub, { opacity: 1 }); atHub(); } });
+        broadcastState(); return;
+      }
+      sound.play('zoom', p.id);
+      const tl = gsap.timeline();
+      const at = station ? (() => { const r = stageRect(station); return `${r.x + r.w / 2}px ${r.y + r.h / 2}px`; })() : '50% 50%';
+      if (ex === 'zoom') {
+        gsap.set(L.hub, { opacity: 0 });
+        tl.to(L.section, { scale: 0.3, opacity: 0, filter: 'blur(0.4rem)', transformOrigin: origin, duration: 0.95, ease: 'power3.in' }, 0);
+        tl.fromTo(L.hub, { scale: 1.15, opacity: 0, transformOrigin: origin }, { scale: 1, opacity: 1, duration: 0.95, ease: 'power3.out' }, 0.3);
+      } else if (ex === 'fade') {
+        gsap.set(L.hub, { opacity: 0 });
+        tl.to(L.section, { opacity: 0, scale: 1.02, duration: 0.6, ease: 'power2.inOut' }, 0);
+        tl.to(L.hub, { opacity: 1, duration: 0.6, ease: 'power2.inOut' }, 0.1);
+      } else if (ex === 'drop') {
+        gsap.set(L.hub, { opacity: 1 });
+        tl.to(L.section, { yPercent: 100, duration: 0.9, ease: 'power3.in' }, 0);
+      } else { // iris
+        gsap.set(L.hub, { opacity: 1 });
+        const far = Math.hypot(stage.clientWidth, stage.clientHeight);
+        tl.fromTo(L.section, { clipPath: `circle(${far}px at ${at})` }, { clipPath: `circle(0px at ${at})`, duration: 1.0, ease: 'power3.inOut' }, 0);
+      }
+      atHub(); await tl; done(); broadcastState(); return;
     }
     sound.play('zoom', p.id);
     const D = ZOOM() * (strong ? 1.3 : 1); const tl = gsap.timeline();

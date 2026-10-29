@@ -1745,3 +1745,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .t-canvas .cv-b.g-value .cv-top { justify-content: flex-start; }
 .t-canvas.is-branched .cv-b.g-value.cvb-hub { justify-content: center; align-items: center; text-align: center; }
 .t-canvas.is-branched .cvb-hub .cv-top { justify-content: center; }
+/* value branches: a little more air between the cards */
+[data-brand="bundle"] .cvb-items { left: 13%; right: 13%; gap: 5.6rem; }
+[data-brand="lavara"] .cvb-items { gap: 4.8rem; }
+.cvb-items.n-2 { left: 25%; right: 25%; }
+[data-brand="bundle"] .cvb-items.n-2 { left: 13%; right: 13%; }

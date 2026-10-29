@@ -572,6 +572,13 @@ function renderGlobal() {
       ...[['merged', 'المدمجة — الغطاء + العنوان يطير من المحطة'], ['cover', 'السابقة — غطاء الهوية والرمز'], ['door', 'المحطة هي الباب — بدون غطاء']]
         .map(([v, l]) => h('button', { class: 'btn' + (cur === v ? ' primary' : ''), onclick: () => pick(v) }, l)))));
   }
+  { // how a section closes: one short move back to the project page, no title
+    const cur = st.flow?.exitStyle || 'sweep';
+    const pick = v => { st.flow ||= {}; st.flow.exitStyle = v; commit({ key: 'settings.flow.exitStyle' }); renderGlobal(); };
+    f.append(group('حركة الخروج من القسم (بدون عنوان)', h('div', { class: 'row', style: 'gap:10px;flex-wrap:wrap' },
+      ...[['sweep', '1 · مسحة الهوية'], ['zoom', '2 · تصغير إلى المحطة'], ['fade', '3 · تلاشٍ سريع'], ['drop', '4 · الشريحة تنزل'], ['iris', '5 · دائرة تنغلق على المحطة']]
+        .map(([v, l]) => h('button', { class: 'btn' + (cur === v ? ' primary' : ''), onclick: () => pick(v) }, l)))));
+  }
   f.append(group('الفيديو والتسلسل', ...renderFields([
     { key: 'video.autoplay', type: 'toggle', label: 'تشغيل الفيديو تلقائياً عند الوصول' },
     { key: 'video.pauseOnLeave', type: 'toggle', label: 'إيقاف الفيديو عند المغادرة' },

@@ -563,7 +563,8 @@ TEMPLATES.canvas = {
     // Bundle: the branches are tall cards like its product sources (a grainy shape rising from the foot, the middle
     // one in the brand green); a line may start with a label and a colon (label: text) for a pill on top
     const tall = ctx?.brand?.texture === 'bubbles', yEnd = tall ? 390 : 560;
-    const xs = br.map((_, i) => (tall ? 170 : 150) + ((i + 0.5) / br.length) * (tall ? 660 : 700)); // over the cards' centres
+    const span = tall ? 740 : br.length === 2 ? 500 : 700; // two cards stand closer to the middle
+    const xs = br.map((_, i) => 500 - span / 2 + ((i + 0.5) / br.length) * span); // over the cards' centres
     const inner = (b, i) => `<div class="cv-top"><svg class="cv-ic" viewBox="0 0 24 24" aria-hidden="true">${BMC_ICON[i]}</svg><span class="cv-n latin">${BMC_NUM[i]}</span><h3 class="cv-t">${esc(b.title || BMC[i].t)}</h3></div>
             ${b.text ? `<p class="cv-x">${escBr(b.text)}</p>` : ''}${b.badge ? `<span class="cv-badge">${esc(b.badge)}</span>` : ''}`;
     return `
@@ -577,7 +578,7 @@ TEMPLATES.canvas = {
       ${br.length ? `<div class="cv-branch" aria-hidden="true" style="--bn:${br.length}">
         <div class="cv-b g-value cvb-hub">${inner(bl[3] || { title: vt }, 3)}</div>
         <svg class="cvb-lines" viewBox="0 0 1000 1000" preserveAspectRatio="none">${xs.map((x, i) => `<path pathLength="1" style="--i:${i}" d="M500 290 V${(290 + yEnd) / 2} H${1000 - x} V${yEnd}"/>`).join('')}</svg>
-        <div class="cvb-items">${br.map((x, i) => { const [pill, text] = x.includes(':') ? [x.slice(0, x.indexOf(':')).trim(), x.slice(x.indexOf(':') + 1).trim()] : ['', x];
+        <div class="cvb-items n-${br.length}">${br.map((x, i) => { const [pill, text] = x.includes(':') ? [x.slice(0, x.indexOf(':')).trim(), x.slice(x.indexOf(':') + 1).trim()] : ['', x];
           return `<div class="cvb-item tn-t${i + 1} ${tall && i === (br.length - 1) / 2 ? 'feat' : ''}" style="--i:${i}"><span class="cvb-n latin">(${String(i + 1).padStart(3, '0')})</span>${pill ? `<span class="so-pill">${esc(pill)}</span>` : ''}<p>${esc(text)}</p>${tall ? `<i class="so-shape ${SHAPES[i % SHAPES.length]}"></i>` : ''}</div>`; }).join('')}</div>
       </div>` : ''}
     </div>`;
