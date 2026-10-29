@@ -7,6 +7,7 @@ import { projectsOf, allProjectsOf, sectionsOf, slidesOf, locate } from './core/
 import { loadContent, saveContent, hasServer, hasGithub, backendMode, githubConfig, setGithubConfig, testGithub, listBackups, getBackup, makeBackup, uploadFile, listFiles, serverInfo, getDecisionLog } from './core/store.js';
 import { createSync } from './core/sync.js';
 import { TEMPLATES, TEMPLATE_ORDER, TRANSITIONS, BG_OPTIONS, newSlide, slideLabel } from './core/templates.js';
+import { LAVARA_SCENES } from './core/lavara-scenes.js';
 
 let C = null;                       // the content being edited
 let sel = null;                     // { kind: 'project'|'section'|'slide', id }
@@ -469,7 +470,7 @@ function renderBrands() {
   if (b.texture === 'mist') f.append(group('خلفية لافارا المتحركة', renderField({ key: 'textureStyle', type: 'select', label: 'اختر شكل الخلفية', options: [['mist', 'الضباب (السابق)'],
     ['silk', '١ · سائل صابون — طيّات حريرية'], ['lather', '٢ · سائل صابون مع رغوة خفيفة'], ['pour', '٣ · سائل صابون ينساب للأسفل'],
     ['drop', '٤ · قطرات على سائل كثيف'], ['swirl', '٥ · دوامة سائل وكريم'], ['soap', '٦ · صابون طبيعي — رخام'],
-    ['amber', '٧ · ضوء العطر — زجاج كهرماني'], ['spa', '٨ · سبا غامق — فقاعات وضوء الماء']] }, b, ctx)));
+    ['amber', '٧ · ضوء العطر — زجاج كهرماني'], ...Object.entries(LAVARA_SCENES).map(([k, v], i) => [k, `${(8 + i).toLocaleString('ar-EG')} · ${v.name}`])] }, b, ctx)));
   f.append(group('الشعارات (SVG أحادي اللون يُلوَّن تلقائياً)', ...renderFields([
     { key: 'logo', type: 'image', simple: true, label: 'الشعار الرئيسي' },
     { key: 'mark', type: 'image', simple: true, label: 'الرمز (Isotype)' },
