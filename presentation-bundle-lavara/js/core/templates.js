@@ -124,7 +124,7 @@ export const TEMPLATES = {
           <div class="board-cell board-logo" data-a="extra" data-seq="0">${logoHTML(d.logo || ctx.brand.logo, ctx, 'is-logo')}</div>
           <div class="board-cell board-mark" data-a="extra" data-seq="1">${logoHTML(d.mark || ctx.brand.mark, ctx, 'is-mark')}</div>
           <div class="board-cell board-palette">
-            ${pal.map((c, i) => `<div class="swatch" data-a="extra" data-seq="${2 + i}" style="--c:${esc(c.hex)}"><span class="sw-chip"></span><span class="sw-name">${esc(c.name || '')}</span><span class="sw-hex latin">${esc(c.hex)}</span></div>`).join('')}
+            ${pal.map((c, i) => `<div class="swatch" data-a="extra" data-seq="${2 + i}" style="--c:${esc(c.hex)}"><span class="sw-chip"></span><span class="sw-name"${!d.palette?.length && ctx.project ? ` data-ed-kind="project" data-ed-id="${esc(ctx.project.id)}" data-ed-key="brand.palette.${i}.name"` : ''}>${esc(c.name || '')}</span><span class="sw-hex latin">${esc(c.hex)}</span></div>`).join('')}
           </div>
           <div class="board-cell board-type" data-a="extra" data-seq="${2 + pal.length}">
             <div class="type-title">${esc(d.typeTitle || '')}</div>

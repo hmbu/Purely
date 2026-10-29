@@ -47,7 +47,7 @@
       "hint": "",
       "showLogos": true,
       "logosSize": 1,
-      "chooser": false,
+      "chooser": true,
       "eyebrow": "Projects"
     },
     "motion": {

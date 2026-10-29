@@ -613,7 +613,7 @@ function markTint(p, cls) {
   return `<span class="logo-mask ${cls}" data-ar-src="${u}" style="--src:url('${u}')"></span>`;
 }
 const num = i => `<span class="w-num latin">${String(i + 1).padStart(2, '0')}</span>`;
-const tag = p => (p.tagline ? `<span class="w-tag">${esc(p.tagline)}</span>` : '');
+const tag = p => (p.tagline ? `<span class="w-tag" ${edAttr('project', p.id, 'tagline')}>${esc(p.tagline)}</span>` : '');
 const nameAr = p => `<span class="w-name">${esc(p.nameAr || p.name)}</span>`;
 
 const UNIVERSE_HTML = {
@@ -1633,7 +1633,10 @@ async function boot() {
   initZoom();
   if (!PREVIEW) editor = createEditor({
     content: () => S.content,
-    views: () => [{ root: L.hub }, S.slideEl && S.slide ? { root: S.slideEl, owner: { kind: 'slide', id: S.slide.id }, data: S.slide.data } : null],
+    views: () => [{ root: L.hub }, { root: L.universe }, S.slideEl && S.slide ? { root: S.slideEl, owner: { kind: 'slide', id: S.slide.id }, data: S.slide.data } : null,
+      // the pages outside the projects: the review, the approvals and the closing
+      ...[['review', S.content.review], ['decision', S.content.decision], ['closing', S.content.closing]]
+        .filter(([k, data]) => S.level === k && data).map(([kind, data]) => ({ root: L.special, owner: { kind }, data }))],
   });
   if (PREVIEW) {
     stage.classList.add('is-preview');
