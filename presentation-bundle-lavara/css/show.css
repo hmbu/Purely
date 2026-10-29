@@ -1754,3 +1754,5 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .ex-curtain { position: absolute; inset: 0; z-index: 31; display: grid; place-items: center; pointer-events: none; background: var(--g); }
 .ex-curtain::after { content: ''; position: absolute; inset: 0; background: var(--grain); mix-blend-mode: overlay; opacity: .12; }
 .ex-curtain .ex-mark { position: relative; z-index: 1; display: block; width: 14rem; height: 18rem; background-color: currentColor; }
+/* Lavara sectors: the cards carry their words and logos alone — no framed A behind them */
+[data-brand="lavara"] .sc-col .wm { display: none !important; }
