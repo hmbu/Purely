@@ -903,7 +903,7 @@ const ZOOM = () => (reduced() ? 0.6 : 1.5);
 async function enterProject(pid, { sectionId = null, slideIndex = 0, fromLevel = S.level } = {}) {
   const p = findProject(S.content, pid); if (!p) return;
   const prevP = project();
-  if (fromLevel === 'section' || fromLevel === 'hub' || fromLevel === 'decision' || fromLevel === 'closing') {
+  if (fromLevel === 'section' || fromLevel === 'hub' || fromLevel === 'decision' || fromLevel === 'closing' || fromLevel === 'sar') {
     if (prevP?.id === pid && fromLevel === 'hub' && sectionId) return enterSection(sectionId, slideIndex);
     // identity morph straight into the target (brand cover in the target identity)
     const secs = sectionsOf(p); const sec = sectionId ? findSection(p, sectionId) : null;
@@ -947,18 +947,21 @@ async function enterProject(pid, { sectionId = null, slideIndex = 0, fromLevel =
   if (sectionId) await enterSection(sectionId, slideIndex);
 }
 async function slideToShared(p, { sectionId = null, slideIndex = 0 } = {}) {
+  const from = S.level === 'sar' ? L.special : L.universe;
+  if (from === L.special) { logosEl.classList.remove('is-hidden'); }
   S.pid = p.id; S.sid = null; S.level = 'hub'; S.hubPending = null;
   applyBrand(p); renderHub(p);
   logosColor(hubFg(p), hubDark(p));
   show(L.hub, true);
   const k = reduced() ? 0.5 : 1;
   const tl = gsap.timeline();
-  tl.to(L.universe, { yPercent: -100, duration: 1.5 * k, ease: 'power3.inOut' }, 0);
+  tl.to(from, { yPercent: -100, duration: 1.5 * k, ease: 'power3.inOut' }, 0);
   tl.fromTo(L.hub, { yPercent: 100 }, { yPercent: 0, duration: 1.5 * k, ease: 'power3.inOut' }, 0);
   tl.add(() => placeLogos('corner'), 0.25 * k);
   tl.add(hubIntro(), 0.95 * k);
   await tl;
-  startWorlds(false); show(L.universe, false); gsap.set(L.universe, { clearProps: 'all' }); gsap.set(L.hub, { clearProps: 'all' });
+  startWorlds(false); show(from, false); gsap.set(from, { clearProps: 'all' }); gsap.set(L.hub, { clearProps: 'all' });
+  if (from === L.special) L.special.innerHTML = '';
   updateHUD(); broadcastState();
   if (sectionId) await enterSection(sectionId, slideIndex);
 }
@@ -1148,10 +1151,12 @@ async function zoomOut({ strong = false } = {}) {
   }
   if (S.level === 'hub') return toUniverse();
   if (S.level === 'review') return fromReview();
+  if (S.level === 'sar') return sarPrev();
   if (S.level === 'decision' || S.level === 'closing') return toUniverse();
 }
 
 async function toUniverse() {
+  if (S.level === 'sar') logosEl.classList.remove('is-hidden');
   const fromP = project();
   const fromLayer = S.level === 'section' ? L.section : S.level === 'hub' ? L.hub : L.special;
   if (fromP) S.visitedProjects.add(fromP.id);
@@ -1254,7 +1259,7 @@ function renderClosing() {
     </div>`;
   fixAspects(L.special);
 }
-function leaveSpecial(instant) { if (S.level === 'decision' || S.level === 'closing') { show(L.special, false); if (instant) gsap.set(L.special, { clearProps: 'all' }); logosEl.classList.remove('is-hidden'); } }
+function leaveSpecial(instant) { if (S.level === 'decision' || S.level === 'closing' || S.level === 'sar') { show(L.special, false); if (instant) gsap.set(L.special, { clearProps: 'all' }); logosEl.classList.remove('is-hidden'); } }
 
 /* ======================================================================= the review (above the opening screen)
    One page in the shared frame's light identity: what was built and achieved over the last months, as a timeline of
@@ -1335,16 +1340,95 @@ async function toSpecial(kind) {
   broadcastState();
 }
 
+/* ======================================================================= SAR (between the opening screen and the shared frame)
+   A cover (SAR × Bundle × Lavara, the MoU title at the top) then the SAR concept file itself, shown exactly as delivered
+   in a full-page frame. Down or next moves cover → file → shared frame; up or previous goes back the same way. */
+const hasSar = () => !!(S.content.sar && !S.content.sar.hidden && S.content.sar.src);
+function renderSar() {
+  const r = S.content.sar || {};
+  const marks = projectsOf(S.content).filter(p => p.brand.logo).map(p => `<span class="logo-mask sar-team" style="--src:url('${esc(asset(p.brand.logo))}');--c:${esc(p.brand.colors?.primary || '#222')}" aria-label="${esc(p.name)}"></span>`);
+  L.special.innerHTML = `
+    <div class="special sar">
+      <div class="sar-cover">
+        <h1 class="sar-title">${escBr(r.title || '')}</h1>
+        <div class="sar-logos">${r.logo ? `<img class="sar-mark" src="${esc(asset(r.logo))}" alt="SAR">` : ''}${marks.map(m => `<i class="sar-x" aria-hidden="true"></i>${m}`).join('')}</div>
+      </div>
+      <iframe class="sar-file" src="${esc(asset(r.src))}" title="SAR"></iframe>
+    </div>`;
+  const f = $('.sar-file', L.special);
+  f.addEventListener('load', () => { // the file is shown untouched; only the show's own keys are passed up
+    try { f.contentWindow.addEventListener('keydown', e => {
+      const d = f.contentDocument.documentElement, arrows = ['ArrowDown', 'ArrowUp'].includes(e.key) && d.scrollHeight <= f.contentWindow.innerHeight + 2; // arrows only when the file has nothing to scroll
+      if (['PageDown', 'PageUp'].includes(e.key) || ((e.key === 'Escape' || arrows) && !e.defaultPrevented)) { e.preventDefault(); onKey(e); } }); } catch {}
+  });
+}
+function sarStep(n, instant) {
+  S.sarStep = n;
+  const f = $('.sar-file', L.special), cover = $('.sar-cover', L.special); if (!f) return;
+  f.classList.toggle('is-on', n === 1);
+  logosEl.classList.add('is-hidden');
+  if (instant) { gsap.set(f, { opacity: n, yPercent: 0 }); gsap.set(cover, { opacity: 1 - n, scale: 1 }); return; }
+  const tl = gsap.timeline();
+  if (n === 1) {
+    tl.to(cover, { opacity: 0, scale: 0.96, duration: 0.9, ease: 'power2.inOut' }, 0);
+    tl.fromTo(f, { opacity: 0, yPercent: 6 }, { opacity: 1, yPercent: 0, duration: 1.2, ease: 'power3.out' }, 0.35);
+    tl.add(() => f.focus(), 1.2);
+  } else {
+    tl.to(f, { opacity: 0, yPercent: 6, duration: 0.8, ease: 'power2.in' }, 0);
+    tl.fromTo(cover, { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 1.1, ease: 'power3.out' }, 0.4);
+  }
+  sound.play('ui', null, 'neutral'); broadcastState();
+  return tl;
+}
+async function toSar(step = 0) {
+  if (!hasSar() || S.level === 'sar') return;
+  const fromShared = S.level === 'hub' && isShared(project());
+  if (!fromShared && S.level !== 'universe') await toUniverse();
+  const from = fromShared ? L.hub : L.universe, dir = fromShared ? 1 : -1;
+  S.sarSeen = true;
+  if (fromShared) S.visitedProjects.add(S.pid);
+  renderSar(); show(L.special, true); sarStep(step, true);
+  applyBrand(null);
+  sound.play('zoom', null, 'neutral');
+  const tl = gsap.timeline();
+  tl.to(from, { yPercent: -100 * dir, duration: 1.5, ease: 'power3.inOut' }, 0);
+  tl.fromTo(L.special, { yPercent: 100 * dir, opacity: 1 }, { yPercent: 0, duration: 1.5, ease: 'power3.inOut' }, 0);
+  if (!step) {
+    tl.fromTo($('.sar-title', L.special), { opacity: 0, y: pxs(24) }, { opacity: 1, y: 0, duration: 1.3, ease: 'expo.out' }, 0.95);
+    tl.fromTo($$('.sar-logos > *', L.special), { opacity: 0, y: pxs(26) }, { opacity: 1, y: 0, duration: 1.3, ease: 'expo.out', stagger: 0.1 }, 1.1);
+  }
+  S.level = 'sar'; S.pid = null; S.sid = null; startWorlds(false); updateHUD();
+  await tl;
+  [L.universe, L.hub].forEach(l => { show(l, false); gsap.set(l, { clearProps: 'all' }); });
+  broadcastState();
+}
+async function fromSar(down) {
+  if (S.level !== 'sar') return;
+  if (down) { const sh = sharedOf(S.content); return sh ? slideToShared(sh) : toUniverse(); }
+  renderUniverse(); show(L.universe, true);
+  const tl = gsap.timeline();
+  tl.to(L.special, { yPercent: 100, duration: 1.5, ease: 'power3.inOut' }, 0);
+  tl.fromTo(L.universe, { yPercent: -100 }, { yPercent: 0, duration: 1.5, ease: 'power3.inOut' }, 0);
+  S.level = 'universe';
+  logosEl.classList.remove('is-hidden'); logosColor(universeColors().fg, true); placeLogos('hero'); startWorlds(true); updateHUD();
+  await tl;
+  show(L.special, false); gsap.set(L.special, { clearProps: 'all' }); L.special.innerHTML = ''; gsap.set(L.universe, { clearProps: 'all' });
+  broadcastState();
+}
+const sarNext = () => (S.sarStep ? fromSar(true) : sarStep(1));
+const sarPrev = () => (S.sarStep ? sarStep(0) : fromSar(false));
+
 /* ======================================================================= flow: next / previous */
 async function next() {
   if (S.level === 'review') return fromReview();
+  if (S.level === 'sar') return sarNext();
   if (S.level === 'universe' && hasReview() && !S.reviewSeen) return toReview(); // the review opens the show
   if (S.level === 'universe') {
     const ps = projectsOf(S.content);
     const target = ps.find(p => !S.visitedProjects.has(p.id));
     if (target) return enterProject(target.id);
     const sh = sharedOf(S.content);
-    if (sh && !S.visitedProjects.has(sh.id)) return enterProject(sh.id);
+    if (sh && !S.visitedProjects.has(sh.id)) return hasSar() && !S.sarSeen ? toSar() : enterProject(sh.id);
     if (S.content.decision && settings().flow?.afterAllProjects !== 'none') return toSpecial('decision');
     return ps[0] && enterProject(ps[0].id);
   }
@@ -1373,6 +1457,7 @@ async function next() {
 }
 async function prev() {
   if (S.level === 'review') return fromReview();
+  if (S.level === 'sar') return sarPrev();
   if (S.level === 'section') {
     if (S.step > 0) { S.step--; applyStep(S.slideEl, S.step); sound.play('ui', S.pid); broadcastState(); return; }
     if (S.li > 0) {
@@ -1425,8 +1510,9 @@ const ACTIONS = {
   enterSection: a => enterSection(a.sectionId),
   goto: a => gotoTarget(a),
   universe: () => (S.level === 'universe' ? null : toUniverse()),
-  shared: () => { const sh = sharedOf(S.content); if (!sh) return; if (S.level === 'universe') return enterProject(sh.id); if (S.pid !== sh.id) return gotoTarget({ projectId: sh.id }); },
+  shared: () => { const sh = sharedOf(S.content); if (!sh) return; if (S.level === 'universe') return hasSar() ? toSar() : enterProject(sh.id); if (S.level === 'sar') return fromSar(true); if (S.pid !== sh.id) return gotoTarget({ projectId: sh.id }); },
   review: () => (S.level === 'review' ? fromReview() : toReview()),
+  sar: () => (S.level === 'sar' ? fromSar(false) : toSar()),
   decision: () => toSpecial('decision'),
   closing: () => toSpecial('closing'),
 };
@@ -1558,6 +1644,10 @@ function previewShow(target = {}, animate = false) {
     const dp = sharedOf(S.content); S.level = 'review'; S.pid = null; applyBrand(dp, false); renderReview();
     show(L.special, true); dp && logosColor(hubFg(dp), hubDark(dp)); placeLogos('corner', false); updateHUD(); return;
   }
+  if (target.level === 'sar') {
+    if (!hasSar()) return toUniverseInstant();
+    S.level = 'sar'; S.pid = null; applyBrand(null, false); renderSar(); show(L.special, true); sarStep(0, true); updateHUD(); return;
+  }
   if (target.level === 'decision' || target.level === 'closing') {
     const dp = sharedOf(S.content);
     S.level = target.level; S.pid = null; applyBrand(dp, false); target.level === 'decision' ? renderDecision() : renderClosing();
@@ -1592,7 +1682,9 @@ function onKey(e) {
   else if (k === 'ArrowDown' && S.level === 'review') { e.preventDefault(); command('review'); }
   else if (k === 'ArrowUp' && S.level === 'universe' && hasReview()) { e.preventDefault(); command('review'); }
   else if (k === 'ArrowDown' && S.level === 'universe') { e.preventDefault(); command('shared'); }
-  else if (k === 'ArrowUp' && S.level === 'hub' && isShared(project())) { e.preventDefault(); command('universe'); }
+  else if (k === 'ArrowDown' && S.level === 'sar') { e.preventDefault(); command('next'); }
+  else if (k === 'ArrowUp' && S.level === 'sar') { e.preventDefault(); command('prev'); }
+  else if (k === 'ArrowUp' && S.level === 'hub' && isShared(project())) { e.preventDefault(); hasSar() ? toSar(1) : command('universe'); }
   else if (/^[1-9]$/.test(k)) command('number', { n: +k });
   else if (k === 'f' || k === 'F') toggleFullscreen();
   else if (k === 'b' || k === 'B' || k === '.') setBlack(!S.black);
@@ -1635,7 +1727,7 @@ async function boot() {
     content: () => S.content,
     views: () => [{ root: L.hub }, { root: L.universe }, S.slideEl && S.slide ? { root: S.slideEl, owner: { kind: 'slide', id: S.slide.id }, data: S.slide.data } : null,
       // the pages outside the projects: the review, the approvals and the closing
-      ...[['review', S.content.review], ['decision', S.content.decision], ['closing', S.content.closing]]
+      ...[['review', S.content.review], ['sar', S.content.sar], ['decision', S.content.decision], ['closing', S.content.closing]]
         .filter(([k, data]) => S.level === k && data).map(([kind, data]) => ({ root: L.special, owner: { kind }, data }))],
   });
   if (PREVIEW) {

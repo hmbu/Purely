@@ -44,6 +44,7 @@ const textHTML = s => esc(s).replace(/\n/g, '<br>');
 function target(c, owner) {
   if (owner.kind === 'decision') return c.decision;
   if (owner.kind === 'review') return c.review;
+  if (owner.kind === 'sar') return c.sar;
   if (owner.kind === 'closing') return c.closing;
   for (const p of c.projects || []) {
     if (owner.kind === 'project' && p.id === owner.id) return p;

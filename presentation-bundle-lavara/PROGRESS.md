@@ -184,3 +184,7 @@
 
 ## Review page above the opening screen (2026-10-28)
 - New page above the opening screen (the shared frame is below): «ما تم بناؤه وإنجازه خلال الأشهر الثلاثة الماضية» as a timeline of dossier sheets in the shared frame's light identity. Opened by the first «next» of the show, the up arrow, or the ⌃ button; down / next returns. Edited in the control panel (Decision & closing tab → صفحة المراجعة). Items read from the user's handwritten note; uncertain ones to confirm.
+
+## SAR page (before the shared frame)
+- Down from the opening screen: SAR cover (SAR × Bundle × Lavara, title «شراكة بمذكرة تفاهم» top right) → the SAR file exactly as delivered (assets/sar/sar-onboard.html, unmodified, full-page frame) → shared frame. Up goes back the same way.
+- Content: `sar` in content.json (title editable with E; `hidden: true` removes the page).

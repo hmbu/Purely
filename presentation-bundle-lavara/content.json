@@ -2421,5 +2421,11 @@
         "status": "مكتمل"
       }
     ]
+  },
+  "sar": {
+    "hidden": false,
+    "title": "شراكة بمذكرة تفاهم",
+    "logo": "assets/sar/sar-mark.svg",
+    "src": "assets/sar/sar-onboard.html"
   }
 }
