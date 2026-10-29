@@ -273,9 +273,9 @@ void bubble(inout vec3 col, vec2 d, float r, float k, float id, float t){
   float win = 1.0 - smoothstep(0.0, 0.06, length(max(abs(rr - vec2(-0.45, 0.55)) - vec2(0.14, 0.09), 0.0)));
   float win2 = 1.0 - smoothstep(0.0, 0.05, length(max(abs(rr - vec2(0.5, -0.52)) - vec2(0.06, 0.035), 0.0)));
   float kk = cov * k;
-  col = screen(col, tint * film * 0.55 * kk);                    // the skin glows faintly in its colours
-  col = screen(col, LV_IVORY * pow(smoothstep(0.88, 1.0, lc), 3.0) * 0.35 * kk);
-  col = screen(col, vec3(1.0, 0.98, 0.93) * (win * 0.85 + win2 * 0.45) * kk);
+  col = screen(col, tint * film * 0.22 * kk);                    // the skin glows faintly in its colours
+  col = screen(col, LV_IVORY * pow(smoothstep(0.88, 1.0, lc), 3.0) * 0.14 * kk);
+  col = screen(col, vec3(1.0, 0.98, 0.93) * (win * 0.3 + win2 * 0.15) * kk);
 }
 void main(){
   vec2 uv = gl_FragCoord.xy / u_res; float asp = u_res.x / u_res.y;
@@ -293,8 +293,8 @@ void main(){
   float n = 9.0, w = asp / n, ci = floor(p.x / w);
   for (int j = -1; j <= 1; j++) {
     float i = ci + float(j), id = i + 41.0;
-    if (h1(id, 9.0) < 0.25) continue;
-    float r = mix(0.028, 0.06, h1(id, 1.0)), span = 1.24;
+    if (h1(id, 9.0) < 0.5) continue;                                  // few, small and faint: a hint of bubbles, never the subject
+    float r = mix(0.018, 0.034, h1(id, 1.0)), span = 1.24;
     float y = fract(h1(id, 3.0) + t * 0.022 * (0.7 + 0.6 * h1(id, 2.0)) / span) * span - 0.12;
     float x = (i + 0.5) * w + (h1(id, 4.0) - 0.5) * w * 0.4 + sin(t * (0.12 + 0.12 * h1(id, 5.0)) + id * 3.1) * w * 0.3;
     vec2 cc = vec2(x, y);
