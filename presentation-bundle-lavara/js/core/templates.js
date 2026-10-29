@@ -530,8 +530,16 @@ TEMPLATES.canvas = {
   defaults: { eyebrow: 'Business Model', title: 'نموذج العمل', lead: '', blocks: BMC.map(b => ({ title: b.t, text: '', badge: '' })) },
   // after the nine blocks, one press: the value proposition gathers into a small card and branches into its parts
   steps: d => (String(d.valueBranches || '').trim() ? 1 : 0),
+  // The value block itself travels: a copy laid exactly over it keeps its colours and words, then shrinks into the
+  // small card at the top while its sentence fades, and the branches grow out of it.
   applyStep(el, step, instant) {
     const t = el.querySelector('.t-canvas'); if (!t) return;
+    const hub = t.querySelector('.cvb-hub'), v = t.querySelector('.cv-grid .g-value'), box = t.querySelector('.cv-branch');
+    if (hub && v && box) {
+      const R = box.getBoundingClientRect(), V = v.getBoundingClientRect(), k = box.offsetWidth / (R.width || 1);
+      hub.style.setProperty('--fl', `${(V.left - R.left) * k}px`); hub.style.setProperty('--ft', `${(V.top - R.top) * k}px`);
+      hub.style.setProperty('--fw', `${V.width * k}px`); hub.style.setProperty('--fh', `${V.height * k}px`);
+    }
     t.classList.toggle('cvb-instant', !!instant);
     t.classList.toggle('is-branched', step >= 1);
   },
@@ -539,22 +547,20 @@ TEMPLATES.canvas = {
     const bl = (d.blocks || []).slice(0, 9);
     const br = String(d.valueBranches || '').split('\n').map(x => x.trim()).filter(Boolean).slice(0, 4);
     const vt = (bl[3] && bl[3].title) || BMC[3].t;
-    const xs = br.map((_, i) => ((i + 0.5) / br.length) * 1000);
+    const xs = br.map((_, i) => 150 + ((i + 0.5) / br.length) * 700); // the cards sit in the middle 70%
+    const inner = (b, i) => `<div class="cv-top"><span class="cv-n latin">${BMC_NUM[i]}</span><h3 class="cv-t">${esc(b.title || BMC[i].t)}</h3></div>
+            ${b.text ? `<p class="cv-x">${escBr(b.text)}</p>` : ''}${b.badge ? `<span class="cv-badge">${esc(b.badge)}</span>` : ''}`;
     return `
     <div class="t t-canvas ${br.length ? 'has-branches' : ''}">
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
       <div class="cv-legend" data-a="body"><span class="g-infra"><i></i>${esc(d.legendInfra || 'قابلية التنفيذ')}</span><span class="g-cust"><i></i>${esc(d.legendCust || 'رغبة العميل')}</span><span class="g-fin"><i></i>${esc(d.legendFin || 'الجدوى المالية')}</span></div>
       <div class="cv-grid">
         ${bl.map((b, i) => `
-          <div class="cv-b g-${BMC[i].g}" style="grid-area:${BMC[i].area}" data-a="extra" data-seq="${BMC_NUM[i]}">
-            <div class="cv-top"><span class="cv-n latin">${BMC_NUM[i]}</span><h3 class="cv-t">${esc(b.title || BMC[i].t)}</h3></div>
-            ${b.text ? `<p class="cv-x">${escBr(b.text)}</p>` : ''}
-            ${b.badge ? `<span class="cv-badge">${esc(b.badge)}</span>` : ''}
-          </div>`).join('')}
+          <div class="cv-b g-${BMC[i].g}" style="grid-area:${BMC[i].area}" data-a="extra" data-seq="${BMC_NUM[i]}">${inner(b, i)}</div>`).join('')}
       </div>
       ${br.length ? `<div class="cv-branch" aria-hidden="true" style="--bn:${br.length}">
-        <div class="cvb-hub"><span class="cvb-title">${esc(vt)}</span></div>
-        <svg class="cvb-lines" viewBox="0 0 1000 1000" preserveAspectRatio="none">${xs.map((x, i) => `<path pathLength="1" style="--i:${i}" d="M500 250 C500 420 ${1000 - x} 400 ${1000 - x} 560"/>`).join('')}</svg>
+        <div class="cv-b g-value cvb-hub">${inner(bl[3] || { title: vt }, 3)}</div>
+        <svg class="cvb-lines" viewBox="0 0 1000 1000" preserveAspectRatio="none">${xs.map((x, i) => `<path pathLength="1" style="--i:${i}" d="M500 290 C500 440 ${1000 - x} 400 ${1000 - x} 560"/>`).join('')}</svg>
         <div class="cvb-items">${br.map((x, i) => `<div class="cvb-item" style="--i:${i}"><span class="cvb-n latin">(${String(i + 1).padStart(3, '0')})</span><p>${esc(x)}</p></div>`).join('')}</div>
       </div>` : ''}
     </div>`;

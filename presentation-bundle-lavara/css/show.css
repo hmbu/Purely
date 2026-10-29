@@ -1570,31 +1570,34 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="bundle"] .cv-b.g-value, [data-brand="bundle"] .cv-b.g-value .cv-t, [data-brand="bundle"] .cv-b.g-value .cv-n { color: #F9FAFC !important; --stitle: #F9FAFC; }
 
 .cv-branch { position: absolute; top: 19.5rem; bottom: 7rem; right: 8rem; left: 8rem; pointer-events: none; }
-.cvb-hub { position: absolute; left: 50%; top: 0; height: 25%; width: 44rem; translate: -50% 0; display: grid; place-items: center; background: var(--saccent); color: var(--sbg);
-  opacity: 0; scale: 1.7; transition: opacity .7s ease, scale 1.3s cubic-bezier(.16, 1, .3, 1); transition-delay: 0s; }
-.cvb-title { font-family: var(--f-title); font-weight: var(--w-title); font-size: 4rem; }
+.t-canvas .cv-b.cvb-hub { position: absolute !important; left: var(--fl, 40%); top: var(--ft, 0); width: var(--fw, 20%); height: var(--fh, 70%); opacity: 0; z-index: 2;
+  transition: left 1.3s cubic-bezier(.65, 0, .35, 1), top 1.3s cubic-bezier(.65, 0, .35, 1), width 1.3s cubic-bezier(.65, 0, .35, 1), height 1.3s cubic-bezier(.65, 0, .35, 1), opacity 0s linear 1.3s; }
+.cvb-hub .cv-x, .cvb-hub .cv-badge { max-height: 40rem; overflow: hidden; transition: opacity .5s ease .5s, max-height 1.3s cubic-bezier(.65, 0, .35, 1); }
+.cvb-hub .cv-t { transition: font-size 1.3s cubic-bezier(.65, 0, .35, 1); }
 .cvb-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .cvb-lines path { fill: none; stroke: var(--sfg); stroke-width: 1.6; vector-effect: non-scaling-stroke; opacity: .45; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .3s ease; }
-.cvb-items { position: absolute; left: 0; right: 0; top: 56%; bottom: 0; display: grid; grid-template-columns: repeat(var(--bn), 1fr); gap: 3rem; }
-.cvb-item { display: flex; flex-direction: column; justify-content: center; gap: 1.4rem; padding: 3rem 4rem; background: var(--ssurf); opacity: 0; translate: 0 3rem; transition: opacity .3s ease, translate .3s ease; }
+.cvb-items { position: absolute; left: 15%; right: 15%; top: 56%; bottom: 10%; display: grid; grid-template-columns: repeat(var(--bn), 1fr); gap: 2.4rem; }
+.cvb-item { display: flex; flex-direction: column; justify-content: center; gap: 1rem; padding: 2.2rem 3rem; background: var(--ssurf); opacity: 0; translate: 0 3rem; transition: opacity .3s ease, translate .3s ease; }
 .cvb-n { font-family: var(--f-title); font-size: 2rem; opacity: .6; }
-.cvb-item p { margin: 0; font-family: var(--f-title); font-weight: var(--w-title); font-size: 3.4rem; line-height: 1.35; color: var(--stitle); }
+.cvb-item p { margin: 0; font-family: var(--f-title); font-weight: var(--w-title); font-size: 2.6rem; line-height: 1.35; color: var(--stitle); }
 .t-canvas .cv-b, .t-canvas .cv-legend { transition: opacity .9s cubic-bezier(.65, 0, .35, 1), scale 1s cubic-bezier(.65, 0, .35, 1), filter .9s ease; }
 .t-canvas.is-branched .cv-b:not(.g-value), .t-canvas.is-branched .cv-legend { opacity: 0 !important; scale: .96; filter: blur(.4rem); }
-.t-canvas.is-branched .cv-b.g-value { opacity: 0 !important; scale: .42; transition-duration: .9s, 1.1s, .9s; }
-.t-canvas.is-branched .cvb-hub { opacity: 1; scale: 1; transition-delay: .5s; }
+.t-canvas.is-branched .cv-grid .cv-b.g-value { opacity: 0 !important; transition: none; }
+.t-canvas.is-branched .cvb-hub { opacity: 1 !important; left: calc(50% - 15rem); top: 4%; width: 30rem; height: 25%; justify-content: center;
+  transition: left 1.3s cubic-bezier(.65, 0, .35, 1) .15s, top 1.3s cubic-bezier(.65, 0, .35, 1) .15s, width 1.3s cubic-bezier(.65, 0, .35, 1) .15s, height 1.3s cubic-bezier(.65, 0, .35, 1) .15s, opacity 0s; }
+.t-canvas.is-branched .cvb-hub .cv-x, .t-canvas.is-branched .cvb-hub .cv-badge { opacity: 0; max-height: 0; margin: 0; transition: opacity .35s ease, max-height 1.2s cubic-bezier(.65, 0, .35, 1) .15s; }
+.t-canvas.is-branched .cvb-hub .cv-t { font-size: 3.2rem; }
+.t-canvas:not(.is-branched) .cv-grid .cv-b.g-value { transition: opacity 0s linear 1.3s; }
 .t-canvas.is-branched .cvb-lines path { stroke-dashoffset: 0; transition: stroke-dashoffset 1.4s cubic-bezier(.65, 0, .35, 1); transition-delay: calc(1.25s + var(--i) * .18s); }
 .t-canvas.is-branched .cvb-item { opacity: 1; translate: 0 0; transition: opacity 1.1s ease, translate 1.4s cubic-bezier(.16, 1, .3, 1); transition-delay: calc(2s + var(--i) * .28s); }
 .t-canvas.cvb-instant *, .t-canvas.cvb-instant { transition: none !important; }
 /* Bundle: the hub is its green gradient sphere-pill with grain; the branches are white floating cards with a sphere bullet */
-[data-brand="bundle"] .cvb-hub { background: linear-gradient(140deg, #3C8A5E 0%, #245845 70%); color: #F9FAFC; border-radius: 99rem; }
 [data-brand="bundle"] .cvb-item { background: #fff; border-radius: 2.4rem; box-shadow: 0 2.4rem 6rem -2.4rem rgba(10, 18, 21, .22); }
 [data-brand="bundle"] .cvb-n { font-size: 0; width: 3.6rem; height: 3.6rem; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #AEE67F, #245845 75%); opacity: 1; }
 [data-brand="bundle"] .cvb-item p { color: #0A1215; }
 [data-brand="bundle"] .cvb-lines path { stroke: #245845; opacity: .5; stroke-dasharray: 1; }
 /* Lavara: a terracotta lead panel; ivory panels with the hairline inset frame and (001) numbering */
-[data-brand="lavara"] .cvb-hub { background: var(--lv-terra); color: var(--lv-ivory); }
-[data-brand="lavara"] .cvb-hub::after, [data-brand="lavara"] .cvb-item::after { content: ''; position: absolute; inset: 1rem; border: var(--hair) solid currentColor; opacity: .3; pointer-events: none; }
+[data-brand="lavara"] .cvb-item::after { content: ''; position: absolute; inset: 1rem; border: var(--hair) solid currentColor; opacity: .3; pointer-events: none; }
 [data-brand="lavara"] .cvb-item { position: relative; background: var(--lv-ivory); color: var(--lv-brown); }
 [data-brand="lavara"] .cvb-item p { color: var(--lv-brown); }
 [data-brand="lavara"] .cvb-lines path { stroke: var(--lv-brown); }
