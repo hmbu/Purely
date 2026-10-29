@@ -249,7 +249,7 @@ const LAVARA_STYLES = ['silk', 'lather', 'pour', 'drop', 'swirl', 'soap', 'amber
 
 // Bundle: separate spheres, painted one over another (never blended into each other); positions come from a
 // small collision simulation in JS so they also never overlap while they drift.
-const ORB_N = 9;
+const ORB_N = 12;
 const SPHERE = `
 // The brand's gradient circles are flat, vivid two-colour gradients with heavy grain, not shaded balls.
 // Bundle-only modes, so the pairs are bundle-brand.pdf's own: pink→coral, lime→green, sky→deep blue, peach→orange.
