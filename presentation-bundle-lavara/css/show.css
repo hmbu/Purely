@@ -1683,3 +1683,10 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="lavara"] :is(.st-cell, .cp-col, .cvb-item, .sc-col:first-child) .wm { opacity: .06 !important; }
 /* refill lineup: no light cones from above; the products still light up in turn */
 .ln-beam { display: none; }
+
+/* Lavara hub: try its backgrounds in the show itself (numbered as in the gallery and the control panel) */
+.h2-bgs { position: absolute; left: 3rem; bottom: 2.6rem; z-index: 6; display: flex; align-items: center; gap: .5rem; opacity: .45; transition: opacity .6s; color: var(--hfg); }
+.h2-bgs:hover { opacity: 1; }
+.h2-bgs button { appearance: none; border: var(--hair) solid color-mix(in srgb, currentColor 40%, transparent); background: transparent; color: inherit; border-radius: 99rem; min-width: 2.6rem; height: 2.6rem; padding: 0 1rem; font: 500 .95rem/1 var(--f-num, sans-serif); cursor: pointer; }
+.h2-bgs button.on { background: currentColor; }
+.h2-bgs button.on { color: var(--hbg); background: var(--hfg); border-color: transparent; }

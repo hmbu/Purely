@@ -874,6 +874,7 @@ function renderHub(p) {
         ${p.tagline ? `<p class="h2-tag" ${edAttr('project', p.id, 'tagline')}>${esc(p.tagline)}</p>` : ''}
       </div>
       <div class="h2-line"><i class="h2-light"></i></div>
+      ${bgChooserHTML(p)}
       <div class="h2-stations">
         ${secs.map((s, i) => `
           <button class="h2-station ${i <= seen ? 'is-visited' : ''} ${i === nextI ? 'is-next' : ''}" data-section="${esc(s.id)}" data-i="${i}">
@@ -906,6 +907,19 @@ function renderHub(p) {
     hubTex.set({ mode: p.brand.texture, variant: p.brand.textureStyle, colors: mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]], progress: scene ? 1 : mist ? 0.34 : 0.05, alpha: scene ? 1 : mist ? 0.4 : p.brand.textureStyle === 'orbs' ? 0.55 : 0.24, speed: scene ? 1 : 0.4, sweep: 0, ...(fresh ? { seed: 11 } : {}) });
     hubTex.start();
   }
+  // try the project's backgrounds right here: one press swaps the scene (the choice stays for this showing; the
+  // control panel keeps it for good)
+  $$('.h2-bgs button', L.hub).forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation();
+    p.brand.textureStyle = b.dataset.bg;
+    renderHub(p); applyBrand(p, false); logosColor(hubFg(p), hubDark(p));
+    gsap.fromTo($('.h2-bg', L.hub), { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.out' });
+  }));
+}
+function bgChooserHTML(p) {
+  if (PREVIEW || p.brand.texture !== 'mist' || settings().universe?.chooser === false) return '';
+  const keys = Object.keys(LAVARA_SCENES);
+  return `<div class="h2-bgs" title="خلفيات لافارا">${keys.map((k, i) => `<button data-bg="${k}" class="${p.brand.textureStyle === k ? 'on' : ''}" title="${esc(LAVARA_SCENES[k].name)}">${i + 1}</button>`).join('')}</div>`;
 }
 // Measured in layout pixels (offsetLeft), never getBoundingClientRect(): the line is scaled during its intro
 // and the whole page is scaled during camera moves, which used to throw the light off its station.
