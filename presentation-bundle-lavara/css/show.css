@@ -1508,16 +1508,18 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .rv-line { padding: 0 5rem; box-sizing: border-box; }
 .rv-card { left: -28%; right: -28%; }
 
-/* ---------- SAR: cover (SAR × Bundle × Lavara) then the SAR file shown as delivered ---------- */
-.special.sar { padding: 0; background: #FFFFFF; color: #3D3935; }
+/* ---------- SAR: cover (SAR × Lavara/Bundle, all in black) then the SAR file shown as delivered ---------- */
+.special.sar { padding: 0; background: #FFFFFF; color: #141414; overflow: hidden; }
 .sar-cover { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-.sar-title { position: absolute; top: 9rem; right: 10rem; margin: 0; font-family: var(--f-title); font-weight: var(--w-title); font-size: calc(5.2rem * var(--s-title, 1)); line-height: 1.25; color: #3D3935; text-align: right; }
-.sar-title::after { content: ''; display: block; width: 7rem; height: .4rem; margin-top: 2.4rem; margin-inline-start: 0; background: #007891; }
-.sar-logos { display: flex; align-items: center; gap: 6rem; direction: ltr; }
-.sar-mark { height: 11rem; width: auto; display: block; }
-.sar-team { display: block; width: 32rem; height: 8.5rem; background: var(--c); }
-.sar-x { position: relative; width: 3rem; height: 3rem; flex: none; }
-.sar-x::before, .sar-x::after { content: ''; position: absolute; left: 50%; top: 50%; width: 3.6rem; height: .28rem; margin: -.14rem 0 0 -1.8rem; background: #9A948D; transform: rotate(45deg); }
+.sar-title { position: absolute; top: 9rem; right: 10rem; margin: 0; font-family: var(--f-title); font-weight: var(--w-title); font-size: calc(4.6rem * var(--s-title, 1)); line-height: 1.25; color: #141414; text-align: right; }
+.sar-lockup { display: flex; align-items: center; gap: 7.5rem; direction: ltr; }
+.sar-mark { display: block; height: 19rem; width: auto; overflow: visible; fill: #141414; }
+.sar-x { position: relative; width: 4.4rem; height: 4.4rem; flex: none; }
+.sar-x::before, .sar-x::after { content: ''; position: absolute; left: 50%; top: 50%; width: 5.4rem; height: .22rem; margin: -.11rem 0 0 -2.7rem; background: #141414; transform: rotate(45deg); }
 .sar-x::after { transform: rotate(-45deg); }
+.sar-teams { display: flex; flex-direction: column; align-items: flex-start; gap: 3.2rem; }
+.sar-team { display: block; background: #141414; -webkit-mask-position: left center; mask-position: left center; }
+.sar-team.is-lavara { width: 36rem; height: 6.9rem; }
+.sar-team.is-bundle { width: 30rem; height: 7.9rem; }
 .sar-file { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; opacity: 0; pointer-events: none; }
 .sar-file.is-on { pointer-events: auto; }
