@@ -1195,7 +1195,7 @@
               "id": "sl-lp-refill",
               "template": "lineup",
               "transition": "drift",
-              "bg": "#140F0C",
+              "bg": "auto",
               "notes": "",
               "hidden": false,
               "data": {

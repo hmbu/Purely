@@ -765,16 +765,20 @@ TEMPLATES.lineup = {
   fields: [F.eyebrow, F.title, { key: 'lead', type: 'text', label: 'سطر قصير تحت العنوان' },
     { key: 'items', type: 'list', label: 'المنتجات (الأول = اليمين)', item: [{ key: 'image', type: 'image', simple: true, label: 'صورة مفرّغة' }, { key: 'title', type: 'text', label: 'الاسم' }, { key: 'body', type: 'textarea', rows: 2, label: 'سطر وصف' }],
       newItem: { image: '', title: 'منتج', body: '' } },
-    { key: 'spotlight', type: 'toggle', label: 'مسرح مظلم: يُضاء كل منتج بدوره' }],
+    { key: 'spotlight', type: 'toggle', label: 'يُضاء كل منتج بدوره' }],
   defaults: { eyebrow: '', title: 'التشكيلة', lead: '', items: [], spotlight: false },
   render: (d, ctx) => `
     <div class="t t-lineup ${d.spotlight ? 'is-spot' : ''}" style="--n:${(d.items || []).length || 1}">
       ${d.spotlight ? '<div class="ln-stage" data-a="bg"><i class="ln-back"></i><i class="ln-floor"></i></div>' : ''}
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
+      <svg class="ln-defs" width="0" height="0" aria-hidden="true"><filter id="ln-matte" color-interpolation-filters="sRGB">
+        <feColorMatrix type="saturate" values=".8"/>
+        <feComponentTransfer><feFuncR type="table" tableValues="0 .1 .21 .33 .45 .56 .66 .75 .84"/><feFuncG type="table" tableValues="0 .1 .2 .32 .43 .53 .62 .71 .79"/><feFuncB type="table" tableValues="0 .09 .19 .29 .39 .48 .56 .63 .7"/></feComponentTransfer>
+      </filter></svg>
       <div class="ln-row">
         ${(d.items || []).map((it, i) => `
           <div class="ln-item" data-a="extra" data-seq="${i}">
-            <div class="ln-art">${d.spotlight ? '<i class="ln-beam"></i><i class="ln-pool"></i>' : ''}${imgSrc(it.image) ? `<img src="${esc(ctx.asset(imgSrc(it.image)))}" alt="${esc(it.title || '')}">` : ''}</div>
+            <div class="ln-art">${d.spotlight ? '<i class="ln-beam"></i><i class="ln-pool"></i>' : ''}${imgSrc(it.image) ? `<span class="ln-bottle" style="--src:url(&quot;${esc(ctx.asset(imgSrc(it.image)))}&quot;)"><img src="${esc(ctx.asset(imgSrc(it.image)))}" alt="${esc(it.title || '')}"><i class="ln-shade"></i></span>` : ''}</div>
             <div class="ln-text"><span class="ln-roman latin" data-n="(${String(i + 1).padStart(3, '0')})">${ROMAN[i] || i + 1}</span>
             <h3>${esc(it.title || '')}</h3>
             ${it.body ? `<p>${escBr(it.body)}</p>` : ''}</div>

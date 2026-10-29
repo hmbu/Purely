@@ -1692,3 +1692,29 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .h2-bgs button.on { color: var(--hbg); background: var(--hfg); border-color: transparent; }
 /* Lavara: its background shows its brown exactly — no darkening shades over the opening world and the hub */
 .uf-world.style-mist .uf-shade, .hub2.style-mist .h2-shade { display: none; }
+
+/* lineup: each product sits in its own box, so a shade can follow its outline */
+.ln-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+.ln-bottle { position: relative; z-index: 1; display: block; align-self: stretch; width: min(17rem, 62%); }
+.ln-art .ln-bottle img { display: block; width: 100%; height: 100%; max-height: none; object-fit: contain; object-position: center bottom; }
+.ln-shade { display: none; }
+/* Lavara's products as in its film: matte and warm, not glossy. Highlights are rolled off and the colours calmed,
+   and the light falls from above: the base and the sides of each bottle sink into shade. */
+[data-brand="lavara"] .ln-bottle { filter: url(#ln-matte); }
+[data-brand="lavara"] .ln-shade { display: block; position: absolute; inset: 0; pointer-events: none; transition: opacity 1.8s ease;
+  -webkit-mask: var(--src) center bottom / contain no-repeat; mask: var(--src) center bottom / contain no-repeat;
+  background:
+    linear-gradient(90deg, rgba(24, 15, 10, .5), rgba(24, 15, 10, .12) 20%, transparent 38%, transparent 64%, rgba(24, 15, 10, .16) 82%, rgba(24, 15, 10, .55)),
+    linear-gradient(rgba(255, 226, 180, .1), transparent 26%, transparent 42%, rgba(24, 15, 10, .3) 80%, rgba(24, 15, 10, .62)); }
+/* the lit-in-turn lineup on a light page (the identity's own page colour): the products stand as faint shadows,
+   then each comes to colour in turn; a soft shadow at its foot, a warm glow on the wall behind */
+.slide.is-light .t-lineup.is-spot { color: var(--sfg); --stitle: inherit; }
+.slide.is-light .ln-stage { background: none; }
+.slide.is-light .ln-back { background: radial-gradient(70% 80% at 50% 45%, rgba(173, 98, 67, .12), rgba(146, 106, 35, .06) 45%, transparent 75%); }
+.slide.is-light .ln-floor { background: linear-gradient(rgba(60, 46, 37, .045), transparent); }
+.slide.is-light .ln-floor::before { background: linear-gradient(90deg, transparent, rgba(60, 46, 37, .28), transparent); }
+.slide.is-light .ln-pool { bottom: 1.3rem; width: 105%; height: 2.6rem; background: radial-gradient(closest-side, rgba(40, 28, 20, .38), rgba(40, 28, 20, .12) 60%, transparent); }
+.slide.is-light .is-spot .ln-art img { filter: brightness(1) drop-shadow(0 1.6rem 2rem rgba(60, 46, 37, .26)); transition: filter 1.8s ease, opacity 1.8s ease; }
+.slide.is-light .is-spot.is-unlit .ln-item:not(.is-lit) .ln-art img { filter: brightness(0) drop-shadow(0 1.6rem 2rem rgba(60, 46, 37, 0)); opacity: .09; }
+.is-spot.is-unlit .ln-item:not(.is-lit) .ln-shade { opacity: 0; }
+.slide.is-light .is-spot .ln-item p { opacity: .7; }
