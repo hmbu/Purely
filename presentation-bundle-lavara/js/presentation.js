@@ -917,7 +917,7 @@ function renderHub(p) {
   }));
 }
 function bgChooserHTML(p) {
-  if (PREVIEW || p.brand.texture !== 'mist' || settings().universe?.chooser === false) return '';
+  if (PREVIEW || p.brand.texture !== 'mist' || settings().universe?.chooser === false || Object.keys(LAVARA_SCENES).length < 2) return '';
   const keys = Object.keys(LAVARA_SCENES);
   return `<div class="h2-bgs" title="خلفيات لافارا">${keys.map((k, i) => `<button data-bg="${k}" class="${p.brand.textureStyle === k ? 'on' : ''}" title="${esc(LAVARA_SCENES[k].name)}">${i + 1}</button>`).join('')}</div>`;
 }
