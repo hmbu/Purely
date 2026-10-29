@@ -86,7 +86,9 @@ export async function saveContent(c, { backup = false, reason = 'auto', publish 
   }
   if (hasGithub()) {
     if (!publish) return { ok: true, mode: 'github', pending: true };
-    const r = await ghPutFile('content.json', b64utf8(JSON.stringify(c, null, 2)), `Update presentation content (${reason})`, force ? null : loadedSha);
+    // a panel that never read the published file (GitHub load failed, it fell back to an older copy) must not
+    // overwrite it silently: without a known sha any published file counts as a conflict
+    const r = await ghPutFile('content.json', b64utf8(JSON.stringify(c, null, 2)), `Update presentation content (${reason})`, force ? null : (loadedSha || 'not-loaded'));
     loadedSha = r?.content?.sha || null;
     return { ok: true, mode: 'github', savedAt: new Date().toISOString() };
   }

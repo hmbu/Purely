@@ -2,7 +2,7 @@
   "version": 1,
   "meta": {
     "title": "Bundle × Lavara",
-    "updatedAt": "2026-10-29T08:39:52.717Z"
+    "updatedAt": "2026-10-29T10:00:00.000Z"
   },
   "fonts": [
     {
@@ -47,11 +47,11 @@
       "hint": "",
       "showLogos": true,
       "logosSize": 1,
-      "chooser": false,
+      "chooser": true,
       "eyebrow": "Projects"
     },
     "motion": {
-      "speed": 1,
+      "speed": 0.8,
       "reduced": "auto",
       "textureScale": 0.5
     },
@@ -116,7 +116,7 @@
       "sectionTransition": "hub",
       "afterSection": "wait",
       "titleCards": true,
-      "sectionStyle": "merged"
+      "sectionStyle": "cover"
     },
     "tone": "quiet",
     "eyebrows": false
@@ -1170,7 +1170,7 @@
                       "fit": "cover",
                       "focal": {
                         "x": 50,
-                        "y": 45
+                        "y": 50
                       }
                     }
                   }
@@ -1433,6 +1433,35 @@
                 "showLogo": false,
                 "showMark": true
               }
+            },
+            {
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "id": "sl-lp-dash",
+              "template": "screens",
+              "data": {
+                "eyebrow": "",
+                "title": "لوحة التحكم للفندق",
+                "points": "إدارة الطلبات\nمتابعة المخزون\nمتابعة الطلبات\nتفويض الطلبات",
+                "back": {
+                  "src": "assets/lavara/digital/dashboard-products.webp",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 0,
+                    "y": 0
+                  }
+                },
+                "front": {
+                  "src": "assets/lavara/digital/dashboard-overview.webp",
+                  "fit": "cover",
+                  "focal": {
+                    "x": 0,
+                    "y": 0
+                  }
+                }
+              }
             }
           ],
           "desc": "تجربة الطلب أونلاين"
@@ -1513,8 +1542,8 @@
               "hidden": false,
               "data": {
                 "eyebrow": "",
-                "title": "النموذج التشغيلي · باندل",
-                "lead": "من البيع إلى ما بعد التسليم",
+                "title": "النموذج التشغيلي",
+                "lead": "Bundle",
                 "color": "#245845",
                 "full": "",
                 "phases": [
@@ -1567,8 +1596,8 @@
               "hidden": false,
               "data": {
                 "eyebrow": "",
-                "title": "النموذج التشغيلي · باندل",
-                "lead": "المخطط الكامل",
+                "title": "النموذج التشغيلي",
+                "lead": "Bundel",
                 "image": "assets/shared/opmodel-bundle-light.png",
                 "zoom": true
               }
@@ -1582,8 +1611,8 @@
               "hidden": false,
               "data": {
                 "eyebrow": "",
-                "title": "النموذج التشغيلي · المستلزمات الفندقية",
-                "lead": "من العينة إلى إعادة الملء",
+                "title": "النموذج التشغيلي",
+                "lead": "LAVARA",
                 "color": "#AD6243",
                 "full": "",
                 "phases": [
@@ -1636,8 +1665,8 @@
               "hidden": false,
               "data": {
                 "eyebrow": "",
-                "title": "النموذج التشغيلي · المستلزمات الفندقية",
-                "lead": "المخطط الكامل",
+                "title": "النموذج التشغيلي",
+                "lead": "LAVARA",
                 "image": "assets/shared/opmodel-hotels-light.png",
                 "zoom": true
               }
@@ -2201,63 +2230,139 @@
     }
   ],
   "decision": {
-    "eyebrow": "Decision Point",
-    "question": "ما القرار اليوم؟",
+    "eyebrow": "",
+    "question": "الاعتماد",
     "showTimer": false,
     "groups": [
       {
-        "id": "dg-bundle",
-        "title": "Bundle",
-        "projectId": "bundle",
-        "options": [
-          {
-            "id": "b1",
-            "label": "المفهوم الأول"
-          },
-          {
-            "id": "b2",
-            "label": "المفهوم الثاني"
-          },
-          {
-            "id": "b3",
-            "label": "المفهوم الثالث"
-          }
-        ]
-      },
-      {
-        "id": "dg-lavara",
-        "title": "Lavara",
-        "projectId": "lavara",
-        "options": [
-          {
-            "id": "l1",
-            "label": "المفهوم الأول"
-          },
-          {
-            "id": "l2",
-            "label": "المفهوم الثاني"
-          },
-          {
-            "id": "l3",
-            "label": "المفهوم الثالث"
-          }
-        ]
-      },
-      {
-        "id": "dg-next",
-        "title": "الخطوة التالية",
+        "id": "dg-perfume",
+        "title": "العطور / الزيوت العطرية",
         "projectId": "",
         "options": [
           {
-            "id": "n1",
+            "id": "pf-1",
+            "label": "عطور الماجد فقط"
+          },
+          {
+            "id": "pf-2",
+            "label": "عطور لافارا فقط"
+          },
+          {
+            "id": "pf-3",
+            "label": "العطران معاً"
+          }
+        ]
+      },
+      {
+        "id": "dg-fin",
+        "title": "النموذج المالي",
+        "projectId": "",
+        "options": [
+          {
+            "id": "dg-fin-1",
             "label": "اعتماد"
           },
           {
-            "id": "n2",
-            "label": "تعديل"
+            "id": "dg-fin-2",
+            "label": "اعتماد مع تعديل"
           },
           {
-            "id": "n3",
+            "id": "dg-fin-3",
+            "label": "تأجيل"
+          }
+        ]
+      },
+      {
+        "id": "dg-ops",
+        "title": "النموذج التشغيلي",
+        "projectId": "",
+        "options": [
+          {
+            "id": "dg-ops-1",
+            "label": "اعتماد"
+          },
+          {
+            "id": "dg-ops-2",
+            "label": "اعتماد مع تعديل"
+          },
+          {
+            "id": "dg-ops-3",
+            "label": "تأجيل"
+          }
+        ]
+      },
+      {
+        "id": "dg-legal",
+        "title": "الإطار القانوني",
+        "projectId": "",
+        "options": [
+          {
+            "id": "dg-legal-1",
+            "label": "اعتماد"
+          },
+          {
+            "id": "dg-legal-2",
+            "label": "اعتماد مع تعديل"
+          },
+          {
+            "id": "dg-legal-3",
+            "label": "تأجيل"
+          }
+        ]
+      },
+      {
+        "id": "dg-bm",
+        "title": "نموذج العمل",
+        "projectId": "",
+        "options": [
+          {
+            "id": "dg-bm-1",
+            "label": "اعتماد"
+          },
+          {
+            "id": "dg-bm-2",
+            "label": "اعتماد مع تعديل"
+          },
+          {
+            "id": "dg-bm-3",
+            "label": "تأجيل"
+          }
+        ]
+      },
+      {
+        "id": "dg-tri",
+        "title": "الاتفاقية الثلاثية",
+        "projectId": "",
+        "options": [
+          {
+            "id": "dg-tri-1",
+            "label": "اعتماد"
+          },
+          {
+            "id": "dg-tri-2",
+            "label": "اعتماد مع تعديل"
+          },
+          {
+            "id": "dg-tri-3",
+            "label": "تأجيل"
+          }
+        ]
+      },
+      {
+        "id": "dg-ceo",
+        "title": "الرئيس التنفيذي",
+        "projectId": "",
+        "options": [
+          {
+            "id": "dg-ceo-1",
+            "label": "اعتماد"
+          },
+          {
+            "id": "dg-ceo-2",
+            "label": "اعتماد مع تعديل"
+          },
+          {
+            "id": "dg-ceo-3",
             "label": "تأجيل"
           }
         ]
@@ -2274,5 +2379,53 @@
     "contact": "",
     "showDecisions": true,
     "decisionsTitle": "ما تم اعتماده"
+  },
+  "review": {
+    "eyebrow": "Timeline",
+    "title": "ما تم بناؤه وإنجازه خلال الأشهر الثلاثة الماضية",
+    "subtitle": "",
+    "items": [
+      {
+        "title": "نموذج العمل",
+        "body": "بندل ولافارا",
+        "status": "مكتمل"
+      },
+      {
+        "title": "النموذج التشغيلي",
+        "body": "من الطلب إلى التسليم",
+        "status": "مكتمل"
+      },
+      {
+        "title": "النموذج المالي",
+        "body": "الإيرادات والهوامش لخمس سنوات",
+        "status": "مكتمل"
+      },
+      {
+        "title": "الإطار القانوني",
+        "body": "الهيكل والاتفاقيات",
+        "status": "مكتمل"
+      },
+      {
+        "title": "الهوية البصرية",
+        "body": "بندل ولافارا",
+        "status": "مكتمل"
+      },
+      {
+        "title": "المنتجات",
+        "body": "الرقمية والمادية",
+        "status": "مكتمل"
+      },
+      {
+        "title": "مرحلة الفحص والتحقق",
+        "body": "",
+        "status": "مكتمل"
+      }
+    ]
+  },
+  "sar": {
+    "hidden": false,
+    "title": "شراكة بمذكرة تفاهم",
+    "logo": "assets/sar/sar-mark.svg",
+    "src": "assets/sar/sar-onboard.html"
   }
 }
