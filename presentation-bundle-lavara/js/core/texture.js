@@ -468,11 +468,12 @@ export class BrandTexture {
     const gl = this.gl;
     const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    for (const [name, src] of [['bubbles', BUBBLES], ['mist', MIST], ['orbs', ORBS], ['strips', STRIPS], ['stacks', STACKS], ['silk', SILK], ['lather', LATHER], ['pour', POUR], ['drop', DROP], ['swirl', SWIRL], ['soap', SOAP], ['amber', AMBER], ...Object.entries(LAVARA_SCENE_SRC), ...SCENE_PROGS]) {
+    // a scene that fails to compile is left out on its own; it never takes the other backgrounds down with it
+    progs: for (const [name, src] of [['bubbles', BUBBLES], ['mist', MIST], ['orbs', ORBS], ['strips', STRIPS], ['stacks', STACKS], ['silk', SILK], ['lather', LATHER], ['pour', POUR], ['drop', DROP], ['swirl', SWIRL], ['soap', SOAP], ['amber', AMBER], ...Object.entries(LAVARA_SCENE_SRC), ...SCENE_PROGS]) {
       const prog = gl.createProgram();
       for (const [type, code] of [[gl.VERTEX_SHADER, VERT], [gl.FRAGMENT_SHADER, src]]) {
         const sh = gl.createShader(type); gl.shaderSource(sh, code); gl.compileShader(sh);
-        if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) { console.warn(name, gl.getShaderInfoLog(sh)); this.ok = false; return; }
+        if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) { console.warn(name, gl.getShaderInfoLog(sh)); continue progs; }
         gl.attachShader(prog, sh);
       }
       gl.bindAttribLocation(prog, 0, 'a'); gl.linkProgram(prog);

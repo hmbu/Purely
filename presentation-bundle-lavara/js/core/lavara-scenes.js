@@ -148,6 +148,7 @@ S2.w1 = W('سطح ماء', `
   col = press(col, q, vec2(asp * 0.88, 0.5), 1.0, 0.0, 1.0, lp, L, warm);
   col = caustic(col, q, t, calm, L, warm, 1.0);`);
 S2.w2 = W('قطرة وتموّج', `
+  float amp = 1.0;
   vec2 q = p + water(p, t) * 0.012;
   for (int k = 0; k < 2; k++) {                       // a drop falls on each A in turn; its ring spreads over the page
     float fk = float(k), ph = fract(t / 7.0 + fk * 0.5);
