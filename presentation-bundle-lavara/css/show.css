@@ -1991,3 +1991,7 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .sar-gate .gate-page { fill: #FFFFFF; }
 .sar-gate .sar-s, .sar-gate .sar-r { fill: #3D3935; }
 .sar-gate .sar-road { fill: #007891; }
+
+.sar-gate { background: #FFFFFF; display: grid; place-items: center; overflow: hidden; }
+.sar-gate .sar-mark { height: 17rem; width: auto; overflow: visible; }
+.sar-gate .sar-train { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; will-change: transform; }

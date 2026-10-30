@@ -1489,19 +1489,19 @@ const hasSar = () => !!(S.content.sar && !S.content.sar.hidden && S.content.sar.
 function renderSar() {
   stopRvTex();
   const r = S.content.sar || {};
-  // no cover page: the file waits behind a white page that carries SAR's mark. The page has a hole exactly between the
-  // mark's two blue lines, so the train already shows through them; on the way in the camera flies through that gap.
+  // no cover page: the file waits behind a white page that carries SAR's mark and the file's own train (its cover
+  // plate, 1600 × 900, fitted the way the file fits it), so the train can stop exactly where the file shows it.
   L.special.innerHTML = `
     <div class="special sar">
       <iframe class="sar-file is-on" src="${esc(asset(r.src))}" title="SAR"></iframe>
-      <svg class="sar-gate" viewBox="-90 626 1200 675" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <defs><mask id="sar-hole" maskUnits="userSpaceOnUse" x="-9000" y="-9000" width="20000" height="20000">
-          <rect x="-9000" y="-9000" width="20000" height="20000" fill="#fff"/><g class="gate-z"><polygon points="458,1038 503,889 511,889 555,1038" fill="#000"/></g></mask></defs>
-        <rect class="gate-page" x="-9000" y="-9000" width="20000" height="20000" mask="url(#sar-hole)"/>
-        <path class="sar-s" d="M386 889H313A45 45 0 0 0 313 979H357A15 15 0 0 1 357 1009H276V1038H357A44.5 44.5 0 0 0 357 949H313A15 15 0 0 1 313 919H386Z"/>
-        <g class="gate-z sar-road"><path d="M409 1038L487 889H503L458 1038Z"/><path d="M511 889H526L604 1038H555Z"/></g>
-        <path class="sar-r" d="M627 889H707A44 44 0 0 1 718 975L752 1037H720L670 949H707A15 15 0 0 0 707 919H656V1038H627Z"/>
-      </svg>
+      <div class="sar-gate">
+        <svg class="sar-mark" viewBox="266 887 488 153" aria-hidden="true">
+          <path class="sar-s" d="M386 889H313A45 45 0 0 0 313 979H357A15 15 0 0 1 357 1009H276V1038H357A44.5 44.5 0 0 0 357 949H313A15 15 0 0 1 313 919H386Z"/>
+          <g class="sar-road"><path d="M409 1038L487 889H503L458 1038Z"/><path d="M511 889H526L604 1038H555Z"/></g>
+          <path class="sar-r" d="M627 889H707A44 44 0 0 1 718 975L752 1037H720L670 949H707A15 15 0 0 0 707 919H656V1038H627Z"/>
+        </svg>
+        <img class="sar-train" src="${esc(asset('assets/sar/sar-train.webp'))}" alt="">
+      </div>
     </div>`;
   const f = $('.sar-file', L.special);
   f.addEventListener('load', () => { // the file is shown untouched; only the show's own keys are passed up
@@ -1519,18 +1519,15 @@ function renderSar() {
     } catch {}
   });
 }
-// the way in: S and R part, then the two blue lines grow past the edges of the screen while the gap between them
-// (the hole in the page) opens onto the train. Scaled about a point low in the gap, so the road rushes towards us.
-const SAR_GATE = { x: 506.5, y: 1030 };
+// the way in: SAR's mark on white; the file's train glides in from the right and passes over it, slowing to a stop
+// exactly where the file has it; then the white page fades and the file (the same train, now in its desert) remains.
 function sarGate(tl, at) {
-  const zs = $$('.gate-z', L.special), svg = $('.sar-gate', L.special), sR = $$('.sar-s, .sar-r', L.special); if (!svg) return;
-  const k = { v: 1 }, apply = () => zs.forEach(g => g.setAttribute('transform', `translate(${SAR_GATE.x} ${SAR_GATE.y}) scale(${k.v}) translate(${-SAR_GATE.x} ${-SAR_GATE.y})`));
-  apply(); gsap.set(svg, { autoAlpha: 1 }); gsap.set(sR, { x: 0, opacity: 1 });
-  tl.to(sR[0], { x: -150, opacity: 0, duration: 0.9, ease: 'power3.in' }, at);
-  tl.to(sR[1], { x: 150, opacity: 0, duration: 0.9, ease: 'power3.in' }, at);
-  tl.to(k, { v: 48, duration: 1.8, ease: 'power3.in', onUpdate: apply }, at + 0.35);
-  tl.set(svg, { autoAlpha: 0 }, at + 2.15);
-  tl.add(() => $('.sar-file', L.special)?.focus(), at + 2.15);
+  const gate = $('.sar-gate', L.special), mark = $('.sar-mark', L.special), train = $('.sar-train', L.special); if (!gate) return;
+  gsap.set(gate, { autoAlpha: 1 }); gsap.set(mark, { opacity: 1, scale: 1 }); gsap.set(train, { xPercent: 105, yPercent: -20, opacity: 1 }); // along its own track: from the far end, down towards us
+  tl.to(train, { xPercent: 0, yPercent: 0, duration: 3, ease: 'power3.out' }, at);
+  tl.to(mark, { opacity: 0, scale: 0.96, duration: 1.2, ease: 'power2.in' }, at + 1.1);
+  tl.to(gate, { autoAlpha: 0, duration: 1.4, ease: 'power1.inOut' }, at + 3.1);
+  tl.add(() => $('.sar-file', L.special)?.focus(), at + 4.5);
 }
 const sarOpen = () => gsap.set($('.sar-gate', L.special), { autoAlpha: 0 }); // straight to the file (preview, return)
 async function toSar(step = 0) {
