@@ -2062,3 +2062,7 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .so-film.is-end .so-end-logo { opacity: 1; scale: 1; filter: blur(0); }
 .so-film.is-dark-end .so-film-end { background: radial-gradient(ellipse 60% 55% at 50% 50%, rgba(10, 18, 21, .5), rgba(10, 18, 21, .2) 70%, rgba(10, 18, 21, 0)); }
 .so-film.is-dark-end .so-end-logo { color: #fff !important; }
+/* Lavara sectors: the logos sit just under the words (one level across the cards: the words keep three lines' room),
+   and the room left over stays at the bottom */
+[data-brand="lavara"] .sc-body { min-height: calc(3 * 1.75em); }
+[data-brand="lavara"] .sc-logos { margin-top: 0; padding-top: 3.6rem; }
