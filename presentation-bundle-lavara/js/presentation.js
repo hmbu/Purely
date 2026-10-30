@@ -1321,6 +1321,7 @@ async function toUniverse() {
 
 /* ======================================================================= Decision Point + Closing */
 function renderDecision() {
+  stopRvTex();
   const d = S.content.decision || {};
   const sel = S.decision.selections;
   L.special.innerHTML = `
@@ -1365,6 +1366,7 @@ function decisionSummary() {
   return (d.groups || []).map(g => { const o = (g.options || []).find(x => x.id === sel[g.id]); return o ? { group: g.title, option: o.label, projectId: g.projectId } : null; }).filter(Boolean);
 }
 function renderClosing() {
+  stopRvTex();
   const c = S.content.closing || {};
   const ps = projectsOf(S.content);
   const sum = c.showDecisions !== false ? decisionSummary() : [];
@@ -1391,10 +1393,21 @@ function leaveSpecial(instant) { if (S.level === 'decision' || S.level === 'clos
    One page in the shared frame's light identity: what was built and achieved over the last months, as a timeline of
    dossier cards. It sits above the opening screen (the shared frame sits below): up to open it, down or next to return. */
 const hasReview = () => !!(S.content.review && !S.content.review.hidden && (S.content.review.items || []).length);
+// the review stands on the shared frame's own moving background (its pearl and gold), like the shared frame's page
+let rvTex = null;
+function stopRvTex() { if (rvTex) { rvTex.stop(); rvTex = null; } }
+function startRvTex() {
+  stopRvTex(); const dp = sharedOf(S.content), cv = $('.rv-tex', L.special); if (!dp || !cv || reduced()) return;
+  const { tex } = pooledTexture('review-' + dp.id + (dp.brand.textureStyle || ''), cv, texScale(dp)); rvTex = tex;
+  const scene = !!sceneOf(dp), tc = dp.brand.textureColors || [];
+  tex.set({ mode: dp.brand.texture, variant: dp.brand.textureStyle, colors: [tc[1], tc[2], tc[3], tc[1]], progress: scene ? 1 : 0.34, alpha: scene ? 1 : 0.4, speed: scene ? 1 : 0.4, sweep: 0 });
+  tex.start();
+}
 function renderReview() {
   const r = S.content.review || {}, items = (r.items || []).filter(x => !x.hidden);
+  stopRvTex();
   L.special.innerHTML = `
-    <div class="special review">
+    <div class="special review"><canvas class="rv-tex"></canvas>
       <div class="rv-head">${r.eyebrow ? `<div class="rv-eyebrow latin">${esc(r.eyebrow)}</div>` : ''}<h1 class="rv-title"${kt(r.title)}</h1>${r.subtitle ? `<p class="rv-sub">${escBr(r.subtitle)}</p>` : ''}</div>
       <div class="rv-line" style="--n:${items.length}"><i class="rv-axis"></i>
         ${items.map((it, i) => `<div class="rv-item ${i % 2 ? 'is-down' : 'is-up'}">
@@ -1403,6 +1416,7 @@ function renderReview() {
         </div>`).join('')}
       </div>
     </div>`;
+  startRvTex();
 }
 async function toReview() {
   if (!hasReview() || S.level === 'review') return;
@@ -1425,6 +1439,7 @@ async function toReview() {
 }
 async function fromReview() {
   if (S.level !== 'review') return;
+  setTimeout(stopRvTex, 1600); // after the page has slid away
   renderUniverse(); show(L.universe, true); applyBrand(null);
   const tl = gsap.timeline();
   tl.to(L.special, { yPercent: -100, duration: 1.5, ease: 'power3.inOut' }, 0);
@@ -1477,6 +1492,7 @@ const SAR_SVG = `<svg class="sar-mark" viewBox="266 887 488 153" role="img" aria
   <g class="sar-road"><path d="M409 1038L487 889H503L458 1038Z"/><path d="M511 889H526L604 1038H555Z"/></g>
   <path class="sar-r" d="M627 889H707A44 44 0 0 1 718 975L752 1037H720L670 949H707A15 15 0 0 0 707 919H656V1038H627Z"/></svg>`;
 function renderSar() {
+  stopRvTex();
   const r = S.content.sar || {};
   const order = ['lavara', 'bundle'];
   const teams = projectsOf(S.content).filter(p => p.brand.logo).sort((a, b) => (order.indexOf(a.id) + 1 || 9) - (order.indexOf(b.id) + 1 || 9));
@@ -1810,6 +1826,7 @@ function toUniverseInstant() {
 
 /* ======================================================================= preview mode (control panel iframe) */
 function previewShow(target = {}, animate = false) {
+  stopRvTex();
   [L.universe, L.hub, L.section, L.special].forEach(l => { show(l, false); gsap.set(l, { clearProps: 'all' }); });
   unmountSlide(S.slideEl); slidesHost.innerHTML = ''; S.slideEl = null; startWorlds(false);
   logosEl.classList.remove('is-hidden');

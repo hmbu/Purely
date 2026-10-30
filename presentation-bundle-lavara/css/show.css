@@ -1980,3 +1980,7 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .is-cards .d-opt.is-on { background: #1E1B17; color: #F7F3EC; }
 .is-cards .d-group:not(.is-approved) { border-top-color: #B08A4E; }
 .is-cards .d-done { border: 0; box-shadow: none; }
+
+/* the review on the shared frame's moving background */
+.special.review > .rv-tex { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+.special.review > :not(.rv-tex) { position: relative; z-index: 1; }
