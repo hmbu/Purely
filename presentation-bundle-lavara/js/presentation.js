@@ -617,7 +617,8 @@ async function coverTransition({ p, dir = 1, card = null, light = false, swap, a
       tl.fromTo(title, fT, { x: 0, y: 0, scale: 1, opacity: 1, duration: 1.3, ease: 'expo.inOut' }, t0 + 0.4);
       tl.fromTo(cardEls.filter(x => x !== num && x !== title), { opacity: 0, y: pxs(14) }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.06 }, t0 + 0.55);
     } else {
-      tl.fromTo($('.cover-card', coverEl), { clipPath: 'inset(0% 50% 0% 50%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.15, ease: 'expo.inOut' }, t0 + 0.48);
+      // the reveal opens past the card's edges: Arabic letters reach outside its box (the first letter, ج and ل below)
+      tl.fromTo($('.cover-card', coverEl), { clipPath: 'inset(-25% 50% -40% 50%)' }, { clipPath: 'inset(-25% -15% -40% -15%)', duration: 1.15, ease: 'expo.inOut', clearProps: 'clipPath' }, t0 + 0.48);
       tl.fromTo(cardEls, { opacity: 0, y: pxs(14) }, { opacity: 1, y: 0, duration: 0.9, ease: 'expo.out', stagger: 0.06 }, t0 + 0.55);
     }
     tl.fromTo($('.cv-rule', coverEl), { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: 'expo.inOut' }, t0 + 0.6);
