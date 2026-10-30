@@ -826,14 +826,25 @@ TEMPLATES.showcase = {
   },
 };
 
+// how light a video's current frame is (a small sample); false when it cannot be read
+function frameIsDark(v) {
+  try {
+    const c = document.createElement('canvas'); c.width = 32; c.height = 18;
+    const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(v, 0, 0, 32, 18);
+    const px = g.getImageData(0, 0, 32, 18).data; let sum = 0;
+    for (let i = 0; i < px.length; i += 4) sum += 0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2];
+    return sum / (px.length / 4) < 120;
+  } catch { return false; }
+}
 TEMPLATES.sources = {
   name: 'مصادر / أنواع (بطاقات بأشكال)', en: 'Sources', group: 'extra', defaultBg: 'background', suggested: 'المنتجات',
   fields: [F.eyebrow, F.title, { key: 'items', type: 'list', label: 'البطاقات', item: [{ key: 'pill', type: 'text', label: 'الوسم' }, { key: 'title', type: 'textarea', rows: 2, label: 'الوصف' },
     { key: 'tone', type: 'select', label: 'اللون', options: TONES5 }, { key: 'featured', type: 'toggle', label: 'بطاقة بارزة' },
     F.video('video', 'فيديو يخرج من البطاقة (بالنقر)')], newItem: { pill: '', title: '', tone: 't1', featured: false } }],
   defaults: { eyebrow: '', title: 'المصادر', items: [] },
-  // a card may carry a film: the next press grows that card from its place until it fills the screen and the film plays
-  steps: d => ((d.items || []).some(x => vidSrc(x.video)) ? 1 : 0),
+  // a card may carry a film: the next press grows that card from its place until it fills the screen and the film plays;
+  // it ends held on its last frame, blurred, with the brand's logo coming up; the press after folds it back into its card
+  steps: d => ((d.items || []).some(x => vidSrc(x.video)) ? 2 : 0),
   applyStep(el, step, instant) {
     const t = el.querySelector('.t-sources'), film = t?.querySelector('.so-film'); if (!film) return;
     const card = t.querySelector('.so-card.has-film'), v = film.querySelector('video'), stage = document.getElementById('stage');
@@ -850,14 +861,18 @@ TEMPLATES.sources = {
       v.animate([{ opacity: open ? 0 : 1, transform: open ? 'scale(1.12)' : 'scale(1)' }, { opacity: open ? 1 : 0, transform: open ? 'scale(1)' : 'scale(1.12)' }],
         { duration: open ? 1900 : 900, delay: open ? 450 : 0, easing: 'cubic-bezier(.16, 1, .3, 1)', fill: 'forwards' });
     };
-    const open = step >= 1;
-    if (open === film.classList.contains('on') || (open && film.dataset.done)) return; // after the film has played, the press moves on
+    const open = step === 1;
+    if (open === film.classList.contains('on')) return;
     if (open) {
-      move(true); v.currentTime = 0;
-      // when the film ends it folds back into its card on the same slide; the next press then goes to the next slide
-      v.onended = () => { film.dataset.done = '1'; move(false); };
+      film.classList.remove('is-end'); move(true); v.currentTime = 0;
+      // the closing stays until the next press; it reads how light the film's last frame is (the film may be replaced),
+      // so a dark ending gets a dark veil and the logo in white
+      v.onended = () => { film.classList.toggle('is-dark-end', frameIsDark(v)); film.classList.add('is-end'); };
       if (!instant) setTimeout(() => v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }), 650);
-    } else { v.pause(); delete film.dataset.done; move(false); }
+    } else {
+      v.pause(); v.onended = null; move(false); // folds back still blurred, then the film is reset for another showing
+      setTimeout(() => { if (!film.classList.contains('on')) film.classList.remove('is-end'); }, instant ? 0 : 1400);
+    }
   },
   render: (d, ctx) => {
     const fi = (d.items || []).findIndex(x => vidSrc(x.video)), fv = fi >= 0 ? vidSrc(d.items[fi].video) : '';
@@ -874,7 +889,8 @@ TEMPLATES.sources = {
           </div>`).join('')}
       </div>
       ${fv ? `<div class="so-film" aria-hidden="true"><video src="${esc(ctx.asset(fv))}" playsinline preload="auto"></video>
-        <div class="so-film-cap">${d.items[fi].pill ? `<span class="so-pill">${esc(d.items[fi].pill)}</span>` : ''}<h3>${escBr(d.items[fi].title || '')}</h3></div></div>` : ''}
+        <div class="so-film-cap">${d.items[fi].pill ? `<span class="so-pill">${esc(d.items[fi].pill)}</span>` : ''}<h3>${escBr(d.items[fi].title || '')}</h3></div>
+        ${ctx?.brand?.logo ? `<div class="so-film-end"><span class="logo-mask so-end-logo" role="img" aria-label="${esc(ctx.project?.name || '')}" style="--src:url('${esc(ctx.asset(ctx.brand.logo))}');color:${esc(ctx.brand.colors?.title || ctx.brand.colors?.primary || '#fff')}"></span></div>` : ''}</div>` : ''}
     </div>`;
   },
 };
