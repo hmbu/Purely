@@ -189,6 +189,7 @@
 - Down from the opening screen: SAR cover (SAR × Bundle × Lavara, title «شراكة بمذكرة تفاهم» top right) → the SAR file exactly as delivered (assets/sar/sar-onboard.html, unmodified, full-page frame) → shared frame. Up goes back the same way.
 - Content: `sar` in content.json (title editable with E; `hidden: true` removes the page).
 - SAR cover v2: big SAR mark × (Lavara over Bundle), all black, one ×. Entrance: page rises from below with SAR's blue road running up it, then the road gathers into the mark. Cover ⇄ file: the road floods the screen blue and the file opens out of it.
+- 30 Oct: the SAR file replaced with the user's v5 (adds «MASI بالأرقام» on its cover: 15M passengers in 2026, 30M by 2030; kicker «مذكرة تفاهم مع سار»), still unmodified. Escape that closes something open inside the file (the MASI numbers, a scene via its back button) now stays in the file instead of also closing it.
 
 ## Recovery (29 Oct)
 - A control-panel save (commit b708aa5) overwrote content.json with an old copy (lost review, SAR, dashboard slide, approvals, op-model titles, chooser). Restored content from 2127cc7 and added the new diffuser photo.

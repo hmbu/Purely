@@ -1492,9 +1492,16 @@ function renderSar() {
     </div>`;
   const f = $('.sar-file', L.special);
   f.addEventListener('load', () => { // the file is shown untouched; only the show's own keys are passed up
-    try { f.contentWindow.addEventListener('keydown', e => {
-      const d = f.contentDocument.documentElement, arrows = ['ArrowDown', 'ArrowUp'].includes(e.key) && d.scrollHeight <= f.contentWindow.innerHeight + 2; // arrows only when the file has nothing to scroll
-      if (['PageDown', 'PageUp'].includes(e.key) || ((e.key === 'Escape' || arrows) && !e.defaultPrevented)) { e.preventDefault(); onKey(e); } }); } catch {}
+    try {
+      const w = f.contentWindow, doc = f.contentDocument;
+      // Escape that closes something open in the file (its MASI numbers, its back button) stays in the file;
+      // read before the file's own handlers run, since they close it
+      let inFile = false;
+      w.addEventListener('keydown', e => { inFile = e.key === 'Escape' && !!doc.querySelector('#scale.on, .back.on'); }, true);
+      w.addEventListener('keydown', e => {
+        const d = doc.documentElement, arrows = ['ArrowDown', 'ArrowUp'].includes(e.key) && d.scrollHeight <= w.innerHeight + 2; // arrows only when the file has nothing to scroll
+        if (['PageDown', 'PageUp'].includes(e.key) || (((e.key === 'Escape' && !inFile) || arrows) && !e.defaultPrevented)) { e.preventDefault(); onKey(e); } });
+    } catch {}
   });
 }
 // where the road must sit (in the mark's own units) for its foot to stand at the bottom centre of the screen, filling its height
