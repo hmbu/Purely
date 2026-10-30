@@ -1776,7 +1776,8 @@
                     "text": "[النقطة · صاحب القرار · الموعد]"
                   }
                 ],
-                "modelsOnly": true
+                "modelsOnly": false,
+                "panelImagesOnly": true
               }
             }
           ],

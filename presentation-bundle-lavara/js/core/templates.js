@@ -550,7 +550,8 @@ TEMPLATES.finance = {
     { key: 'shots', type: 'list', label: 'صور من النموذج', item: [{ key: 'image', type: 'image', label: 'الصورة' }], newItem: { image: { src: '' } } },
     { key: 'pointsTitle', type: 'text', label: 'عنوان النقاط' },
     { key: 'points', type: 'list', label: 'النقاط', item: [{ key: 'text', type: 'text', label: 'النقطة' }], newItem: { text: '' } },
-    { key: 'modelsOnly', type: 'toggle', label: 'الصورتان فقط (بلا الرسوم): كبيرتان مع عنوان اللوحة' }],
+    { key: 'modelsOnly', type: 'toggle', label: 'الصورتان فقط (بلا الرسوم): كبيرتان مع عنوان اللوحة' },
+    { key: 'panelImagesOnly', type: 'toggle', label: 'اللوحة الجانبية: الصورتان فقط، فوق بعضهما' }],
   defaults: { eyebrow: 'Financials', title: 'الإيرادات', charts: [], panelTitle: '', panelSub: '', shots: [], pointsTitle: '', points: [] },
   // one project at a time: its bars rise slowly year by year and its two headline numbers count up; the next press, the next project
   steps: d => (d.modelsOnly ? 0 : Math.max(0, (d.charts || []).length - 1)),
@@ -606,7 +607,10 @@ TEMPLATES.finance = {
               </div>
             </div>`; }).join('')}
         </div>
-        ${d.panelTitle || shots.length || (d.points || []).length ? `
+        ${d.panelImagesOnly && shots.length ? `
+        <aside class="fn-panel is-images" data-a="extra" data-seq="9">${shots.slice(0, 2).map(x => { const src = typeof x.image === 'string' ? x.image : x.image.src;
+          return `<div class="fn-ishot" data-zoom="${esc(ctx.asset(src))}">${mediaHTML({ ...(typeof x.image === 'string' ? { src } : x.image), fit: 'contain' }, ctx)}</div>`; }).join('')}</aside>`
+        : d.panelTitle || shots.length || (d.points || []).length ? `
         <aside class="fn-panel" data-a="extra" data-seq="9">
           ${d.panelTitle ? `<div class="fn-ptitle"><i></i><b>${esc(d.panelTitle)}</b>${d.panelSub ? `<span>${esc(d.panelSub)}</span>` : ''}</div>` : ''}
           ${shots.length ? `<div class="fn-shots n-${Math.min(shots.length, 3)}">${shots.slice(0, 3).map(x => `<div class="fn-shot">${mediaHTML(x.image, ctx)}</div>`).join('')}</div>` : ''}
