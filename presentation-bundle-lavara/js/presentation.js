@@ -1500,8 +1500,8 @@ function renderSar() {
           <g class="sar-road"><path d="M409 1038L487 889H503L458 1038Z"/><path d="M511 889H526L604 1038H555Z"/></g>
           <path class="sar-r" d="M627 889H707A44 44 0 0 1 718 975L752 1037H720L670 949H707A15 15 0 0 0 707 919H656V1038H627Z"/>
         </svg>
-        <img class="sar-train" src="${esc(asset('assets/sar/sar-train.webp'))}" alt="">
       </div>
+      <img class="sar-train" src="${esc(asset('assets/sar/sar-train.webp'))}" alt="">
     </div>`;
   const f = $('.sar-file', L.special);
   f.addEventListener('load', () => { // the file is shown untouched; only the show's own keys are passed up
@@ -1519,17 +1519,31 @@ function renderSar() {
     } catch {}
   });
 }
-// the way in: SAR's mark on white; the file's train glides in from the right and passes over it, slowing to a stop
-// exactly where the file has it; then the white page fades and the file (the same train, now in its desert) remains.
+// the way in: SAR's mark on white, and the train arriving along its track; the train carries the change with it —
+// whatever it has passed is already the file (its desert), what lies ahead is still the white page with the mark.
+// The file's own train waits hidden meanwhile, so there is one train; when ours stops in its exact place, the
+// file's train comes back under it and ours goes.
 function sarGate(tl, at) {
-  const gate = $('.sar-gate', L.special), mark = $('.sar-mark', L.special), train = $('.sar-train', L.special); if (!gate) return;
-  gsap.set(gate, { autoAlpha: 1 }); gsap.set(mark, { opacity: 1, scale: 1 }); gsap.set(train, { xPercent: 105, yPercent: -20, opacity: 1 }); // along its own track: from the far end, down towards us
-  tl.to(train, { xPercent: 0, yPercent: 0, duration: 3, ease: 'power3.out' }, at);
-  tl.to(mark, { opacity: 0, scale: 0.96, duration: 1.2, ease: 'power2.in' }, at + 1.1);
-  tl.to(gate, { autoAlpha: 0, duration: 1.4, ease: 'power1.inOut' }, at + 3.1);
-  tl.add(() => $('.sar-file', L.special)?.focus(), at + 4.5);
+  const gate = $('.sar-gate', L.special), train = $('.sar-train', L.special), f = $('.sar-file', L.special); if (!gate || !train) return;
+  const filePlate = show => { try { const w = f.contentWindow, d = f.contentDocument; const pl = [...d.querySelectorAll('img.plate')].find(i => i.src === w.SAR_DATA?.img?.ext_train);
+    if (pl) { pl.style.transition = show ? 'opacity .8s ease' : 'none'; pl.style.opacity = show ? '' : '0'; } return !!pl; } catch { return false; } };
+  S.sarArriving = true;
+  if (!filePlate(false)) f.addEventListener('load', () => { if (S.sarArriving) filePlate(false); }, { once: true });
+  const st = { x: 105 };
+  const draw = () => {
+    const xp = st.x, k = xp / 105;
+    train.style.transform = `translate(${xp}%, ${(-20 * k).toFixed(2)}%)`; // down its own track, from the far end towards us
+    train.style.filter = k > 0.02 ? `blur(${(3 * k * k).toFixed(2)}px)` : '';
+    gate.style.setProperty('--nx', (11 + xp).toFixed(2) + '%'); // the page ends at the train's nose
+  };
+  draw(); gsap.set([gate, train], { autoAlpha: 1 });
+  tl.to(st, { x: 0, duration: 3.4, ease: 'power3.out', onUpdate: draw }, at);
+  tl.add(() => { S.sarArriving = false; filePlate(true); }, at + 3.3);
+  tl.to(gate, { autoAlpha: 0, duration: 0.6, ease: 'power1.out' }, at + 3.5);
+  tl.to(train, { autoAlpha: 0, duration: 0.5, ease: 'power1.out' }, at + 4.2);
+  tl.add(() => f?.focus(), at + 4.7);
 }
-const sarOpen = () => gsap.set($('.sar-gate', L.special), { autoAlpha: 0 }); // straight to the file (preview, return)
+const sarOpen = () => gsap.set($$('.sar-gate, .sar-train', L.special), { autoAlpha: 0 }); // straight to the file (preview)
 async function toSar(step = 0) {
   if (!hasSar() || S.level === 'sar') return;
   const fromShared = S.level === 'hub' && isShared(project());

@@ -1994,7 +1994,6 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 
 .sar-gate { background: #FFFFFF; display: grid; place-items: center; overflow: hidden; }
 .sar-gate .sar-mark { height: 17rem; width: auto; overflow: visible; }
-.sar-gate .sar-train { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; will-change: transform; }
 
 /* figure tour: the chart moves under a fixed full-slide window; the title steps aside while a part fills the slide */
 .t-figure.is-tour .fg-art { inset: 0; display: block; overflow: hidden; }
@@ -2004,3 +2003,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 /* the project's logo stands opposite the title, on the other side of the slide */
 .board-head .cv-lead.is-logo { position: absolute; left: -10rem; top: .9rem; margin: 0; }
 .board-head .cv-lead-logo { height: 4.4rem; width: 20rem; -webkit-mask-position: left center; mask-position: left center; }
+
+/* the arriving train carries the change: the white page (with the mark) ends at its nose */
+.sar-gate { -webkit-mask-image: linear-gradient(to right, #000 calc(var(--nx, 120%) - 4%), transparent calc(var(--nx, 120%) + 1%)); mask-image: linear-gradient(to right, #000 calc(var(--nx, 120%) - 4%), transparent calc(var(--nx, 120%) + 1%)); }
+.special.sar > .sar-train { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; z-index: 3; pointer-events: none; will-change: transform;
+  clip-path: polygon(0 0, 100% 0, 100% 57%, 0 74.5%); } /* the train alone, above its rails: the track belongs to the file */
