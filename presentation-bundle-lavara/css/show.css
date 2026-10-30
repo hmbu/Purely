@@ -1803,3 +1803,7 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="lavara"] .t-compare.ly-offer .cp-hd .wm { left: 4%; bottom: -34%; height: 150%; opacity: .1 !important; }
 .t-compare.ly-offer:not(.is-open) .cp-pts { height: 0; margin: 0; overflow: hidden; }
 [data-brand="lavara"] .t-compare.ly-offer .cp-hd .wm { opacity: .14 !important; }
+
+/* Bundle and Lavara: no numbering on any slide — no (001), no 01 (user decision) */
+:is([data-brand="bundle"], [data-brand="lavara"]) :is(.cp-roman, .ln-roman, .sc-roman, .sc-num, .fl-roman, .fl-n, .cvb-n, .cp-k, .scr-n, .j-num, .cv-n, .sd-num) { display: none !important; }
+:is([data-brand="bundle"], [data-brand="lavara"]) :is(.so-card, .st-cell)::after { content: none !important; }
