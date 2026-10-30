@@ -1412,7 +1412,7 @@ function renderReview() {
       <div class="rv-line" style="--n:${items.length}"><i class="rv-axis"></i>
         ${items.map((it, i) => `<div class="rv-item ${i % 2 ? 'is-down' : 'is-up'}">
           <span class="rv-dot"></span>
-          <div class="rv-card"><span class="rv-n latin">${String(i + 1).padStart(2, '0')}</span><h3>${escBr(it.title || '')}</h3>${it.body ? `<p>${escBr(it.body)}</p>` : ''}${it.status ? `<span class="rv-status">${esc(it.status)}</span>` : ''}</div>
+          <div class="rv-card"><span class="rv-n latin">${String(i + 1).padStart(2, '0')}</span><h3>${escBr(it.title || '')}</h3>${it.body ? `<p>${escBr(it.body)}</p>` : ''}${it.status ? `<span class="rv-status${/^(مكتمل|منجز|تم)/.test(String(it.status).trim()) ? '' : ' is-wip'}">${esc(it.status)}</span>` : ''}</div>
         </div>`).join('')}
       </div>
     </div>`;

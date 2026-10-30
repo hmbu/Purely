@@ -631,7 +631,7 @@ function renderDecisionTab() {
     { key: 'title', type: 'textarea', rows: 2, label: 'العنوان' },
     { key: 'subtitle', type: 'text', label: 'سطر تحت العنوان' },
     { key: 'items', type: 'list', label: 'ما تم إنجازه (بالترتيب على الخط الزمني)', item: [
-      { key: 'title', type: 'text', label: 'العنوان' }, { key: 'body', type: 'text', label: 'وصف قصير' }, { key: 'status', type: 'text', label: 'الحالة (مثل: مكتمل)' }, { key: 'hidden', type: 'toggle', label: 'إخفاء' }],
+      { key: 'title', type: 'text', label: 'العنوان' }, { key: 'body', type: 'text', label: 'وصف قصير' }, { key: 'status', type: 'text', label: 'الحالة («مكتمل» بعلامة صح، وغيرها مثل «قيد الاستكمال» بنصف دائرة)' }, { key: 'hidden', type: 'toggle', label: 'إخفاء' }],
       newItem: () => ({ title: 'إنجاز', body: '', status: 'مكتمل' }) },
   ], C.review, { path: 'review', onChange: () => { previewOverride = { level: 'review' }; } })));
   f.append(group('الختام', ...renderFields([

@@ -2077,3 +2077,6 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .t-screens .scr-points li::after { content: ''; position: absolute; inset: 1rem; border: var(--hair) solid currentColor; opacity: .18; pointer-events: none; }
 .t-screens .scr-points li { justify-content: space-between; min-height: 13.6rem; padding: 3.2rem 3.4rem 3rem; }
 .t-screens .scr-points li::after { opacity: .14; }
+/* review: work still being completed carries a half-filled brass ring instead of the green tick */
+.rv-status.is-wip { color: #8C6A3A; }
+.rv-status.is-wip::before { box-sizing: border-box; background: linear-gradient(to left, #A8824A 50%, transparent 50%); border: .22rem solid #A8824A; }
