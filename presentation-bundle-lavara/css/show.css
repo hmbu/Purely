@@ -1811,3 +1811,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 #logos, #hud { transition: opacity .6s ease; }
 .video-only :is(#logos, #hud) { opacity: 0 !important; pointer-events: none; }
 .video-only .t-video .s-copy { display: none !important; }
+/* perfumes (offer): the framed A sits in each name panel the way it sits in the other cards — whole, faint, at the side */
+[data-brand="lavara"] .t-compare.ly-offer .cp-hd .wm { display: block; left: 3%; bottom: -12%; top: auto; height: 124%; opacity: .13 !important; z-index: -1; }
+/* the symbol is an <i> too: keep it clear of the compare slide's point-mark rule (which made it a sliver) */
+[data-brand="lavara"] .t-compare i.wm { width: auto !important; border: 0 !important; border-radius: 0 !important; aspect-ratio: .78; flex: none; }
+[data-brand="lavara"] .t-compare i.wm::before, [data-brand="lavara"] .t-compare i.wm::after { content: none !important; }
