@@ -807,16 +807,25 @@ TEMPLATES.compare = {
   defaults: { eyebrow: '', title: 'المقارنة', lead: '', options: [], layout: 'compare', proLabel: 'ميزة', conLabel: 'تحدٍّ', discuss: '', discussOptions: '' },
   // 'compare' marks each point as an advantage or a challenge; the other layouts present each option on its own, its
   // points plain (a leading "-" is simply dropped), so the slide shows two kinds rather than a contest
-  steps: d => (d.layout === 'stage' ? Math.max(0, (d.options || []).length - 1) : 0),
+  // offer: first only the two name panels; the next press lifts them and their points come in beneath, one by one
+  steps: d => (d.layout === 'stage' ? Math.max(0, (d.options || []).length - 1) : d.layout === 'offer' ? 1 : 0),
   applyStep(el, step, instant) {
-    if (!el.querySelector('.t-compare.ly-stage')) return;
+    const t = el.querySelector('.t-compare');
+    if (t?.classList.contains('ly-offer')) {
+      const hds = [...t.querySelectorAll('.cp-hd')], before = hds.map(h => h.getBoundingClientRect().top);
+      t.classList.toggle('cp-instant', !!instant); t.classList.toggle('is-open', step >= 1);
+      if (!instant) hds.forEach((h, i) => { const r = h.getBoundingClientRect(), k = h.offsetHeight / (r.height || 1), d = (before[i] - r.top) * k;
+        if (Math.abs(d) > 1) h.animate([{ transform: `translateY(${d}px)` }, { transform: 'none' }], { duration: 1150, easing: 'cubic-bezier(.65, 0, .35, 1)' }); });
+      return;
+    }
+    if (!t?.classList.contains('ly-stage')) return;
     el.querySelectorAll('.cp-col').forEach((c, i) => { c.classList.toggle('cp-instant', !!instant); c.classList.toggle('is-wait', i > step); });
   },
   render: (d, ctx) => {
     const ly = ['offer', 'sheet', 'tags', 'stage'].includes(d.layout) ? d.layout : 'compare', plain = ly !== 'compare';
     const pt = x => (x[0] === '-' ? x.slice(1).trim() : x);
     const list = o => plain
-      ? `<ul class="cp-pts">${lines(o.points).map((x, k) => `<li><span class="cp-k latin">${String(k + 1).padStart(2, '0')}</span><span>${esc(pt(x))}</span></li>`).join('')}</ul>`
+      ? `<ul class="cp-pts">${lines(o.points).map((x, k) => `<li style="--k:${k}"><span class="cp-k latin">${String(k + 1).padStart(2, '0')}</span><span>${esc(pt(x))}</span></li>`).join('')}</ul>`
       : `<ul>${lines(o.points).map(x => (x[0] === '-' ? `<li class="con"><i></i>${esc(x.slice(1).trim())}</li>` : `<li class="pro"><i></i>${esc(x)}</li>`)).join('')}</ul>`;
     return `
     <div class="t t-compare ly-${ly}" style="${ctx?.brand?.mark && ctx.idShown !== false ? `--lv-mark:url('${esc(ctx.asset(ctx.brand.mark))}')` : ''}">

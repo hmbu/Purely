@@ -241,6 +241,7 @@ function buildSlide(p, slide) {
   if (p.brand.mark && idShown(p)) {
     el.style.setProperty('--wm', `url('${asset(p.brand.mark)}')`);
     $$('.cv-b, .cvb-item, .cp-col, .st-cell, .sc-col', el).forEach(c => c.insertAdjacentHTML('afterbegin', '<i class="wm" aria-hidden="true"></i>'));
+    $$('.ly-offer .cp-col > .wm', el).forEach(w => w.parentNode.querySelector('.cp-hd')?.prepend(w)); // offer: the symbol sits in the name panel
   }
   return { el, tpl, theme };
 }
@@ -379,6 +380,19 @@ function specialIntro(el, tl, extra) {
       tl.fromTo(v, { opacity: 0, y: pxs(40) }, { opacity: 1, y: 0, duration: 1, ease: 'expo.out' }, 0.8 + i * 0.12);
       tl.to(o, { n: end, duration: 1.8, ease: 'power3.out', onUpdate: () => { v.textContent = pre + Math.round(o.n) + post; } }, 0.85 + i * 0.12);
     });
+    return true;
+  }
+  if (t.classList.contains('t-compare') && t.classList.contains('ly-offer')) {
+    // two name panels open from their centres, the symbol settles in each, the names rise in; points wait for a press
+    const cols = extra.filter(x => x.classList.contains('cp-col')), rest = extra.filter(x => !cols.includes(x));
+    gsap.set(extra, { opacity: 1 });
+    cols.forEach((col, i) => {
+      const hd = $('.cp-hd', col), at = 0.35 + i * 0.25;
+      tl.fromTo(hd, { clipPath: 'inset(50% 50% 50% 50%)', y: pxs(60) }, { clipPath: 'inset(0% 0% 0% 0%)', y: 0, duration: 1.5, ease: 'expo.inOut', clearProps: 'clipPath,transform' }, at);
+      tl.fromTo($('.wm', hd), { opacity: 0, scale: 1.4 }, { opacity: 1, scale: 1, duration: 2, ease: 'expo.out', clearProps: 'opacity,transform' }, at + 0.5);
+      tl.fromTo($$('.cp-roman, h3, .cp-sub', hd), { opacity: 0, y: pxs(36) }, { opacity: 1, y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.1 }, at + 0.75);
+    });
+    if (rest.length) tl.fromTo(rest, { opacity: 0, y: pxs(30) }, { opacity: 1, y: 0, duration: 1, ease: 'expo.out' }, 1.8);
     return true;
   }
   if (t.classList.contains('t-compare')) {
