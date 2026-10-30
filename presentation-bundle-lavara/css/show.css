@@ -2066,3 +2066,14 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
    and the room left over stays at the bottom */
 [data-brand="lavara"] .sc-body { min-height: calc(3 * 1.75em); }
 [data-brand="lavara"] .sc-logos { margin-top: 0; padding-top: 3.6rem; }
+/* screens: the points as small cards, two by two — Lavara's ivory panels with the inset hairline and a short
+   terracotta rule over each word */
+.t-screens .scr-points { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; margin-top: 4.4rem; }
+.t-screens .scr-points li { position: relative; flex-direction: column; align-items: flex-start; justify-content: flex-end; gap: 2.2rem; min-height: 16rem; padding: 3rem 3rem 2.8rem;
+  border: 0; background: var(--ssurf, color-mix(in srgb, var(--sbg) 55%, #fff)); font-size: 2.5rem; line-height: 1.35;
+  box-shadow: 0 2rem 4rem -3rem color-mix(in srgb, var(--sfg) 35%, transparent); }
+.t-screens .scr-points li:last-child { border-bottom: 0; }
+.t-screens .scr-points li::before { content: ''; width: 4.2rem; height: .3rem; background: var(--lv-terra, var(--saccent)); }
+.t-screens .scr-points li::after { content: ''; position: absolute; inset: 1rem; border: var(--hair) solid currentColor; opacity: .18; pointer-events: none; }
+.t-screens .scr-points li { justify-content: space-between; min-height: 13.6rem; padding: 3.2rem 3.4rem 3rem; }
+.t-screens .scr-points li::after { opacity: .14; }
