@@ -1833,3 +1833,7 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 [data-brand="bundle"] .cvb-items.n-4 .so-shape.sh-circle { height: 9rem !important; bottom: -3.5rem; }
 [data-brand="bundle"] .cvb-items.n-4 .so-shape.sh-half { width: 11rem; height: 5.5rem !important; border-radius: 5.5rem 5.5rem 0 0; }
 [data-brand="bundle"] .cvb-items.n-4 .so-shape.sh-slim { width: 5.5rem; height: 9rem !important; border-radius: 2.75rem 2.75rem 0 0; }
+/* refill lineup: a small switch between the light page and the dark stage (the slide plays again from the start) */
+.ln-mode { position: absolute; left: 3rem; bottom: 2.4rem; z-index: 5; width: 3rem; height: 3rem; padding: 0; border-radius: 50%; cursor: pointer; opacity: .4; transition: opacity .4s;
+  border: var(--hair) solid currentColor; background: linear-gradient(90deg, currentColor 50%, transparent 50%); color: inherit; }
+.ln-mode:hover, .ln-mode:focus-visible { opacity: 1; }

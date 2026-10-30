@@ -776,6 +776,7 @@ TEMPLATES.lineup = {
   render: (d, ctx) => `
     <div class="t t-lineup ${d.spotlight ? 'is-spot' : ''}" style="--n:${(d.items || []).length || 1}">
       ${d.spotlight ? '<div class="ln-stage" data-a="bg"><i class="ln-back"></i><i class="ln-floor"></i></div>' : ''}
+      ${d.spotlight ? '<button type="button" class="ln-mode" data-ln-mode title="خلفية فاتحة / داكنة" aria-label="تبديل الخلفية بين الفاتحة والداكنة"></button>' : ''}
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
       <svg class="ln-defs" width="0" height="0" aria-hidden="true"><filter id="ln-matte" color-interpolation-filters="sRGB">
         <feColorMatrix type="saturate" values=".8"/>

@@ -220,10 +220,12 @@ function adoptVideos(el) {
 }
 
 /* ======================================================================= slides */
+// a slide's background switched on the spot (the refill lineup's light / dark button), for this showing only
+const BG_SWAP = {};
 function buildSlide(p, slide) {
   const tpl = TEMPLATES[slide.template] || TEMPLATES.title;
   if ((slide.template === 'title' && slide.data?.showLogo) || slide.template === 'brand-board') S.revealed.add(p.id);
-  const theme = slideTheme(p, slide, tpl);
+  const theme = slideTheme(p, BG_SWAP[slide.id] ? { ...slide, bg: BG_SWAP[slide.id] } : slide, tpl);
   const c = p.brand.colors || {};
   const el = document.createElement('div');
   el.className = `slide tpl-${slide.template} ${theme.dark ? 'is-dark' : 'is-light'} bg-${theme.key}`;
@@ -272,6 +274,10 @@ function mountSlide(el, tpl, slide) {
     el._cleanup.push(() => clearInterval(t));
   });
   $$('.concept', el).forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); focusConcept(+btn.dataset.focus); }));
+  $('[data-ln-mode]', el)?.addEventListener('click', e => { // switch the stage light / dark, and play the slide again from the start
+    e.stopPropagation(); BG_SWAP[slide.id] = BG_SWAP[slide.id] ? null : '#140F0C'; S.step = 0;
+    unmountSlide(el); el.remove(); S.slideEl = null; showSlide(S.li);
+  });
   if (tpl.steps) applyStep(el, S.step, true);
   S.focus = -1;
 }
