@@ -563,7 +563,7 @@ TEMPLATES.canvas = {
     // Bundle: the branches are tall cards like its product sources (a grainy shape rising from the foot, the middle
     // one in the brand green); a line may start with a label and a colon (label: text) for a pill on top
     const tall = ctx?.brand?.texture === 'bubbles', yEnd = tall ? 390 : 560;
-    const span = tall ? 740 : br.length === 2 ? 500 : 700; // two cards stand closer to the middle
+    const span = tall ? (br.length > 3 ? 880 : 740) : br.length === 2 ? 500 : 700; // two cards stand closer to the middle
     const xs = br.map((_, i) => 500 - span / 2 + ((i + 0.5) / br.length) * span); // over the cards' centres
     const inner = (b, i) => `<div class="cv-top"><svg class="cv-ic" viewBox="0 0 24 24" aria-hidden="true">${BMC_ICON[i]}</svg><span class="cv-n latin">${BMC_NUM[i]}</span><h3 class="cv-t">${esc(b.title || BMC[i].t)}</h3></div>
             ${b.text ? `<p class="cv-x">${escBr(b.text)}</p>` : ''}${b.badge ? `<span class="cv-badge">${esc(b.badge)}</span>` : ''}`;
