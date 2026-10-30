@@ -906,17 +906,39 @@ TEMPLATES.partners = {
 TEMPLATES.figure = {
   name: 'مخطط أو صورة تفصيلية', en: 'Figure', group: 'extra', defaultBg: 'background', suggested: 'النموذج التشغيلي',
   fields: [F.eyebrow, F.title, { key: 'lead', type: 'text', label: 'سطر قصير تحت العنوان' }, { key: 'image', type: 'image', simple: true, label: 'الصورة (يفضّل خلفية شفافة)' },
-    { key: 'zoom', type: 'toggle', label: 'التكبير عند الضغط' }],
-  defaults: { eyebrow: '', title: 'المخطط', lead: '', image: '', zoom: true },
+    { key: 'zoom', type: 'toggle', label: 'التكبير عند الضغط' },
+    { key: 'tour', type: 'toggle', label: 'جولة بالنقر: كل نقرة تكبّر جزءاً من المخطط بملء الشاشة (من اليمين لليسار)' }],
+  defaults: { eyebrow: '', title: 'المخطط', lead: '', image: '', zoom: true, tour: false },
+  // the tour: a wide chart too fine to read whole. It opens whole; each press flies the camera onto one part of it
+  // filling the slide (right to left, the main line first, then what branches above it); the last press shows it whole again
+  steps: d => (d.tour ? FIG_TOUR.length + 1 : 0),
+  applyStep: (el, step) => {
+    const art = el.querySelector('.t-figure.is-tour .fg-art'), img = art?.querySelector('img'); if (!img) return;
+    const go = () => {
+      const iw = img.naturalWidth, ih = img.naturalHeight, W = art.clientWidth, H = art.clientHeight; if (!iw || !W) return;
+      const rem = W / 160, r = step >= 1 && step <= FIG_TOUR.length ? FIG_TOUR[step - 1] : null;
+      // home: the whole chart in the area under the title; a part: that region filling the slide
+      const box = r ? { x: 0, y: 0, w: W, h: H } : { x: 6 * rem, y: 19 * rem, w: W - 12 * rem, h: H - 25.6 * rem };
+      const reg = r || [0, 0, 1, 1], k = Math.min(box.w / (reg[2] * iw), box.h / (reg[3] * ih));
+      const cx = (reg[0] + reg[2] / 2) * iw, cy = (reg[1] + reg[3] / 2) * ih;
+      img.style.width = iw + 'px'; img.style.height = ih + 'px';
+      img.style.transform = `translate(${(box.x + box.w / 2 - cx * k).toFixed(1)}px, ${(box.y + box.h / 2 - cy * k).toFixed(1)}px) scale(${k.toFixed(5)})`;
+      el.querySelector('.t-figure').classList.toggle('is-close', !!r);
+    };
+    if (img.complete && img.naturalWidth) go(); else img.addEventListener('load', go, { once: true });
+  },
   render: (d, ctx) => {
     const src = imgSrc(d.image);
     return `
-    <div class="t t-figure">
+    <div class="t t-figure${d.tour ? ' is-tour' : ''}">
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${leadLine(d, ctx)}</div>
-      <div class="fg-art" data-a="media">${src ? `<img src="${esc(ctx.asset(src))}" alt="${esc(d.title || '')}" ${d.zoom !== false ? `data-zoom="${esc(ctx.asset(src))}"` : ''}>` : ''}</div>
+      <div class="fg-art" data-a="media">${src ? `<img src="${esc(ctx.asset(src))}" alt="${esc(d.title || '')}" ${d.zoom !== false && !d.tour ? `data-zoom="${esc(ctx.asset(src))}"` : ''}>` : ''}</div>
     </div>`;
   },
 };
+// the tour's regions as fractions of the chart [x, y, width, height], in order: right column (main line, then above it),
+// then the middle, then the left — each about a third of the width and half the height, overlapping a little
+const FIG_TOUR = [[0.55, 0.47, 0.45, 0.53], [0.55, 0, 0.45, 0.53], [0.275, 0.47, 0.45, 0.53], [0.275, 0, 0.45, 0.53], [0, 0.47, 0.45, 0.53], [0, 0, 0.45, 0.53]];
 
 
 /* ---------------------------------------------------------------- lineup (products standing side by side) */

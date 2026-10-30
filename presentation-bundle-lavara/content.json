@@ -1621,7 +1621,8 @@
                 "title": "النموذج التشغيلي",
                 "lead": "Bundle",
                 "image": "assets/shared/opmodel-bundle-light.png",
-                "zoom": true
+                "zoom": true,
+                "tour": true
               }
             },
             {
@@ -1690,7 +1691,8 @@
                 "title": "النموذج التشغيلي",
                 "lead": "LAVARA",
                 "image": "assets/shared/opmodel-hotels-light.png",
-                "zoom": true
+                "zoom": true,
+                "tour": true
               }
             }
           ],
