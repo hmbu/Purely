@@ -73,7 +73,18 @@ export function kashida(s) {
 }
 // a stretched title, carrying its plain words for the in-place editor
 export const kTitle = s => { const k = kashida(s); return { html: escBr(k), attr: k !== (s ?? '') ? ` data-plain="${esc(s)}"` : '' }; };
+// an asset's address; the single-file build carries the images named in the code itself in window.__BXL_ASSETS__
+export const assetURL = p => (p ? window.__BXL_ASSETS__?.[p] || new URL(p, location.href).href : '');
 export const isVideo = src => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src || '') || /^data:video\//.test(src || '');
+
+// While texts are being edited (key E) the show stands still: no camera, no automatic sequence moves on.
+export const FREEZE = { on: false };
+// a timeout that does not count down while the show is frozen
+export function liveTimeout(fn, ms) {
+  let left = ms, last = performance.now();
+  const tick = () => { const now = performance.now(); if (!FREEZE.on) left -= now - last; last = now; if (left <= 0) fn(); else setTimeout(tick, Math.min(left, 200)); };
+  setTimeout(tick, Math.min(ms, 200));
+}
 
 export function prefersReducedMotion() {
   return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;

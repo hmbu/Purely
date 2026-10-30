@@ -2106,3 +2106,5 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .pr-card { min-height: 33rem; }
 .t-figure.is-tour .fg-art img { transition: transform 2.2s cubic-bezier(.65, 0, .35, 1); }
 .t-figure.is-tour .fg-art img:not([style*="transform"]) { opacity: 0; }
+/* editing (key E): the show stands still — CSS animations pause where they are */
+body.is-frozen *, body.is-frozen *::before, body.is-frozen *::after { animation-play-state: paused !important; }

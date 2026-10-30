@@ -1,7 +1,7 @@
 // Bundle × Lavara — the show.
 // One giant canvas navigated by a camera: Universe (L0) → Project hub (L1) → Section (L2, slides advance horizontally).
 // Everything is driven by content.json; nothing about projects/sections/slides is hard-coded.
-import { $, $$, esc, escBr, clamp, fmtClock, prefersReducedMotion, grainTexture, rgba, fixAspects, isDark, kTitle, TYPO } from './core/util.js';
+import { $, $$, esc, escBr, clamp, fmtClock, prefersReducedMotion, grainTexture, rgba, fixAspects, isDark, kTitle, TYPO, FREEZE, assetURL } from './core/util.js';
 import { projectsOf, sectionsOf, slidesOf, findProject, findSection, slideTheme, locate, isShared, sharedOf } from './core/model.js';
 import { loadContent, logDecision } from './core/store.js';
 import { createEditor, edAttr } from './core/editor.js';
@@ -51,7 +51,7 @@ const project = () => findProject(S.content, S.pid);
 const section = () => findSection(project(), S.sid);
 const settings = () => S.content.settings || {};
 const reduced = () => { const r = settings().motion?.reduced; return r === 'on' || (r !== 'off' && prefersReducedMotion()); };
-const asset = p => (p ? new URL(p, location.href).href : ''); // absolute: url() inside CSS variables resolves against the stylesheet otherwise
+const asset = p => assetURL(p); // absolute: url() inside CSS variables resolves against the stylesheet otherwise
 // A project's logos (wordmark and symbol) stay hidden until its identity is revealed in the show: the identity film
 // comes first, then the title that brings in the logo. Until then the project is named by its line (brand.descriptor),
 // e.g. «الهدايا المؤسسية». Once revealed, the logo stays everywhere for the rest of the show.
@@ -268,6 +268,7 @@ function mountSlide(el, tpl, slide) {
     const items = $$('.cyc', box); if (items.length < 2) return;
     let i = 0; const ms = (parseFloat(box.dataset.cycle) || 3.5) * 1000;
     const t = setInterval(() => {
+      if (FREEZE.on) return;
       const a = items[i]; i = (i + 1) % items.length; const b = items[i];
       gsap.to(a, { opacity: 0, duration: 0.8, ease: 'power2.inOut', onComplete: () => a.classList.remove('on') });
       b.classList.add('on'); gsap.fromTo(b, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.inOut' });
@@ -657,7 +658,7 @@ function coverImg(p, cls = 'w-img') {
   return `${src ? `<img class="${cls}" src="${esc(asset(src))}" alt="" style="object-position:${fp.x}% ${fp.y}%">` : `<span class="${cls} w-img-ph" style="background:${c.primary}"></span>`}<span class="w-tint" style="--tc:${c.primary};--tint:${p.brand.coverTint ?? 0.4}"></span>`;
 }
 function logoTint(p, cls) {
-  if (!idShown(p)) return `<span class="${cls} w-desc">${esc(descOf(p))}</span>`;
+  if (!idShown(p)) return `<span class="${cls} w-desc" ${edAttr('project', p.id, p.brand?.descriptor ? 'brand.descriptor' : p.nameAr ? 'nameAr' : 'name')}>${esc(descOf(p))}</span>`;
   const src = p.brand.logo; if (!src) return `<span class="${cls} w-fallback">${esc(p.name)}</span>`;
   const u = esc(asset(src));
   return `<span class="logo-mask ${cls}" data-ar-src="${u}" style="--src:url('${u}')"></span>`;
@@ -893,7 +894,7 @@ function renderHub(p) {
     <div class="hub2 style-${p.brand.texture === 'mist' ? 'mist' : 'bubbles'} ${hubDark(p) ? '' : 'is-light'}" style="--n:${secs.length + (decI >= 0 ? 1 : 0)};--hbg:${hubGround(p)};--hfg:${hubFg(p)};--glow:${c.secondary || '#fff'}">
       <div class="h2-bg"><canvas class="h2-tex"></canvas></div><div class="h2-shade"></div>
       <div class="h2-head">
-        ${!idShown(p) ? `<h1 class="h2-name h2-pre">${esc(descOf(p))}</h1>` : p.brand.logo ? `<span class="logo-mask h2-logo" data-ar-src="${esc(asset(p.brand.logo))}" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : `<h1 class="h2-name">${esc(isShared(p) ? (p.nameAr || p.name) : p.name)}</h1>`}
+        ${!idShown(p) ? `<h1 class="h2-name h2-pre" ${edAttr('project', p.id, p.brand?.descriptor ? 'brand.descriptor' : p.nameAr ? 'nameAr' : 'name')}>${esc(descOf(p))}</h1>` : p.brand.logo ? `<span class="logo-mask h2-logo" data-ar-src="${esc(asset(p.brand.logo))}" style="--src:url('${esc(asset(p.brand.logo))}')"></span>` : `<h1 class="h2-name" ${edAttr('project', p.id, isShared(p) && p.nameAr ? 'nameAr' : 'name')}>${esc(isShared(p) ? (p.nameAr || p.name) : p.name)}</h1>`}
         ${p.tagline ? `<p class="h2-tag" ${edAttr('project', p.id, 'tagline')}>${esc(p.tagline)}</p>` : ''}
       </div>
       <div class="h2-line"><i class="h2-light"></i></div>
@@ -1335,7 +1336,7 @@ function renderDecision() {
           // an approved item is settled: shown as approved, nothing to choose; the open ones come last
           if (g.approved) return `<div class="d-group is-approved" data-group="${esc(g.id)}">
             <div class="d-gtitle"><span>${esc(g.title)}</span>${g.sub ? `<small class="d-gsub">${esc(g.sub)}</small>` : ''}</div>
-            <div class="d-done"><span class="d-check"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>${esc(g.approvedLabel || 'معتمد')}</span></div>
+            <div class="d-done"><span class="d-check"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span ${edAttr('decision', '', `groups.${(d.groups || []).indexOf(g)}.approvedLabel`)}>${esc(g.approvedLabel || 'معتمد')}</span></div>
           </div>`;
           return `<div class="d-group" data-group="${esc(g.id)}">
             <div class="d-gtitle">${p?.brand?.logo ? `<span class="logo-mask d-glogo" style="--src:url('${esc(asset(p.brand.logo))}')" title="${esc(g.title)}"></span>` : `<span>${esc(g.title)}</span>`}${g.sub ? `<small class="d-gsub">${esc(g.sub)}</small>` : ''}</div>
@@ -1494,7 +1495,7 @@ function renderSar() {
   // plate, 1600 × 900, fitted the way the file fits it), so the train can stop exactly where the file shows it.
   L.special.innerHTML = `
     <div class="special sar">
-      <iframe class="sar-file is-on" src="${esc(asset(r.src))}" title="SAR"></iframe>
+      <iframe class="sar-file is-on" ${r.srcdoc ? `srcdoc="${esc(r.srcdoc)}"` : `src="${esc(asset(r.src))}"`} title="SAR"></iframe>
       <div class="sar-gate">
         <svg class="sar-mark" viewBox="266 887 488 153" aria-hidden="true">
           <path class="sar-s" d="M386 889H313A45 45 0 0 0 313 979H357A15 15 0 0 1 357 1009H276V1038H357A44.5 44.5 0 0 0 357 949H313A15 15 0 0 1 313 919H386Z"/>
@@ -1699,6 +1700,7 @@ const INSTANT = {
   reload: () => location.reload(),
 };
 function command(name, args = {}) {
+  if (FREEZE.on) return; // texts are being edited: the show stands still
   sound.unlock();
   if (INSTANT[name]) return INSTANT[name](args);
   const fn = ACTIONS[name]; if (!fn) return;
@@ -1838,6 +1840,7 @@ function previewShow(target = {}, animate = false) {
 function onKey(e) {
   if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
   if (e.code === 'KeyE' && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); editor.toggle(); return; } // any keyboard layout
+  if (FREEZE.on) { if (!/^(Tab|Shift|Control|Alt|Meta)$/.test(e.key)) e.preventDefault(); return; } // editing: no key moves the show
   sound.unlock();
   const k = e.key;
   if (k === 'ArrowLeft' || k === ' ' || k === 'PageDown' || k === 'Enter') { e.preventDefault(); command(e.shiftKey ? 'nextSection' : 'next'); }
@@ -1856,6 +1859,27 @@ function onKey(e) {
   else if (e.code === 'KeyP' || e.code === 'KeyK') toggleVideo();
 }
 
+// a slide shows its template's default words where its own data leaves a text unset: those words are offered for
+// editing too (saving writes them into the slide)
+const stringDefaults = id => Object.fromEntries(Object.entries(TEMPLATES[id]?.defaults || {}).filter(([, v]) => typeof v === 'string' && v));
+
+/* ======================================================================= freeze while editing */
+// Key E: the show stands still so a text can be clicked and typed into. No key, click, scroll, swipe or remote
+// moves it; the camera and every running animation pause where they are, the textures hold, films pause; all of it
+// carries on from the same point when E is pressed again.
+function freeze(on) {
+  FREEZE.on = on; BrandTexture.frozen = on;
+  if (on) gsap.globalTimeline.pause(); else gsap.globalTimeline.resume();
+  document.body.classList.toggle('is-frozen', on);
+  $$('video').forEach(v => {
+    if (on) { if (!v.paused) { v.dataset.frozen = '1'; v.pause(); } }
+    else if (v.dataset.frozen) { delete v.dataset.frozen; v.play().catch(() => {}); }
+  });
+  $$('iframe').forEach(f => { try { f.contentDocument?.querySelectorAll('video').forEach(v => (on ? v.pause() : null)); } catch {} });
+}
+// clicks while editing reach only the texts and the editing bar; nothing else (stations, worlds, taps) acts on them
+addEventListener('click', e => { if (FREEZE.on && !e.target.closest?.('.ed-on, .ed-bar')) { e.stopPropagation(); e.preventDefault(); } }, true);
+
 /* ======================================================================= touch (phones / tablets) */
 // Swipe right = next (RTL: the next slide enters from the left), swipe left = previous, swipe down = zoom out.
 // Tap the left third = next, the right third = previous. Taps on worlds, stations and options keep their own action.
@@ -1863,7 +1887,7 @@ function setupTouch() {
   let sx = null, sy = 0, st = 0;
   addEventListener('touchstart', e => { const t = e.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); sound.unlock(); }, { passive: true });
   addEventListener('touchend', e => {
-    if (sx == null || e.touches.length) return;
+    if (sx == null || e.touches.length || FREEZE.on) return;
     const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy; sx = null;
     if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) { command(dx > 0 ? 'next' : 'prev'); return; }
     if (dy > 70 && Math.abs(dy) > Math.abs(dx) * 1.2) { command('zoomOut'); return; }
@@ -1889,9 +1913,11 @@ async function boot() {
   initZoom();
   if (!PREVIEW) editor = createEditor({
     content: () => S.content,
-    views: () => [{ root: L.hub }, { root: L.universe }, S.slideEl && S.slide ? { root: S.slideEl, owner: { kind: 'slide', id: S.slide.id }, data: S.slide.data } : null,
+    onToggle: freeze,
+    views: () => [{ root: L.hub }, { root: L.universe }, S.slideEl && S.slide ? { root: S.slideEl, owner: { kind: 'slide', id: S.slide.id }, data: { ...stringDefaults(S.slide.template), ...S.slide.data } } : null,
       // the pages outside the projects: the review, the approvals and the closing
-      ...[['review', S.content.review], ['sar', S.content.sar], ['decision', S.content.decision], ['closing', S.content.closing]]
+      // (the SAR file is shown as it is: its words are never edited here)
+      ...[['review', S.content.review], ['decision', S.content.decision], ['closing', S.content.closing]]
         .filter(([k, data]) => S.level === k && data).map(([kind, data]) => ({ root: L.special, owner: { kind }, data }))],
   });
   if (PREVIEW) {
@@ -1916,7 +1942,7 @@ async function boot() {
   // Scrolling: down from the opening screen opens the shared area, up from its page returns. One gesture = one move.
   let wheelAt = 0;
   addEventListener('wheel', e => {
-    if (Math.abs(e.deltaY) < 18 || S.busy || Date.now() - wheelAt < 1400) return;
+    if (FREEZE.on || Math.abs(e.deltaY) < 18 || S.busy || Date.now() - wheelAt < 1400) return;
     if (e.deltaY > 0 && S.level === 'universe') { wheelAt = Date.now(); command('shared'); }
     else if (e.deltaY < 0 && S.level === 'hub' && isShared(project())) { wheelAt = Date.now(); command('universe'); }
   }, { passive: true });

@@ -7,7 +7,7 @@ import { patchContent, backendMode } from './store.js';
 import { esc } from './util.js';
 
 // data keys that hold settings, ids or paths, never visible copy
-const SKIP = /^(src|poster|id|from|to|tone|shape|kind|align|size|fit|color|lane|style|mode|imageSide|textPosition|template|transition|bg|projectId|years|a|b|m)$/;
+const SKIP = /^(src|poster|id|from|to|tone|shape|kind|align|size|fit|color|lane|style|mode|imageSide|textPosition|template|transition|bg|projectId|layout|tourRegions)$/;
 const norm = s => String(s ?? '').replace(/ـ/g, '').replace(/\s+/g, ' ').trim();
 
 export const edAttr = (kind, id, key) => `data-ed-kind="${esc(kind)}" data-ed-id="${esc(id)}" data-ed-key="${esc(key)}"`;
@@ -23,6 +23,7 @@ function strings(v, path = [], out = []) {
       const m = x.match(MARK); out.push({ path, value: m ? x.slice(m[0].length) : x, line: { i, prefix: m ? m[1] : '' } });
     });
     else if (/[,،]/.test(v)) v.split(/[,،]/).map(x => x.trim()).filter(Boolean).forEach((x, i) => out.push({ path, value: x, part: { i } })); // comma lists (tabs, owners)
+    else if (v.includes('·')) v.split('·').map(x => x.trim()).filter(Boolean).forEach((x, i) => out.push({ path, value: x, part: { i, sep: '·' } })); // · lists (rework loops, options)
   }
   else if (Array.isArray(v)) v.forEach((x, i) => strings(x, [...path, i], out));
   else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) if (!SKIP.test(k)) strings(x, [...path, k], out);
@@ -37,6 +38,16 @@ function readText(el) {
     else if (n.nodeType === 1) t += (/^(DIV|P)$/.test(n.nodeName) && t ? '\n' : '') + readText(n);
   });
   return t;
+}
+// an item with a small mark beside its words (a dot, a square: an empty element) keeps the mark: its words get their
+// own wrapper so they can be edited without touching the mark
+function wrapText(root) {
+  root.querySelectorAll('*').forEach(el => {
+    if (el.closest('svg, iframe, [contenteditable], .ed-t') || isLeaf(el)) return;
+    const kids = [...el.childNodes], texts = kids.filter(n => n.nodeType === 3 && n.data.trim());
+    if (!texts.length || kids.some(n => n.nodeType === 1 && n.nodeName !== 'BR' && n.textContent.trim() && getComputedStyle(n).display !== 'none')) return;
+    texts.forEach(n => { const w = document.createElement('span'); w.className = 'ed-t'; n.replaceWith(w); w.appendChild(n); });
+  });
 }
 const isLeaf = el => el.childNodes.length && [...el.childNodes].every(n => n.nodeType === 3 || n.nodeName === 'BR');
 const textHTML = s => esc(s).replace(/\n/g, '<br>');
@@ -59,6 +70,10 @@ function setAt(c, owner, path, value, line, part) {
   let o = target(c, owner); if (!o) return false;
   for (const k of path.slice(0, -1)) { o = o?.[k]; if (o == null) return false; }
   const key = path[path.length - 1];
+  if (part?.sep) { // one item of a · list
+    const items = String(o[key] ?? '').split(part.sep).map(x => x.trim()).filter(Boolean); if (part.i >= items.length) return false;
+    items[part.i] = value; o[key] = items.join(` ${part.sep} `); return true;
+  }
   if (part) { // one item of a comma list
     const items = String(o[key] ?? '').split(/[,،]/).map(x => x.trim()).filter(Boolean); if (part.i >= items.length) return false;
     items[part.i] = value; o[key] = items.join(String(o[key]).includes('،') ? '، ' : ', '); return true;
@@ -71,11 +86,11 @@ function setAt(c, owner, path, value, line, part) {
   o[key] = value; return true;
 }
 
-export function createEditor({ content, views, onChange }) {
+export function createEditor({ content, views, onChange, onToggle }) {
   let on = false, bound = [], queue = Promise.resolve();
   const bar = document.createElement('div');
   bar.className = 'ed-bar'; bar.hidden = true;
-  bar.innerHTML = '<b>وضع التحرير</b><span class="ed-hint">اضغط على أي نص لتعديله · Enter للحفظ · Esc للتراجع · E للخروج</span><span class="ed-state"></span>';
+  bar.innerHTML = '<b>وضع التحرير</b><span class="ed-hint">العرض متوقف · اضغط على أي نص لتعديله · Enter للحفظ · Esc للتراجع · E للخروج</span><span class="ed-state"></span>';
   document.body.appendChild(bar);
   const state = (t, cls = '') => { const s = bar.querySelector('.ed-state'); s.textContent = t; s.className = 'ed-state ' + cls; };
 
@@ -89,12 +104,14 @@ export function createEditor({ content, views, onChange }) {
       if (!v?.root) continue;
       v.root.querySelectorAll('[data-ed-kind]').forEach(el => bound.push({ el, owner: { kind: el.dataset.edKind, id: el.dataset.edId }, path: el.dataset.edKey.split('.').map(k => (/^\d+$/.test(k) ? +k : k)) }));
       if (v.owner && v.data) {
-        const pool = strings(v.data);
+        wrapText(v.root);
+        const pool = strings(v.data), used = [];
         v.root.querySelectorAll('*').forEach(el => {
-          if (el.closest('[data-ed-kind]') || !isLeaf(el)) return;
+          if (el.closest('[data-ed-kind], [data-noedit]') || !isLeaf(el)) return;
           const t = norm(readText(el)); if (!t) return;
-          const i = pool.findIndex(x => norm(x.value) === t); if (i < 0) return;
-          bound.push({ el, owner: v.owner, path: pool[i].path, line: pool[i].line, part: pool[i].part }); pool.splice(i, 1);
+          let i = pool.findIndex(x => norm(x.value) === t), hit;
+          if (i >= 0) { hit = pool[i]; pool.splice(i, 1); used.push(hit); } else hit = used.find(x => norm(x.value) === t);
+          if (hit) bound.push({ el, owner: v.owner, path: hit.path, line: hit.line, part: hit.part });
         });
       }
     }
@@ -138,6 +155,7 @@ export function createEditor({ content, views, onChange }) {
     toggle(force) {
       on = force ?? !on;
       document.body.classList.toggle('is-editing', on); bar.hidden = !on;
+      onToggle?.(on);
       if (on) state(backendMode() === 'local' ? 'غير متصل: التعديل لن يُحفظ — اربط GitHub من لوحة التحكم' : '', backendMode() === 'local' ? 'err' : '');
       else document.activeElement?.blur?.();
       bind();

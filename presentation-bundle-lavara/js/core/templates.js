@@ -1,7 +1,7 @@
 // Slide templates. Each template owns only its relevant fields (used by the control panel editor)
 // and renders plain HTML. Elements carry data-a="bg|media|eyebrow|title|body|extra" so the
 // transition engine can stagger them (Layered Drift: background → media → title → body).
-import { esc, escBr, isVideo, kTitle } from './util.js';
+import { esc, escBr, isVideo, kTitle, liveTimeout } from './util.js';
 
 const AR = /[؀-ۿ]/;
 const langCls = s => (AR.test(s || '') ? 'ar' : 'latin');
@@ -314,7 +314,7 @@ TEMPLATES.legal = {
     const root = el.querySelector('.t-legal'); if (!root) return;
     if (root.classList.contains('is-structure')) {
       step = 2;
-      if (!root.dataset.played) { root.dataset.played = '1'; setTimeout(() => root.classList.add('is-play'), 450); } // once per showing; later calls leave it be
+      if (!root.dataset.played) { root.dataset.played = '1'; liveTimeout(() => root.classList.add('is-play'), 450); } // once per showing; later calls leave it be
     }
     root.classList.toggle('is-s1', step >= 1);
     root.querySelectorAll('[data-from]').forEach(x => x.classList.toggle('is-on', step >= +x.dataset.from));
@@ -580,7 +580,7 @@ TEMPLATES.finance = {
     const ch = d.charts || [];
     const kpi = (v, label, suf = '') => { const n = parseFloat(String(v ?? '').replace('%', '')); if (!Number.isFinite(n)) return '';
       const dec = (String(v).split('.')[1] || '').replace('%', '').length;
-      return `<div class="fn-kpi"><b class="latin" data-to="${n}" data-dec="${dec}" data-suf="${suf}">${esc(String(v))}</b><span>${esc(label)}</span></div>`; };
+      return `<div class="fn-kpi" data-noedit><b class="latin" data-to="${n}" data-dec="${dec}" data-suf="${suf}">${esc(String(v))}</b><span>${esc(label)}</span></div>`; };
     const max = Math.max(1e-9, ...ch.flatMap(c => [...nums(c.a), ...nums(c.b)].map(Number).filter(Number.isFinite)));
     const bar = (v, cls, i) => { const n = Number(v); return `<span class="fn-bar ${cls}" style="--h:${Number.isFinite(n) ? (n / max) * 100 : 0}%;--i:${i}"><em class="latin">${esc(v)}</em></span>`; };
     const shots = (d.shots || []).filter(x => x?.image?.src || typeof x?.image === 'string');
@@ -672,7 +672,7 @@ TEMPLATES.canvas = {
     { key: 'blocks', type: 'list', label: 'الخانات التسع بالترتيب: الشركاء، الأنشطة، الموارد، القيمة، العلاقة، القنوات، الشرائح، التكاليف، الإيراد',
       item: [{ key: 'title', type: 'text', label: 'اسم الخانة' }, { key: 'text', type: 'textarea', rows: 2, label: 'السطر الرئيسي' }, { key: 'badge', type: 'text', label: 'حالة صغيرة (اختياري)' }],
       newItem: { title: '', text: '', badge: '' } }],
-  defaults: { eyebrow: 'Business Model', title: 'نموذج العمل', lead: '', blocks: BMC.map(b => ({ title: b.t, text: '', badge: '' })) },
+  defaults: { eyebrow: 'Business Model', title: 'نموذج العمل', lead: '', legendInfra: 'قابلية التنفيذ', legendCust: 'رغبة العميل', legendFin: 'الجدوى المالية', blocks: BMC.map(b => ({ title: b.t, text: '', badge: '' })) },
   // after the nine blocks, one press: the value proposition gathers into a small card and branches into its parts
   steps: d => (String(d.valueBranches || '').trim() ? 1 : 0),
   // The value block itself travels: a copy laid exactly over it keeps its colours and words, then shrinks into the
@@ -732,11 +732,12 @@ TEMPLATES.flow = {
       { key: 'brief', type: 'textarea', rows: 2, label: 'المختصر (للشكل «مسار»: سطران قصيران)' }],
       newItem: { title: 'مرحلة', steps: '', owners: '', gate: '', brief: '' } },
     { key: 'loops', type: 'textarea', rows: 2, label: 'حلقات إعادة العمل (مفصولة بـ ·)' },
+    { key: 'loopsLabel', type: 'text', label: 'عنوان حلقات إعادة العمل' },
     { key: 'color', type: 'color', label: 'لون المشروع (فارغ = لون الهوية)' },
     { key: 'full', type: 'image', simple: true, label: 'المخطط الكامل (يُفتح بالتكبير)' },
     { key: 'stepped', type: 'toggle', label: 'بالنقر: تبدأ بالمراحل وحدها، وكل نقرة تفتح مرحلة' },
     { key: 'layout', type: 'select', label: 'الشكل', options: [['columns', 'أعمدة بالتفاصيل'], ['process', 'مسار مختصر (محطات على خط)']] }],
-  defaults: { eyebrow: 'Operating Model', title: 'النموذج التشغيلي', lead: '', phases: [], loops: '', color: '', full: '', stepped: true, layout: 'columns' },
+  defaults: { eyebrow: 'Operating Model', title: 'النموذج التشغيلي', lead: '', phases: [], loops: '', color: '', full: '', stepped: true, layout: 'columns', loopsLabel: 'إعادة العمل' },
   // columns, click by click: first the stages alone, then each press opens one stage (large) and the rest stay narrow.
   // process: the stages as stations on one line, each with two short lines; the first is lit, each press lights the
   // next and the line runs on to it (the stations ahead wait, faint, so the whole road is seen from the start)
@@ -757,7 +758,7 @@ TEMPLATES.flow = {
     const ph = d.phases || [];
     const full = typeof d.full === 'string' ? d.full : d.full?.src;
     const lines = s => String(s || '').split('\n').map(x => x.trim()).filter(Boolean);
-    const loops = d.loops ? `<div class="fl-foot" data-a="body"><div class="fl-loops"><b>إعادة العمل</b>${String(d.loops).split('·').map(x => x.trim()).filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('')}</div></div>` : '';
+    const loops = d.loops ? `<div class="fl-foot" data-a="body"><div class="fl-loops"><b>${esc(d.loopsLabel || 'إعادة العمل')}</b>${String(d.loops).split('·').map(x => x.trim()).filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('')}</div></div>` : '';
     if (d.layout === 'process') return `
     <div class="t t-flow is-process" style="--n:${ph.length || 1};${d.color ? `--cc:${esc(d.color)}` : ''}">
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${leadLine(d, ctx)}</div>
@@ -789,7 +790,7 @@ TEMPLATES.flow = {
           </div>`).join('')}
       </div>
       ${d.loops || full ? `<div class="fl-foot" data-a="body">
-        ${d.loops ? `<div class="fl-loops"><b>إعادة العمل</b>${String(d.loops).split('·').map(x => x.trim()).filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}
+        ${d.loops ? `<div class="fl-loops"><b>${esc(d.loopsLabel || 'إعادة العمل')}</b>${String(d.loops).split('·').map(x => x.trim()).filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}
         ${full ? `<button class="fl-full" data-zoom="${esc(ctx.asset(full))}">المخطط الكامل</button>` : ''}
       </div>` : ''}
     </div>`;
@@ -897,7 +898,7 @@ TEMPLATES.sources = {
       // the closing stays until the next press; it reads how light the film's last frame is (the film may be replaced),
       // so a dark ending gets a dark veil and the logo in white
       v.onended = () => { film.classList.toggle('is-dark-end', frameIsDark(v)); film.classList.add('is-end'); };
-      if (!instant) setTimeout(() => v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }), 650);
+      if (!instant) liveTimeout(() => v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }), 650);
     } else {
       v.pause(); v.onended = null; move(false); // folds back still blurred, then the film is reset for another showing
       setTimeout(() => { if (!film.classList.contains('on')) film.classList.remove('is-end'); }, instant ? 0 : 1400);
@@ -994,8 +995,9 @@ TEMPLATES.figure = {
       if (t.dataset.played) return; // once per showing; later calls (a resize) leave the camera where the tour has it
       t.dataset.played = '1';
       img.style.transition = 'none'; go(null); void img.offsetWidth; img.style.transition = ''; // home at once, not flown in from full size
-      const MOVE = 2200, HOLD = 3200; let at = 1400;
-      [...regs, null].forEach(r => { setTimeout(() => { if (t.isConnected) go(r); }, at); at += MOVE + (r ? HOLD : 0); });
+      const MOVE = 2200, HOLD = 3200, seq = [...regs, null]; let i = 0;
+      const next = () => { if (!t.isConnected) return; go(seq[i++]); if (i < seq.length) liveTimeout(next, MOVE + HOLD); };
+      liveTimeout(next, 1400);
     };
     if (img.complete && img.naturalWidth) start(); else img.addEventListener('load', start, { once: true });
   },

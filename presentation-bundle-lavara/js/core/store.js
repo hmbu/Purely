@@ -58,9 +58,21 @@ export async function testGithub() {
 }
 
 /* ---------------------------------------------------------------- content */
+// single-file build: the films are carried as data, which players handle badly at this size; each becomes an
+// in-memory file (blob) once, before the show reads its content
+async function videosToBlobs(o) {
+  if (o.__blobbed) return; o.__blobbed = true;
+  const jobs = [];
+  const walk = (v, set) => {
+    if (typeof v === 'string' && v.startsWith('data:video/')) jobs.push(fetch(v).then(r => r.blob()).then(b => set(URL.createObjectURL(b))).catch(() => {}));
+    else if (Array.isArray(v)) v.forEach((x, i) => walk(x, y => { v[i] = y; }));
+    else if (v && typeof v === 'object') Object.keys(v).forEach(k => walk(v[k], y => { v[k] = y; }));
+  };
+  walk(o); await Promise.all(jobs);
+}
 export async function loadContent(opts) { return withDefaults(await loadRaw(opts)); }
 async function loadRaw({ fresh = false } = {}) {
-  if (window.__BXL_CONTENT__) return JSON.parse(JSON.stringify(window.__BXL_CONTENT__)); // single-file build
+  if (window.__BXL_CONTENT__) { await videosToBlobs(window.__BXL_CONTENT__); return JSON.parse(JSON.stringify(window.__BXL_CONTENT__)); } // single-file build
   isServer = await serverAvailable();
   if (fresh && !isServer && hasGithub()) { // control panel on the published site: always edit the latest commit
     try { const f = await ghGetFile('content.json'); const c = JSON.parse(utf8b64(f.content)); loadedSha = f.sha; cacheLocal(c); return c; } catch (e) { console.warn('GitHub load failed', e); }

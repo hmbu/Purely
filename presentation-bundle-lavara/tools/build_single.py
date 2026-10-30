@@ -53,7 +53,8 @@ ty = content['settings']['typography']; use(ty.get('title')); use(ty.get('body')
 used.setdefault(ty['body']['font'], set()).add('500')
 for p in content['projects']:
     for r in ('title', 'body'): use((p.get('brand', {}).get('typography') or {}).get(r))
-content['fonts'] = [{**f, 'files': {w: u for w, u in f['files'].items() if w in used.get(f['id'], set())}} for f in content['fonts'] if f['id'] in used]
+# every weight of the families in use: labels and cards also set 600/700, which would otherwise be faked
+content['fonts'] = [f for f in content['fonts'] if f['id'] in used]
 
 cache = {}
 def walk(v):
@@ -63,7 +64,18 @@ def walk(v):
         if v not in cache: cache[v] = data_uri(v) or ''
         return cache[v]
     return v
+# the SAR file goes in whole as the frame's own document (same origin, so the show still turns it to Arabic)
+sar = content.get('sar') or {}
+if isinstance(sar.get('src'), str) and sar['src'].endswith('.html') and os.path.exists(os.path.join(ROOT, sar['src'])):
+    sar['srcdoc'] = rd(sar['src'])
 content = walk(content)
+# images named in the code itself (corporate logos on the legal cards, the Lavara scenes' marks): carried in a map
+code_assets = {}
+for d in ('js', 'js/core'):
+    for fn in sorted(os.listdir(os.path.join(ROOT, d))):
+        if not fn.endswith('.js') or fn == 'control.js': continue
+        for m in re.findall(r"'(assets/[^']+\.(?:svg|png|jpe?g|webp))'", rd(os.path.join(d, fn))):
+            if m not in code_assets and os.path.exists(os.path.join(ROOT, m)): code_assets[m] = data_uri(m)
 content['settings'].setdefault('motion', {})['textureScale'] = 0.4
 
 js = subprocess.run(f'{a.esbuild} js/presentation.js --bundle --format=iife --minify --target=es2020', shell=True, cwd=ROOT, capture_output=True, text=True)
@@ -74,7 +86,7 @@ html = rd('presentation.html')
 html = html.replace('<link rel="stylesheet" href="css/show.css">', f'<style>{css}</style>')
 html = html.replace('<script src="assets/vendor/gsap.min.js"></script>', f'<script>{gsap}</script>')
 html = html.replace('<script type="module" src="js/presentation.js"></script>',
-    '<script>window.__BXL_CONTENT__=' + json.dumps(content, ensure_ascii=False).replace('</', '<\\/') + ';</script>\n<script>' + js.stdout.replace('</script', '<\\/script') + '</script>')
+    '<script>window.__BXL_ASSETS__=' + json.dumps(code_assets) + ';window.__BXL_CONTENT__=' + json.dumps(content, ensure_ascii=False).replace('</', '<\\/') + ';</script>\n<script>' + js.stdout.replace('</script', '<\\/script') + '</script>')
 html = html.replace('<meta name="viewport" content="width=device-width, initial-scale=1">',
     '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="theme-color" content="#15120F">')
 os.makedirs(os.path.join(ROOT, 'dist'), exist_ok=True)

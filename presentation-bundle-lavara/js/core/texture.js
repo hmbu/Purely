@@ -14,7 +14,7 @@
 //     soap  → handmade soap bar: slow marbled swirls with fine flecks.
 //     amber → light through perfume / oil: warm caustics in amber glass.
 // One instance per canvas. Drive it with the tweenable fields: progress (coverage 0..1), alpha, speed, sweep.
-import { hexToRgb } from './util.js';
+import { hexToRgb, assetURL } from './util.js';
 import { LAVARA_SCENES, LAVARA_SCENE_SRC, LAVARA_TEX } from './lavara-scenes.js';
 
 const VERT = `#version 300 es
@@ -443,6 +443,7 @@ const BALLS = 14;
 
 export class BrandTexture {
   static moving = false;
+  static frozen = false; // texts being edited: the textures hold still
   constructor(canvas, { resScale = 0.5 } = {}) {
     this.canvas = canvas; this.resScale = resScale;
     this.mode = null; this.colors = ['#000000', '#333333', '#666666', '#999999'];
@@ -501,6 +502,7 @@ export class BrandTexture {
   stop() { this.running = false; this.draw(); }
   loop(now) {
     if (!this.running) return;
+    if (BrandTexture.frozen) { this.last = now; requestAnimationFrame(this.loop); return; }
     const dt = Math.min(0.05, (now - this.last) / 1000); this.last = now;
     this.t += dt * this.speed;
     // While the camera moves, slow-drifting textures redraw every other frame: invisible on soft shapes,
@@ -555,7 +557,7 @@ export class BrandTexture {
       rec.tex = tex; if (!this.running) this.draw();
     };
     // an SVG without a pixel size draws at a default size in some browsers: give it one from its viewBox first
-    fetch(src).then(r => r.text()).then(txt => {
+    fetch(assetURL(src)).then(r => r.text()).then(txt => {
       const vb = (txt.match(/viewBox="([^"]+)"/) || [])[1]?.trim().split(/[\s,]+/).map(Number);
       if (vb && vb[2] > 0) h = Math.max(2, Math.round(w * vb[3] / vb[2]));
       const svg = txt.replace(/<svg\b([^>]*)>/, (m, at) => `<svg${at.replace(/\s(width|height)="[^"]*"/g, '')} width="${w}" height="${h}">`);
