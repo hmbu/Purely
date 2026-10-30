@@ -116,7 +116,8 @@ export function createEditor({ content, views, onChange }) {
 
   // editing must never navigate: clicks on editable text stop here, and keys stay inside the text
   addEventListener('click', e => { if (on && e.target.closest?.('.ed-on')) e.stopPropagation(); }, true);
-  addEventListener('focusin', e => { const b = e.target._ed; if (b) b.before = readText(e.target); });
+  // a stretched title (kashida) is edited as its plain words
+  addEventListener('focusin', e => { const b = e.target._ed; if (!b) return; if (e.target.dataset.plain != null) e.target.innerHTML = textHTML(e.target.dataset.plain); b.before = readText(e.target); });
   addEventListener('keydown', e => {
     const el = e.target; if (!el?._ed) return;
     e.stopPropagation();

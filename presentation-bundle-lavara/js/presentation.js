@@ -1,7 +1,7 @@
 // Bundle × Lavara — the show.
 // One giant canvas navigated by a camera: Universe (L0) → Project hub (L1) → Section (L2, slides advance horizontally).
 // Everything is driven by content.json; nothing about projects/sections/slides is hard-coded.
-import { $, $$, esc, escBr, clamp, fmtClock, prefersReducedMotion, grainTexture, rgba, fixAspects, isDark } from './core/util.js';
+import { $, $$, esc, escBr, clamp, fmtClock, prefersReducedMotion, grainTexture, rgba, fixAspects, isDark, kTitle, TYPO } from './core/util.js';
 import { projectsOf, sectionsOf, slidesOf, findProject, findSection, slideTheme, locate, isShared, sharedOf } from './core/model.js';
 import { loadContent, logDecision } from './core/store.js';
 import { createEditor, edAttr } from './core/editor.js';
@@ -57,6 +57,7 @@ const asset = p => (p ? new URL(p, location.href).href : ''); // absolute: url()
 // e.g. «الهدايا المؤسسية». Once revealed, the logo stays everywhere for the rest of the show.
 const idShown = p => !p || isShared(p) || PREVIEW || !p.brand?.descriptor || S.revealed.has(p.id);
 const descOf = p => p.brand?.descriptor || p.nameAr || p.name;
+const kt = s => { const k = kTitle(s || ''); return `${k.attr}>${k.html}`; }; // use as <tag class="…"${kt(text)}</tag>
 const ctxFor = p => ({ brand: p?.brand || {}, project: p, asset, idShown: idShown(p), projects: S.content?.projects || [] });
 const pxs = n => (stage.clientWidth / 3840) * n; // design px at 4K → current px
 
@@ -571,8 +572,7 @@ function coverCard(p, number, title, titleEn) {
   return `${mark}<div class="cover-card">
     <span class="cv-num latin">${String(number).padStart(2, '0')}</span>
     <span class="cv-rule"></span>
-    <h2 class="cv-title">${escBr(title || '')}</h2>
-    ${titleEn ? `<span class="cv-en latin">${esc(titleEn)}</span>` : ''}
+    <h2 class="cv-title"${kt(title)}</h2>
   </div>`;
 }
 async function coverTransition({ p, dir = 1, card = null, light = false, swap, after, flip = null }) {
@@ -902,12 +902,12 @@ function renderHub(p) {
           <button class="h2-station ${i <= seen ? 'is-visited' : ''} ${i === nextI ? 'is-next' : ''}" data-section="${esc(s.id)}" data-i="${i}">
             <span class="h2-num latin">${String(i + 1).padStart(2, '0')}</span>
             <span class="h2-dot"><i></i></span>
-            <span class="h2-title" ${edAttr('section', s.id, 'title')}>${escBr(s.title)}</span>
-            ${s.desc ? `<span class="h2-desc" ${edAttr('section', s.id, 'desc')}>${esc(s.desc)}</span>` : s.titleEn ? `<span class="h2-en latin">${esc(s.titleEn)}</span>` : ''}
+            <span class="h2-title" ${edAttr('section', s.id, 'title')}${kt(s.title)}</span>
+            ${s.desc ? `<span class="h2-desc" ${edAttr('section', s.id, 'desc')}>${esc(s.desc)}</span>` : ''}
           </button>`).join('')}
         ${decI >= 0 ? `<button class="h2-station is-final ${decI === nextI ? 'is-next' : ''}" data-special="decision" data-i="${decI}">
             <span class="h2-num latin">${String(decI + 1).padStart(2, '0')}</span><span class="h2-dot"><i></i></span>
-            <span class="h2-title" ${edAttr('decision', '', 'title')}>${esc(S.content.decision?.title || 'القرارات')}</span>${S.content.decision?.desc ? `<span class="h2-desc" ${edAttr('decision', '', 'desc')}>${esc(S.content.decision.desc)}</span>` : `<span class="h2-en latin">${esc(S.content.decision?.titleEn || 'Decisions')}</span>`}</button>` : ''}
+            <span class="h2-title" ${edAttr('decision', '', 'title')}${kt(S.content.decision?.title || 'القرارات')}</span>${S.content.decision?.desc ? `<span class="h2-desc" ${edAttr('decision', '', 'desc')}>${esc(S.content.decision.desc)}</span>` : `<span class="h2-en latin">${esc(S.content.decision?.titleEn || 'Decisions')}</span>`}</button>` : ''}
       </div>
     </div>`;
   fixAspects(L.hub);
@@ -1115,7 +1115,7 @@ async function stationDoor(p, sec, slideIndex = 0) {
   const mark = p.brand.mark && idShown(p) ? `<span class="logo-mask sd-mark" style="--src:url('${esc(asset(p.brand.mark))}')"></span>` : '';
   const card = document.createElement('div'); card.className = 'sd-card';
   card.innerHTML = `${mark}<div class="sd-c"><span class="sd-num latin">${String(i + 1).padStart(2, '0')}</span><span class="sd-rule"></span>
-    <h2 class="sd-title">${escBr(sec.title || '')}</h2>${sec.titleEn ? `<span class="sd-en latin">${esc(sec.titleEn)}</span>` : ''}</div>`;
+    <h2 class="sd-title"${kt(sec.title)}</h2></div>`;
   (root || L.hub).appendChild(card);
   const q = c => $(c, card), from = st && { num: $('.h2-num', st), title: $('.h2-title', st) };
   // FLIP: start each part exactly where (and as large as) it stands on the line
@@ -1326,17 +1326,17 @@ function renderDecision() {
   L.special.innerHTML = `
     <div class="special decision">
       <div class="d-breath"></div>
-      <div class="d-head">${d.eyebrow ? `<div class="tx-eyebrow latin">${esc(d.eyebrow)}</div>` : ''}<h1 class="d-q">${escBr(d.question || '')}</h1></div>
+      <div class="d-head">${d.eyebrow ? `<div class="tx-eyebrow latin">${esc(d.eyebrow)}</div>` : ''}<h1 class="d-q"${kt(d.question)}</h1></div>
       <div class="d-groups ${(d.groups || []).length > 3 ? 'is-rows' : ''}" style="--g:${(d.groups || []).length}">
         ${[...(d.groups || [])].sort((a, b) => (b.approved ? 1 : 0) - (a.approved ? 1 : 0)).map(g => {
           const p = g.projectId ? findProject(S.content, g.projectId) : null;
           // an approved item is settled: shown as approved, nothing to choose; the open ones come last
           if (g.approved) return `<div class="d-group is-approved" data-group="${esc(g.id)}">
-            <div class="d-gtitle"><span>${esc(g.title)}</span></div>
+            <div class="d-gtitle"><span>${esc(g.title)}</span>${g.sub ? `<small class="d-gsub">${esc(g.sub)}</small>` : ''}</div>
             <div class="d-done"><span class="d-check"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>${esc(g.approvedLabel || 'معتمد')}</span></div>
           </div>`;
           return `<div class="d-group" data-group="${esc(g.id)}">
-            <div class="d-gtitle">${p?.brand?.logo ? `<span class="logo-mask d-glogo" style="--src:url('${esc(asset(p.brand.logo))}')" title="${esc(g.title)}"></span>` : `<span>${esc(g.title)}</span>`}</div>
+            <div class="d-gtitle">${p?.brand?.logo ? `<span class="logo-mask d-glogo" style="--src:url('${esc(asset(p.brand.logo))}')" title="${esc(g.title)}"></span>` : `<span>${esc(g.title)}</span>`}${g.sub ? `<small class="d-gsub">${esc(g.sub)}</small>` : ''}</div>
             <div class="d-options">${(g.options || []).map(o => `<button class="d-opt ${sel[g.id] === o.id ? 'is-on' : ''}" data-group="${esc(g.id)}" data-option="${esc(o.id)}"><span class="d-ring"></span><span class="d-label">${escBr(o.label)}</span></button>`).join('')}</div>
           </div>`;
         }).join('')}
@@ -1395,7 +1395,7 @@ function renderReview() {
   const r = S.content.review || {}, items = (r.items || []).filter(x => !x.hidden);
   L.special.innerHTML = `
     <div class="special review">
-      <div class="rv-head">${r.eyebrow ? `<div class="rv-eyebrow latin">${esc(r.eyebrow)}</div>` : ''}<h1 class="rv-title">${escBr(r.title || '')}</h1>${r.subtitle ? `<p class="rv-sub">${escBr(r.subtitle)}</p>` : ''}</div>
+      <div class="rv-head">${r.eyebrow ? `<div class="rv-eyebrow latin">${esc(r.eyebrow)}</div>` : ''}<h1 class="rv-title"${kt(r.title)}</h1>${r.subtitle ? `<p class="rv-sub">${escBr(r.subtitle)}</p>` : ''}</div>
       <div class="rv-line" style="--n:${items.length}"><i class="rv-axis"></i>
         ${items.map((it, i) => `<div class="rv-item ${i % 2 ? 'is-down' : 'is-up'}">
           <span class="rv-dot"></span>
@@ -1483,7 +1483,7 @@ function renderSar() {
   L.special.innerHTML = `
     <div class="special sar">
       <div class="sar-cover">
-        <h1 class="sar-title">${escBr(r.title || '')}</h1>
+        <h1 class="sar-title"${kt(r.title)}</h1>
         <div class="sar-lockup">${SAR_SVG}<i class="sar-x" aria-hidden="true"></i>
           <div class="sar-teams">${teams.map(p => `<span class="logo-mask sar-team is-${esc(p.id)}" style="--src:url('${esc(asset(p.brand.logo))}')" aria-label="${esc(p.name)}"></span>`).join('')}</div>
         </div>
@@ -1776,6 +1776,7 @@ function broadcastState() {
 /* ======================================================================= live content updates */
 function applyContent(c, { keep = true } = {}) {
   S.content = c;
+  TYPO.kashida = c.settings?.typography?.kashida !== false; // stretched Arabic titles (on unless turned off)
   stage.classList.toggle('no-eyebrow', c.settings?.eyebrows === false);
   registerFonts(c);
   sound.configure(c.settings?.sound, c.projects || []);

@@ -52,6 +52,27 @@ export function fmtClock(ms) {
   return h ? `${h}:${z(m)}:${z(x)}` : `${z(m)}:${z(x)}`;
 }
 export const arabicDigits = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+
+/* ---------- Arabic display titles: a short stretch (kashida) before the last letter of each word,
+   as in «الهدايـا المؤسسيـة». Only where the letters join; small words and lam-alef are left alone. */
+export const TYPO = { kashida: true };
+const AR_LETTER = /[ؠ-ؿف-يٮ-ۓ]/, AR_MARK = /[ً-ٰٟ]/;
+const NO_LEFT_JOIN = new Set([...'ءآأؤإاةدذرزوىٱ']); // never join the letter after them
+const KASHIDA_SKIP = new Set(['على', 'إلى', 'التي', 'الذي', 'هذا', 'هذه', 'بين', 'عند', 'حتى', 'قبل', 'بعد', 'خلال', 'نحو']);
+export function kashida(s) {
+  if (!TYPO.kashida || !s) return s ?? '';
+  return String(s).replace(/[؀-ۿ]+/g, w => {
+    if (w.includes('ـ') || KASHIDA_SKIP.has(w)) return w;
+    const ch = [...w]; if (ch.filter(c => AR_LETTER.test(c)).length < 3) return w;
+    let i = ch.length - 1; while (i > 0 && AR_MARK.test(ch[i])) i--; // the last letter (its marks stay after it)
+    let j = i - 1; while (j >= 0 && AR_MARK.test(ch[j])) j--; // the letter before it
+    if (j < 0 || !AR_LETTER.test(ch[i]) || !AR_LETTER.test(ch[j]) || NO_LEFT_JOIN.has(ch[j]) || ch[i] === 'ء') return w;
+    if (ch[j] === 'ل' && 'اأإآ'.includes(ch[i])) return w; // keep the lam-alef ligature whole
+    ch.splice(i, 0, 'ـ'); return ch.join('');
+  });
+}
+// a stretched title, carrying its plain words for the in-place editor
+export const kTitle = s => { const k = kashida(s); return { html: escBr(k), attr: k !== (s ?? '') ? ` data-plain="${esc(s)}"` : '' }; };
 export const isVideo = src => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src || '') || /^data:video\//.test(src || '');
 
 export function prefersReducedMotion() {

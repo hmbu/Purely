@@ -618,6 +618,7 @@ function renderDecisionTab() {
     { key: 'question', type: 'textarea', rows: 2, label: 'السؤال' },
     { key: 'groups', type: 'list', label: 'بنود القرار', item: [
       { key: 'title', type: 'text', label: 'اسم البند' },
+      { key: 'sub', type: 'text', label: 'ما يشمله البند (سطر صغير تحت الاسم)' },
       { key: 'projectId', type: 'select', label: 'مرتبط بمشروع (يظهر شعاره)', options: projOpts },
       { key: 'approved', type: 'toggle', label: 'معتمد (يظهر بالأخضر بلا خيارات)' },
       { key: 'options', type: 'list', label: 'الخيارات', item: [{ key: 'label', type: 'text', label: 'الخيار' }], newItem: () => ({ id: uid('do'), label: 'خيار' }) }],

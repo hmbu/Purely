@@ -841,6 +841,8 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
    ===================================================================== */
 .t-canvas .board-head { top: 6.4rem; }
 .cv-lead { margin: 1rem 0 0; font-size: 1.6rem; opacity: .62; }
+.cv-lead.is-logo { opacity: 1; line-height: 0; }
+.cv-lead-logo { display: inline-block; height: 2.4rem; width: 12rem; -webkit-mask-position: right center; mask-position: right center; }
 .cv-grid { position: absolute; top: 19.5rem; bottom: 7rem; right: 8rem; left: 8rem; display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: 1fr 1fr .82fr; gap: 1.2rem; }
 .cv-b { --gc: var(--sfg); position: relative; display: flex; flex-direction: column; gap: 1.2rem; min-height: 0; overflow: hidden; padding: 2.2rem 2.4rem; background: color-mix(in srgb, var(--gc) 7%, var(--sbg)); }
 .cv-b.g-infra { --gc: var(--ssec); }
@@ -1538,6 +1540,7 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .d-check { width: 3.2rem; height: 3.2rem; border-radius: 50%; background: #2E6B47; display: grid; place-items: center; flex: none; }
 .d-check svg { width: 1.9rem; height: 1.9rem; fill: none; stroke: #F7F3EC; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .is-approved .d-gtitle { opacity: 1; }
+.d-gsub { display: block; margin-top: .5rem; font-family: var(--f-body); font-weight: 400; font-size: 1.6rem; opacity: .62; }
 .is-rows .d-group.is-approved + .d-group:not(.is-approved) { margin-top: 2.8rem; }
 
 /* points for discussion sit in the row with the others (four cards), set apart by their own colour */

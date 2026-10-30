@@ -1,7 +1,7 @@
 // Slide templates. Each template owns only its relevant fields (used by the control panel editor)
 // and renders plain HTML. Elements carry data-a="bg|media|eyebrow|title|body|extra" so the
 // transition engine can stagger them (Layered Drift: background → media → title → body).
-import { esc, escBr, isVideo } from './util.js';
+import { esc, escBr, isVideo, kTitle } from './util.js';
 
 const AR = /[؀-ۿ]/;
 const langCls = s => (AR.test(s || '') ? 'ar' : 'latin');
@@ -37,7 +37,15 @@ export function mediaHTML(m, ctx, { cls = '', label = 'صورة', eager = false 
   return `<img class="m ${cls}" src="${esc(ctx.asset(src))}" alt="" decoding="async" ${eager ? 'fetchpriority="high"' : 'loading="eager"'} style="${style}">`;
 }
 const eyebrow = s => (s ? `<div class="tx-eyebrow ${langCls(s)}" data-a="eyebrow">${escBr(s)}</div>` : '');
-const title = (s, cls = '') => (s ? `<h1 class="tx-title ${cls} ${langCls(s)}" data-a="title">${escBr(s)}</h1>` : '');
+const title = (s, cls = '') => { if (!s) return ''; const k = kTitle(s); return `<h1 class="tx-title ${cls} ${langCls(s)}" data-a="title"${k.attr}>${k.html}</h1>`; };
+// The line under a title. A line that only names one of the show's projects is shown as that project's
+// logo (names in text are Arabic; in graphics the logo stands for the project).
+function leadLine(d, ctx) {
+  const t = String(d.lead || '').trim(); if (!t) return '';
+  const k = t.toLowerCase(), p = ctx?.projects?.find(x => x.kind !== 'shared' && x.brand?.logo && [x.name, x.nameAr, x.id].some(n => n && String(n).trim().toLowerCase() === k));
+  if (p && ctx.asset) return `<p class="cv-lead is-logo"><span class="logo-mask cv-lead-logo is-${esc(p.id)}" role="img" aria-label="${esc(p.name)}" style="--src:url('${esc(ctx.asset(p.brand.logo))}');color:${esc(p.brand.colors?.primary || 'currentColor')}"></span></p>`;
+  return `<p class="cv-lead">${escBr(d.lead)}</p>`;
+}
 const body = (s, cls = '') => (s ? `<p class="tx-body ${cls} ${langCls(s)}" data-a="body">${escBr(s)}</p>` : '');
 const logoHTML = (src, ctx, cls = '') => (src ? `<span class="logo-mask ${cls}" style="--src:url('${esc(ctx.asset(src))}')"></span>` : '');
 
@@ -570,7 +578,7 @@ TEMPLATES.canvas = {
             ${b.text ? `<p class="cv-x">${escBr(b.text)}</p>` : ''}${b.badge ? `<span class="cv-badge">${esc(b.badge)}</span>` : ''}`;
     return `
     <div class="t t-canvas ${br.length ? 'has-branches' : ''}" style="${ctx?.brand?.mark && ctx.idShown !== false ? `--lv-mark:url('${esc(ctx.asset(ctx.brand.mark))}')` : ''}">
-      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${leadLine(d, ctx)}</div>
       <div class="cv-legend" data-a="body"><span class="g-infra"><i></i>${esc(d.legendInfra || 'قابلية التنفيذ')}</span><span class="g-cust"><i></i>${esc(d.legendCust || 'رغبة العميل')}</span><span class="g-fin"><i></i>${esc(d.legendFin || 'الجدوى المالية')}</span></div>
       <div class="cv-grid">
         ${bl.map((b, i) => `
@@ -608,7 +616,7 @@ TEMPLATES.flow = {
     const lines = s => String(s || '').split('\n').map(x => x.trim()).filter(Boolean);
     return `
     <div class="t t-flow" ${d.color ? `style="--cc:${esc(d.color)}"` : ''}>
-      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${leadLine(d, ctx)}</div>
       <div class="fl-row" style="--n:${ph.length || 1}">
         ${ph.map((p, i) => `
           <div class="fl-ph" data-a="extra" data-seq="${i}">
@@ -790,7 +798,7 @@ TEMPLATES.figure = {
     const src = imgSrc(d.image);
     return `
     <div class="t t-figure">
-      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${leadLine(d, ctx)}</div>
       <div class="fg-art" data-a="media">${src ? `<img src="${esc(ctx.asset(src))}" alt="${esc(d.title || '')}" ${d.zoom !== false ? `data-zoom="${esc(ctx.asset(src))}"` : ''}>` : ''}</div>
     </div>`;
   },
@@ -811,7 +819,7 @@ TEMPLATES.lineup = {
     <div class="t t-lineup ${d.spotlight ? 'is-spot' : ''}" style="--n:${(d.items || []).length || 1}">
       ${d.spotlight ? '<div class="ln-stage" data-a="bg"><i class="ln-back"></i><i class="ln-floor"></i></div>' : ''}
       ${d.spotlight ? '<button type="button" class="ln-mode" data-ln-mode title="خلفية فاتحة / داكنة" aria-label="تبديل الخلفية بين الفاتحة والداكنة"></button>' : ''}
-      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${leadLine(d, ctx)}</div>
       <svg class="ln-defs" width="0" height="0" aria-hidden="true"><filter id="ln-matte" color-interpolation-filters="sRGB">
         <feColorMatrix type="saturate" values=".8"/>
         <feComponentTransfer><feFuncR type="table" tableValues="0 .1 .21 .33 .45 .56 .66 .75 .84"/><feFuncG type="table" tableValues="0 .1 .2 .32 .43 .53 .62 .71 .79"/><feFuncB type="table" tableValues="0 .09 .19 .29 .39 .48 .56 .63 .7"/></feComponentTransfer>
@@ -864,7 +872,7 @@ TEMPLATES.compare = {
       : `<ul>${lines(o.points).map(x => (x[0] === '-' ? `<li class="con"><i></i>${esc(x.slice(1).trim())}</li>` : `<li class="pro"><i></i>${esc(x)}</li>`)).join('')}</ul>`;
     return `
     <div class="t t-compare ly-${ly}" style="${ctx?.brand?.mark && ctx.idShown !== false ? `--lv-mark:url('${esc(ctx.asset(ctx.brand.mark))}')` : ''}">
-      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${leadLine(d, ctx)}</div>
       ${plain ? '' : `<div class="cp-legend" data-a="body"><span class="pro"><i></i>${esc(d.proLabel || '')}</span><span class="con"><i></i>${esc(d.conLabel || '')}</span></div>`}
       <div class="cp-cols" style="--n:${(d.options || []).length || 1}">
         ${(d.options || []).map((o, i) => `
@@ -887,9 +895,9 @@ TEMPLATES.stats = {
     { key: 'items', type: 'list', label: 'الأرقام', item: [{ key: 'value', type: 'text', label: 'الرقم' }, { key: 'label', type: 'text', label: 'الوصف' }, { key: 'note', type: 'text', label: 'ملاحظة صغيرة (اختياري)' }],
       newItem: { value: '0', label: '', note: '' } }],
   defaults: { eyebrow: '', title: 'بالأرقام', lead: '', items: [] },
-  render: d => `
+  render: (d, ctx) => `
     <div class="t t-stats">
-      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${d.lead ? `<p class="cv-lead">${escBr(d.lead)}</p>` : ''}</div>
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${leadLine(d, ctx)}</div>
       <div class="st-row" style="--n:${(d.items || []).length || 1}">
         ${(d.items || []).map((it, i) => `
           <div class="st-cell" data-a="extra" data-seq="${i}" data-n="(${String(i + 1).padStart(3, '0')})">
