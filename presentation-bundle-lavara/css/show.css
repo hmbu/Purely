@@ -1807,3 +1807,7 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 /* Bundle and Lavara: no numbering on any slide — no (001), no 01 (user decision) */
 :is([data-brand="bundle"], [data-brand="lavara"]) :is(.cp-roman, .ln-roman, .sc-roman, .sc-num, .fl-roman, .fl-n, .cvb-n, .cp-k, .scr-n, .j-num, .cv-n, .sd-num) { display: none !important; }
 :is([data-brand="bundle"], [data-brand="lavara"]) :is(.so-card, .st-cell)::after { content: none !important; }
+/* identity films: the video alone on screen */
+#logos, #hud { transition: opacity .6s ease; }
+.video-only :is(#logos, #hud) { opacity: 0 !important; pointer-events: none; }
+.video-only .t-video .s-copy { display: none !important; }
