@@ -318,12 +318,13 @@ TEMPLATES.legal = {
     const head = `<div class="board-head">${title(d.title)}</div>`;
     if (d.layout === 'structure') {
       const ps = (ctx.projects || []).filter(p => p.kind !== 'shared' && p.brand?.logo);
-      const ent = (p, side, x) => p ? `<div class="lg-card lg-ent2 ${side}" data-from="1" style="--rule:${esc(p.brand.colors?.primary || LG_C.fee)}"><span class="logo-mask lg-plogo" role="img" aria-label="${esc(p.name)}" style="--src:url('${esc(ctx.asset(p.brand.logo))}');color:${esc(p.brand.colors?.primary || 'currentColor')}"></span></div>` : '';
+      // each entity in its own identity: its colour as the card, its logo in its light ink
+      const ent = (p, side) => p ? `<div class="lg-card lg-ent2 is-brand ${side}" data-from="1" style="--bg:${esc(p.brand.colors?.primary || LG_C.fee)};--rule:${esc(p.brand.colors?.secondary || p.brand.colors?.primary || LG_C.fee)}"><span class="logo-mask lg-plogo" role="img" aria-label="${esc(p.name)}" style="--src:url('${esc(ctx.asset(p.brand.logo))}');color:${esc(p.brand.colors?.textLight || '#fff')}"></span></div>` : '';
       return `
       <div class="t t-legal is-structure">${head}
-        <div class="lg-card lg-top" data-a="extra" data-seq="0" style="--rule:${LG_C.own}">${lgLogo('majed', ctx, 5)}<span class="lg-sub">${esc(d.majedSub || '')}</span></div>
+        <div class="lg-card lg-top is-majed" data-a="extra" data-seq="0" style="--rule:${LG_C.own}">${lgLogo('majed', ctx, 5)}<span class="lg-sub">${esc(d.majedSub || '')}</span></div>
         ${ent(ps[0], 'is-r')}${ent(ps[1], 'is-l')}
-        <div class="lg-card lg-bottom" data-from="2" style="--rule:${LG_C.svc}">${lgLogo('rimthan', ctx, 3.4)}<span class="lg-sub">${esc(d.rimSub || '')}</span></div>
+        <div class="lg-card lg-bottom is-rim" data-from="2" style="--rule:${LG_C.svc}">${lgLogo('rimthan', ctx, 3.4)}<span class="lg-sub">${esc(d.rimSub || '')}</span></div>
         <svg class="lg-svg" viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true">
           ${lgArrow(105, 35.2, 105, 45.4, LG_C.own, { from: 1 })}${lgArrow(55, 35.2, 55, 45.4, LG_C.own, { from: 1 })}
           ${lgArrow(105, 69.8, 105, 60.2, LG_C.svc, { from: 2, dashed: true })}${lgArrow(55, 69.8, 55, 60.2, LG_C.svc, { from: 2, dashed: true })}
@@ -335,9 +336,9 @@ TEMPLATES.legal = {
     return `
     <div class="t t-legal is-contract">${head}
       <div class="lg-state"><span class="lg-st" data-only="0">${esc(d.nowLabel || '')}</span><span class="lg-st" data-from="1">${esc(d.nextLabel || '')}</span></div>
-      <div class="lg-card lg-majed" data-a="extra" data-seq="0" style="--rule:${LG_C.own}">${lgLogo('majed', ctx, 5)}<span class="lg-swap"><span class="lg-sub" data-only="0">${esc(d.majedNow || '')}</span><span class="lg-sub" data-from="1">${esc(d.majedNext || '')}</span></span></div>
-      <div class="lg-card lg-rim" data-a="extra" data-seq="1" style="--rule:${LG_C.svc}">${lgLogo('rimthan', ctx, 3.4)}<span class="lg-sub">${esc(d.rimSub || '')}</span></div>
-      <div class="lg-card lg-ent" data-from="1" style="--rule:${LG_C.fee}"><span class="lg-pair" aria-hidden="true"><i></i><i></i></span><b class="lg-name">${esc(d.entTitle || '')}</b><span class="lg-sub">${esc(d.entSub || '')}</span></div>
+      <div class="lg-card lg-majed is-majed" data-a="extra" data-seq="0" style="--rule:${LG_C.own}">${lgLogo('majed', ctx, 5)}<span class="lg-swap"><span class="lg-sub" data-only="0">${esc(d.majedNow || '')}</span><span class="lg-sub" data-from="1">${esc(d.majedNext || '')}</span></span></div>
+      <div class="lg-card lg-rim is-rim" data-a="extra" data-seq="1" style="--rule:${LG_C.svc}">${lgLogo('rimthan', ctx, 3.4)}<span class="lg-sub">${esc(d.rimSub || '')}</span></div>
+      <div class="lg-card lg-ent" data-from="1" style="--rule:${LG_C.fee};${(ctx.projects || []).filter(p => p.kind !== 'shared' && p.brand?.colors?.primary).slice(0, 2).map((p, i) => `--h${i + 1}:${esc(p.brand.colors.primary)}`).join(';')}"><span class="lg-pair" aria-hidden="true"><i></i><i></i></span><b class="lg-name">${esc(d.entTitle || '')}</b><span class="lg-sub">${esc(d.entSub || '')}</span></div>
       <svg class="lg-svg" viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true">
         ${lgArrow(66.5, 40.5, 93.5, 40.5, LG_C.svc, { only: 0 })}${lgArrow(93.5, 47.5, 66.5, 47.5, LG_C.fee, { only: 0 })}
         ${lgArrow(119.25, 37.6, 119.25, 55.6, LG_C.own, { from: 1 })}${lgArrow(40.75, 37.6, 40.75, 55.6, LG_C.own, { from: 1, dashed: true })}
@@ -548,10 +549,11 @@ TEMPLATES.finance = {
     { key: 'panelTitle', type: 'text', label: 'عنوان اللوحة الجانبية' }, { key: 'panelSub', type: 'text', label: 'سطر تحته' },
     { key: 'shots', type: 'list', label: 'صور من النموذج', item: [{ key: 'image', type: 'image', label: 'الصورة' }], newItem: { image: { src: '' } } },
     { key: 'pointsTitle', type: 'text', label: 'عنوان النقاط' },
-    { key: 'points', type: 'list', label: 'النقاط', item: [{ key: 'text', type: 'text', label: 'النقطة' }], newItem: { text: '' } }],
+    { key: 'points', type: 'list', label: 'النقاط', item: [{ key: 'text', type: 'text', label: 'النقطة' }], newItem: { text: '' } },
+    { key: 'modelsOnly', type: 'toggle', label: 'الصورتان فقط (بلا الرسوم): كبيرتان مع عنوان اللوحة' }],
   defaults: { eyebrow: 'Financials', title: 'الإيرادات', charts: [], panelTitle: '', panelSub: '', shots: [], pointsTitle: '', points: [] },
   // one project at a time: its bars rise slowly year by year and its two headline numbers count up; the next press, the next project
-  steps: d => Math.max(0, (d.charts || []).length - 1),
+  steps: d => (d.modelsOnly ? 0 : Math.max(0, (d.charts || []).length - 1)),
   applyStep: (el, step, instant) => {
     el.querySelectorAll('.fn-chart').forEach((c, k) => {
       const on = k <= step, was = c.classList.contains('is-grown');
@@ -573,6 +575,16 @@ TEMPLATES.finance = {
     const max = Math.max(1e-9, ...ch.flatMap(c => [...nums(c.a), ...nums(c.b)].map(Number).filter(Number.isFinite)));
     const bar = (v, cls, i) => { const n = Number(v); return `<span class="fn-bar ${cls}" style="--h:${Number.isFinite(n) ? (n / max) * 100 : 0}%;--i:${i}"><em class="latin">${esc(v)}</em></span>`; };
     const shots = (d.shots || []).filter(x => x?.image?.src || typeof x?.image === 'string');
+    // the sent models alone: their pictures large, side by side, under the panel's title (a press on one opens it full screen)
+    if (d.modelsOnly) return `
+    <div class="t t-finance is-models">
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
+      <div class="fn-models">
+        ${d.panelTitle ? `<div class="fn-ptitle" data-a="body"><i></i><b>${esc(d.panelTitle)}</b></div>` : ''}
+        <div class="fn-mshots n-${Math.min(shots.length, 3)}">${shots.slice(0, 3).map((x, i) => { const src = typeof x.image === 'string' ? x.image : x.image.src;
+          return `<div class="fn-mshot" data-a="extra" data-seq="${i}" data-zoom="${esc(ctx.asset(src))}">${mediaHTML({ ...(typeof x.image === 'string' ? { src } : x.image), fit: 'contain' }, ctx)}</div>`; }).join('')}</div>
+      </div>
+    </div>`;
     return `
     <div class="t t-finance">
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>

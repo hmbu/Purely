@@ -1932,3 +1932,51 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .rv-status { margin-top: auto; color: #2E6B47; opacity: 1; font-weight: 600; }
 .rv-status::before { width: 1.7rem; height: 1.7rem; border-radius: 50%; background: #2E6B47 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 72% no-repeat; }
 .rv-dot { rotate: 45deg; width: 1.4rem; height: 1.4rem; margin: -.7rem 0 0 -.7rem; }
+
+/* one layout for every slide: the title in one place (7.5rem from the top), the content starting on one line
+   (21rem) right under it, and any spare room left at the foot of the slide rather than above the content */
+:is(.t-canvas, .t-flow, .t-figure, .t-lineup) .board-head { top: 7.5rem; }
+.t-screens .scr-copy { top: 7.5rem; translate: none; }
+:is(.up-grid, .fn-body, .oc-cols, .so-cards, .ca-list, .pa-bands, .cp-cols, .sc-cols, .concepts, .cv-grid, .fl-row, .sc-items, .ln-row) { top: 21rem; }
+.t-board .board-grid, .t-diagram .dg { top: 21rem; }
+.up-grid { align-content: start; }
+.pa-bands { justify-content: flex-start; }
+/* three title levels only: project names (hub), page and slide titles (one size: 5.6rem), section dividers */
+.d-q, .sar-title { font-size: calc(5.6rem * var(--s-title, 1)); }
+/* numbering only where the order matters (the agenda stations, the section cards, the operating stages):
+   none on the opening screen's two projects, the review's deliverables or the updates */
+:is(.w-num, .ud-num, .rv-n, .up-num) { display: none !important; }
+
+/* finance, models only: the two sent models large, side by side, under one title */
+.t-finance.is-models .fn-models { position: absolute; top: 21rem; bottom: 9rem; right: 8rem; left: 8rem; display: flex; flex-direction: column; gap: 3rem; }
+.t-finance.is-models .fn-ptitle b { font-size: 2.8rem; }
+.fn-mshots { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--n, 2), 1fr); grid-auto-flow: column; gap: 3.2rem; align-items: center; }
+.fn-mshot { height: 100%; display: grid; place-items: center; cursor: zoom-in; min-width: 0; }
+.fn-mshot .m { width: 100%; height: 100%; object-fit: contain; background: transparent; filter: drop-shadow(0 2rem 3rem rgba(30, 27, 23, .25)); }
+
+/* legal: every party in its own identity — Al Majed sand with its dark logo, Rimthan black, Bundle and Lavara their
+   brand colour with the logo in their light ink; the two new entities share one box, half in each brand's colour */
+.t-legal .lg-card.is-majed { background: #E2CCA3; --rule: #8C6A3A; }
+.t-legal .lg-card.is-majed .lg-sub { opacity: .75; }
+.t-legal .lg-card.is-rim { background: #141414; --rule: #141414; color: #F7F3EC; }
+.t-legal .lg-card.is-rim .lg-sub { opacity: .75; }
+.t-legal .lg-card.is-brand { background: var(--bg); }
+.t-legal .lg-card.lg-ent { background: linear-gradient(to left, var(--h1, #245845) 50%, var(--h2, #3C2E25) 50%); color: #F7F3EC; --rule: #141414; }
+.t-legal .lg-card.lg-ent .lg-sub { opacity: .85; }
+.t-legal .lg-card.lg-ent .lg-pair i { border-color: #F7F3EC; opacity: .9; }
+.t-legal [data-from]:not(.is-on), .t-legal [data-only]:not(.is-on) { opacity: 0 !important; } /* above the cards' own text opacity */
+
+/* approvals as cards: one card per item, side by side; the approved ones settled in green, the open one with its choices at the foot */
+.d-groups.is-cards { display: grid; grid-template-columns: repeat(var(--g), minmax(0, 1fr)); gap: 2.8rem; width: 100%; max-width: 150rem; align-items: stretch; }
+.is-cards .d-group { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 1.4rem; min-height: 34rem; padding: 3.4rem 3rem 3rem; text-align: right;
+  background: #EFE9DD; border-top: .45rem solid #1E1B17; box-shadow: 0 2.6rem 4.8rem -3.4rem rgba(30, 27, 23, .45); color: #1E1B17; }
+.is-cards .d-gtitle { height: auto; margin: 0; display: block; place-items: unset; font-family: var(--f-title); font-weight: var(--w-title); font-size: 3.2rem; line-height: 1.25; opacity: 1; }
+.is-cards .d-gsub { font-size: 1.75rem; margin-top: 1rem; }
+.is-cards .d-group.is-approved { background: #E6EDE5; border-top-color: #2E6B47; }
+.is-cards .d-group.is-approved .d-gtitle { color: #1E1B17; }
+.is-cards .d-done { margin-top: auto; padding: 0; font-size: 2.1rem; background: none; }
+.is-cards .d-options { margin-top: auto; width: 100%; flex-direction: column; gap: 1rem; }
+.is-cards .d-opt { width: 100%; min-width: 0; padding: 1.2rem 2rem; font-size: 1.85rem; border-radius: .3rem; text-align: center; border-color: rgba(30, 27, 23, .3); }
+.is-cards .d-opt.is-on { background: #1E1B17; color: #F7F3EC; }
+.is-cards .d-group:not(.is-approved) { border-top-color: #B08A4E; }
+.is-cards .d-done { border: 0; box-shadow: none; }

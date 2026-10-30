@@ -940,7 +940,7 @@ function renderHub(p) {
 }
 function bgChooserHTML(p) {
   if (PREVIEW || p.brand.texture !== 'mist' || settings().universe?.chooser === false || Object.keys(LAVARA_SCENES).length < 2) return '';
-  const keys = Object.keys(LAVARA_SCENES);
+  const keys = Object.keys(LAVARA_SCENES).filter(k => !LAVARA_SCENES[k].shared);
   return `<div class="h2-bgs" title="خلفيات لافارا">${keys.map((k, i) => `<button data-bg="${k}" class="${p.brand.textureStyle === k ? 'on' : ''}" title="${esc(LAVARA_SCENES[k].name)}">${LAVARA_SCENES[k].num ?? i + 1}</button>`).join('')}</div>`;
 }
 // Measured in layout pixels (offsetLeft), never getBoundingClientRect(): the line is scaled during its intro
@@ -1327,7 +1327,7 @@ function renderDecision() {
     <div class="special decision">
       <div class="d-breath"></div>
       <div class="d-head">${d.eyebrow ? `<div class="tx-eyebrow latin">${esc(d.eyebrow)}</div>` : ''}<h1 class="d-q"${kt(d.question)}</h1></div>
-      <div class="d-groups ${(d.groups || []).length > 3 ? 'is-rows' : ''}" style="--g:${(d.groups || []).length}">
+      <div class="d-groups is-cards" style="--g:${(d.groups || []).length}">
         ${[...(d.groups || [])].sort((a, b) => (b.approved ? 1 : 0) - (a.approved ? 1 : 0)).map(g => {
           const p = g.projectId ? findProject(S.content, g.projectId) : null;
           // an approved item is settled: shown as approved, nothing to choose; the open ones come last

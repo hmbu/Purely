@@ -246,9 +246,51 @@ S2.mirror = WR('وانعكاسه بتموّج القطرات', `
   col = press(col, qr, c, 0.56, 0.03 * sin(t * 0.17), 0.55 * dp, lp, L, warm);
   col += warm * 0.02 * dp * exp(-pow((p.y - y0) / 0.006, 2.0)) * smoothstep(0.35, 0.0, abs(p.x - c.x) / asp);`);
 Object.entries(S2).forEach(([k, v], i) => { S[k] = { ...v, num: i + 1 }; });
+// ------------------------------------------------------------------ the shared frame's backgrounds (not Lavara's):
+// its pearl paper as it is, with one quiet movement in its brass. The middle, where the words sit, stays calmer.
+const PEARL = `const vec3 PL_A = vec3(0.969, 0.953, 0.925), PL_B = vec3(0.933, 0.910, 0.863), PL_GOLD = vec3(0.690, 0.541, 0.306), PL_GLOW = vec3(0.851, 0.725, 0.498);
+vec3 pearlBase(vec2 uv){ return mix(PL_A, PL_B, smoothstep(0.0, 1.0, 0.25 + uv.y * 0.35 - (uv.x - 0.5) * 0.1)); }
+`;
+const SP = (name, code) => ({ name, ground: '#F7F3EC', ink: '#1E1B17', shared: true, body: PEARL + `void main(){ SETUP\n` + code + `\n  finish(col, uv); }` });
+S['pearl-glow'] = SP('توهج ذهبي', `
+  vec3 col = pearlBase(uv); float g = 0.0;
+  for (int i = 0; i < 4; i++) { float fi = float(i);
+    vec2 c = vec2(asp * (0.12 + 0.76 * h1(fi, 1.0)) + sin(t * 0.045 + fi * 2.1) * 0.4, 0.15 + 0.7 * h1(fi, 2.0) + cos(t * 0.035 + fi * 1.3) * 0.2);
+    float r = 0.32 + 0.22 * h1(fi, 3.0); g += exp(-dot(p - c, p - c) / (r * r)) * (0.65 + 0.35 * sin(t * 0.25 + fi * 1.7)); }
+  g *= mix(1.0, 0.5, calm);
+  col = mix(col, PL_GLOW, clamp(g * 0.34, 0.0, 0.5)); col += vec3(0.035, 0.022, 0.0) * g;`);
+S['pearl-marble'] = SP('رخام متحرك', `
+  vec2 q = p * 1.5; float tt = t * 0.022;
+  vec2 w = vec2(fbm(q + vec2(tt, -tt)), fbm(q + vec2(5.2, 1.3) - tt));
+  float m = fbm(q * 1.3 + 3.2 * w + vec2(tt * 1.5, 0.0));
+  float v = abs(sin((q.x * 0.7 + q.y * 1.1 + m * 5.0) * 1.7)), vein = pow(1.0 - v, 22.0) + 0.45 * pow(1.0 - abs(sin((q.x * 1.3 - q.y * 0.5 + m * 6.0) * 2.3)), 30.0);
+  vec3 col = mix(pearlBase(uv), PL_B * 0.98, smoothstep(0.35, 0.8, m) * 0.55);
+  col = mix(col, mix(PL_GOLD, PL_GLOW, 0.6), clamp(vein, 0.0, 1.0) * mix(0.3, 0.12, calm));`);
+S['pearl-smoke'] = SP('دخان ذهبي', `
+  vec2 q = p * 1.25; float tt = t * 0.035; q.y -= tt;
+  vec2 w = vec2(fbm(q + vec2(0.0, tt * 0.5)), fbm(q + vec2(3.1, -tt * 0.5)));
+  float s = fbm(q + 2.4 * w + vec2(sin(tt) * 0.3, 0.0));
+  float smoke = smoothstep(0.42, 0.86, s) * (1.0 - 0.65 * calm);
+  vec3 col = mix(pearlBase(uv), mix(PL_B, PL_GLOW, 0.45), smoke * 0.75);
+  col += vec3(0.03, 0.02, 0.0) * smoothstep(0.7, 0.95, s);`);
+S['pearl-sheen'] = SP('لمعة اللؤلؤ', `
+  float n = fbm(p * 1.8 + vec2(t * 0.018, -t * 0.01));
+  float band = sin((p.x * 0.9 - p.y * 0.6) * 2.2 - t * 0.11 + n * 3.0);
+  vec3 irid = 0.5 + 0.5 * cos(6.2831 * (n * 0.7 + band * 0.12 + vec3(0.0, 0.33, 0.67)));
+  float k = smoothstep(0.15, 1.0, band) * (1.0 - 0.55 * calm);
+  vec3 col = mix(pearlBase(uv), mix(PL_A, irid, 0.2), k * 0.7);
+  col = mix(col, PL_GLOW, smoothstep(0.8, 1.0, band) * 0.18);`);
+S['pearl-silk'] = SP('حرير ذهبي', `
+  float tt = t * 0.055;
+  float f = sin(p.x * 2.1 + sin(p.y * 1.6 + tt) * 1.3 + tt) + 0.6 * sin(p.y * 2.9 - p.x * 0.8 - tt * 1.2) + 0.25 * fbm(p * 2.0 + tt);
+  float h = 0.5 + 0.5 * f / 1.75, light = smoothstep(0.58, 1.0, h), shade = smoothstep(0.42, 0.0, h);
+  float a = 1.0 - 0.5 * calm;
+  vec3 col = pearlBase(uv) - shade * 0.06 * a;
+  col = mix(col, PL_GLOW, light * 0.32 * a);`);
+
 S.press.num = 0;   // the current one stays first, as 0
 
-export const LAVARA_SCENES = Object.fromEntries(Object.entries(S).map(([k, v]) => [k, { name: v.name, ground: v.ground, ink: v.ink, num: v.num }]));
+export const LAVARA_SCENES = Object.fromEntries(Object.entries(S).map(([k, v]) => [k, { name: v.name, ground: v.ground, ink: v.ink, num: v.num, shared: !!v.shared }]));
 // the brand images some scenes draw (relative to the page): the framed A and the wordmark
 export const LAVARA_IMAGES = { mark: 'assets/lavara/lavara-monogram.svg', logo: 'assets/lavara/lavara-wordmark.svg' };
 export const LAVARA_TEX = Object.fromEntries(Object.entries(S).filter(([, v]) => v.tex).map(([k, v]) => [k, LAVARA_IMAGES[v.tex]]));
