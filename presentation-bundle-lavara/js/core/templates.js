@@ -728,16 +728,27 @@ TEMPLATES.flow = {
   fields: [F.eyebrow, F.title, { key: 'lead', type: 'text', label: 'سطر قصير تحت العنوان' },
     { key: 'phases', type: 'list', label: 'المراحل (الأولى = اليمين)', item: [{ key: 'title', type: 'text', label: 'المرحلة' },
       { key: 'steps', type: 'textarea', rows: 4, label: 'الخطوات (سطر لكل خطوة، # لعنوان فرعي)' }, { key: 'owners', type: 'text', label: 'الفرق المسؤولة (مفصولة بفاصلة)' },
-      { key: 'gate', type: 'text', label: 'بوابة قرار (اختياري)' }],
-      newItem: { title: 'مرحلة', steps: '', owners: '', gate: '' } },
+      { key: 'gate', type: 'text', label: 'بوابة قرار (اختياري)' },
+      { key: 'brief', type: 'textarea', rows: 2, label: 'المختصر (للشكل «مسار»: سطران قصيران)' }],
+      newItem: { title: 'مرحلة', steps: '', owners: '', gate: '', brief: '' } },
     { key: 'loops', type: 'textarea', rows: 2, label: 'حلقات إعادة العمل (مفصولة بـ ·)' },
     { key: 'color', type: 'color', label: 'لون المشروع (فارغ = لون الهوية)' },
     { key: 'full', type: 'image', simple: true, label: 'المخطط الكامل (يُفتح بالتكبير)' },
-    { key: 'stepped', type: 'toggle', label: 'بالنقر: تبدأ بالمراحل وحدها، وكل نقرة تفتح مرحلة' }],
-  defaults: { eyebrow: 'Operating Model', title: 'النموذج التشغيلي', lead: '', phases: [], loops: '', color: '', full: '', stepped: true },
-  // click by click: first the stages alone, then each press opens one stage (large) and the rest stay narrow
-  steps: d => (d.stepped !== false ? (d.phases || []).length : 0),
+    { key: 'stepped', type: 'toggle', label: 'بالنقر: تبدأ بالمراحل وحدها، وكل نقرة تفتح مرحلة' },
+    { key: 'layout', type: 'select', label: 'الشكل', options: [['columns', 'أعمدة بالتفاصيل'], ['process', 'مسار مختصر (محطات على خط)']] }],
+  defaults: { eyebrow: 'Operating Model', title: 'النموذج التشغيلي', lead: '', phases: [], loops: '', color: '', full: '', stepped: true, layout: 'columns' },
+  // columns, click by click: first the stages alone, then each press opens one stage (large) and the rest stay narrow.
+  // process: the stages as stations on one line, each with two short lines; the first is lit, each press lights the
+  // next and the line runs on to it (the stations ahead wait, faint, so the whole road is seen from the start)
+  steps: d => (d.layout === 'process' ? Math.max(0, (d.phases || []).length - 1) : d.stepped !== false ? (d.phases || []).length : 0),
   applyStep: (el, step) => {
+    const pr = el.querySelector('.t-flow.is-process');
+    if (pr) {
+      const st = pr.querySelectorAll('.pr-st'), n = st.length;
+      st.forEach((x, i) => { x.classList.toggle('is-on', i <= step); x.classList.toggle('is-now', i === step); });
+      pr.style.setProperty('--pf', n > 1 ? Math.min(1, step / (n - 1)) : 1);
+      return;
+    }
     const row = el.querySelector('.t-flow.is-stepped .fl-row'); if (!row) return;
     row.classList.toggle('is-overview', step === 0);
     row.querySelectorAll('.fl-ph').forEach((x, i) => { x.classList.toggle('is-open', i === step - 1); x.classList.toggle('is-done', step > 0 && i < step - 1); x.classList.toggle('is-later', step > 0 && i > step - 1); });
@@ -746,6 +757,24 @@ TEMPLATES.flow = {
     const ph = d.phases || [];
     const full = typeof d.full === 'string' ? d.full : d.full?.src;
     const lines = s => String(s || '').split('\n').map(x => x.trim()).filter(Boolean);
+    const loops = d.loops ? `<div class="fl-foot" data-a="body"><div class="fl-loops"><b>إعادة العمل</b>${String(d.loops).split('·').map(x => x.trim()).filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('')}</div></div>` : '';
+    if (d.layout === 'process') return `
+    <div class="t t-flow is-process" style="--n:${ph.length || 1};${d.color ? `--cc:${esc(d.color)}` : ''}">
+      <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${leadLine(d, ctx)}</div>
+      <div class="pr-row" data-a="extra" data-seq="0">
+        <div class="pr-line"><i></i></div>
+        ${ph.map((p, i) => `
+          <div class="pr-st">
+            <span class="pr-dot latin">${String(i + 1).padStart(2, '0')}</span>
+            <div class="pr-card">
+              <h3 class="pr-t">${esc(p.title || '')}</h3>
+              <ul class="pr-brief">${lines(p.brief || p.steps).slice(0, 2).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+              ${p.owners ? `<div class="pr-own">${String(p.owners).split(/[,،]/).map(x => x.trim()).filter(Boolean).map(x => `<span>${esc(x)}</span>`).join('')}</div>` : ''}
+            </div>
+          </div>`).join('')}
+      </div>
+      ${loops}
+    </div>`;
     return `
     <div class="t t-flow${d.stepped !== false ? ' is-stepped' : ''}" ${d.color ? `style="--cc:${esc(d.color)}"` : ''}>
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${leadLine(d, ctx)}</div>

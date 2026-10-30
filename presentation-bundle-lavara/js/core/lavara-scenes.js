@@ -267,33 +267,20 @@ S['pearl-marble'] = SP('رخام متحرك', `
   vec3 col = mix(pearlBase(uv), PL_B * 0.98, smoothstep(0.35, 0.8, m) * 0.55);
   col = mix(col, mix(PL_GOLD, PL_GLOW, 0.6), clamp(vein, 0.0, 1.0) * mix(0.3, 0.12, calm));`);
 S['pearl-smoke'] = SP('دخان ذهبي', `
-  // incense smoke in gold: three slow columns rise from below the page; low down their threads run close and nearly
-  // straight, higher up they curl, spread and thin out, with a soft gold body around the bright threads and open pearl
-  // between the columns; the middle (the words) a touch calmer
-  float tt = t * 0.035, y = uv.y;
-  vec2 r = vec2(p.x * 1.3, p.y * 1.5 - tt * 2.4);
-  vec2 wp = vec2(fbm(r), fbm(r + vec2(5.1, 3.3)));
-  vec2 wq = vec2(fbm(r * 1.2 + 1.8 * wp + vec2(1.7, 9.2)), fbm(r * 1.2 + 1.8 * wp + vec2(8.3, 2.8)));
-  float turb = 0.06 + 1.1 * y * y;
-  float xx = p.x + turb * (wq.x - 0.5) * 1.5 + 0.1 * y * sin(p.y * 3.2 - tt * 5.0);
-  float body = 0.0, thr = 0.0;
-  for (int i = 0; i < 3; i++) {
-    float fi = float(i);
-    float cx = asp * (0.15 + 0.35 * fi) + 0.12 * sin(tt * 1.6 + fi * 2.3);
-    float wd = 0.05 + 0.3 * y;
-    float d = (xx - cx) / wd, env = exp(-d * d);
-    body += env;
-    float k = cos(d * 5.0 + (wq.y - 0.5) * 7.0 + fi);
-    thr += env * (smoothstep(0.9, 1.0, k) + 0.5 * smoothstep(0.97, 1.0, cos(d * 9.0 - wq.x * 5.0)));
-  }
-  float fade = mix(1.0, 0.55, smoothstep(0.55, 1.0, y));
-  body = clamp(body, 0.0, 1.0) * fade; thr = clamp(thr, 0.0, 1.0) * fade;
-  float a = 1.0 - 0.4 * calm;
-  float dens = body * (0.45 + 0.55 * smoothstep(0.35, 0.75, wq.y));
+  // gilded veils rather than smoke: folded layers of gold drifting slowly over the pearl, with fine bright filaments
+  // along their folds and a soft light where they gather; the middle (the words) stays calmer
+  vec2 q = p * 1.05; float tt = t * 0.028;
+  vec2 w = vec2(fbm(q + vec2(tt, tt * 0.6)), fbm(q + vec2(4.7, 1.9) - tt * 0.8));
+  vec2 w2 = vec2(fbm(q + 2.0 * w + vec2(1.7, 9.2) + tt * 0.5), fbm(q + 2.0 * w + vec2(8.3, 2.8) - tt * 0.4));
+  float s = fbm(q + 2.6 * w2);
+  float a = 1.0 - 0.42 * calm;
+  float veil = smoothstep(0.36, 0.74, s);
+  float fil = smoothstep(0.022, 0.0, abs(s - 0.6)) + 0.7 * smoothstep(0.018, 0.0, abs(s - 0.5)) + 0.45 * smoothstep(0.015, 0.0, abs(s - 0.68));
+  vec3 gold = mix(PL_GLOW, PL_GOLD, smoothstep(0.55, 0.85, s));
   vec3 col = pearlBase(uv);
-  col = mix(col, mix(PL_GLOW, PL_GOLD, smoothstep(0.3, 0.9, dens)), dens * 0.62 * a);
-  col -= vec3(0.04, 0.036, 0.024) * smoothstep(0.55, 0.95, dens) * a;
-  col = mix(col, vec3(0.99, 0.93, 0.76), thr * 0.85 * a);`);
+  col = mix(col, gold, veil * 0.72 * a);
+  col = mix(col, vec3(0.98, 0.9, 0.72), clamp(fil, 0.0, 1.0) * 0.68 * a);
+  col += vec3(0.085, 0.06, 0.018) * smoothstep(0.7, 0.92, s) * a;`);
 S['pearl-sheen'] = SP('لمعة اللؤلؤ', `
   float n = fbm(p * 1.8 + vec2(t * 0.018, -t * 0.01));
   float band = sin((p.x * 0.9 - p.y * 0.6) * 2.2 - t * 0.11 + n * 3.0);
