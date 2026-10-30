@@ -2041,3 +2041,10 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .fn-pshot { width: 88%; }
 .fn-pile { height: 34rem; }
 .fn-pshot.is-front { top: 10rem; }
+/* Bundle's title pills (occasion heads, showcase tabs) all take the dark ink, never white; the green pill turns its
+   gradient so the words sit on its light green end */
+[data-brand="bundle"] .tn-t1 { --tpg: linear-gradient(220deg, #AEE67F 0%, #6FBF6A 45%, #3C8A5E 100%); }
+[data-brand="bundle"] .oc-head, [data-brand="bundle"] .oc-col .oc-head { background: var(--tpg, var(--tg)); color: #0A1215; }
+[data-brand="bundle"] .sc-tab.on { background: var(--tpg, var(--tg)); color: #0A1215; }
+[data-brand="bundle"] .sc-tab.on::before { background: #0A1215; }
+[data-brand="bundle"] .sc-slider { background: var(--tpg, var(--tg)); }
