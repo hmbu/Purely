@@ -172,10 +172,13 @@ export const TEMPLATES = {
     defaults: { eyebrow: 'Concepts', title: 'ثلاثة مفاهيم', items: [1, 2, 3].map(n => ({ label: `0${n}`, title: `المفهوم ${n}`, body: '', image: { src: '' } })) },
     interactive: true,
     // stepFocus: a slide inside the slide — the arrow moves the focus from one item to the next (the first starts focused)
-    steps: d => (d.stepFocus ? Math.max(0, (d.items || []).length - 1) : 0),
+    // after the last item one more press shows them all again, equal and in full colour
+    steps: d => (d.stepFocus ? (d.items || []).length : 0),
     applyStep: (el, step) => {
       const box = el.querySelector('.concepts.is-stepped'); if (!box) return;
-      box.querySelectorAll('.concept').forEach((x, k) => x.classList.toggle('is-focus', k === step));
+      const items = box.querySelectorAll('.concept'), all = step >= items.length;
+      box.classList.toggle('has-focus', !all);
+      items.forEach((x, k) => x.classList.toggle('is-focus', !all && k === step));
     },
     render: (d, ctx) => `
       <div class="t t-concepts">
