@@ -157,7 +157,7 @@ function updateHUD() {
   hud.root.classList.toggle('show-crumb', !!h.breadcrumb && S.level === 'section' && !!p);
   stage.classList.toggle('no-eyebrow', settings().eyebrows === false);
   // a full-screen video (the identity films) plays alone: no corner logos, no caption, no footer
-  stage.classList.toggle('video-only', S.level === 'section' && S.slide?.template === 'video' && (S.slide.data?.mode || 'full') === 'full');
+  stage.classList.toggle('video-only', S.level === 'section' && ((S.slide?.template === 'video' && (S.slide.data?.mode || 'full') === 'full') || !!S.slideEl?.querySelector('.so-film.on')));
   hud.root.classList.toggle('show-bar', !!h.progress && !!inProject);
   hud.root.classList.toggle('show-clock', !!h.timer);
   if (inProject) {

@@ -42,6 +42,7 @@ const body = (s, cls = '') => (s ? `<p class="tx-body ${cls} ${langCls(s)}" data
 const logoHTML = (src, ctx, cls = '') => (src ? `<span class="logo-mask ${cls}" style="--src:url('${esc(ctx.asset(src))}')"></span>` : '');
 
 /* ---------------------------------------------------------------- field helpers (control panel) */
+const vidSrc = v => (typeof v === 'string' ? v : v?.src || '');
 const F = {
   eyebrow: { key: 'eyebrow', type: 'text', label: 'عنوان صغير (Eyebrow)' },
   title: { key: 'title', type: 'textarea', rows: 2, label: 'العنوان' },
@@ -688,21 +689,54 @@ TEMPLATES.showcase = {
 TEMPLATES.sources = {
   name: 'مصادر / أنواع (بطاقات بأشكال)', en: 'Sources', group: 'extra', defaultBg: 'background', suggested: 'المنتجات',
   fields: [F.eyebrow, F.title, { key: 'items', type: 'list', label: 'البطاقات', item: [{ key: 'pill', type: 'text', label: 'الوسم' }, { key: 'title', type: 'textarea', rows: 2, label: 'الوصف' },
-    { key: 'tone', type: 'select', label: 'اللون', options: TONES5 }, { key: 'featured', type: 'toggle', label: 'بطاقة بارزة' }], newItem: { pill: '', title: '', tone: 't1', featured: false } }],
+    { key: 'tone', type: 'select', label: 'اللون', options: TONES5 }, { key: 'featured', type: 'toggle', label: 'بطاقة بارزة' },
+    F.video('video', 'فيديو يخرج من البطاقة (بالنقر)')], newItem: { pill: '', title: '', tone: 't1', featured: false } }],
   defaults: { eyebrow: '', title: 'المصادر', items: [] },
-  render: (d, ctx) => `
+  // a card may carry a film: the next press grows that card from its place until it fills the screen and the film plays
+  steps: d => ((d.items || []).some(x => vidSrc(x.video)) ? 1 : 0),
+  applyStep(el, step, instant) {
+    const t = el.querySelector('.t-sources'), film = t?.querySelector('.so-film'); if (!film) return;
+    const card = t.querySelector('.so-card.has-film'), v = film.querySelector('video'), stage = document.getElementById('stage');
+    const boxOf = () => { const tr = t.getBoundingClientRect(), cr = card.getBoundingClientRect(), k = t.offsetWidth / (tr.width || 1);
+      return `inset(${(cr.top - tr.top) * k}px ${(tr.right - cr.right) * k}px ${(tr.bottom - cr.bottom) * k}px ${(cr.left - tr.left) * k}px round ${getComputedStyle(card).borderTopLeftRadius})`; };
+    const full = 'inset(0px 0px 0px 0px round 0px)', ease = 'cubic-bezier(.76, 0, .24, 1)';
+    // grow from the card to the screen (its name stays on the film), or fold back into the card
+    const move = open => {
+      film.classList.toggle('on', open); stage?.classList.toggle('video-only', open); if (open) film.classList.add('vis');
+      const box = boxOf();
+      if (instant) { film.getAnimations().forEach(a => a.cancel()); v.getAnimations().forEach(a => a.cancel()); film.style.clipPath = open ? full : box; v.style.opacity = open ? 1 : 0; if (!open) film.classList.remove('vis'); return; }
+      film.animate([{ clipPath: open ? box : full }, { clipPath: open ? full : box }], { duration: 1400, easing: ease, fill: 'forwards' })
+        .finished.then(() => { if (!film.classList.contains('on')) film.classList.remove('vis'); }).catch(() => {});
+      v.animate([{ opacity: open ? 0 : 1, transform: open ? 'scale(1.12)' : 'scale(1)' }, { opacity: open ? 1 : 0, transform: open ? 'scale(1)' : 'scale(1.12)' }],
+        { duration: open ? 1900 : 900, delay: open ? 450 : 0, easing: 'cubic-bezier(.16, 1, .3, 1)', fill: 'forwards' });
+    };
+    const open = step >= 1;
+    if (open === film.classList.contains('on') || (open && film.dataset.done)) return; // after the film has played, the press moves on
+    if (open) {
+      move(true); v.currentTime = 0;
+      // when the film ends it folds back into its card on the same slide; the next press then goes to the next slide
+      v.onended = () => { film.dataset.done = '1'; move(false); };
+      if (!instant) setTimeout(() => v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }), 650);
+    } else { v.pause(); delete film.dataset.done; move(false); }
+  },
+  render: (d, ctx) => {
+    const fi = (d.items || []).findIndex(x => vidSrc(x.video)), fv = fi >= 0 ? vidSrc(d.items[fi].video) : '';
+    return `
     <div class="t t-sources">
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
       <div class="so-cards" style="--n:${(d.items || []).length || 1}">
         ${(d.items || []).map((it, i) => `
-          <div class="so-card tn-${esc(it.tone || 't1')} ${it.featured ? 'feat' : ''}" data-a="extra" data-seq="${i}" data-n="(${String(i + 1).padStart(3, '0')})">
+          <div class="so-card tn-${esc(it.tone || 't1')} ${it.featured ? 'feat' : ''} ${i === fi ? 'has-film' : ''}" data-a="extra" data-seq="${i}" data-n="(${String(i + 1).padStart(3, '0')})">
             ${it.pill ? `<span class="so-pill">${esc(it.pill)}</span>` : ''}
             <h3>${escBr(it.title || '')}</h3>
             <i class="so-shape ${SHAPES[i % SHAPES.length]}" data-grow></i>
             ${ctx?.brand?.mark && ctx.idShown !== false ? `<span class="so-mark">${logoHTML(ctx.brand.mark, ctx)}</span>` : ''}
           </div>`).join('')}
       </div>
-    </div>`,
+      ${fv ? `<div class="so-film" aria-hidden="true"><video src="${esc(ctx.asset(fv))}" playsinline preload="auto"></video>
+        <div class="so-film-cap">${d.items[fi].pill ? `<span class="so-pill">${esc(d.items[fi].pill)}</span>` : ''}<h3>${escBr(d.items[fi].title || '')}</h3></div></div>` : ''}
+    </div>`;
+  },
 };
 
 TEMPLATES.categories = {

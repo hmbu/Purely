@@ -565,7 +565,14 @@
                     "pill": "خطوط المنتجات",
                     "title": "مجموعاتنا المنسّقة الخاصة",
                     "tone": "t3",
-                    "featured": true
+                    "featured": true,
+                    "video": {
+                      "src": "assets/bundle/video/product-lines.mp4",
+                      "poster": "",
+                      "autoplay": true,
+                      "muted": false,
+                      "loop": false
+                    }
                   },
                   {
                     "pill": "الهدايا المخصّصة",
