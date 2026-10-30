@@ -267,12 +267,20 @@ S['pearl-marble'] = SP('رخام متحرك', `
   vec3 col = mix(pearlBase(uv), PL_B * 0.98, smoothstep(0.35, 0.8, m) * 0.55);
   col = mix(col, mix(PL_GOLD, PL_GLOW, 0.6), clamp(vein, 0.0, 1.0) * mix(0.3, 0.12, calm));`);
 S['pearl-smoke'] = SP('دخان ذهبي', `
-  vec2 q = p * 1.25; float tt = t * 0.035; q.y -= tt;
-  vec2 w = vec2(fbm(q + vec2(0.0, tt * 0.5)), fbm(q + vec2(3.1, -tt * 0.5)));
-  float s = fbm(q + 2.4 * w + vec2(sin(tt) * 0.3, 0.0));
-  float smoke = smoothstep(0.42, 0.86, s) * (1.0 - 0.65 * calm);
-  vec3 col = mix(pearlBase(uv), mix(PL_B, PL_GLOW, 0.45), smoke * 0.75);
-  col += vec3(0.03, 0.02, 0.0) * smoothstep(0.7, 0.95, s);`);
+  // gilded veils rather than smoke: folded layers of gold drifting slowly over the pearl, with fine bright filaments
+  // along their folds and a soft light where they gather; the middle (the words) stays calmer
+  vec2 q = p * 1.05; float tt = t * 0.028;
+  vec2 w = vec2(fbm(q + vec2(tt, tt * 0.6)), fbm(q + vec2(4.7, 1.9) - tt * 0.8));
+  vec2 w2 = vec2(fbm(q + 2.0 * w + vec2(1.7, 9.2) + tt * 0.5), fbm(q + 2.0 * w + vec2(8.3, 2.8) - tt * 0.4));
+  float s = fbm(q + 2.6 * w2);
+  float a = 1.0 - 0.5 * calm;
+  float veil = smoothstep(0.36, 0.74, s);
+  float fil = smoothstep(0.022, 0.0, abs(s - 0.6)) + 0.7 * smoothstep(0.018, 0.0, abs(s - 0.5)) + 0.45 * smoothstep(0.015, 0.0, abs(s - 0.68));
+  vec3 gold = mix(PL_GLOW, PL_GOLD, smoothstep(0.55, 0.85, s));
+  vec3 col = pearlBase(uv);
+  col = mix(col, gold, veil * 0.62 * a);
+  col = mix(col, vec3(0.98, 0.9, 0.72), clamp(fil, 0.0, 1.0) * 0.55 * a);
+  col += vec3(0.07, 0.05, 0.015) * smoothstep(0.7, 0.92, s) * a;`);
 S['pearl-sheen'] = SP('لمعة اللؤلؤ', `
   float n = fbm(p * 1.8 + vec2(t * 0.018, -t * 0.01));
   float band = sin((p.x * 0.9 - p.y * 0.6) * 2.2 - t * 0.11 + n * 3.0);
