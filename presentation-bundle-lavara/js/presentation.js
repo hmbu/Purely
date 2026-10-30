@@ -1486,25 +1486,22 @@ async function toSpecial(kind) {
    in a full-page frame. Down or next moves cover → file → shared frame; up or previous goes back the same way. */
 const hasSar = () => !!(S.content.sar && !S.content.sar.hidden && S.content.sar.src);
 // SAR's mark drawn inline so its blue road (the two legs of the Λ) can travel on its own: it is the entrance and the move into the file
-const SAR_VB = { x: 266, y: 887, w: 488, h: 153 }, SAR_ROAD = { x: 506.5, y: 1038 };
-const SAR_SVG = `<svg class="sar-mark" viewBox="266 887 488 153" role="img" aria-label="SAR">
-  <path class="sar-s" d="M386 889H313A45 45 0 0 0 313 979H357A15 15 0 0 1 357 1009H276V1038H357A44.5 44.5 0 0 0 357 949H313A15 15 0 0 1 313 919H386Z"/>
-  <g class="sar-road"><path d="M409 1038L487 889H503L458 1038Z"/><path d="M511 889H526L604 1038H555Z"/></g>
-  <path class="sar-r" d="M627 889H707A44 44 0 0 1 718 975L752 1037H720L670 949H707A15 15 0 0 0 707 919H656V1038H627Z"/></svg>`;
 function renderSar() {
   stopRvTex();
   const r = S.content.sar || {};
-  const order = ['lavara', 'bundle'];
-  const teams = projectsOf(S.content).filter(p => p.brand.logo).sort((a, b) => (order.indexOf(a.id) + 1 || 9) - (order.indexOf(b.id) + 1 || 9));
+  // no cover page: the file waits behind a white page that carries SAR's mark. The page has a hole exactly between the
+  // mark's two blue lines, so the train already shows through them; on the way in the camera flies through that gap.
   L.special.innerHTML = `
     <div class="special sar">
-      <div class="sar-cover">
-        <h1 class="sar-title"${kt(r.title)}</h1>
-        <div class="sar-lockup">${SAR_SVG}<i class="sar-x" aria-hidden="true"></i>
-          <div class="sar-teams">${teams.map(p => `<span class="logo-mask sar-team is-${esc(p.id)}" style="--src:url('${esc(asset(p.brand.logo))}')" aria-label="${esc(p.name)}"></span>`).join('')}</div>
-        </div>
-      </div>
-      <iframe class="sar-file" src="${esc(asset(r.src))}" title="SAR"></iframe>
+      <iframe class="sar-file is-on" src="${esc(asset(r.src))}" title="SAR"></iframe>
+      <svg class="sar-gate" viewBox="-90 626 1200 675" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs><mask id="sar-hole" maskUnits="userSpaceOnUse" x="-9000" y="-9000" width="20000" height="20000">
+          <rect x="-9000" y="-9000" width="20000" height="20000" fill="#fff"/><g class="gate-z"><polygon points="458,1038 503,889 511,889 555,1038" fill="#000"/></g></mask></defs>
+        <rect class="gate-page" x="-9000" y="-9000" width="20000" height="20000" mask="url(#sar-hole)"/>
+        <path class="sar-s" d="M386 889H313A45 45 0 0 0 313 979H357A15 15 0 0 1 357 1009H276V1038H357A44.5 44.5 0 0 0 357 949H313A15 15 0 0 1 313 919H386Z"/>
+        <g class="gate-z sar-road"><path d="M409 1038L487 889H503L458 1038Z"/><path d="M511 889H526L604 1038H555Z"/></g>
+        <path class="sar-r" d="M627 889H707A44 44 0 0 1 718 975L752 1037H720L670 949H707A15 15 0 0 0 707 919H656V1038H627Z"/>
+      </svg>
     </div>`;
   const f = $('.sar-file', L.special);
   f.addEventListener('load', () => { // the file is shown untouched; only the show's own keys are passed up
@@ -1522,56 +1519,20 @@ function renderSar() {
     } catch {}
   });
 }
-// where the road must sit (in the mark's own units) for its foot to stand at the bottom centre of the screen, filling its height
-function sarRoadWide() {
-  const svg = $('.sar-mark', L.special), r = svg.getBoundingClientRect(), L0 = L.special.getBoundingClientRect(), k = stage.clientWidth / (L0.width || 1);
-  const u = (r.width * k) / SAR_VB.w, W = stage.clientWidth, H = stage.clientHeight;
-  const fx = (r.left - L0.left) * k + (SAR_ROAD.x - SAR_VB.x) * u, fy = (r.top - L0.top) * k + (SAR_ROAD.y - SAR_VB.y) * u;
-  return { x: (W / 2 - fx) / u, y: (H + 2 - fy) / u, scale: (H * 1.25) / (149 * u) };
+// the way in: S and R part, then the two blue lines grow past the edges of the screen while the gap between them
+// (the hole in the page) opens onto the train. Scaled about a point low in the gap, so the road rushes towards us.
+const SAR_GATE = { x: 506.5, y: 1030 };
+function sarGate(tl, at) {
+  const zs = $$('.gate-z', L.special), svg = $('.sar-gate', L.special), sR = $$('.sar-s, .sar-r', L.special); if (!svg) return;
+  const k = { v: 1 }, apply = () => zs.forEach(g => g.setAttribute('transform', `translate(${SAR_GATE.x} ${SAR_GATE.y}) scale(${k.v}) translate(${-SAR_GATE.x} ${-SAR_GATE.y})`));
+  apply(); gsap.set(svg, { autoAlpha: 1 }); gsap.set(sR, { x: 0, opacity: 1 });
+  tl.to(sR[0], { x: -150, opacity: 0, duration: 0.9, ease: 'power3.in' }, at);
+  tl.to(sR[1], { x: 150, opacity: 0, duration: 0.9, ease: 'power3.in' }, at);
+  tl.to(k, { v: 48, duration: 1.8, ease: 'power3.in', onUpdate: apply }, at + 0.35);
+  tl.set(svg, { autoAlpha: 0 }, at + 2.15);
+  tl.add(() => $('.sar-file', L.special)?.focus(), at + 2.15);
 }
-const SAR_BLUE = '#007891', SAR_INK = SAR_BLUE; // the mark keeps its own colours; the road stays blue
-function sarStep(n, instant) {
-  S.sarStep = n;
-  const f = $('.sar-file', L.special), cover = $('.sar-cover', L.special), road = $('.sar-road', L.special); if (!f) return;
-  f.classList.toggle('is-on', n === 1);
-  logosEl.classList.add('is-hidden');
-  if (instant) { gsap.set(f, { opacity: n, clearProps: 'clipPath' }); gsap.set(cover, { opacity: 1, scale: 1 }); gsap.set(road, { x: 0, y: 0, scale: 1, fill: SAR_INK, svgOrigin: `${SAR_ROAD.x} ${SAR_ROAD.y}` }); return; }
-  // cover ⇄ file: the blue road runs out from the mark until it fills the screen, and the file opens out of it
-  const tl = gsap.timeline(), others = $$('.sar-title, .sar-s, .sar-r, .sar-x, .sar-team', L.special);
-  const flood = { x: 0, y: 0, scale: 70 }; // deep inside the left leg, so the leg fills the screen
-  if (n === 1) {
-    tl.to(others, { opacity: 0, duration: 0.6, ease: 'power2.in', stagger: 0.03 }, 0);
-    tl.to(road, { fill: SAR_BLUE, duration: 0.5, ease: 'power1.inOut' }, 0);
-    tl.to(road, { ...flood, svgOrigin: '457 980', duration: 1.3, ease: 'power3.in' }, 0.35);
-    tl.fromTo(f, { opacity: 1, clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.2, ease: 'power3.inOut' }, 1.3);
-    tl.add(() => { f.focus(); gsap.set(f, { clearProps: 'clipPath' }); }, 2.5);
-    tl.set(road, { x: 0, y: 0, scale: 1, fill: SAR_INK }, 2.6); tl.set(others, { opacity: 1 }, 2.6);
-  } else {
-    gsap.set(others, { opacity: 0 });
-    gsap.set(road, { ...flood, svgOrigin: '457 980', fill: SAR_BLUE });
-    tl.to(f, { clipPath: 'inset(100% 0% 0% 0%)', duration: 1.1, ease: 'power3.inOut' }, 0);
-    tl.to(road, { x: 0, y: 0, scale: 1, duration: 1.4, ease: 'power3.out' }, 0.9);
-    tl.to(road, { fill: SAR_INK, duration: 0.6, ease: 'power1.inOut' }, 2.0);
-    tl.to(others, { opacity: 1, duration: 0.8, ease: 'power2.out', stagger: 0.05 }, 1.9);
-    tl.add(() => gsap.set(f, { opacity: 0, clearProps: 'clipPath' }), 2.2);
-  }
-  sound.play('ui', null, 'neutral'); broadcastState();
-  return tl;
-}
-// the cover arrives the way the show goes down: the page rises in from below with the blue road already running up it,
-// then the road gathers into SAR's mark, the letters close in around it and the partners settle beside it
-function sarEntrance(tl, at) {
-  const road = $('.sar-road', L.special), wide = sarRoadWide(), o = `${SAR_ROAD.x} ${SAR_ROAD.y}`;
-  gsap.set(road, { ...wide, svgOrigin: o, fill: SAR_BLUE });
-  gsap.set($$('.sar-s, .sar-r, .sar-x, .sar-team, .sar-title', L.special), { opacity: 0 });
-  tl.to(road, { x: 0, y: 0, scale: 1, duration: 1.7, ease: 'expo.inOut' }, at + 0.9);
-  tl.to(road, { fill: SAR_INK, duration: 0.8, ease: 'power1.inOut' }, at + 2.3);
-  tl.fromTo($('.sar-s', L.special), { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 1.2, ease: 'expo.out' }, at + 2.15);
-  tl.fromTo($('.sar-r', L.special), { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 1.2, ease: 'expo.out' }, at + 2.15);
-  tl.fromTo($('.sar-x', L.special), { opacity: 0, rotate: -90, scale: 0.4 }, { opacity: 1, rotate: 0, scale: 1, duration: 1.1, ease: 'expo.out' }, at + 2.5);
-  tl.fromTo($$('.sar-team', L.special), { opacity: 0, y: pxs(26) }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', stagger: 0.12 }, at + 2.6);
-  tl.fromTo($('.sar-title', L.special), { opacity: 0, y: pxs(20) }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out' }, at + 2.9);
-}
+const sarOpen = () => gsap.set($('.sar-gate', L.special), { autoAlpha: 0 }); // straight to the file (preview, return)
 async function toSar(step = 0) {
   if (!hasSar() || S.level === 'sar') return;
   const fromShared = S.level === 'hub' && isShared(project());
@@ -1579,11 +1540,11 @@ async function toSar(step = 0) {
   const from = fromShared ? L.hub : L.universe, dir = fromShared ? -1 : 1; // down from the opening screen (like the shared frame), up from the shared frame
   S.sarSeen = true;
   if (fromShared) S.visitedProjects.add(S.pid);
-  renderSar(); show(L.special, true); gsap.set(L.special, { yPercent: 0 }); sarStep(step, true);
+  renderSar(); show(L.special, true); gsap.set(L.special, { yPercent: 0 }); S.sarStep = 1; logosEl.classList.add('is-hidden');
   applyBrand(null);
   sound.play('zoom', null, 'neutral');
   const tl = gsap.timeline();
-  if (!step) sarEntrance(tl, 0); // measured while the page is in place, before it is moved below
+  sarGate(tl, 1.55); // once the page is in place
   tl.to(from, { yPercent: -100 * dir, duration: 1.5, ease: 'power3.inOut' }, 0);
   tl.fromTo(L.special, { yPercent: 100 * dir, opacity: 1 }, { yPercent: 0, duration: 1.5, ease: 'power3.inOut', immediateRender: true }, 0);
   S.level = 'sar'; S.pid = null; S.sid = null; startWorlds(false); updateHUD();
@@ -1604,8 +1565,8 @@ async function fromSar(down) {
   show(L.special, false); gsap.set(L.special, { clearProps: 'all' }); L.special.innerHTML = ''; gsap.set(L.universe, { clearProps: 'all' });
   broadcastState();
 }
-const sarNext = () => (S.sarStep ? fromSar(true) : sarStep(1));
-const sarPrev = () => (S.sarStep ? sarStep(0) : fromSar(false));
+const sarNext = () => fromSar(true);
+const sarPrev = () => fromSar(false);
 
 /* ======================================================================= flow: next / previous */
 async function next() {
@@ -1837,7 +1798,7 @@ function previewShow(target = {}, animate = false) {
   }
   if (target.level === 'sar') {
     if (!hasSar()) return toUniverseInstant();
-    S.level = 'sar'; S.pid = null; applyBrand(null, false); renderSar(); show(L.special, true); sarStep(0, true); updateHUD(); return;
+    S.level = 'sar'; S.pid = null; applyBrand(null, false); renderSar(); show(L.special, true); sarOpen(); S.sarStep = 1; updateHUD(); return;
   }
   if (target.level === 'decision' || target.level === 'closing') {
     const dp = sharedOf(S.content);

@@ -1984,3 +1984,10 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 /* the review on the shared frame's moving background */
 .special.review > .rv-tex { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 .special.review > :not(.rv-tex) { position: relative; z-index: 1; }
+
+/* SAR: no cover — a white page with SAR's mark, holed between its two blue lines; the way in flies through them */
+.special.sar .sar-file { opacity: 1; }
+.sar-gate { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
+.sar-gate .gate-page { fill: #FFFFFF; }
+.sar-gate .sar-s, .sar-gate .sar-r { fill: #3D3935; }
+.sar-gate .sar-road { fill: #007891; }
