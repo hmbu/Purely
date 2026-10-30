@@ -1874,3 +1874,38 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
   background: radial-gradient(90% 100% at 100% 0%, rgba(10, 18, 21, .55), transparent 75%); color: #fff; }
 .so-film-cap h3 { margin: 0; font-family: var(--f-title); font-weight: var(--w-title); font-size: 5.2rem; line-height: 1.25; color: #fff; text-shadow: 0 .4rem 3rem rgba(0, 0, 0, .35); }
 [data-brand="bundle"] .so-film-cap .so-pill { border-radius: 10rem; }
+
+/* ---------- legal: the contract change (now → proposed) and the proposed structure, on a 160 × 90 rem slide */
+.t-legal { --ink: #1E1B17; --paper: #F7F3EC; --sheet: #EFE9DD; color: var(--ink); }
+.t-legal .lg-card { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.3rem; padding: 2rem 3rem; text-align: center;
+  background: var(--sheet); border-top: .45rem solid var(--rule); box-shadow: 0 2.6rem 4.8rem -3.4rem rgba(30, 27, 23, .45);
+  transition: top 1.1s cubic-bezier(.65, 0, .35, 1), right 1.1s cubic-bezier(.65, 0, .35, 1), left 1.1s cubic-bezier(.65, 0, .35, 1), width 1.1s cubic-bezier(.65, 0, .35, 1), height 1.1s cubic-bezier(.65, 0, .35, 1), opacity .6s ease; }
+.t-legal .lg-logo, .t-legal .lg-plogo { display: block; background: currentColor; -webkit-mask: var(--src) center / contain no-repeat; mask: var(--src) center / contain no-repeat; }
+.t-legal .lg-plogo { width: 24rem; height: 5.4rem; }
+.t-legal .lg-sub { font-size: 2.1rem; line-height: 1.5; opacity: .82; }
+.t-legal .lg-name { font-family: var(--f-title); font-weight: var(--w-title); font-size: 3.4rem; line-height: 1.2; }
+.t-legal .lg-swap { display: grid; } .t-legal .lg-swap > * { grid-area: 1 / 1; }
+.t-legal .lg-pair { display: inline-flex; gap: .6rem; } .t-legal .lg-pair i { width: 1.5rem; height: 1.5rem; border: .22rem solid currentColor; opacity: .7; }
+.t-legal [data-from], .t-legal [data-only] { transition: opacity .55s ease; }
+.t-legal [data-from]:not(.is-on), .t-legal [data-only]:not(.is-on) { opacity: 0; }
+.t-legal.is-s1 [data-from="1"].is-on { transition-delay: .6s; }
+.t-legal .lg-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.t-legal .lg-ar path { fill: none; stroke: var(--c); stroke-width: .26; stroke-linecap: round; stroke-linejoin: round; }
+.t-legal .lg-ar:not(.is-dashed) .ln { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .9s ease .55s; }
+.t-legal .lg-ar.is-on:not(.is-dashed) .ln { stroke-dashoffset: 0; }
+.t-legal .lg-ar.is-dashed .ln { stroke-dasharray: .9 .7; }
+.t-legal .lg-lb { position: absolute; transform: translate(50%, -50%); padding: .3rem 1rem; background: var(--paper); color: var(--c); font-size: 1.95rem; font-weight: 600; white-space: nowrap; }
+.t-legal .lg-lb[data-side="l"] { transform: translate(0, -50%); }
+.t-legal .lg-state { position: absolute; top: 15.6rem; right: 15rem; display: grid; }
+.t-legal .lg-st { grid-area: 1 / 1; justify-self: start; font-family: var(--f-title); font-size: 2.6rem; padding-bottom: .7rem; border-bottom: .3rem solid #B08A4E; }
+/* contract: today, then the proposed arrangement */
+.is-contract .lg-majed { right: 15rem; top: 32rem; width: 51.5rem; height: 23rem; }
+.is-contract .lg-rim { left: 15rem; top: 32rem; width: 51.5rem; height: 23rem; }
+.is-contract .lg-ent { right: 15rem; top: 55.8rem; width: 51.5rem; height: 21rem; }
+.is-contract.is-s1 .lg-majed { top: 21.5rem; width: 130rem; height: 16rem; }
+.is-contract.is-s1 .lg-rim { top: 55.8rem; height: 21rem; }
+/* structure: owner above, the two entities, the operator below */
+.is-structure .lg-top { right: 35rem; left: 35rem; top: 21rem; height: 14.2rem; }
+.is-structure .lg-ent2 { top: 45.4rem; width: 40rem; height: 14.8rem; }
+.is-structure .lg-ent2.is-r { right: 35rem; } .is-structure .lg-ent2.is-l { left: 35rem; }
+.is-structure .lg-bottom { right: 35rem; left: 35rem; top: 69.8rem; height: 13rem; }

@@ -278,6 +278,78 @@ function partyLogo(n, ctx) {
   // the logo is the company's name: the card shows the logo instead of repeating the name in text
   return `<span class="logo-mask dg-logo is-named" style="--src:url('${esc(ctx.asset(hit[1]))}');aspect-ratio:${hit[2]};height:${hit[3]}rem"></span>`;
 }
+/* ---------------------------------------------------------------- legal (the contract change and the proposed structure) */
+// Two fixed compositions in the shared frame, drawn on a 160 × 90 rem slide so boxes and arrows always line up:
+//   contract  — today (Al Majed ⇄ Rimthan) first; one press moves Al Majed up as the owner and the two new
+//               entities take its place as Rimthan's client (one box, no logos: the logos belong to the structure)
+//   structure — Al Majed above, the two entities (Bundle, Lavara: their logos) side by side, Rimthan below
+const LG_C = { own: '#B08A4E', svc: '#4A5687', fee: '#1E1B17' };
+function lgArrow(x1, y1, x2, y2, c, { dashed = false, from = 0, only = null, head = 1.1 } = {}) {
+  const dx = Math.sign(x2 - x1), dy = Math.sign(y2 - y1), h = head, w = head * 0.6;
+  const tip = dx ? `M${x2 - dx * h} ${y2 - w} L${x2} ${y2} L${x2 - dx * h} ${y2 + w}` : `M${x2 - w} ${y2 - dy * h} L${x2} ${y2} L${x2 + w} ${y2 - dy * h}`;
+  const at = only != null ? `data-only="${only}"` : `data-from="${from}"`;
+  return `<g class="lg-ar${dashed ? ' is-dashed' : ''}" ${at} style="--c:${c}"><path class="ln" ${dashed ? '' : 'pathLength="1"'} d="M${x1} ${y1} L${x2} ${y2}"/><path class="hd" d="${tip}"/></g>`;
+}
+const lgLabel = (x, y, t, c, at) => (t ? `<span class="lg-lb" ${at} style="right:${160 - x}rem;top:${y}rem;--c:${c}">${esc(t)}</span>` : '');
+const LG_LOGO = { majed: ['assets/logos/almajed-oud.png', 3.43], rimthan: ['assets/logos/rimthan.png', 5.71] };
+const lgLogo = (k, ctx, h) => `<span class="logo-mask lg-logo" style="--src:url('${esc(ctx.asset(LG_LOGO[k][0]))}');height:${h}rem;aspect-ratio:${LG_LOGO[k][1]}"></span>`;
+TEMPLATES.legal = {
+  name: 'القانوني (العقد والهيكل)', en: 'Legal', group: 'extra', defaultBg: 'background', suggested: 'القانوني',
+  fields: [F.title,
+    { key: 'layout', type: 'select', label: 'الشكل', options: [['contract', 'ما يتغير في العقد (الحالي ثم المقترح)'], ['structure', 'الهيكل المقترح']] },
+    { key: 'nowLabel', type: 'text', label: 'العقد: اسم الوضع الحالي' }, { key: 'nextLabel', type: 'text', label: 'العقد: اسم الوضع المقترح' },
+    { key: 'majedNow', type: 'text', label: 'العقد: الماجد اليوم' }, { key: 'majedNext', type: 'text', label: 'العقد: الماجد في المقترح' },
+    { key: 'entTitle', type: 'text', label: 'العقد: صندوق الكيانين' }, { key: 'entSub', type: 'text', label: 'العقد: دور الكيانين' },
+    { key: 'majedSub', type: 'text', label: 'الهيكل: دور الماجد' },
+    { key: 'rimSub', type: 'text', label: 'دور رمثان' },
+    { key: 'services', type: 'text', label: 'سهم الخدمات' }, { key: 'fees', type: 'text', label: 'العقد: سهم الأتعاب' },
+    { key: 'own', type: 'text', label: 'سهم الملكية' }, { key: 'guarantee', type: 'text', label: 'العقد: سهم ضمان السداد' }],
+  defaults: { title: 'ما الذي يتغير في العقد', layout: 'contract', nowLabel: 'الوضع الحالي', nextLabel: 'الوضع المقترح', majedNow: 'العميل والملتزم بالسداد',
+    majedNext: 'تملك الكيانين وتموّلهما، وتضمن سداد مستحقات رمثان', entTitle: 'كيانان منفصلان', entSub: 'العميل والملتزم بالسداد', majedSub: 'تملك الكيانين وتموّلهما',
+    rimSub: 'البناء والتشغيل', services: 'الخدمات', fees: 'الأتعاب', own: 'ملكية 100%', guarantee: 'ضمان السداد' },
+  steps: d => (d.layout === 'structure' ? 2 : 1),
+  applyStep: (el, step) => {
+    const root = el.querySelector('.t-legal'); if (!root) return;
+    root.classList.toggle('is-s1', step >= 1);
+    root.querySelectorAll('[data-from]').forEach(x => x.classList.toggle('is-on', step >= +x.dataset.from));
+    root.querySelectorAll('[data-only]').forEach(x => x.classList.toggle('is-on', step === +x.dataset.only));
+  },
+  render: (d, ctx) => {
+    const head = `<div class="board-head">${title(d.title)}</div>`;
+    if (d.layout === 'structure') {
+      const ps = (ctx.projects || []).filter(p => p.kind !== 'shared' && p.brand?.logo);
+      const ent = (p, side, x) => p ? `<div class="lg-card lg-ent2 ${side}" data-from="1" style="--rule:${esc(p.brand.colors?.primary || LG_C.fee)}"><span class="logo-mask lg-plogo" role="img" aria-label="${esc(p.name)}" style="--src:url('${esc(ctx.asset(p.brand.logo))}');color:${esc(p.brand.colors?.primary || 'currentColor')}"></span></div>` : '';
+      return `
+      <div class="t t-legal is-structure">${head}
+        <div class="lg-card lg-top" data-a="extra" data-seq="0" style="--rule:${LG_C.own}">${lgLogo('majed', ctx, 5)}<span class="lg-sub">${esc(d.majedSub || '')}</span></div>
+        ${ent(ps[0], 'is-r')}${ent(ps[1], 'is-l')}
+        <div class="lg-card lg-bottom" data-from="2" style="--rule:${LG_C.svc}">${lgLogo('rimthan', ctx, 3.4)}<span class="lg-sub">${esc(d.rimSub || '')}</span></div>
+        <svg class="lg-svg" viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true">
+          ${lgArrow(105, 35.2, 105, 45.4, LG_C.own, { from: 1 })}${lgArrow(55, 35.2, 55, 45.4, LG_C.own, { from: 1 })}
+          ${lgArrow(105, 69.8, 105, 60.2, LG_C.svc, { from: 2, dashed: true })}${lgArrow(55, 69.8, 55, 60.2, LG_C.svc, { from: 2, dashed: true })}
+        </svg>
+        ${lgLabel(103.5, 40.3, d.own, LG_C.own, 'data-from="1" data-side="l"')}${lgLabel(53.5, 40.3, d.own, LG_C.own, 'data-from="1" data-side="l"')}
+        ${lgLabel(103.5, 65, d.services, LG_C.svc, 'data-from="2" data-side="l"')}${lgLabel(53.5, 65, d.services, LG_C.svc, 'data-from="2" data-side="l"')}
+      </div>`;
+    }
+    return `
+    <div class="t t-legal is-contract">${head}
+      <div class="lg-state"><span class="lg-st" data-only="0">${esc(d.nowLabel || '')}</span><span class="lg-st" data-from="1">${esc(d.nextLabel || '')}</span></div>
+      <div class="lg-card lg-majed" data-a="extra" data-seq="0" style="--rule:${LG_C.own}">${lgLogo('majed', ctx, 5)}<span class="lg-swap"><span class="lg-sub" data-only="0">${esc(d.majedNow || '')}</span><span class="lg-sub" data-from="1">${esc(d.majedNext || '')}</span></span></div>
+      <div class="lg-card lg-rim" data-a="extra" data-seq="1" style="--rule:${LG_C.svc}">${lgLogo('rimthan', ctx, 3.4)}<span class="lg-sub">${esc(d.rimSub || '')}</span></div>
+      <div class="lg-card lg-ent" data-from="1" style="--rule:${LG_C.fee}"><span class="lg-pair" aria-hidden="true"><i></i><i></i></span><b class="lg-name">${esc(d.entTitle || '')}</b><span class="lg-sub">${esc(d.entSub || '')}</span></div>
+      <svg class="lg-svg" viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true">
+        ${lgArrow(66.5, 40.5, 93.5, 40.5, LG_C.svc, { only: 0 })}${lgArrow(93.5, 47.5, 66.5, 47.5, LG_C.fee, { only: 0 })}
+        ${lgArrow(119.25, 37.6, 119.25, 55.6, LG_C.own, { from: 1 })}${lgArrow(40.75, 37.6, 40.75, 55.6, LG_C.own, { from: 1, dashed: true })}
+        ${lgArrow(66.5, 62.5, 93.5, 62.5, LG_C.svc, { from: 1 })}${lgArrow(93.5, 69.5, 66.5, 69.5, LG_C.fee, { from: 1 })}
+      </svg>
+      ${lgLabel(80, 38, d.services, LG_C.svc, 'data-only="0"')}${lgLabel(80, 50, d.fees, LG_C.fee, 'data-only="0"')}
+      ${lgLabel(118, 46.6, d.own, LG_C.own, 'data-from="1" data-side="l"')}${lgLabel(39.5, 46.6, d.guarantee, LG_C.own, 'data-from="1" data-side="l"')}
+      ${lgLabel(80, 60, d.services, LG_C.svc, 'data-from="1"')}${lgLabel(80, 72, d.fees, LG_C.fee, 'data-from="1"')}
+    </div>`;
+  },
+};
+
 TEMPLATES.diagram = {
   name: 'مخطط (صناديق وأسهم)', en: 'Diagram', group: 'extra', defaultBg: 'background', suggested: 'الهيكل',
   fields: [F.eyebrow, F.title, { key: 'body', type: 'textarea', rows: 3, label: 'سطر توضيحي أسفل المخطط' },
@@ -940,7 +1012,7 @@ TEMPLATES.screens = {
     </div>`,
 };
 
-export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'product', 'updates', 'sectors', 'finance', 'canvas', 'flow', 'occasions', 'showcase', 'sources', 'categories', 'partners', 'figure', 'lineup', 'compare', 'stats', 'screens'];
+export const TEMPLATE_ORDER = ['full-image', 'image-text', 'video', 'title', 'statement', 'brand-board', 'device', 'concepts', 'brand-grid', 'journey', 'diagram', 'legal', 'product', 'updates', 'sectors', 'finance', 'canvas', 'flow', 'occasions', 'showcase', 'sources', 'categories', 'partners', 'figure', 'lineup', 'compare', 'stats', 'screens'];
 
 export function newSlide(templateId, uidFn) {
   const t = TEMPLATES[templateId];

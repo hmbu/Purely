@@ -1786,261 +1786,41 @@
           "slides": [
             {
               "id": "sl-sh-contract",
-              "template": "diagram",
+              "template": "legal",
               "transition": "drift",
               "bg": "background",
               "notes": "",
               "hidden": false,
               "data": {
-                "eyebrow": "Contract",
+                "layout": "contract",
                 "title": "ما الذي يتغير في العقد",
-                "body": "",
-                "cols": 2,
-                "gap": 22,
-                "rowGap": 10,
-                "frames": [
-                  {
-                    "label": "الوضع الحالي",
-                    "tone": "neutral",
-                    "col": 1,
-                    "colSpan": 2,
-                    "row": 1,
-                    "rowSpan": 1,
-                    "step": 0
-                  },
-                  {
-                    "label": "الوضع المقترح",
-                    "tone": "teal",
-                    "col": 1,
-                    "colSpan": 2,
-                    "row": 2,
-                    "rowSpan": 2,
-                    "step": 1
-                  }
-                ],
-                "nodes": [
-                  {
-                    "id": "c-majed",
-                    "title": "الماجد للعود",
-                    "sub": "العميل والملتزم بالسداد",
-                    "tone": "gold",
-                    "shape": "box",
-                    "col": 1,
-                    "colSpan": 1,
-                    "row": 1,
-                    "rowSpan": 1,
-                    "step": 0
-                  },
-                  {
-                    "id": "c-rim",
-                    "title": "رمثان",
-                    "sub": "",
-                    "tone": "indigo",
-                    "shape": "box",
-                    "col": 2,
-                    "colSpan": 1,
-                    "row": 1,
-                    "rowSpan": 1,
-                    "step": 0
-                  },
-                  {
-                    "id": "p-majed",
-                    "title": "الماجد للعود",
-                    "sub": "تملك الكيان الجديد وتموّله، وتضمن سداد مستحقات رمثان",
-                    "tone": "gold",
-                    "shape": "box",
-                    "col": 1,
-                    "colSpan": 2,
-                    "row": 2,
-                    "rowSpan": 1,
-                    "step": 1
-                  },
-                  {
-                    "id": "p-ent",
-                    "title": "الكيان الجديد",
-                    "sub": "العميل والملتزم بالسداد",
-                    "tone": "teal",
-                    "shape": "box",
-                    "col": 1,
-                    "colSpan": 1,
-                    "row": 3,
-                    "rowSpan": 1,
-                    "step": 1
-                  },
-                  {
-                    "id": "p-rim",
-                    "title": "رمثان",
-                    "sub": "",
-                    "tone": "indigo",
-                    "shape": "box",
-                    "col": 2,
-                    "colSpan": 1,
-                    "row": 3,
-                    "rowSpan": 1,
-                    "step": 1
-                  }
-                ],
-                "edges": [
-                  {
-                    "from": "c-rim",
-                    "to": "c-majed",
-                    "label": "الخدمات",
-                    "tone": "indigo",
-                    "style": "solid",
-                    "lane": "-1",
-                    "step": 0
-                  },
-                  {
-                    "from": "c-majed",
-                    "to": "c-rim",
-                    "label": "الأتعاب",
-                    "tone": "gold",
-                    "style": "solid",
-                    "lane": "1",
-                    "step": 0
-                  },
-                  {
-                    "from": "p-majed",
-                    "to": "p-ent",
-                    "label": "ملكية 100%",
-                    "tone": "gold",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 1
-                  },
-                  {
-                    "from": "p-majed",
-                    "to": "p-rim",
-                    "label": "ضمان السداد",
-                    "tone": "gold",
-                    "style": "dashed",
-                    "lane": "0",
-                    "step": 1
-                  },
-                  {
-                    "from": "p-rim",
-                    "to": "p-ent",
-                    "label": "الخدمات",
-                    "tone": "indigo",
-                    "style": "solid",
-                    "lane": "-1",
-                    "step": 1
-                  },
-                  {
-                    "from": "p-ent",
-                    "to": "p-rim",
-                    "label": "الأتعاب",
-                    "tone": "teal",
-                    "style": "solid",
-                    "lane": "1",
-                    "step": 1
-                  }
-                ]
+                "nowLabel": "الوضع الحالي",
+                "nextLabel": "الوضع المقترح",
+                "majedNow": "العميل والملتزم بالسداد",
+                "majedNext": "تملك الكيانين وتموّلهما، وتضمن سداد مستحقات رمثان",
+                "entTitle": "كيانان منفصلان",
+                "entSub": "العميل والملتزم بالسداد",
+                "rimSub": "البناء والتشغيل",
+                "services": "الخدمات",
+                "fees": "الأتعاب",
+                "own": "ملكية 100%",
+                "guarantee": "ضمان السداد"
               }
             },
             {
               "id": "sl-sh-structure",
-              "template": "diagram",
+              "template": "legal",
               "transition": "drift",
               "bg": "background",
               "notes": "",
               "hidden": false,
               "data": {
-                "eyebrow": "Structure",
+                "layout": "structure",
                 "title": "الهيكل المقترح",
-                "cols": 2,
-                "gap": 22,
-                "rowGap": 11,
-                "body": "",
-                "frames": [],
-                "nodes": [
-                  {
-                    "id": "majed",
-                    "title": "الماجد للعود",
-                    "sub": "تملك الكيانين وتمولهما",
-                    "tone": "gold",
-                    "shape": "box",
-                    "col": 1,
-                    "colSpan": 2,
-                    "row": 1,
-                    "rowSpan": 1,
-                    "step": 0
-                  },
-                  {
-                    "id": "bundle",
-                    "title": "Bundle",
-                    "sub": "",
-                    "tone": "teal",
-                    "shape": "box",
-                    "col": 1,
-                    "colSpan": 1,
-                    "row": 2,
-                    "rowSpan": 1,
-                    "step": 0
-                  },
-                  {
-                    "id": "lavara",
-                    "title": "Lavara",
-                    "sub": "",
-                    "tone": "teal",
-                    "shape": "box",
-                    "col": 2,
-                    "colSpan": 1,
-                    "row": 2,
-                    "rowSpan": 1,
-                    "step": 0
-                  },
-                  {
-                    "id": "rim",
-                    "title": "رمثان",
-                    "sub": "البناء والتشغيل حتى الشهر 17",
-                    "tone": "indigo",
-                    "shape": "box",
-                    "col": 1,
-                    "colSpan": 2,
-                    "row": 3,
-                    "rowSpan": 1,
-                    "step": 0
-                  }
-                ],
-                "edges": [
-                  {
-                    "from": "majed",
-                    "to": "bundle",
-                    "label": "ملكية 100% وتمويل",
-                    "tone": "gold",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  },
-                  {
-                    "from": "majed",
-                    "to": "lavara",
-                    "label": "ملكية 100% وتمويل",
-                    "tone": "gold",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  },
-                  {
-                    "from": "rim",
-                    "to": "bundle",
-                    "label": "خدمات البناء والتشغيل",
-                    "tone": "indigo",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  },
-                  {
-                    "from": "rim",
-                    "to": "lavara",
-                    "label": "خدمات البناء والتشغيل",
-                    "tone": "indigo",
-                    "style": "solid",
-                    "lane": "0",
-                    "step": 0
-                  }
-                ]
+                "majedSub": "تملك الكيانين وتموّلهما",
+                "rimSub": "البناء والتشغيل حتى الشهر 17",
+                "own": "ملكية 100% وتمويل",
+                "services": "خدمات البناء والتشغيل"
               }
             },
             {
