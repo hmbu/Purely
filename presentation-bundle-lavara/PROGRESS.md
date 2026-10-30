@@ -190,6 +190,8 @@
 - Content: `sar` in content.json (title editable with E; `hidden: true` removes the page).
 - SAR cover v2: big SAR mark × (Lavara over Bundle), all black, one ×. Entrance: page rises from below with SAR's blue road running up it, then the road gathers into the mark. Cover ⇄ file: the road floods the screen blue and the file opens out of it.
 - 30 Oct: the SAR file replaced with the user's v5 (adds «MASI بالأرقام» on its cover: 15M passengers in 2026, 30M by 2030; kicker «مذكرة تفاهم مع سار»), still unmodified. Escape that closes something open inside the file (the MASI numbers, a scene via its back button) now stays in the file instead of also closing it.
+- 30 Oct: the file opens in Arabic: the show presses the file's own «ع» switch when it loads (the file itself still starts in English; `sar.lang: "en"` in content.json would keep English).
+- 30 Oct: Bundle identity film replaced with «Bundle - brand identity film v4 Dark» from the Drive videos folder (1920×1080, 60 fps, 2:50, original quality, same path).
 
 ## Recovery (29 Oct)
 - A control-panel save (commit b708aa5) overwrote content.json with an old copy (lost review, SAR, dashboard slide, approvals, op-model titles, chooser). Restored content from 2127cc7 and added the new diffuser photo.

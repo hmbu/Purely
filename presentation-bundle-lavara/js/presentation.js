@@ -1501,6 +1501,8 @@ function renderSar() {
       w.addEventListener('keydown', e => {
         const d = doc.documentElement, arrows = ['ArrowDown', 'ArrowUp'].includes(e.key) && d.scrollHeight <= w.innerHeight + 2; // arrows only when the file has nothing to scroll
         if (['PageDown', 'PageUp'].includes(e.key) || (((e.key === 'Escape' && !inFile) || arrows) && !e.defaultPrevented)) { e.preventDefault(); onKey(e); } });
+      // the file opens in English; the show turns it to Arabic with its own switch (sar.lang: 'en' keeps English)
+      doc.querySelector(`.seg button[data-v="${r.lang === 'en' ? 'en' : 'ar'}"]`)?.click();
     } catch {}
   });
 }
