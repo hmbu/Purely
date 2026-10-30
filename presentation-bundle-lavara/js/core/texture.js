@@ -487,6 +487,7 @@ export class BrandTexture {
     if (opts.colors) this.colors = [...opts.colors, ...this.colors].slice(0, 4);
     if (opts.seed != null) this.seedBalls(opts.seed);
     for (const k of ['progress', 'alpha', 'speed', 'sweep', 'grain', 'resScale']) if (opts[k] != null) this[k] = opts[k];
+    if (opts.avoid !== undefined) this.avoid = opts.avoid; // orbs: a band of the screen they mostly keep out of
     if (!this.running) this.draw();
     return this;
   }
@@ -567,13 +568,17 @@ export class BrandTexture {
     const asp = (this.canvas.width || 16) / (this.canvas.height || 9), p = this.progress;
     if (!this.orbs) { // start spread across the width
       let s = 7; const rnd = () => ((s = (s * 9301 + 49297) % 233280) / 233280);
-      this.orbs = Array.from({ length: ORB_N }, (_, i) => ({ x: (i + 0.25 + rnd() * 0.5) / ORB_N, y: 0.15 + rnd() * 0.7, vx: (rnd() - 0.5) * 0.05, vy: (rnd() - 0.5) * 0.05, r: 0.07 + rnd() * 0.07 + (i < 2 ? 0.05 : 0), tone: i % 4 }));
+      const av = this.avoid; // with a band to keep clear, they start above and below it
+      this.orbs = Array.from({ length: ORB_N }, (_, i) => ({ x: (i + 0.25 + rnd() * 0.5) / ORB_N, y: av ? (i % 2 ? av[1] + 0.05 + rnd() * (0.9 - av[1]) : 0.05 + rnd() * Math.max(0.05, av[0] - 0.1)) : 0.15 + rnd() * 0.7, vx: (rnd() - 0.5) * 0.05, vy: (rnd() - 0.5) * 0.05, r: 0.07 + rnd() * 0.07 + (i < 2 ? 0.05 : 0), tone: i % 4 }));
       this.orbData = new Float32Array(ORB_N * 3); this.orbTone = new Float32Array(ORB_N);
       this.orbT = this.t;
     }
     const dt = Math.min(0.05, Math.max(0, this.t - this.orbT)); this.orbT = this.t;
     const scale = 0.4 + Math.min(1, p * 1.25) * 0.75, O = this.orbs;
+    const av = this.avoid, mid = av ? (av[0] + av[1]) / 2 : 0;
     for (const o of O) {
+      // inside the kept band an orb is eased back out the way it is nearer to; one may still drift across now and then
+      if (av && o.y > av[0] - o.r * scale * 0.4 && o.y < av[1] + o.r * scale * 0.4) { o.vy += Math.sign(o.y - mid || 1) * 0.05 * dt; o.vy = Math.max(-0.045, Math.min(0.045, o.vy)); }
       o.x += o.vx * dt; o.y += o.vy * dt; const r = o.r * scale;
       if (o.x * asp < r) { o.x = r / asp; o.vx = Math.abs(o.vx); } if (o.x * asp > asp - r) { o.x = 1 - r / asp; o.vx = -Math.abs(o.vx); }
       if (o.y < r) { o.y = r; o.vy = Math.abs(o.vy); } if (o.y > 1 - r) { o.y = 1 - r; o.vy = -Math.abs(o.vy); }

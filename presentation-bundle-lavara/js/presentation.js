@@ -926,7 +926,7 @@ function renderHub(p) {
     const { tex, fresh } = pooledTexture('hub-' + p.id + (p.brand.textureStyle || ''), cv, texScale(p));
     hubTex = tex;
     const scene = !!sceneOf(p);
-    hubTex.set({ mode: p.brand.texture, variant: p.brand.textureStyle, colors: mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]], progress: scene ? 1 : mist ? 0.34 : 0.05, alpha: scene ? 1 : mist ? 0.4 : p.brand.textureStyle === 'orbs' ? 0.55 : 0.24, speed: scene ? 1 : 0.4, sweep: 0, ...(fresh ? { seed: 11 } : {}) });
+    hubTex.set({ mode: p.brand.texture, variant: p.brand.textureStyle, colors: mist ? [tc[1], tc[2], tc[3], tc[1]] : [tc[1], tc[3], tc[2], tc[1]], progress: scene ? 1 : mist ? 0.34 : 0.05, alpha: scene ? 1 : mist ? 0.4 : p.brand.textureStyle === 'orbs' ? 0.55 : 0.24, speed: scene ? 1 : 0.4, sweep: 0, avoid: p.brand.textureStyle === 'orbs' ? [0.26, 0.5] : null, ...(fresh ? { seed: 11 } : {}) });
     hubTex.start();
   }
   // try the project's backgrounds right here: one press swaps the scene (the choice stays for this showing; the

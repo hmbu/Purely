@@ -611,14 +611,22 @@ TEMPLATES.flow = {
       newItem: { title: 'مرحلة', steps: '', owners: '', gate: '' } },
     { key: 'loops', type: 'textarea', rows: 2, label: 'حلقات إعادة العمل (مفصولة بـ ·)' },
     { key: 'color', type: 'color', label: 'لون المشروع (فارغ = لون الهوية)' },
-    { key: 'full', type: 'image', simple: true, label: 'المخطط الكامل (يُفتح بالتكبير)' }],
-  defaults: { eyebrow: 'Operating Model', title: 'النموذج التشغيلي', lead: '', phases: [], loops: '', color: '', full: '' },
+    { key: 'full', type: 'image', simple: true, label: 'المخطط الكامل (يُفتح بالتكبير)' },
+    { key: 'stepped', type: 'toggle', label: 'بالنقر: تبدأ بالمراحل وحدها، وكل نقرة تفتح مرحلة' }],
+  defaults: { eyebrow: 'Operating Model', title: 'النموذج التشغيلي', lead: '', phases: [], loops: '', color: '', full: '', stepped: true },
+  // click by click: first the stages alone, then each press opens one stage (large) and the rest stay narrow
+  steps: d => (d.stepped !== false ? (d.phases || []).length : 0),
+  applyStep: (el, step) => {
+    const row = el.querySelector('.t-flow.is-stepped .fl-row'); if (!row) return;
+    row.classList.toggle('is-overview', step === 0);
+    row.querySelectorAll('.fl-ph').forEach((x, i) => { x.classList.toggle('is-open', i === step - 1); x.classList.toggle('is-done', step > 0 && i < step - 1); x.classList.toggle('is-later', step > 0 && i > step - 1); });
+  },
   render: (d, ctx) => {
     const ph = d.phases || [];
     const full = typeof d.full === 'string' ? d.full : d.full?.src;
     const lines = s => String(s || '').split('\n').map(x => x.trim()).filter(Boolean);
     return `
-    <div class="t t-flow" ${d.color ? `style="--cc:${esc(d.color)}"` : ''}>
+    <div class="t t-flow${d.stepped !== false ? ' is-stepped' : ''}" ${d.color ? `style="--cc:${esc(d.color)}"` : ''}>
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}${leadLine(d, ctx)}</div>
       <div class="fl-row" style="--n:${ph.length || 1}">
         ${ph.map((p, i) => `

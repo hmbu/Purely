@@ -913,6 +913,22 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .fl-loops span::before { content: '↺'; position: absolute; right: 0; top: -.1rem; color: var(--fc); }
 .fl-full { appearance: none; cursor: pointer; font: inherit; font-size: 1.4rem; color: var(--sbg); background: var(--fc); border: 0; padding: 1.1rem 2.2rem; border-radius: 10rem; white-space: nowrap; }
 .fl-full::before { content: '⤢'; margin-left: .9rem; }
+/* operating model by click: the stages alone first, then one open at a time (wide, large text), the rest narrow */
+.t-flow.is-stepped .fl-row { display: flex; gap: 2.4rem; }
+.t-flow.is-stepped .fl-ph { flex: 1 1 0; min-width: 0; transition: flex-grow .9s cubic-bezier(.65, 0, .35, 1), opacity .6s ease; }
+.t-flow.is-stepped .fl-ph:not(:last-child)::after { left: -1.85rem; }
+.t-flow.is-stepped :is(.fl-steps, .fl-gate) { max-height: 0; opacity: 0; overflow: hidden; margin-top: 0; transition: opacity .4s ease, max-height .6s ease; }
+.t-flow.is-stepped .fl-ph.is-open { flex-grow: 3.6; }
+.t-flow.is-stepped .fl-ph.is-open :is(.fl-steps, .fl-gate) { max-height: 60rem; opacity: 1; transition: opacity .7s ease .45s, max-height .9s ease .2s; }
+.t-flow.is-stepped .fl-ph.is-open .fl-gate { margin-top: 2.4rem; font-size: 1.9rem; }
+.t-flow.is-stepped .fl-ph.is-open .fl-t { font-size: 3.4rem; }
+.t-flow.is-stepped .fl-ph.is-open .fl-steps { gap: 1.2rem; }
+.t-flow.is-stepped .fl-ph.is-open .fl-steps li { font-size: 2.05rem; opacity: .9; padding-right: 2rem; }
+.t-flow.is-stepped .fl-ph.is-open .fl-steps li::before { top: 1.1rem; }
+.t-flow.is-stepped .fl-ph.is-open .fl-own span { font-size: 1.5rem; }
+.t-flow.is-stepped .fl-ph.is-later { opacity: .45; }
+.t-flow.is-stepped .fl-row.is-overview .fl-ph { justify-content: flex-start; }
+.t-flow.is-stepped .fl-t { transition: font-size .8s ease; }
 
 /* Bundle: rounded */
 [data-style="bubbles"] .fl-ph { border-radius: 2rem; border: 0; background: color-mix(in srgb, var(--fc) 6%, var(--sbg)); }
