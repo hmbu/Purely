@@ -2080,3 +2080,5 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 /* review: work still being completed carries a half-filled brass ring instead of the green tick */
 .rv-status.is-wip { color: #8C6A3A; }
 .rv-status.is-wip::before { box-sizing: border-box; background: linear-gradient(to left, #A8824A 50%, transparent 50%); border: .22rem solid #A8824A; }
+/* review: a title too long for its card takes a second, balanced line instead of running past the edge */
+.rv-card h3 { white-space: normal; text-wrap: balance; max-width: 100%; }
