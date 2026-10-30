@@ -1926,3 +1926,9 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 @media (prefers-reduced-motion: reduce) { .t-finance :is(.fn-bar, .fn-bar em, .fn-margin) { transition: none; } }
 .t-finance .fn-kpi { transition: opacity .6s ease; }
 .t-finance .fn-chart:not(.is-grown) .fn-kpi { opacity: 0; } /* a project's numbers wait for its press */
+/* review: a touch more formal — equal cards on a fine frame, the status as a small check, aligned at the foot */
+.rv-card { height: 23.5rem; border: var(--hair) solid rgba(30, 27, 23, .12); border-top: .4rem solid #1E1B17; background: #F2EDE3; }
+.rv-card h3 { white-space: nowrap; }
+.rv-status { margin-top: auto; color: #2E6B47; opacity: 1; font-weight: 600; }
+.rv-status::before { width: 1.7rem; height: 1.7rem; border-radius: 50%; background: #2E6B47 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 72% no-repeat; }
+.rv-dot { rotate: 45deg; width: 1.4rem; height: 1.4rem; margin: -.7rem 0 0 -.7rem; }
