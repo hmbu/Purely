@@ -1909,3 +1909,20 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .is-structure .lg-ent2 { top: 45.4rem; width: 40rem; height: 14.8rem; }
 .is-structure .lg-ent2.is-r { right: 35rem; } .is-structure .lg-ent2.is-l { left: 35rem; }
 .is-structure .lg-bottom { right: 35rem; left: 35rem; top: 69.8rem; height: 13rem; }
+
+/* finance: headline numbers, then the bars rise slowly year after year, one project per press */
+.fn-head { align-items: flex-start; }
+.fn-kpis { display: flex; gap: 4rem; }
+.fn-kpi { display: flex; flex-direction: column; align-items: flex-start; gap: .3rem; }
+.fn-kpi b { font-family: var(--f-num); font-weight: 300; font-size: 4.6rem; line-height: 1; color: var(--cc, var(--ssec)); font-variant-numeric: tabular-nums lining-nums; }
+.fn-kpi span { font-size: 1.35rem; opacity: .65; }
+.fn-legend { margin-top: 1.2rem; }
+.t-finance .fn-bar { animation: none; transform: scaleY(0); transition: transform 2s cubic-bezier(.22, .9, .25, 1); transition-delay: calc(.3s + var(--i) * .5s); }
+.t-finance .fn-bar em, .t-finance .fn-margin { opacity: 0; transition: opacity .6s ease; transition-delay: calc(1.6s + var(--i, 0) * .5s); }
+.t-finance .is-grown .fn-bar { transform: none; }
+.t-finance .is-grown :is(.fn-bar em, .fn-margin) { opacity: 1; }
+.t-finance .fn-year:nth-child(1) { --i: 0; } .t-finance .fn-year:nth-child(2) { --i: 1; } .t-finance .fn-year:nth-child(3) { --i: 2; } .t-finance .fn-year:nth-child(4) { --i: 3; } .t-finance .fn-year:nth-child(5) { --i: 4; } .t-finance .fn-year:nth-child(6) { --i: 5; }
+.t-finance .is-instant :is(.fn-bar, .fn-bar em, .fn-margin) { transition: none; }
+@media (prefers-reduced-motion: reduce) { .t-finance :is(.fn-bar, .fn-bar em, .fn-margin) { transition: none; } }
+.t-finance .fn-kpi { transition: opacity .6s ease; }
+.t-finance .fn-chart:not(.is-grown) .fn-kpi { opacity: 0; } /* a project's numbers wait for its press */

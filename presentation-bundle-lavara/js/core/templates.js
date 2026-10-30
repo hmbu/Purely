@@ -550,8 +550,26 @@ TEMPLATES.finance = {
     { key: 'pointsTitle', type: 'text', label: 'عنوان النقاط' },
     { key: 'points', type: 'list', label: 'النقاط', item: [{ key: 'text', type: 'text', label: 'النقطة' }], newItem: { text: '' } }],
   defaults: { eyebrow: 'Financials', title: 'الإيرادات', charts: [], panelTitle: '', panelSub: '', shots: [], pointsTitle: '', points: [] },
+  // one project at a time: its bars rise slowly year by year and its two headline numbers count up; the next press, the next project
+  steps: d => Math.max(0, (d.charts || []).length - 1),
+  applyStep: (el, step, instant) => {
+    el.querySelectorAll('.fn-chart').forEach((c, k) => {
+      const on = k <= step, was = c.classList.contains('is-grown');
+      c.classList.toggle('is-grown', on); c.classList.toggle('is-instant', !!instant);
+      c.querySelectorAll('.fn-kpi b[data-to]').forEach(b => {
+        const to = parseFloat(b.dataset.to), dec = +(b.dataset.dec || 0), suf = b.dataset.suf || '', fmt = v => v.toFixed(dec) + suf;
+        if (!on) { b.textContent = fmt(0); return; }
+        if (was || instant || !Number.isFinite(to)) { b.textContent = fmt(to); return; }
+        const t0 = performance.now(), dur = 2600, tick = t => { const k2 = Math.min(1, (t - t0) / dur); b.textContent = fmt(to * (1 - Math.pow(1 - k2, 3))); if (k2 < 1) requestAnimationFrame(tick); };
+        requestAnimationFrame(tick);
+      });
+    });
+  },
   render: (d, ctx) => {
     const ch = d.charts || [];
+    const kpi = (v, label, suf = '') => { const n = parseFloat(String(v ?? '').replace('%', '')); if (!Number.isFinite(n)) return '';
+      const dec = (String(v).split('.')[1] || '').replace('%', '').length;
+      return `<div class="fn-kpi"><b class="latin" data-to="${n}" data-dec="${dec}" data-suf="${suf}">${esc(String(v))}</b><span>${esc(label)}</span></div>`; };
     const max = Math.max(1e-9, ...ch.flatMap(c => [...nums(c.a), ...nums(c.b)].map(Number).filter(Number.isFinite)));
     const bar = (v, cls, i) => { const n = Number(v); return `<span class="fn-bar ${cls}" style="--h:${Number.isFinite(n) ? (n / max) * 100 : 0}%;--i:${i}"><em class="latin">${esc(v)}</em></span>`; };
     const shots = (d.shots || []).filter(x => x?.image?.src || typeof x?.image === 'string');
@@ -564,7 +582,8 @@ TEMPLATES.finance = {
             return `
             <div class="fn-chart" data-a="extra" data-seq="${k}" style="--k:${k}${c.color ? `;--cc:${esc(c.color)}` : ''}">
               <div class="fn-head"><h3>${esc(c.name || '')}</h3>
-                <div class="fn-legend"><span class="is-a">${esc(c.aName || '')}</span><span class="is-b">${esc(c.bName || '')}</span>${c.mName ? `<span class="is-m">${esc(c.mName)}</span>` : ''}<span class="fn-unit">${esc(c.unit || '')}</span></div></div>
+                <div class="fn-kpis">${kpi(a[a.length - 1], `${c.unit || ''} · ${c.aName || ''} ${ys[ys.length - 1] || ''}`)}${kpi(m[m.length - 1], `${c.mName ? c.mName.replace(/\s*%\s*$/, '') : ''} ${ys[ys.length - 1] || ''}`, String(m[m.length - 1] || '').includes('%') ? '%' : '')}</div></div>
+              <div class="fn-legend"><span class="is-a">${esc(c.aName || '')}</span><span class="is-b">${esc(c.bName || '')}</span>${c.mName ? `<span class="is-m">${esc(c.mName)}</span>` : ''}<span class="fn-unit">${esc(c.unit || '')}</span></div>
               <div class="fn-plot" style="--n:${ys.length || a.length || 1}">
                 ${(ys.length ? ys : a).map((y, i) => `
                   <div class="fn-year">
