@@ -2104,3 +2104,5 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .t-flow.is-process .fl-foot { bottom: 7rem; }
 .t-flow.is-process .pr-row { top: 27rem; }
 .pr-card { min-height: 33rem; }
+.t-figure.is-tour .fg-art img { transition: transform 2.2s cubic-bezier(.65, 0, .35, 1); }
+.t-figure.is-tour .fg-art img:not([style*="transform"]) { opacity: 0; }
