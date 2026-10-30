@@ -1777,7 +1777,8 @@
                   }
                 ],
                 "modelsOnly": false,
-                "panelImagesOnly": true
+                "panelImagesOnly": false,
+                "panelShowcase": true
               }
             }
           ],

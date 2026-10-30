@@ -308,7 +308,7 @@ TEMPLATES.legal = {
     majedNext: 'تملك الكيانين وتموّلهما، وتضمن سداد مستحقات رمثان', entTitle: 'كيانان منفصلان', entSub: 'العميل والملتزم بالسداد', majedSub: 'تملك الكيانين وتموّلهما',
     rimSub: 'البناء والتشغيل', services: 'الخدمات', fees: 'الأتعاب', own: 'ملكية 100%', guarantee: 'ضمان السداد' },
   // the structure plays by itself, no presses: Al Majed and Rimthan move smoothly from where the contract slide left
-  // them into their places, then the two projects' cards and the arrows follow
+  // them into their places (neither card fades in with the slide: both stay put through the change), then the two projects' cards and the arrows follow
   steps: d => (d.layout === 'structure' ? 0 : 1),
   applyStep: (el, step) => {
     const root = el.querySelector('.t-legal'); if (!root) return;
@@ -328,7 +328,7 @@ TEMPLATES.legal = {
       const ent = (p, side) => p ? `<div class="lg-card lg-ent2 is-brand ${side}" data-from="1" style="--bg:${esc(p.brand.colors?.primary || LG_C.fee)};--rule:${esc(p.brand.colors?.secondary || p.brand.colors?.primary || LG_C.fee)}"><span class="logo-mask lg-plogo" role="img" aria-label="${esc(p.name)}" style="--src:url('${esc(ctx.asset(p.brand.logo))}');color:${esc(p.brand.colors?.textLight || '#fff')}"></span></div>` : '';
       return `
       <div class="t t-legal is-structure">${head}
-        <div class="lg-card lg-top is-majed" data-a="extra" data-seq="0" style="--rule:${LG_C.own}">${lgLogo('majed', ctx, 5)}<span class="lg-sub">${esc(d.majedSub || '')}</span></div>
+        <div class="lg-card lg-top is-majed" style="--rule:${LG_C.own}">${lgLogo('majed', ctx, 5)}<span class="lg-sub">${esc(d.majedSub || '')}</span></div>
         ${ent(ps[0], 'is-r')}${ent(ps[1], 'is-l')}
         <div class="lg-card lg-bottom is-rim" style="--rule:${LG_C.svc}">${lgLogo('rimthan', ctx, 3.4)}<span class="lg-sub">${esc(d.rimSub || '')}</span></div>
         <svg class="lg-svg" viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true">
@@ -557,13 +557,15 @@ TEMPLATES.finance = {
     { key: 'pointsTitle', type: 'text', label: 'عنوان النقاط' },
     { key: 'points', type: 'list', label: 'النقاط', item: [{ key: 'text', type: 'text', label: 'النقطة' }], newItem: { text: '' } },
     { key: 'modelsOnly', type: 'toggle', label: 'الصورتان فقط (بلا الرسوم): كبيرتان مع عنوان اللوحة' },
-    { key: 'panelImagesOnly', type: 'toggle', label: 'اللوحة الجانبية: الصورتان فقط، فوق بعضهما' }],
+    { key: 'panelImagesOnly', type: 'toggle', label: 'اللوحة الجانبية: الصورتان فقط، فوق بعضهما' },
+    { key: 'panelShowcase', type: 'toggle', label: 'اللوحة الجانبية للعرض: العنوان، والصورتان متراكبتان، وسطر تحتهما؛ والأرقام تتحرك بالنقر بعدها' }],
   defaults: { eyebrow: 'Financials', title: 'الإيرادات', charts: [], panelTitle: '', panelSub: '', shots: [], pointsTitle: '', points: [] },
   // one project at a time: its bars rise slowly year by year and its two headline numbers count up; the next press, the next project
-  steps: d => (d.modelsOnly ? 0 : Math.max(0, (d.charts || []).length - 1)),
+  steps: d => (d.modelsOnly ? 0 : d.panelShowcase ? (d.charts || []).length : Math.max(0, (d.charts || []).length - 1)),
   applyStep: (el, step, instant) => {
+    const after = el.querySelector('.t-finance.is-showcase') ? 1 : 0; // with the showcase panel, the first press starts the first chart
     el.querySelectorAll('.fn-chart').forEach((c, k) => {
-      const on = k <= step, was = c.classList.contains('is-grown');
+      const on = k + after <= step, was = c.classList.contains('is-grown');
       c.classList.toggle('is-grown', on); c.classList.toggle('is-instant', !!instant);
       c.querySelectorAll('.fn-kpi b[data-to]').forEach(b => {
         const to = parseFloat(b.dataset.to), dec = +(b.dataset.dec || 0), suf = b.dataset.suf || '', fmt = v => v.toFixed(dec) + suf;
@@ -593,7 +595,7 @@ TEMPLATES.finance = {
       </div>
     </div>`;
     return `
-    <div class="t t-finance">
+    <div class="t t-finance${d.panelShowcase ? ' is-showcase' : ''}">
       <div class="board-head">${eyebrow(d.eyebrow)}${title(d.title)}</div>
       <div class="fn-body">
         <div class="fn-charts">
@@ -613,7 +615,13 @@ TEMPLATES.finance = {
               </div>
             </div>`; }).join('')}
         </div>
-        ${d.panelImagesOnly && shots.length ? `
+        ${d.panelShowcase ? `
+        <aside class="fn-panel is-showcase" data-a="extra" data-seq="0">
+          ${d.panelTitle ? `<div class="fn-ptitle"><i></i><b>${esc(d.panelTitle)}</b></div>` : ''}
+          <div class="fn-pile">${shots.slice(0, 2).map((x, i) => `<figure class="fn-pshot ${i ? 'is-front' : 'is-back'}">${mediaHTML(x.image, ctx)}</figure>`).join('')}</div>
+          ${d.panelSub ? `<p class="fn-pnote">${esc(d.panelSub)}</p>` : ''}
+        </aside>`
+        : d.panelImagesOnly && shots.length ? `
         <aside class="fn-panel is-images" data-a="extra" data-seq="9">${shots.slice(0, 2).map(x => { const src = typeof x.image === 'string' ? x.image : x.image.src;
           return `<div class="fn-ishot" data-zoom="${esc(ctx.asset(src))}">${mediaHTML({ ...(typeof x.image === 'string' ? { src } : x.image), fit: 'contain' }, ctx)}</div>`; }).join('')}</aside>`
         : d.panelTitle || shots.length || (d.points || []).length ? `

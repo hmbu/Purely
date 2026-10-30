@@ -2025,3 +2025,19 @@ html, body { touch-action: manipulation; overscroll-behavior: none; }
 .is-structure.is-play [data-from="1"] { transition-delay: 1.2s; }
 .is-structure.is-play .lg-ar[data-from="1"] .ln { transition-delay: 1.5s; }
 .is-structure.is-play [data-from="2"] { transition-delay: 1.9s; }
+
+/* finance side card as a showcase: the title, the two sent models laid one over the other like the dashboard screens,
+   a short line under them; the charts wait for the presses */
+.fn-body:has(.fn-panel.is-showcase) { grid-template-columns: 52rem 1fr; }
+.fn-panel.is-showcase { padding: 3rem; gap: 2.4rem; }
+.fn-pile { position: relative; flex: 1; min-height: 0; }
+.fn-pshot { position: absolute; margin: 0; width: 82%; aspect-ratio: 1666 / 866; overflow: hidden; border-radius: .4rem; background: #fff; box-shadow: 0 2.4rem 4.4rem -2.4rem rgba(30, 27, 23, .5); }
+.fn-pshot .m { width: 100%; height: 100%; display: block; }
+.fn-pshot.is-back { right: 0; top: 0; }
+.fn-pshot.is-front { left: 0; bottom: 0; }
+.fn-pnote { margin: 0; font-size: 1.6rem; opacity: .65; }
+.fn-pile { flex: none; height: 32rem; margin-block: auto; }
+.fn-pshot.is-front { bottom: auto; top: 11rem; }
+.fn-pshot { width: 88%; }
+.fn-pile { height: 34rem; }
+.fn-pshot.is-front { top: 10rem; }
