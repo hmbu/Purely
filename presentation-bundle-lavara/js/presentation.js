@@ -1555,7 +1555,7 @@ async function toSar(step = 0) {
   applyBrand(null);
   sound.play('zoom', null, 'neutral');
   const tl = gsap.timeline();
-  sarGate(tl, 1.55); // once the page is in place
+  sarOpen(); tl.add(() => $('.sar-file', L.special)?.focus(), 1.5); // straight to the file, no cover or transition of its own
   tl.to(from, { yPercent: -100 * dir, duration: 1.5, ease: 'power3.inOut' }, 0);
   tl.fromTo(L.special, { yPercent: 100 * dir, opacity: 1 }, { yPercent: 0, duration: 1.5, ease: 'power3.inOut', immediateRender: true }, 0);
   S.level = 'sar'; S.pid = null; S.sid = null; startWorlds(false); updateHUD();

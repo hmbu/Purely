@@ -307,9 +307,15 @@ TEMPLATES.legal = {
   defaults: { title: 'ما الذي يتغير في العقد', layout: 'contract', nowLabel: 'الوضع الحالي', nextLabel: 'الوضع المقترح', majedNow: 'العميل والملتزم بالسداد',
     majedNext: 'تملك الكيانين وتموّلهما، وتضمن سداد مستحقات رمثان', entTitle: 'كيانان منفصلان', entSub: 'العميل والملتزم بالسداد', majedSub: 'تملك الكيانين وتموّلهما',
     rimSub: 'البناء والتشغيل', services: 'الخدمات', fees: 'الأتعاب', own: 'ملكية 100%', guarantee: 'ضمان السداد' },
-  steps: d => (d.layout === 'structure' ? 2 : 1),
+  // the structure plays by itself, no presses: Al Majed and Rimthan move smoothly from where the contract slide left
+  // them into their places, then the two projects' cards and the arrows follow
+  steps: d => (d.layout === 'structure' ? 0 : 1),
   applyStep: (el, step) => {
     const root = el.querySelector('.t-legal'); if (!root) return;
+    if (root.classList.contains('is-structure')) {
+      step = 2;
+      if (!root.dataset.played) { root.dataset.played = '1'; setTimeout(() => root.classList.add('is-play'), 450); } // once per showing; later calls leave it be
+    }
     root.classList.toggle('is-s1', step >= 1);
     root.querySelectorAll('[data-from]').forEach(x => x.classList.toggle('is-on', step >= +x.dataset.from));
     root.querySelectorAll('[data-only]').forEach(x => x.classList.toggle('is-on', step === +x.dataset.only));
@@ -324,7 +330,7 @@ TEMPLATES.legal = {
       <div class="t t-legal is-structure">${head}
         <div class="lg-card lg-top is-majed" data-a="extra" data-seq="0" style="--rule:${LG_C.own}">${lgLogo('majed', ctx, 5)}<span class="lg-sub">${esc(d.majedSub || '')}</span></div>
         ${ent(ps[0], 'is-r')}${ent(ps[1], 'is-l')}
-        <div class="lg-card lg-bottom is-rim" data-from="2" style="--rule:${LG_C.svc}">${lgLogo('rimthan', ctx, 3.4)}<span class="lg-sub">${esc(d.rimSub || '')}</span></div>
+        <div class="lg-card lg-bottom is-rim" style="--rule:${LG_C.svc}">${lgLogo('rimthan', ctx, 3.4)}<span class="lg-sub">${esc(d.rimSub || '')}</span></div>
         <svg class="lg-svg" viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true">
           ${lgArrow(105, 35.2, 105, 45.4, LG_C.own, { from: 1 })}${lgArrow(55, 35.2, 55, 45.4, LG_C.own, { from: 1 })}
           ${lgArrow(105, 69.8, 105, 60.2, LG_C.svc, { from: 2, dashed: true })}${lgArrow(55, 69.8, 55, 60.2, LG_C.svc, { from: 2, dashed: true })}
