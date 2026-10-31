@@ -1881,7 +1881,11 @@ const stringDefaults = id => Object.fromEntries(Object.entries(TEMPLATES[id]?.de
 let dock = null;
 const overview = createOverview({ model: overviewModel, asset });
 const presenter = createPresenter({ snapshot: mirrorNow, info: presenterInfo, key: e => { if (!e.target.closest?.('input, textarea')) onKey(e); },
-  command: c => (c === 'black' ? setBlack(!S.black) : c === 'overview' ? overview.open() : c === 'resetTimer' ? INSTANT.resetTimer() : command(c)) });
+  command: c => {
+    if (c === 'black') setBlack(!S.black); else if (c === 'overview') overview.open(); else if (c === 'resetTimer') INSTANT.resetTimer();
+    else if (c === 'edit') editor.toggle(); else if (c === 'dock') dock?.setHidden(!dock.hidden); else command(c);
+    presenter.update();
+  } });
 // every page of the show in order, for the overview: the start, each project (its page, then its slides), the end
 function overviewModel() {
   const c = S.content, img = sl => slideMedia(sl).find(x => !/\.(mp4|webm|mov|m4v)$/i.test(x)) || '';
@@ -1910,7 +1914,7 @@ function presenterInfo() {
     project: p ? (p.nameAr || p.name) : levelName || '', section: S.level === 'section' ? s?.title : S.level === 'hub' ? 'صفحة المشروع' : '',
     pos: S.level === 'section' && s ? `${S.li + 1} / ${slidesOf(s).length}${steps ? ` · ${S.step + 1}/${steps + 1}` : ''}` : '',
     title: S.level === 'section' ? slideLabel(S.slide) : levelName || (p?.nameAr || p?.name || ''),
-    notes: S.level === 'section' ? (S.slide?.notes || '') : '', black: S.black, startedAt: S.startedAt,
+    notes: S.level === 'section' ? (S.slide?.notes || '') : '', black: S.black, startedAt: S.startedAt, editing: FREEZE.on, dockHidden: !!dock?.hidden,
     next: { label: n.label, section: n.section && n.section !== s?.title ? n.section : '', image: n.image ? asset(n.image) : '' },
   };
 }
@@ -1945,7 +1949,7 @@ function discardEdits() {
 // from slide to slide, and editing carries on there; all of it resumes when E is pressed again.
 function freeze(on) {
   FREEZE.on = on; BrandTexture.frozen = on;
-  document.body.classList.toggle('is-frozen', on); dock?.refresh();
+  document.body.classList.toggle('is-frozen', on); dock?.refresh(); if (presenter.on) presenter.update();
   $$('video').forEach(v => {
     if (on) { if (!v.paused) { v.dataset.frozen = '1'; v.pause(); } }
     else if (v.dataset.frozen) { delete v.dataset.frozen; v.play().catch(() => {}); }

@@ -17,6 +17,9 @@ export function toast(text, ms = 3200) {
 export function createDock({ onEdit, onOverview, onPresenter, isEditing }) {
   const dock = document.createElement('div');
   dock.className = 'x-dock';
+  // the dock can be kept off the show for good (from the presenter window): remembered on this computer
+  let hidden = false; try { hidden = localStorage.getItem('bxl-dock-hidden') === '1'; } catch {}
+  dock.hidden = hidden;
   dock.innerHTML = `<button data-a="edit" title="تحرير النصوص (E)"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M13.5 6.5l4 4" stroke="currentColor" stroke-width="1.8"/></svg></button>
     <button data-a="overview" title="كل الشرائح (G)"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
     <button data-a="presenter" title="نافذة المقدّم (W)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 20h8M12 16v4" stroke="currentColor" stroke-width="1.8"/></svg></button>`;
@@ -26,7 +29,11 @@ export function createDock({ onEdit, onOverview, onPresenter, isEditing }) {
   let t = 0;
   const wake = () => { dock.classList.add('on'); clearTimeout(t); t = setTimeout(() => { if (!dock.matches(':hover') && !isEditing()) dock.classList.remove('on'); }, 2600); };
   addEventListener('pointermove', wake, { passive: true }); addEventListener('touchstart', wake, { passive: true });
-  return { refresh: () => { dock.classList.toggle('is-editing', isEditing()); if (isEditing()) dock.classList.add('on'); else wake(); } };
+  return {
+    refresh: () => { dock.classList.toggle('is-editing', isEditing()); if (isEditing()) dock.classList.add('on'); else wake(); },
+    get hidden() { return dock.hidden; },
+    setHidden(v) { dock.hidden = v; try { localStorage.setItem('bxl-dock-hidden', v ? '1' : '0'); } catch {} },
+  };
 }
 
 /* ---------------------------------------------------------------- slide overview */
@@ -82,7 +89,7 @@ export function createPresenter({ snapshot, info, command, key }) {
         <aside><section class="notes"><h2>ملاحظات</h2><div class="txt"></div></section>
           <section class="next"><h2>التالي</h2><div class="nimg"></div><div class="nlabel"></div></section></aside>
       </main>
-      <footer><button data-c="prev">‹ السابق</button><button data-c="overview">كل الشرائح</button><button data-c="black">شاشة سوداء</button><button data-c="next" class="main">التالي ›</button></footer>
+      <footer><button data-c="edit">تحرير النصوص</button><button data-c="dock">إخفاء الأيقونات من العرض</button><i class="sp"></i><button data-c="prev">‹ السابق</button><button data-c="overview">كل الشرائح</button><button data-c="black">شاشة سوداء</button><button data-c="next" class="main">التالي ›</button></footer>
       </body></html>`);
     d.close();
     // the show's own look, for the live picture of the slide
@@ -116,6 +123,8 @@ export function createPresenter({ snapshot, info, command, key }) {
     d.querySelector('.nlabel').innerHTML = `${esc(i.next?.label || '—')}${i.next?.section ? `<small>${esc(i.next.section)}</small>` : ''}`;
     d.querySelector('.nimg').innerHTML = i.next?.image ? `<img src="${esc(i.next.image)}" alt="">` : '';
     d.querySelector('[data-c="black"]').classList.toggle('on', !!i.black);
+    d.querySelector('[data-c="edit"]').classList.toggle('on', !!i.editing);
+    d.querySelector('[data-c="dock"]').textContent = i.dockHidden ? 'إظهار الأيقونات في العرض' : 'إخفاء الأيقونات من العرض';
     tick();
     // the live picture is taken once the slide has settled
     clearTimeout(snapT); snapT = setTimeout(() => { if (!alive()) return; const m = d.querySelector('.mirror'); m.replaceChildren(); const s = snapshot(); if (s) m.append(d.importNode(s, true)); fitMirror(); }, 1300);
@@ -150,7 +159,8 @@ aside { display: grid; grid-template-rows: 1fr auto; gap: 16px; min-height: 0; }
 .next .nimg img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 4px; display: block; margin-bottom: 8px; }
 .next .nlabel { font-size: 17px; font-weight: 600; }
 .next .nlabel small { display: block; font-weight: 400; opacity: .6; font-size: 13px; }
-footer { justify-content: center; }
+footer { justify-content: center; flex-wrap: wrap; }
+footer .sp { width: 24px; }
 footer button { all: unset; cursor: pointer; padding: 10px 20px; border-radius: 6px; background: #2B2720; font-size: 15px; }
 footer button.main { background: #B08A4E; color: #15130F; font-weight: 600; padding-inline: 34px; }
 footer button.on { background: #EEE8DD; color: #15130F; }

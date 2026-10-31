@@ -2209,3 +2209,4 @@ body.is-frozen *, body.is-frozen *::before, body.is-frozen *::after { animation-
 .pr-st { justify-content: flex-start; }
 .pr-card { flex: 1; min-height: 31rem; }
 .pr-t { font-size: 2.5rem; min-height: calc(2 * 1.3em); } /* one or two lines, the points start at one level */
+.x-dock[hidden] { display: none !important; }
