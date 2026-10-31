@@ -21,12 +21,41 @@ async function deliver(blob, name, type) {
   return name;
 }
 
+// On the site: the single-file version published with it (dist/presentation-standalone.html) is fetched and the
+// current words are written into it. Its pictures stay as it carries them; anything new or moved since it was built
+// points at the site, so it still shows when the copy is opened online.
+function mergeWords(own, live) {
+  const isAsset = v => typeof v === 'string' && /^assets\//.test(v);
+  const abs = v => (isAsset(v) ? new URL(v, location.href).href : v);
+  const walk = (o, l) => {
+    if (Array.isArray(l)) return l.map((x, i) => (Array.isArray(o) && i < o.length ? walk(o[i], x) : deep(x)));
+    if (l && typeof l === 'object') { const out = {}; for (const k of Object.keys(l)) out[k] = o && typeof o === 'object' && k in o ? walk(o[k], l[k]) : deep(l[k]); return out; }
+    if (isAsset(l)) return typeof o === 'string' && !isAsset(o) ? o : abs(l); // the copy's own embedded picture
+    return l;
+  };
+  const deep = v => (Array.isArray(v) ? v.map(deep) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, deep(x)])) : abs(v));
+  return walk(own, live);
+}
+async function siteCopy(content) {
+  const r = await fetch(new URL('dist/presentation-standalone.html', location.href), { cache: 'no-store' });
+  if (!r.ok) throw new Error('نسخة الملف الواحد غير منشورة بعد');
+  const html = await r.text();
+  const open = '<script id="bxl-data">', at = html.indexOf(open), end = html.indexOf('</script>', at);
+  if (at < 0 || end < 0) throw new Error('نسخة الملف الواحد المنشورة قديمة — انشر مرة أخرى');
+  const data = html.slice(at + open.length, end);
+  // laid out as build;assets;content; (the content goes last and runs to the end)
+  const A = ';window.__BXL_ASSETS__=', C = ';window.__BXL_CONTENT__=', ia = data.indexOf(A), ic = data.indexOf(C);
+  if (ia < 0 || ic < 0) throw new Error('تعذّرت قراءة نسخة الملف الواحد');
+  const assets = JSON.parse(data.slice(ia + A.length, ic)), own = JSON.parse(data.slice(ic + C.length).replace(/;\s*$/, ''));
+  const json = s => JSON.stringify(s).replace(/</g, '\\u003c');
+  const next = `window.__BXL_BUILD__=${json(Date.now().toString(36))};window.__BXL_ASSETS__=${json(assets)};window.__BXL_CONTENT__=${json(mergeWords(own, clean(content)))};`;
+  const out = html.slice(0, at + open.length) + next + html.slice(end);
+  return deliver(new Blob([out], { type: 'text/html' }), `Bundle-x-Lavara (${stamp()}).html`, { desc: 'HTML', ext: '.html' });
+}
+
 export async function saveCopy(content) {
   const single = !!window.__BXL_CONTENT__;
-  if (!single) {
-    const blob = new Blob([JSON.stringify(clean(content), null, 2)], { type: 'application/json' });
-    return deliver(blob, `content ${stamp()}.json`, { desc: 'JSON', ext: '.json' });
-  }
+  if (!single) return siteCopy(content);
   const frame = window.__BXL_PRISTINE__, app = document.getElementById('bxl-app')?.textContent;
   if (!frame || app == null) throw new Error('هذه النسخة لا تحمل إطارها — افتح الملف الأصلي');
   const build = `${Date.now().toString(36)}`;

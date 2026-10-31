@@ -111,7 +111,7 @@ export function createEditor({ content, views, onChange, onToggle, actions = {} 
   bar.innerHTML = `<b>وضع التحرير</b>
     <span class="ed-grp"><button data-a="undo" title="تراجع (Ctrl+Z)">↶</button><button data-a="redo" title="إعادة (Ctrl+Shift+Z)">↷</button></span>
     <span class="ed-grp"><button data-a="prev" title="السابق (→)">‹</button><button data-a="overview" title="كل الشرائح (G)">▦</button><button data-a="next" title="التالي (←)">›</button></span>
-    <span class="ed-grp"><button data-a="copy" class="ed-main" title="حفظ نسخة (Ctrl+S)">${SINGLE() ? 'حفظ نسخة' : 'تنزيل نسخة'}</button>${SINGLE() ? '<button data-a="discard" title="إلغاء كل التعديلات غير المحفوظة في نسخة">إلغاء التعديلات</button>' : ''}<button data-a="done" title="خروج (E)">تم</button></span>
+    <span class="ed-grp"><button data-a="copy" class="ed-main" title="حفظ نسخة (Ctrl+S)">حفظ نسخة</button>${SINGLE() ? '<button data-a="discard" title="إلغاء كل التعديلات غير المحفوظة في نسخة">إلغاء التعديلات</button>' : ''}<button data-a="done" title="خروج (E)">تم</button></span>
     <span class="ed-hint">اضغط على أي نص لتعديله · Enter للحفظ · Esc للتراجع</span><span class="ed-state"></span>`;
   document.body.appendChild(bar);
   const state = (t, cls = '') => { const s = bar.querySelector('.ed-state'); s.textContent = t; s.className = 'ed-state ' + cls; };
