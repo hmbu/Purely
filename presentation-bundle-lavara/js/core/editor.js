@@ -86,13 +86,42 @@ function setAt(c, owner, path, value, line, part) {
   o[key] = value; return true;
 }
 
-export function createEditor({ content, views, onChange, onToggle }) {
+/* ---------------------------------------------------------------- the edit log (never lose an edit)
+   Every saved change is also written to this browser's storage at once, as a small list of changes for this file.
+   The single-file version replays it when it opens again (its own file cannot be rewritten), until a copy is saved
+   or the changes are discarded; the site keeps only the changes not yet published, and sends them again. */
+const SINGLE = () => !!window.__BXL_CONTENT__;
+const logKey = () => `bxl-edits:${window.__BXL_BUILD__ || 'site'}:${location.pathname}`;
+function readLog() { try { return JSON.parse(localStorage.getItem(logKey()) || '{"ops":[]}'); } catch { return { ops: [] }; } }
+function writeLog(log) { try { localStorage.setItem(logKey(), JSON.stringify(log)); return true; } catch { return false; } }
+export function editLog() { return readLog(); }
+export function clearEditLog() { try { localStorage.removeItem(logKey()); } catch {} }
+// apply the logged changes to freshly loaded content; returns how many were applied
+export function replayEdits(c) {
+  const log = readLog(); let n = 0;
+  for (const op of log.ops) if (SINGLE() || op.pending) if (setAt(c, op.owner, op.path, op.value, op.line, op.part)) n++;
+  return n;
+}
+
+export function createEditor({ content, views, onChange, onToggle, actions = {} }) {
   let on = false, bound = [], queue = Promise.resolve();
+  const undo = [], redo = [];
   const bar = document.createElement('div');
   bar.className = 'ed-bar'; bar.hidden = true;
-  bar.innerHTML = '<b>وضع التحرير</b><span class="ed-hint">العرض متوقف · اضغط على أي نص لتعديله · Enter للحفظ · Esc للتراجع · E للخروج</span><span class="ed-state"></span>';
+  bar.innerHTML = `<b>وضع التحرير</b>
+    <span class="ed-grp"><button data-a="undo" title="تراجع (Ctrl+Z)">↶</button><button data-a="redo" title="إعادة (Ctrl+Shift+Z)">↷</button></span>
+    <span class="ed-grp"><button data-a="prev" title="السابق (→)">‹</button><button data-a="overview" title="كل الشرائح (G)">▦</button><button data-a="next" title="التالي (←)">›</button></span>
+    <span class="ed-grp"><button data-a="copy" class="ed-main" title="حفظ نسخة (Ctrl+S)">${SINGLE() ? 'حفظ نسخة' : 'تنزيل نسخة'}</button>${SINGLE() ? '<button data-a="discard" title="إلغاء كل التعديلات غير المحفوظة في نسخة">إلغاء التعديلات</button>' : ''}<button data-a="done" title="خروج (E)">تم</button></span>
+    <span class="ed-hint">اضغط على أي نص لتعديله · Enter للحفظ · Esc للتراجع</span><span class="ed-state"></span>`;
   document.body.appendChild(bar);
   const state = (t, cls = '') => { const s = bar.querySelector('.ed-state'); s.textContent = t; s.className = 'ed-state ' + cls; };
+  const paintHistory = () => { bar.querySelector('[data-a="undo"]').disabled = !undo.length; bar.querySelector('[data-a="redo"]').disabled = !redo.length; };
+  ['click', 'pointerdown', 'mousedown'].forEach(ev => bar.addEventListener(ev, e => e.stopPropagation()));
+  bar.addEventListener('click', e => {
+    const a = e.target.closest('button')?.dataset.a; if (!a) return;
+    if (a === 'undo') api.undo(); else if (a === 'redo') api.redo(); else if (a === 'done') api.toggle(false);
+    else if (a === 'copy') actions.saveCopy?.(); else if (a === 'discard') actions.discard?.(); else actions[a]?.();
+  });
 
   function unbind() {
     bound.forEach(b => { b.el.removeAttribute('contenteditable'); b.el.classList.remove('ed-on'); delete b.el._ed; });
@@ -118,48 +147,86 @@ export function createEditor({ content, views, onChange, onToggle }) {
     bound.forEach(b => { b.el._ed = b; b.el.setAttribute('contenteditable', 'plaintext-only'); b.el.classList.add('ed-on'); b.el.spellcheck = false; });
   }
 
-  async function save(b, value) {
-    if (!setAt(content(), b.owner, b.path, value, b.line, b.part)) { state('تعذّر تحديد مكان هذا النص', 'err'); return; }
-    onChange?.(b);
+  // one change: into the show's content, into the edit log at once, then out to the site (where there is one)
+  function commit(op) {
+    if (!setAt(content(), op.owner, op.path, op.value, op.line, op.part)) { state('تعذّر تحديد مكان هذا النص', 'err'); return false; }
+    onChange?.(op);
+    const log = readLog(), entry = { owner: op.owner, path: op.path, line: op.line, part: op.part, value: op.value, t: Date.now(), pending: !SINGLE() };
+    log.ops.push(entry); log.dirty = true;
+    const kept = writeLog(log);
+    if (SINGLE()) { state(kept ? 'محفوظ في هذا المتصفح ✓ — «حفظ نسخة» يحفظه في ملف' : 'تنبيه: تعذّر الحفظ في المتصفح — احفظ نسخة الآن', kept ? 'ok' : 'err'); return true; }
     state('جارٍ الحفظ…');
     queue = queue.then(async () => {
       try {
-        const r = await patchContent(c => setAt(c, b.owner, b.path, value, b.line, b.part));
+        const r = await patchContent(c => setAt(c, op.owner, op.path, op.value, op.line, op.part));
+        if (r.ok) { const l = readLog(); const e = l.ops.find(x => x.t === entry.t && x.pending); if (e) e.pending = false; l.ops = l.ops.filter(x => x.pending); writeLog(l); }
         if (r.ok) state(r.mode === 'github' ? 'تم الحفظ ✓ يظهر في الموقع خلال دقيقة' : 'تم الحفظ ✓', 'ok');
-        else state(r.mode === 'single' ? 'نسخة الملف الواحد: التعديل يظهر الآن فقط ولا يُحفظ' : 'غير محفوظ: اربط GitHub من لوحة التحكم (تبويب «النشر») على هذا الجهاز', 'err');
-      } catch (e) { state('خطأ في الحفظ: ' + e.message, 'err'); }
+        else state('محفوظ في هذا المتصفح فقط: اربط GitHub من لوحة التحكم (تبويب «النشر») لينشر', 'err');
+      } catch (e) { state('محفوظ في هذا المتصفح، وتعذّر النشر الآن: ' + e.message, 'err'); }
     });
+    return true;
+  }
+  // put a value back on screen where its text is shown (undo / redo of a text that is still there)
+  function show(op, value) { if (op.el?.isConnected) op.el.innerHTML = textHTML(value); }
+
+  function save(b, value) {
+    const op = { owner: b.owner, path: b.path, line: b.line, part: b.part, before: b.before ?? '', value, el: b.el };
+    if (commit(op)) { undo.push(op); redo.length = 0; paintHistory(); }
   }
 
-  // editing must never navigate: clicks on editable text stop here, and keys stay inside the text
+  // editing never navigates by a click: clicks on editable text stop here, and keys stay inside the text
   addEventListener('click', e => { if (on && e.target.closest?.('.ed-on')) e.stopPropagation(); }, true);
   // a stretched title (kashida) is edited as its plain words
   addEventListener('focusin', e => { const b = e.target._ed; if (!b) return; if (e.target.dataset.plain != null) e.target.innerHTML = textHTML(e.target.dataset.plain); b.before = readText(e.target); });
   addEventListener('keydown', e => {
-    const el = e.target; if (!el?._ed) return;
-    e.stopPropagation();
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); el.blur(); }
-    else if (e.key === 'Escape') { e.preventDefault(); el.innerHTML = textHTML(el._ed.before ?? ''); el._ed.cancel = true; el.blur(); }
+    const el = e.target;
+    if (el?._ed) {
+      e.stopPropagation();
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); el.blur(); }
+      else if (e.key === 'Escape') { e.preventDefault(); el.innerHTML = textHTML(el._ed.before ?? ''); el._ed.cancel = true; el.blur(); }
+      return; // inside a text, Ctrl+Z is the text's own undo
+    }
+    if (!on || el?.closest?.('input, textarea, select')) return;
+    const mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
+    if (mod && k === 'z') { e.preventDefault(); e.stopPropagation(); e.shiftKey ? api.redo() : api.undo(); }
+    else if (mod && k === 'y') { e.preventDefault(); e.stopPropagation(); api.redo(); }
   }, true);
+  // Ctrl+S saves a copy whether or not the editor is open
+  addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); document.activeElement?.blur?.(); actions.saveCopy?.(); } }, true);
   addEventListener('focusout', e => {
     const el = e.target, b = el?._ed; if (!b) return;
     if (b.cancel) { b.cancel = false; return; }
-    const value = readText(el).replace(/ /g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+    const value = readText(el).replace(/ /g, ' ').replace(/\n{3,}/g, '\n\n').trim();
     if (value === (b.before ?? '').trim()) return;
     if (!value) { el.innerHTML = textHTML(b.before || ''); state('النص لا يكون فارغاً — أُعيد كما كان', 'err'); return; }
     save(b, value);
   });
+  // closing the page with changes kept only in this browser: remind to save a copy (they stay in the browser anyway)
+  addEventListener('beforeunload', e => { if (SINGLE() && readLog().dirty) { e.preventDefault(); e.returnValue = ''; } });
 
-  return {
+  const api = {
     get on() { return on; },
     toggle(force) {
+      if (!(force ?? !on)) document.activeElement?.blur?.(); // a text being typed is kept before leaving
       on = force ?? !on;
       document.body.classList.toggle('is-editing', on); bar.hidden = !on;
       onToggle?.(on);
-      if (on) state(backendMode() === 'local' ? 'غير متصل: التعديل لن يُحفظ — اربط GitHub من لوحة التحكم' : '', backendMode() === 'local' ? 'err' : '');
-      else document.activeElement?.blur?.();
-      bind();
+      if (on) state(!SINGLE() && backendMode() === 'local' ? 'غير متصل: التعديل يُحفظ في هذا المتصفح فقط — اربط GitHub من لوحة التحكم' : '', !SINGLE() && backendMode() === 'local' ? 'err' : '');
+      paintHistory(); bind();
     },
     refresh: () => { if (on) bind(); },
+    undo() {
+      const op = undo.pop(); if (!op) return;
+      if (commit({ ...op, value: op.before })) { show(op, op.before); redo.push(op); state('تراجع ✓', 'ok'); } else undo.push(op);
+      paintHistory(); api.refresh();
+    },
+    redo() {
+      const op = redo.pop(); if (!op) return;
+      if (commit(op)) { show(op, op.value); undo.push(op); state('إعادة ✓', 'ok'); } else redo.push(op);
+      paintHistory(); api.refresh();
+    },
+    saved() { const l = readLog(); l.dirty = false; writeLog(l); state('حُفظت النسخة ✓', 'ok'); },
+    state,
   };
+  return api;
 }

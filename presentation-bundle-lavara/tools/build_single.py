@@ -5,7 +5,11 @@
 
 Requires Python 3 + Pillow, and esbuild (npx esbuild works). Output: dist/presentation-standalone.html
 Everything is embedded: content.json, CSS, GSAP, code, fonts in use, logos and images (resized).
-Videos are embedded only with --embed-video (otherwise video slides show their placeholder).
+Films are not carried inside: each is read by its file name from the folder the HTML sits in (put the .mp4 files
+next to it). A film that is not there can be picked from the device without leaving the show. --embed-video puts
+them inside instead (a much larger file).
+The file can save copies of itself with edits: its frame is kept as it opens (#bxl-cap), its content (#bxl-data) and
+its program (#bxl-app) are separate scripts.
 """
 import argparse, base64, io, json, os, re, subprocess, sys
 from PIL import Image
@@ -42,7 +46,9 @@ def data_uri(path):
     if a.embed_video and ext in ('.mp4', '.m4v', '.mov', '.webm'):
         mt = {'.webm': 'video/webm', '.mov': 'video/mp4'}.get(ext, 'video/mp4')  # .mov from phones is H.264 in practice
         return f'data:{mt};base64,' + base64.b64encode(rd(path, 'rb')).decode()
-    return None  # videos are dropped unless --embed-video
+    if ext in ('.mp4', '.m4v', '.mov', '.webm'):
+        return os.path.basename(path)  # read from the HTML's own folder
+    return None
 
 content = json.loads(rd('content.json'))
 # keep only the font families/weights in use (global + per-project overrides) + Medium for eyebrows
@@ -77,6 +83,7 @@ for d in ('js', 'js/core'):
         for m in re.findall(r"'(assets/[^']+\.(?:svg|png|jpe?g|webp))'", rd(os.path.join(d, fn))):
             if m not in code_assets and os.path.exists(os.path.join(ROOT, m)): code_assets[m] = data_uri(m)
 content['settings'].setdefault('motion', {})['textureScale'] = 0.4
+films = sorted({v for v in cache.values() if isinstance(v, str) and re.match(r'^[^/:]+\.(mp4|m4v|mov|webm)$', v, re.I)})
 
 js = subprocess.run(f'{a.esbuild} js/presentation.js --bundle --format=iife --minify --target=es2020', shell=True, cwd=ROOT, capture_output=True, text=True)
 if js.returncode: sys.exit(js.stderr)
@@ -85,11 +92,17 @@ gsap = rd('assets/vendor/gsap.min.js')
 html = rd('presentation.html')
 html = html.replace('<link rel="stylesheet" href="css/show.css">', f'<style>{css}</style>')
 html = html.replace('<script src="assets/vendor/gsap.min.js"></script>', f'<script>{gsap}</script>')
+import time
+CAPTURE = "window.__BXL_CAPTURE__=document.currentScript.textContent;window.__BXL_PRISTINE__=document.documentElement.outerHTML.split('<script id=\"bxl-cap\">')[0];"
+J = lambda v: json.dumps(v, ensure_ascii=False).replace('<', '\\u003c')
 html = html.replace('<script type="module" src="js/presentation.js"></script>',
-    '<script>window.__BXL_ASSETS__=' + json.dumps(code_assets) + ';window.__BXL_CONTENT__=' + json.dumps(content, ensure_ascii=False).replace('</', '<\\/') + ';</script>\n<script>' + js.stdout.replace('</script', '<\\/script') + '</script>')
+    '<script id="bxl-cap">' + CAPTURE + '</script>\n'
+    + '<script id="bxl-data">window.__BXL_BUILD__=' + J(format(int(time.time()), 'x')) + ';window.__BXL_ASSETS__=' + J(code_assets) + ';window.__BXL_CONTENT__=' + J(content) + ';</script>\n'
+    + '<script id="bxl-app">' + js.stdout.replace('</script', '<\\/script') + '</script>')
 html = html.replace('<meta name="viewport" content="width=device-width, initial-scale=1">',
     '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="theme-color" content="#15120F">')
 os.makedirs(os.path.join(ROOT, 'dist'), exist_ok=True)
 out = os.path.join(ROOT, a.out)
 with open(out, 'w') as f: f.write(html)
 print(out, f'{os.path.getsize(out) / 1e6:.1f} MB', 'fonts:', {k: sorted(v) for k, v in used.items()})
+if films and not a.embed_video: print('films to put next to it:', ', '.join(films))

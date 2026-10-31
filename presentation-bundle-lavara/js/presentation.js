@@ -4,7 +4,10 @@
 import { $, $$, esc, escBr, clamp, fmtClock, prefersReducedMotion, grainTexture, rgba, fixAspects, isDark, kTitle, TYPO, FREEZE, assetURL } from './core/util.js';
 import { projectsOf, sectionsOf, slidesOf, findProject, findSection, slideTheme, locate, isShared, sharedOf } from './core/model.js';
 import { loadContent, logDecision } from './core/store.js';
-import { createEditor, edAttr } from './core/editor.js';
+import { createEditor, edAttr, replayEdits, clearEditLog, editLog } from './core/editor.js';
+import { attachVideoBar } from './core/videobar.js';
+import { createDock, createOverview, createPresenter, toast } from './core/extras.js';
+import { saveCopy } from './core/savecopy.js';
 import { initZoom } from './core/zoom.js';
 import { createSync } from './core/sync.js';
 import { registerFonts, applyTypography, fontsReady } from './core/fonts.js';
@@ -259,11 +262,13 @@ function mountSlide(el, tpl, slide) {
     const mark = () => box?.classList.toggle('is-paused', v.paused);
     v.addEventListener('play', mark); v.addEventListener('pause', mark); mark();
     v.addEventListener('click', e => { e.stopPropagation(); toggleVideo(); });
+    attachVideoBar(v, v.closest('.t') || v.parentElement);
     if (vs.autoplay !== false && v.dataset.autoplay !== 'false') {
-      const tryPlay = () => v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
+      const tryPlay = () => { if (FREEZE.on) return; v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }); };
       v.readyState >= 2 ? tryPlay() : v.addEventListener('canplay', tryPlay, { once: true });
     }
   });
+  $$('.so-film video', el).forEach(v => attachVideoBar(v, v.closest('.so-film')));
   $$('[data-cycle]', el).forEach(box => {
     const items = $$('.cyc', box); if (items.length < 2) return;
     let i = 0; const ms = (parseFloat(box.dataset.cycle) || 3.5) * 1000;
@@ -1700,7 +1705,6 @@ const INSTANT = {
   reload: () => location.reload(),
 };
 function command(name, args = {}) {
-  if (FREEZE.on) return; // texts are being edited: the show stands still
   sound.unlock();
   if (INSTANT[name]) return INSTANT[name](args);
   const fn = ACTIONS[name]; if (!fn) return;
@@ -1747,6 +1751,7 @@ function nextInfo() {
   return { kind: 'end', label: '—' };
 }
 function broadcastState() {
+  if (presenter.on) presenter.update();
   if (!sync || PREVIEW) return;
   const p = project(), s = section();
   sync.send('state', { state: {
@@ -1840,7 +1845,16 @@ function previewShow(target = {}, animate = false) {
 function onKey(e) {
   if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
   if (e.code === 'KeyE' && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); editor.toggle(); return; } // any keyboard layout
-  if (FREEZE.on) { if (!/^(Tab|Shift|Control|Alt|Meta)$/.test(e.key)) e.preventDefault(); return; } // editing: no key moves the show
+  if (e.code === 'KeyG' && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); overview.open(); return; }
+  if (e.code === 'KeyW' && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); presenter.open(); return; }
+  if (FREEZE.on) { // editing: only the arrows move between slides; Esc leaves editing
+    const k = e.key;
+    if (k === 'ArrowLeft' || k === 'PageDown') { e.preventDefault(); command('next'); }
+    else if (k === 'ArrowRight' || k === 'PageUp') { e.preventDefault(); command('prev'); }
+    else if (k === 'Escape') { e.preventDefault(); editor.toggle(false); }
+    else if (!/^(Tab|Shift|Control|Alt|Meta)$/.test(k) && !e.ctrlKey && !e.metaKey) e.preventDefault();
+    return;
+  }
   sound.unlock();
   const k = e.key;
   if (k === 'ArrowLeft' || k === ' ' || k === 'PageDown' || k === 'Enter') { e.preventDefault(); command(e.shiftKey ? 'nextSection' : 'next'); }
@@ -1863,14 +1877,75 @@ function onKey(e) {
 // editing too (saving writes them into the slide)
 const stringDefaults = id => Object.fromEntries(Object.entries(TEMPLATES[id]?.defaults || {}).filter(([, v]) => typeof v === 'string' && v));
 
+/* ======================================================================= presenting extras */
+let dock = null;
+const overview = createOverview({ model: overviewModel, asset });
+const presenter = createPresenter({ snapshot: mirrorNow, info: presenterInfo, key: e => { if (!e.target.closest?.('input, textarea')) onKey(e); },
+  command: c => (c === 'black' ? setBlack(!S.black) : c === 'overview' ? overview.open() : c === 'resetTimer' ? INSTANT.resetTimer() : command(c)) });
+// every page of the show in order, for the overview: the start, each project (its page, then its slides), the end
+function overviewModel() {
+  const c = S.content, img = sl => slideMedia(sl).find(x => !/\.(mp4|webm|mov|m4v)$/i.test(x)) || '';
+  const start = { title: 'البداية', items: [{ label: 'شاشة الافتتاح', icon: '◎', current: S.level === 'universe', go: () => command('universe') }] };
+  if (hasReview()) start.items.push({ label: c.review.title || 'المراجعة', icon: '☰', current: S.level === 'review', go: () => S.level !== 'review' && command('review') });
+  if (hasSar()) start.items.push({ label: c.sar.title || 'سار', icon: '⟶', current: S.level === 'sar', go: () => S.level !== 'sar' && command('sar') });
+  const groups = [start];
+  for (const p of c.projects || []) {
+    const items = [{ label: p.nameAr || p.name, sub: 'صفحة المشروع', icon: '◇', current: S.level === 'hub' && S.pid === p.id, go: () => command('goto', { projectId: p.id }) }];
+    sectionsOf(p).forEach(sec => slidesOf(sec).forEach((sl, i) => items.push({
+      label: slideLabel(sl), sub: sec.title, image: img(sl), icon: sl.template === 'video' ? '▶' : '▢', n: String(items.length).padStart(2, '0'),
+      current: S.level === 'section' && S.pid === p.id && S.sid === sec.id && S.li === i, go: () => command('goto', { projectId: p.id, sectionId: sec.id, slideIndex: i }) })));
+    groups.push({ title: p.nameAr || p.name, items });
+  }
+  const end = { title: 'الختام', items: [] };
+  if (c.decision) end.items.push({ label: c.decision.title || 'الاعتماد', icon: '✓', current: S.level === 'decision', go: () => command('decision') });
+  if (c.closing) end.items.push({ label: 'الختام', icon: '◉', current: S.level === 'closing', go: () => command('closing') });
+  if (end.items.length) groups.push(end);
+  return groups;
+}
+function presenterInfo() {
+  const p = project(), s = section(), n = nextInfo();
+  const steps = S.level === 'section' ? stepsOf(S.slideTpl, S.slide) : 0;
+  const levelName = { universe: 'شاشة الافتتاح', review: 'المراجعة', sar: 'سار', decision: 'الاعتماد', closing: 'الختام' }[S.level];
+  return {
+    project: p ? (p.nameAr || p.name) : levelName || '', section: S.level === 'section' ? s?.title : S.level === 'hub' ? 'صفحة المشروع' : '',
+    pos: S.level === 'section' && s ? `${S.li + 1} / ${slidesOf(s).length}${steps ? ` · ${S.step + 1}/${steps + 1}` : ''}` : '',
+    title: S.level === 'section' ? slideLabel(S.slide) : levelName || (p?.nameAr || p?.name || ''),
+    notes: S.level === 'section' ? (S.slide?.notes || '') : '', black: S.black, startedAt: S.startedAt,
+    next: { label: n.label, section: n.section && n.section !== s?.title ? n.section : '', image: n.image ? asset(n.image) : '' },
+  };
+}
+// the page as it stands now, for the presenter window's live picture (films and the SAR file left out)
+function mirrorNow() {
+  const src = S.level === 'section' ? S.slideEl : S.level === 'hub' ? L.hub : S.level === 'universe' ? L.universe : L.special;
+  if (!src) return null;
+  const w = document.createElement('div');
+  for (const a of ['data-brand', 'data-style', 'class']) if (stage.getAttribute(a) != null) w.setAttribute(a, stage.getAttribute(a));
+  w.id = 'stage'; w.style.cssText = `${document.documentElement.style.cssText};${stage.style.cssText}`;
+  const c = src.cloneNode(true); c.style.transform = 'none'; c.style.opacity = '1';
+  c.querySelectorAll('video, iframe, canvas').forEach(m => m.replaceWith(Object.assign(document.createElement('div'), { className: 'x-mirror-media' })));
+  c.querySelectorAll('.vb, .vb-missing').forEach(m => m.remove());
+  w.append(c); return w;
+}
+async function saveCopyNow() {
+  try {
+    const name = await saveCopy(S.content); if (!name) return;
+    editor.saved?.(); toast(`حُفظت نسخة: ${name}`, 5000);
+  } catch (e) { toast('تعذّر حفظ النسخة: ' + e.message, 6000); }
+}
+function discardEdits() {
+  const n = editLog().ops.length;
+  if (!n) return toast('لا تعديلات غير محفوظة');
+  if (!confirm(`إلغاء ${n} تعديل لم يُحفظ في نسخة، والعودة إلى نص الملف كما هو؟`)) return;
+  clearEditLog(); location.reload();
+}
+
 /* ======================================================================= freeze while editing */
-// Key E: the show stands still so a text can be clicked and typed into. No key, click, scroll, swipe or remote
-// moves it; the camera and every running animation pause where they are, the textures hold, films pause; all of it
-// carries on from the same point when E is pressed again.
+// Key E: the show holds still so a text can be clicked and typed into: no click, scroll or swipe moves it, the textures
+// hold, films pause and the automatic sequences wait. The arrows (and the editing bar's buttons, the overview) still go
+// from slide to slide, and editing carries on there; all of it resumes when E is pressed again.
 function freeze(on) {
   FREEZE.on = on; BrandTexture.frozen = on;
-  if (on) gsap.globalTimeline.pause(); else gsap.globalTimeline.resume();
-  document.body.classList.toggle('is-frozen', on);
+  document.body.classList.toggle('is-frozen', on); dock?.refresh();
   $$('video').forEach(v => {
     if (on) { if (!v.paused) { v.dataset.frozen = '1'; v.pause(); } }
     else if (v.dataset.frozen) { delete v.dataset.frozen; v.play().catch(() => {}); }
@@ -1878,7 +1953,8 @@ function freeze(on) {
   $$('iframe').forEach(f => { try { f.contentDocument?.querySelectorAll('video').forEach(v => (on ? v.pause() : null)); } catch {} });
 }
 // clicks while editing reach only the texts and the editing bar; nothing else (stations, worlds, taps) acts on them
-addEventListener('click', e => { if (FREEZE.on && !e.target.closest?.('.ed-on, .ed-bar')) { e.stopPropagation(); e.preventDefault(); } }, true);
+// (only a person's clicks: the page's own — a download, a file picker — go through)
+addEventListener('click', e => { if (FREEZE.on && e.isTrusted && !e.target.closest?.('.ed-on, .ed-bar, .x-dock, .x-ov, .vb, .vb-missing, .x-toast')) { e.stopPropagation(); e.preventDefault(); } }, true);
 
 /* ======================================================================= touch (phones / tablets) */
 // Swipe right = next (RTL: the next slide enters from the left), swipe left = previous, swipe down = zoom out.
@@ -1904,6 +1980,7 @@ async function boot() {
   fit(); grainTexture();
   let c;
   try { c = await loadContent(); } catch (e) { $('#boot').innerHTML = `<p>${esc(e.message)}</p>`; return; }
+  const restored = PREVIEW ? 0 : replayEdits(c); // edits kept in this browser (never lost on closing or a crash)
   veil = new BrandTexture($('#veil'), { resScale: c.settings?.motion?.textureScale || 0.5 });
   applyContent(c, { keep: false });
   await fontsReady(c);
@@ -1914,6 +1991,7 @@ async function boot() {
   if (!PREVIEW) editor = createEditor({
     content: () => S.content,
     onToggle: freeze,
+    actions: { prev: () => command('prev'), next: () => command('next'), overview: () => overview.open(), saveCopy: saveCopyNow, discard: discardEdits },
     views: () => [{ root: L.hub }, { root: L.universe }, S.slideEl && S.slide ? { root: S.slideEl, owner: { kind: 'slide', id: S.slide.id }, data: { ...stringDefaults(S.slide.template), ...S.slide.data } } : null,
       // the pages outside the projects: the review, the approvals and the closing
       // (the SAR file is shown as it is: its words are never edited here)
@@ -1948,6 +2026,8 @@ async function boot() {
   }, { passive: true });
   addEventListener('pointerdown', () => sound.unlock());
   setupTouch();
+  dock = createDock({ onEdit: () => editor.toggle(), onOverview: () => overview.open(), onPresenter: () => presenter.open(), isEditing: () => FREEZE.on });
+  if (restored) toast(window.__BXL_CONTENT__ ? `استُعيد ${restored} تعديل محفوظ في هذا المتصفح — «حفظ نسخة» يكتبها في ملف` : `${restored} تعديل لم يُنشر بعد محفوظ في هذا المتصفح`, 7000);
 
   // start position
   const start = c.settings?.startAt;

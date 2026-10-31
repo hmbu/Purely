@@ -64,7 +64,7 @@ async function videosToBlobs(o) {
   if (o.__blobbed) return; o.__blobbed = true;
   const jobs = [];
   const walk = (v, set) => {
-    if (typeof v === 'string' && v.startsWith('data:video/')) jobs.push(fetch(v).then(r => r.blob()).then(b => set(URL.createObjectURL(b))).catch(() => {}));
+    if (typeof v === 'string' && v.startsWith('data:video/')) jobs.push(fetch(v).then(r => r.blob()).then(b => { const u = URL.createObjectURL(b); (window.__BXL_BLOBSRC__ ||= {})[u] = v; set(u); }).catch(() => {})); // a saved copy writes the film back
     else if (Array.isArray(v)) v.forEach((x, i) => walk(x, y => { v[i] = y; }));
     else if (v && typeof v === 'object') Object.keys(v).forEach(k => walk(v[k], y => { v[k] = y; }));
   };

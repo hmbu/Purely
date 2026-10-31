@@ -74,7 +74,12 @@ export function kashida(s) {
 // a stretched title, carrying its plain words for the in-place editor
 export const kTitle = s => { const k = kashida(s); return { html: escBr(k), attr: k !== (s ?? '') ? ` data-plain="${esc(s)}"` : '' }; };
 // an asset's address; the single-file build carries the images named in the code itself in window.__BXL_ASSETS__
-export const assetURL = p => (p ? window.__BXL_ASSETS__?.[p] || new URL(p, location.href).href : '');
+export const assetURL = p => {
+  if (!p) return '';
+  const own = window.__BXL_ASSETS__?.[p]; if (own) return own;
+  const picked = window.__BXL_PICKED__?.[String(p).split('/').pop()]; if (picked) return picked; // a film chosen from the device
+  return new URL(p, location.href).href;
+};
 export const isVideo = src => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(src || '') || /^data:video\//.test(src || '');
 
 // While texts are being edited (key E) the show stands still: no camera, no automatic sequence moves on.
