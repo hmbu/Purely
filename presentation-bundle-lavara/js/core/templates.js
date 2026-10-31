@@ -304,6 +304,7 @@ TEMPLATES.legal = {
     { key: 'rimSub', type: 'text', label: 'دور رمثان' },
     { key: 'services', type: 'text', label: 'سهم الخدمات' }, { key: 'fees', type: 'text', label: 'العقد: سهم الأتعاب' },
     { key: 'own', type: 'text', label: 'سهم الملكية' }, { key: 'guarantee', type: 'text', label: 'سهم الضمان (العقد: من الماجد للكيانين · الهيكل: من الماجد لرمثان)' },
+    { key: 'payments', type: 'text', label: 'الهيكل: سهم سداد الفواتير (من الكيانين لرمثان)' },
     { key: 'proposed', type: 'toggle', label: 'العقد: نقرة تُظهر الوضع المقترح (وإلا يأتي الهيكل المقترح بعده مباشرة)' }],
   defaults: { title: 'ما الذي يتغير في العقد', layout: 'contract', nowLabel: 'الوضع الحالي', nextLabel: 'الوضع المقترح', majedNow: 'العميل والملتزم بالسداد',
     majedNext: 'تملك الكيانين وتموّلهما، وتضمن سداد مستحقات رمثان', entTitle: 'كيانان منفصلان', entSub: 'العميل والملتزم بالسداد', majedSub: 'تملك الكيانين وتموّلهما',
@@ -334,12 +335,14 @@ TEMPLATES.legal = {
         ${ent(ps[0], 'is-r')}${ent(ps[1], 'is-l')}
         <div class="lg-card lg-bottom is-rim" style="--rule:${LG_C.svc}">${lgLogo('rimthan', ctx, 3.4)}<span class="lg-sub">${esc(d.rimSub || '')}</span></div>
         <svg class="lg-svg" viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true">
-          ${lgArrow(105, 35.2, 105, 45.4, LG_C.own, { from: 1 })}${lgArrow(55, 35.2, 55, 45.4, LG_C.own, { from: 1 })}
-          ${lgArrow(105, 69.8, 105, 60.2, LG_C.svc, { from: 2, dashed: true })}${lgArrow(55, 69.8, 55, 60.2, LG_C.svc, { from: 2, dashed: true })}
+          ${lgArrow(105, 35.2, 105, 45.4, LG_C.fee, { from: 1 })}${lgArrow(55, 35.2, 55, 45.4, LG_C.fee, { from: 1 })}
+          ${lgArrow(108, 69.8, 108, 60.2, LG_C.fee, { from: 2 })}${lgArrow(52, 69.8, 52, 60.2, LG_C.fee, { from: 2 })}
+          ${d.payments ? lgArrow(102, 60.2, 102, 69.8, LG_C.fee, { from: 2 }) + lgArrow(58, 60.2, 58, 69.8, LG_C.fee, { from: 2 }) : ''}
           ${d.guarantee ? lgArrow(80, 35.2, 80, 69.8, LG_C.own, { from: 2, dashed: true }) : ''}
         </svg>
-        ${lgLabel(106.5, 40.3, d.own, LG_C.own, 'data-from="1" data-side="r"')}${lgLabel(53.5, 40.3, d.own, LG_C.own, 'data-from="1" data-side="l"')}
-        ${lgLabel(106.5, 65, d.services, LG_C.svc, 'data-from="2" data-side="r"')}${lgLabel(53.5, 65, d.services, LG_C.svc, 'data-from="2" data-side="l"')}
+        ${lgLabel(106.5, 40.3, d.own, LG_C.fee, 'data-from="1" data-side="r"')}${lgLabel(53.5, 40.3, d.own, LG_C.fee, 'data-from="1" data-side="l"')}
+        ${lgLabel(109.5, 65, d.services, LG_C.fee, 'data-from="2" data-side="r"')}${lgLabel(50.5, 65, d.services, LG_C.fee, 'data-from="2" data-side="l"')}
+        ${lgLabel(100.5, 65, d.payments, LG_C.fee, 'data-from="2" data-side="l"')}${lgLabel(59.5, 65, d.payments, LG_C.fee, 'data-from="2" data-side="r"')}
         ${lgLabel(80, 40.3, d.guarantee, LG_C.own, 'data-from="2"')}
       </div>`;
     }
