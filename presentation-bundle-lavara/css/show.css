@@ -2178,3 +2178,10 @@ body.is-frozen *, body.is-frozen *::before, body.is-frozen *::after { animation-
 .vb-missing .vb-hint { font-size: 1.5rem; opacity: .7; }
 .vb-missing .vb-pick { all: unset; cursor: pointer; justify-self: center; margin-top: 1rem; padding: 1.1rem 2.6rem; border-radius: 10rem; background: #B08A4E; color: #15130F; font-weight: 600; }
 .x-mirror-media { position: absolute; inset: 0; background: #0E0C0A; }
+/* legal: the structure starts where the contract slide now ends — today's arrangement, Al Majed and Rimthan side by
+   side — and moves them into the structure (Al Majed up, Rimthan down) */
+.is-structure .lg-top { right: 15rem; left: 93.5rem; top: 32rem; height: 23rem; }
+.is-structure .lg-bottom { left: 15rem; right: 93.5rem; top: 32rem; height: 23rem; }
+.is-structure.is-play .lg-top { right: 35rem; left: 35rem; top: 21rem; height: 14.2rem; }
+.is-structure.is-play .lg-bottom { right: 35rem; left: 35rem; top: 69.8rem; height: 13rem; }
+.t-legal .lg-lb[data-side="r"] { transform: translate(100%, -50%); } /* on the outer side of its arrow, so the middle stays clear for the guarantee */

@@ -303,13 +303,15 @@ TEMPLATES.legal = {
     { key: 'majedSub', type: 'text', label: 'الهيكل: دور الماجد' },
     { key: 'rimSub', type: 'text', label: 'دور رمثان' },
     { key: 'services', type: 'text', label: 'سهم الخدمات' }, { key: 'fees', type: 'text', label: 'العقد: سهم الأتعاب' },
-    { key: 'own', type: 'text', label: 'سهم الملكية' }, { key: 'guarantee', type: 'text', label: 'العقد: سهم ضمان السداد' }],
+    { key: 'own', type: 'text', label: 'سهم الملكية' }, { key: 'guarantee', type: 'text', label: 'سهم الضمان (العقد: من الماجد للكيانين · الهيكل: من الماجد لرمثان)' },
+    { key: 'proposed', type: 'toggle', label: 'العقد: نقرة تُظهر الوضع المقترح (وإلا يأتي الهيكل المقترح بعده مباشرة)' }],
   defaults: { title: 'ما الذي يتغير في العقد', layout: 'contract', nowLabel: 'الوضع الحالي', nextLabel: 'الوضع المقترح', majedNow: 'العميل والملتزم بالسداد',
     majedNext: 'تملك الكيانين وتموّلهما، وتضمن سداد مستحقات رمثان', entTitle: 'كيانان منفصلان', entSub: 'العميل والملتزم بالسداد', majedSub: 'تملك الكيانين وتموّلهما',
     rimSub: 'البناء والتشغيل', services: 'الخدمات', fees: 'الأتعاب', own: 'ملكية 100%', guarantee: 'ضمان السداد' },
   // the structure plays by itself, no presses: Al Majed and Rimthan move smoothly from where the contract slide left
-  // them into their places (neither card fades in with the slide: both stay put through the change), then the two projects' cards and the arrows follow
-  steps: d => (d.layout === 'structure' ? 0 : 1),
+  // them (today's arrangement, side by side) into their places (neither card fades in with the slide: both stay put
+  // through the change), then the two projects' cards and the arrows follow, the guarantee last
+  steps: d => (d.layout !== 'structure' && d.proposed ? 1 : 0),
   applyStep: (el, step) => {
     const root = el.querySelector('.t-legal'); if (!root) return;
     if (root.classList.contains('is-structure')) {
@@ -334,9 +336,11 @@ TEMPLATES.legal = {
         <svg class="lg-svg" viewBox="0 0 160 90" preserveAspectRatio="none" aria-hidden="true">
           ${lgArrow(105, 35.2, 105, 45.4, LG_C.own, { from: 1 })}${lgArrow(55, 35.2, 55, 45.4, LG_C.own, { from: 1 })}
           ${lgArrow(105, 69.8, 105, 60.2, LG_C.svc, { from: 2, dashed: true })}${lgArrow(55, 69.8, 55, 60.2, LG_C.svc, { from: 2, dashed: true })}
+          ${d.guarantee ? lgArrow(80, 35.2, 80, 69.8, LG_C.own, { from: 2, dashed: true }) : ''}
         </svg>
-        ${lgLabel(103.5, 40.3, d.own, LG_C.own, 'data-from="1" data-side="l"')}${lgLabel(53.5, 40.3, d.own, LG_C.own, 'data-from="1" data-side="l"')}
-        ${lgLabel(103.5, 65, d.services, LG_C.svc, 'data-from="2" data-side="l"')}${lgLabel(53.5, 65, d.services, LG_C.svc, 'data-from="2" data-side="l"')}
+        ${lgLabel(106.5, 40.3, d.own, LG_C.own, 'data-from="1" data-side="r"')}${lgLabel(53.5, 40.3, d.own, LG_C.own, 'data-from="1" data-side="l"')}
+        ${lgLabel(106.5, 65, d.services, LG_C.svc, 'data-from="2" data-side="r"')}${lgLabel(53.5, 65, d.services, LG_C.svc, 'data-from="2" data-side="l"')}
+        ${lgLabel(80, 40.3, d.guarantee, LG_C.own, 'data-from="2"')}
       </div>`;
     }
     return `
