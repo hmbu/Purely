@@ -1236,38 +1236,6 @@
               }
             },
             {
-              "id": "sl-lp-perfumes",
-              "template": "compare",
-              "transition": "drift",
-              "bg": "auto",
-              "notes": "",
-              "hidden": false,
-              "data": {
-                "eyebrow": "",
-                "title": "العطور",
-                "lead": "",
-                "proLabel": "ميزة",
-                "conLabel": "تحدٍّ",
-                "options": [
-                  {
-                    "title": "عطور الماجد",
-                    "sub": "",
-                    "points": "متوافق استراتيجياً\nيرفع المبيعات\n- الإنتاج يحتاج لوقت أطول\n- السعر مرتفع",
-                    "featured": false
-                  },
-                  {
-                    "title": "عطور لافارا",
-                    "sub": "",
-                    "points": "خيارات أكثر\nالسعر متوسط\nالإنتاج بشكل أسرع\n- لا يتكامل مع بورتفوليو الماجد",
-                    "featured": false
-                  }
-                ],
-                "discuss": "للنقاش: العطور / الزيوت العطرية",
-                "discussOptions": "عطور الماجد فقط · عطور لافارا فقط · العطران معاً",
-                "layout": "offer"
-              }
-            },
-            {
               "id": "sl-lp-ops",
               "template": "stats",
               "transition": "drift",
@@ -1300,6 +1268,38 @@
                     "note": ""
                   }
                 ]
+              }
+            },
+            {
+              "id": "sl-lp-perfumes",
+              "template": "compare",
+              "transition": "drift",
+              "bg": "auto",
+              "notes": "",
+              "hidden": false,
+              "data": {
+                "eyebrow": "",
+                "title": "العطور",
+                "lead": "",
+                "proLabel": "ميزة",
+                "conLabel": "تحدٍّ",
+                "options": [
+                  {
+                    "title": "عطور الماجد",
+                    "sub": "",
+                    "points": "متوافق استراتيجياً\nيرفع المبيعات\n- الإنتاج يحتاج لوقت أطول\n- السعر مرتفع",
+                    "featured": false
+                  },
+                  {
+                    "title": "عطور لافارا",
+                    "sub": "",
+                    "points": "خيارات أكثر\nالسعر متوسط\nالإنتاج بشكل أسرع\n- لا يتكامل مع بورتفوليو الماجد",
+                    "featured": false
+                  }
+                ],
+                "discuss": "للنقاش: العطور / الزيوت العطرية",
+                "discussOptions": "عطور الماجد فقط · عطور لافارا فقط · العطران معاً",
+                "layout": "offer"
               }
             }
           ],
